@@ -74,7 +74,7 @@
             color: var(--blanco-puro);
             border-radius: var(--radius-soft);
             transition: all 0.3s ease;
-            min-height: 48px; /* 7. Dimensiones Mínimas */
+            min-height: 48px;
             padding: 0 12px;
         }
         .input-dark::placeholder { color: rgba(224, 224, 224, 0.3); }
@@ -120,11 +120,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
         .btn-secondary:hover {
             background-color: rgba(0, 229, 255, 0.1);
             box-shadow: var(--shadow-turquesaHover);
             transform: translateY(-2px);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         /* 6. Animaciones */
@@ -136,14 +143,14 @@
             animation: scaleIn 0.4s ease-out forwards;
         }
 
-        /* Vista Previa de la vCard (Mantiene fondo claro/editable por el cliente) */
+        /* Vista Previa de la vCard */
         .vcard-preview {
             background-color: #ffffff;
             color: #1f2937;
             transition: all 0.3s ease;
             position: relative;
             border-radius: var(--radius-large);
-            box-shadow: 0 0 20px rgba(0,0,0,0.8); /* Fuerte contraste contra el fondo negro */
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
         
         .accent-stripe {
@@ -154,50 +161,70 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Logotipo esquina (Marca de Agua) */
+        /* Logotipo oficial tsolutions ipidd (Hexágono) - Header */
         .tsolutions-logo {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 44px;
-            height: 50px;
+            width: 52px;
+            height: 60px;
             background-color: var(--midnight-panel);
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
-            box-shadow: var(--shadow-turquesaSoft);
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.3));
         }
         .tsolutions-triangle {
             width: 0;
             height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 17px solid var(--naranja-energy);
-            margin-top: 2px;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 20px solid var(--naranja-energy);
+            margin-top: 3px;
         }
 
         .empty-hidden:empty { display: none !important; }
         
-        /* Custom scrollbar para los paneles dark */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--negro-profundo); }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--naranja-energy); }
+        
+        /* Slider de compresión */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: var(--aqua-turquesa);
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: var(--shadow-turquesaSoft);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #333;
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col">
-    <!-- Header Minimalista Cyberpunk -->
-    <header class="mb-8 max-w-[1920px] mx-auto w-full animate-scaleIn">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full border-2 border-[var(--aqua-turquesa)] flex items-center justify-center shadow-[var(--shadow-turquesaSoft)]">
-                <svg class="w-6 h-6 text-[var(--aqua-turquesa)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-            </div>
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bruno text-white tracking-wide">TSOLUTIONS <span class="text-naranja">VCARD</span> ENGINE</h1>
-                <p class="text-humo text-sm mt-1">Generador de identidad digital con optimización WebP.</p>
-            </div>
+    
+    <!-- Header Minimalista Cyberpunk con Logo a la derecha -->
+    <header class="mb-8 max-w-[1920px] mx-auto w-full animate-scaleIn flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bruno text-white tracking-wide">TSOLUTIONS <span class="text-naranja">VCARD</span> ENGINE</h1>
+            <p class="text-humo text-sm mt-1">Generador de identidad digital con optimización WebP algorítmica.</p>
+        </div>
+        
+        <!-- Logo Oficial Tsolutions desplazado al Header (Derecha) -->
+        <div class="tsolutions-logo hidden sm:flex shrink-0" title="tsolutions ipidd">
+            <div class="tsolutions-triangle"></div>
         </div>
     </header>
 
@@ -211,14 +238,26 @@
             
             <form id="vcard-form" class="space-y-5">
                 
-                <!-- Foto de Perfil / Logo -->
-                <div class="bg-[#12121c] p-4 rounded-[var(--radius-soft)] border border-gray-800">
-                    <label class="block text-sm font-bruno text-blanco-puro mb-2">Logo o Foto (Se optimizará a WebP 200x200px)</label>
-                    <input type="file" id="foto" accept="image/*" class="w-full text-sm text-humo file:mr-4 file:py-2 file:px-4 file:rounded-[var(--radius-soft)] file:border-0 file:text-sm file:font-semibold file:bg-[var(--naranja-energy)] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer">
-                    <p class="text-xs text-aqua mt-2 flex items-center gap-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        Compresión algorítmica activa para chips NTAG.
-                    </p>
+                <!-- Foto de Perfil / Logo con Ajuste de Compresión -->
+                <div class="bg-[#12121c] p-5 rounded-[var(--radius-soft)] border border-gray-800 shadow-[var(--shadow-card)]">
+                    <label class="block text-sm font-bruno text-blanco-puro mb-2">Logo o Foto (Se convertirá a WebP)</label>
+                    <input type="file" id="foto" accept="image/png, image/jpeg, image/jpg, image/webp" class="w-full text-sm text-humo file:mr-4 file:py-2 file:px-4 file:rounded-[var(--radius-soft)] file:border-0 file:text-sm file:font-semibold file:bg-[var(--naranja-energy)] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer mb-4">
+                    
+                    <div id="compression-container" class="opacity-50 pointer-events-none transition-opacity duration-300">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-bruno text-aqua uppercase">Nivel de Compresión WebP</label>
+                            <span id="compression-value" class="text-xs font-bold text-blanco-puro">Media (40%)</span>
+                        </div>
+                        <input type="range" id="compression-slider" min="0.1" max="1.0" step="0.1" value="0.4">
+                        <div class="flex justify-between text-[10px] text-gray-500 mt-1 uppercase tracking-wide">
+                            <span>Máxima compresión (Menos Bytes)</span>
+                            <span>Alta Calidad (OVERLOAD)</span>
+                        </div>
+                        <p class="text-xs text-humo mt-3 flex items-start gap-2">
+                            <svg class="w-4 h-4 text-[var(--naranja-energy)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span>Usa el slider para ajustar el peso dinámicamente si la telemetría te marca "OVERLOAD".</span>
+                        </p>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -333,15 +372,11 @@
         <!-- SECCIÓN 2: VISTA PREVIA Y ANÁLISIS -->
         <section class="w-full lg:w-1/2 flex flex-col gap-6 animate-scaleIn" style="animation-delay: 0.2s;">
             
-            <!-- Tarjeta de vista previa Minimalista -->
+            <!-- Tarjeta de vista previa Minimalista (SIN MARCA DE AGUA) -->
             <div class="p-8 md:p-12 vcard-preview flex flex-col justify-center min-h-[400px]" id="preview-container">
-                <!-- Marca Tsolutions -->
-                <div class="tsolutions-logo" title="tsolutions ipidd">
-                    <div class="tsolutions-triangle"></div>
-                </div>
                 
                 <div class="text-center mt-2 mb-8">
-                    <!-- Logo sin círculo -->
+                    <!-- Logo / Foto del Cliente -->
                     <div id="preview-logo-container" class="mx-auto flex items-center justify-center mb-5 min-h-[80px]">
                         <img id="preview-logo-img" src="" class="max-w-[140px] max-h-[140px] object-contain hidden" alt="Logo">
                         <span id="logo-text" class="text-gray-300 font-medium text-sm tracking-widest uppercase border border-dashed border-gray-300 p-4 rounded-md">LOGO / FOTO</span>
@@ -392,7 +427,7 @@
                             </div>
                         </div>
 
-                        <div class="p-4 rounded-[var(--radius-soft)] bg-[#12121c] border border-gray-800">
+                        <div class="p-4 rounded-[var(--radius-soft)] bg-[#12121c] border border-gray-800 transition-colors duration-300" id="chip-box">
                             <p class="text-xs font-bruno text-humo mb-2 uppercase tracking-wider">Chip Sugerido</p>
                             <p id="chip-recommendation" class="text-xl font-bruno text-[var(--naranja-energy)] drop-shadow-[var(--shadow-glowEnergy)]">NTAG213</p>
                             <p id="chip-detail" class="text-xs text-humo mt-1 opacity-80">Capacidad: 144 bytes</p>
@@ -447,67 +482,106 @@
         const sizeBytes = document.getElementById('size-bytes');
         const chipRecommendation = document.getElementById('chip-recommendation');
         const chipDetail = document.getElementById('chip-detail');
+        const chipBox = document.getElementById('chip-box');
+        
         const downloadVcfBtn = document.getElementById('download-vcf-btn');
         const downloadQrBtn = document.getElementById('download-qr-btn');
+        
         const fotoInput = document.getElementById('foto');
+        const compressionSlider = document.getElementById('compression-slider');
+        const compressionValue = document.getElementById('compression-value');
+        const compressionContainer = document.getElementById('compression-container');
 
         let currentVCardString = '';
         let base64Photo = '';
+        let currentImageObj = null; // Almacena la imagen original en memoria
 
-        // Convierte a WebP y reduce calidad a 0.4 para 200x200
-        function redimensionarAWebP(file, max_size, callback) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    let canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    if (width > height) {
-                        if (width > max_size) {
-                            height *= max_size / width;
-                            width = max_size;
-                        }
-                    } else {
-                        if (height > max_size) {
-                            width *= max_size / height;
-                            height = max_size;
-                        }
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(0, 0, width, height);
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const dataUrl = canvas.toDataURL('image/webp', 0.4); 
-                    callback(dataUrl);
+        // Procesa la imagen almacenada en 'currentImageObj' usando el valor actual del slider
+        function applyWebPCompression() {
+            if (!currentImageObj) return;
+            
+            const quality = parseFloat(compressionSlider.value);
+            const max_size = 200;
+            
+            let canvas = document.createElement('canvas');
+            let width = currentImageObj.width;
+            let height = currentImageObj.height;
+            
+            if (width > height) {
+                if (width > max_size) {
+                    height *= max_size / width;
+                    width = max_size;
                 }
-                img.src = e.target.result;
+            } else {
+                if (height > max_size) {
+                    width *= max_size / height;
+                    height = max_size;
+                }
             }
-            reader.readAsDataURL(file);
+            
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            // Fondo blanco para eliminar transparencias
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(currentImageObj, 0, 0, width, height);
+            
+            // Convertir a WebP con la calidad dinámica del slider
+            const dataUrl = canvas.toDataURL('image/webp', quality); 
+            
+            base64Photo = dataUrl.split(',')[1];
+            previewLogoImg.src = dataUrl;
+            
+            updateVCard();
         }
 
+        // Carga el archivo en memoria y dispara la primera compresión
         fotoInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                redimensionarAWebP(file, 200, (dataUrl) => {
-                    base64Photo = dataUrl.split(',')[1];
-                    previewLogoImg.src = dataUrl;
-                    previewLogoImg.classList.remove('hidden');
-                    logoText.style.display = 'none';
-                    updateVCard();
-                });
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = new Image();
+                    img.onload = function() {
+                        currentImageObj = img;
+                        previewLogoImg.classList.remove('hidden');
+                        logoText.style.display = 'none';
+                        
+                        // Habilitar el slider de compresión
+                        compressionContainer.classList.remove('opacity-50', 'pointer-events-none');
+                        
+                        applyWebPCompression();
+                    }
+                    img.src = evt.target.result;
+                }
+                reader.readAsDataURL(file);
             } else {
+                currentImageObj = null;
                 base64Photo = '';
                 previewLogoImg.src = '';
                 previewLogoImg.classList.add('hidden');
                 logoText.style.display = 'block';
+                
+                // Deshabilitar el slider
+                compressionContainer.classList.add('opacity-50', 'pointer-events-none');
+                
                 updateVCard();
+            }
+        });
+
+        // Escuchar cambios en el slider
+        compressionSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            if (val <= 0.2) compressionValue.textContent = "Extrema (" + Math.round(val*100) + "%)";
+            else if (val <= 0.5) compressionValue.textContent = "Media (" + Math.round(val*100) + "%)";
+            else if (val <= 0.8) compressionValue.textContent = "Baja (" + Math.round(val*100) + "%)";
+            else compressionValue.textContent = "Ninguna (" + Math.round(val*100) + "%)";
+            
+            // Re-comprimir en tiempo real si hay una imagen cargada
+            if (currentImageObj) {
+                applyWebPCompression();
             }
         });
 
@@ -612,27 +686,35 @@
             const colorDorado = '#FFD700';
             const colorRojo = '#EF4444';
 
+            // Reset borders
+            chipBox.style.borderColor = '#1f2937';
+            downloadQrBtn.disabled = false;
+
             // Recomendación NFC
             if (bytes <= 144) {
                 chipRecommendation.textContent = 'NTAG213';
                 chipRecommendation.style.color = colorTurquesa;
                 chipRecommendation.style.textShadow = '0 0 10px rgba(0, 229, 255, 0.4)';
                 chipDetail.textContent = 'Capacidad óptima (144 bytes)';
+                chipBox.style.borderColor = colorTurquesa;
             } else if (bytes <= 504) {
                 chipRecommendation.textContent = 'NTAG215';
                 chipRecommendation.style.color = colorDorado;
                 chipRecommendation.style.textShadow = '0 0 10px rgba(255, 215, 0, 0.4)';
                 chipDetail.textContent = 'Requiere capacidad media (504 bytes)';
+                chipBox.style.borderColor = colorDorado;
             } else if (bytes <= 888) {
                 chipRecommendation.textContent = 'NTAG216';
                 chipRecommendation.style.color = colorNaranja;
                 chipRecommendation.style.textShadow = '0 0 10px rgba(249, 115, 22, 0.4)';
                 chipDetail.textContent = 'Requiere alta capacidad (888 bytes)';
+                chipBox.style.borderColor = colorNaranja;
             } else {
                 chipRecommendation.textContent = 'OVERLOAD';
                 chipRecommendation.style.color = colorRojo;
                 chipRecommendation.style.textShadow = '0 0 10px rgba(239, 68, 68, 0.6)';
                 chipDetail.textContent = 'Advertencia: >888B. Comprime más el logo.';
+                chipBox.style.borderColor = colorRojo;
             }
 
             // QR Code
@@ -650,10 +732,14 @@
                 });
             } else {
                 qrContainer.innerHTML = '<p class="text-xs text-center text-red-500 font-bold max-w-[130px]">PAYLOAD EXCEDIDO PARA QR MATRIX.</p>';
+                downloadQrBtn.disabled = true;
             }
         }
 
-        form.addEventListener('input', updateVCard);
+        // Solo repintar en input form (el slider tiene su propio listener)
+        document.querySelectorAll('#vcard-form input:not(#foto):not(#compression-slider), #vcard-form textarea, #vcard-form select').forEach(el => {
+            el.addEventListener('input', updateVCard);
+        });
         
         downloadVcfBtn.addEventListener('click', () => {
             const blob = new Blob([currentVCardString], { type: 'text/vcard;charset=utf-8' });
@@ -674,6 +760,8 @@
         });
 
         downloadQrBtn.addEventListener('click', () => {
+            if (downloadQrBtn.disabled) return;
+            
             const qrContainer = document.getElementById('qrcode');
             const canvas = qrContainer.querySelector('canvas');
             if (canvas) {
