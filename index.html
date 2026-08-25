@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vCard Builder - tsolutions ipidd</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .vcard-preview {
+            background-color: #ffffff;
+            color: #1f2937;
+            transition: all 0.3s ease;
+        }
+        
+        /* Logotipo tsolutions ipidd */
+        .tsolutions-logo {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 44px;
+            height: 50px;
+            background-color: #1f2937;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        .tsolutions-triangle {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 17px solid #f97316;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col">
+    <header class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Constructor de vCard NFC</h1>
+        <p class="text-gray-600">Generador de identidad digital, códigos QR, fotos de perfil y análisis de almacenamiento NTAG.</p>
+    </header>
+
+    <main class="flex-1 flex flex-col lg:flex-row gap-8">
+        <!-- SECCIÓN 1: FORMULARIO -->
+        <section class="w-full lg:w-1/2 bg-white p-6 rounded-xl shadow-md overflow-y-auto">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2">Información del Cliente</h2>
+            <form id="vcard-form" class="space-y-4">
+                
+                <!-- Foto de Perfil -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Foto de Perfil / Logo (Recomendado 200x200px)</label>
+                    <input type="file" id="foto" accept="image/jpeg, image/png, image/webp" class="mt-1 w-full p-2 border rounded-md text-sm">
+                    <p class="text-xs text-gray-500 mt-1">Añadir foto aumentará considerablemente el tamaño en bytes de la vCard.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Nombre</label>
+                        <input type="text" id="nombre" class="mt-1 w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Ej. Juan">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Apellido</label>
+                        <input type="text" id="apellido" class="mt-1 w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Ej. Pérez">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nombre de la Empresa o Negocio</label>
+                    <input type="text" id="empresa" class="mt-1 w-full p-2 border rounded-md" placeholder="Tsolutions">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Puesto / Especialidad</label>
+                    <input type="text" id="puesto" class="mt-1 w-full p-2 border rounded-md" placeholder="Ingeniero en Soluciones">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Teléfono (Celular)</label>
+                        <input type="tel" id="telefono" class="mt-1 w-full p-2 border rounded-md" placeholder="+526860000000">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">WhatsApp</label>
+                        <input type="tel" id="whatsapp" class="mt-1 w-full p-2 border rounded-md" placeholder="+526860000000">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                        <input type="email" id="correo" class="mt-1 w-full p-2 border rounded-md" placeholder="contacto@tudominio.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Sitio Web / URL</label>
+                        <input type="url" id="url" class="mt-1 w-full p-2 border rounded-md" placeholder="https://tudominio.com">
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 mt-4">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Redes Sociales (Opcional)</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">LinkedIn URL</label>
+                            <input type="url" id="linkedin" class="mt-1 w-full p-2 border rounded-md" placeholder="https://linkedin.com/in/usuario">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Instagram URL</label>
+                            <input type="url" id="instagram" class="mt-1 w-full p-2 border rounded-md" placeholder="https://instagram.com/usuario">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 mt-4">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Dirección de Trabajo</h3>
+                    <input type="text" id="calle" class="mt-1 w-full p-2 border rounded-md mb-2" placeholder="Calle y Número, Colonia">
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <input type="text" id="ciudad" class="w-full p-2 border rounded-md" placeholder="Ciudad (Ej. Mexicali)">
+                        <input type="text" id="estado" class="w-full p-2 border rounded-md" placeholder="Estado (Ej. Baja California)">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="cp" class="w-full p-2 border rounded-md" placeholder="C.P. (Ej. 21000)">
+                        <input type="text" id="pais" class="w-full p-2 border rounded-md" placeholder="País (Ej. México)">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nota / Descripción</label>
+                    <textarea id="nota" class="mt-1 w-full p-2 border rounded-md" rows="3" placeholder="Soluciones digitales, optimización y desarrollo."></textarea>
+                </div>
+                
+                <div class="border-t pt-4 mt-4 bg-gray-50 -mx-6 -mb-6 p-6 rounded-b-xl">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Estilos de Marca (Cliente)</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Color Primario</label>
+                            <input type="color" id="color-primario" class="mt-1 w-full h-10 border rounded cursor-pointer" value="#3b82f6">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Color del Texto</label>
+                            <input type="color" id="color-texto" class="mt-1 w-full h-10 border rounded cursor-pointer" value="#1f2937">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- SECCIÓN 2: VISTA PREVIA Y ANÁLISIS -->
+        <section class="w-full lg:w-1/2 flex flex-col gap-6">
+            
+            <!-- Tarjeta de vista previa (Producción) -->
+            <div class="p-8 rounded-xl shadow-lg relative vcard-preview bg-white" id="preview-container">
+                <!-- Marca Tsolutions -->
+                <div class="tsolutions-logo" title="tsolutions ipidd">
+                    <div class="tsolutions-triangle"></div>
+                </div>
+                
+                <div class="text-center mt-6 mb-8">
+                    <!-- Placeholder Logo o Foto -->
+                    <div id="preview-logo" class="w-24 h-24 mx-auto rounded-full bg-gray-100 border-4 mb-4 flex items-center justify-center text-gray-400 font-bold overflow-hidden transition-colors bg-cover bg-center" style="border-color: var(--primary-color);">
+                        <span id="logo-text">FOTO</span>
+                    </div>
+                    <h2 id="preview-nombre" class="text-3xl font-bold tracking-tight">Nombre Apellido</h2>
+                    <p id="preview-puesto" class="text-lg font-medium mt-1">Puesto / Especialidad</p>
+                    <p id="preview-empresa" class="text-sm uppercase tracking-wide opacity-80 mt-2 font-semibold">Nombre de la Empresa</p>
+                </div>
+
+                <div class="space-y-4 text-sm max-w-sm mx-auto">
+                    <div class="flex items-center gap-4 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        <span id="preview-telefono" class="font-medium">Teléfono</span>
+                    </div>
+                    <div class="flex items-center gap-4 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <span id="preview-correo" class="font-medium">Correo</span>
+                    </div>
+                    <div class="flex items-center gap-4 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                        <span id="preview-url" class="font-medium">Sitio Web</span>
+                    </div>
+                </div>
+                <div class="mt-8 pt-6 border-t border-gray-100 max-w-sm mx-auto text-center">
+                    <p id="preview-nota" class="text-sm italic opacity-75">Nota o biografía...</p>
+                </div>
+            </div>
+
+            <!-- Panel de Resultados, QR y Entregables -->
+            <div class="bg-gray-800 text-white p-6 rounded-xl shadow-lg border border-gray-700">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Análisis NFC -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                            Análisis NFC
+                        </h3>
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-400">Tamaño del archivo:</p>
+                            <div class="flex items-end gap-2 mt-1">
+                                <span id="size-bytes" class="text-3xl font-bold text-white">0</span>
+                                <span class="text-sm text-gray-400 mb-1">bytes</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-gray-900 border border-gray-700">
+                            <p class="text-xs font-semibold mb-1 text-gray-400">Chip Recomendado:</p>
+                            <p id="chip-recommendation" class="text-xl font-bold text-green-400 transition-colors">NTAG213</p>
+                            <p id="chip-detail" class="text-xs text-gray-400 mt-1">Capacidad: 144 bytes</p>
+                        </div>
+                    </div>
+
+                    <!-- Código QR Visualizador -->
+                    <div class="flex flex-col items-center justify-center bg-gray-900 p-4 rounded-lg border border-gray-700">
+                        <p class="text-sm font-semibold text-gray-400 mb-2">Código QR Generado</p>
+                        <div id="qrcode" class="bg-white p-2 rounded-lg"></div>
+                    </div>
+                </div>
+
+                <!-- Botones de Descarga (Entregables) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-4 border-t border-gray-700">
+                    <button id="download-vcf-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Descargar (.vcf)
+                    </button>
+                    <button id="download-qr-btn" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Descargar QR (.png)
+                    </button>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById('vcard-form');
+        const previewContainer = document.getElementById('preview-container');
+        const previewLogo = document.getElementById('preview-logo');
+        const logoText = document.getElementById('logo-text');
+        const pNombre = document.getElementById('preview-nombre');
+        const pPuesto = document.getElementById('preview-puesto');
+        const pEmpresa = document.getElementById('preview-empresa');
+        const pTelefono = document.getElementById('preview-telefono');
+        const pCorreo = document.getElementById('preview-correo');
+        const pUrl = document.getElementById('preview-url');
+        const pNota = document.getElementById('preview-nota');
+        
+        const sizeBytes = document.getElementById('size-bytes');
+        const chipRecommendation = document.getElementById('chip-recommendation');
+        const chipDetail = document.getElementById('chip-detail');
+        const downloadVcfBtn = document.getElementById('download-vcf-btn');
+        const downloadQrBtn = document.getElementById('download-qr-btn');
+        const fotoInput = document.getElementById('foto');
+
+        let currentVCardString = '';
+        let base64Photo = '';
+        let photoType = ''; // ej. JPEG, PNG
+
+        // Redimensionar imagen a 200x200 para no inflar tanto la vCard
+        function redimensionarImagen(file, max_size, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const dataUrl = canvas.toDataURL(file.type, 0.7); // 70% calidad
+                    callback(dataUrl);
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        fotoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                photoType = file.type.split('/')[1].toUpperCase();
+                redimensionarImagen(file, 200, (dataUrl) => {
+                    // Extraer solo la parte en base64 de data:image/jpeg;base64,...
+                    base64Photo = dataUrl.split(',')[1];
+                    
+                    // Actualizar UI
+                    previewLogo.style.backgroundImage = `url(${dataUrl})`;
+                    logoText.style.display = 'none';
+                    updateVCard();
+                });
+            } else {
+                base64Photo = '';
+                previewLogo.style.backgroundImage = 'none';
+                logoText.style.display = 'block';
+                updateVCard();
+            }
+        });
+
+        function updateVCard() {
+            // Recolectar datos
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const empresa = document.getElementById('empresa').value;
+            const puesto = document.getElementById('puesto').value;
+            const telefono = document.getElementById('telefono').value;
+            const whatsapp = document.getElementById('whatsapp').value;
+            const correo = document.getElementById('correo').value;
+            const url = document.getElementById('url').value;
+            
+            const linkedin = document.getElementById('linkedin').value;
+            const instagram = document.getElementById('instagram').value;
+
+            const calle = document.getElementById('calle').value;
+            const ciudad = document.getElementById('ciudad').value;
+            const estado = document.getElementById('estado').value;
+            const cp = document.getElementById('cp').value;
+            const pais = document.getElementById('pais').value;
+            const nota = document.getElementById('nota').value;
+
+            const colorPrimario = document.getElementById('color-primario').value;
+            const colorTexto = document.getElementById('color-texto').value;
+
+            // Actualizar interfaz (Vista Previa)
+            pNombre.textContent = `${nombre} ${apellido}`.trim() || 'Nombre Apellido';
+            pPuesto.textContent = puesto || 'Puesto / Especialidad';
+            pPuesto.style.color = colorPrimario;
+            pEmpresa.textContent = empresa || 'Nombre de la Empresa';
+            pTelefono.textContent = telefono || 'Teléfono';
+            pCorreo.textContent = correo || 'Correo';
+            pUrl.textContent = url || 'Sitio Web';
+            
+            pNota.textContent = nota || 'Soluciones digitales, optimización y desarrollo.';
+
+            previewContainer.style.color = colorTexto;
+            previewLogo.style.borderColor = colorPrimario;
+            previewLogo.style.color = colorPrimario;
+            
+            // CONSTRUIR STRING VCARD 3.0
+            let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
+            vcard += `N:${apellido || ''};${nombre || ''};;;\r\n`;
+            vcard += `FN:${(nombre + ' ' + apellido).trim()}\r\n`;
+            
+            if (empresa) vcard += `ORG:${empresa}\r\n`;
+            if (puesto) vcard += `TITLE:${puesto}\r\n`;
+            if (telefono) vcard += `TEL;TYPE=CELL,VOICE:${telefono}\r\n`;
+            if (whatsapp) vcard += `TEL;TYPE=CELL,VOICE,WA:${whatsapp}\r\n`; // Etiqueta WA es extra oficial, pero muchos teléfonos la interpretan.
+            
+            if (correo) vcard += `EMAIL;TYPE=WORK,INTERNET:${correo}\r\n`;
+            if (url) vcard += `URL;TYPE=WORK:${url}\r\n`;
+            
+            if (linkedin) vcard += `URL;TYPE=LinkedIn:${linkedin}\r\n`;
+            if (instagram) vcard += `URL;TYPE=Instagram:${instagram}\r\n`;
+            
+            if (calle || ciudad || estado || cp || pais) {
+                vcard += `ADR;TYPE=WORK:;;${calle || ''};${ciudad || ''};${estado || ''};${cp || ''};${pais || ''}\r\n`;
+            }
+            
+            // Agregar foto si existe
+            if (base64Photo) {
+                // Formato: PHOTO;ENCODING=b;TYPE=JPEG:base64...
+                vcard += `PHOTO;ENCODING=b;TYPE=${photoType}:${base64Photo}\r\n`;
+            }
+
+            if (nota) vcard += `NOTE:${nota}\r\n`;
+            vcard += `END:VCARD`;
+
+            currentVCardString = vcard;
+
+            // Calcular tamaño real de la cadena (en bytes, UTF-8)
+            const bytes = new Blob([vcard]).size;
+            sizeBytes.textContent = bytes;
+
+            // Lógica de Recomendación de NFC
+            if (bytes <= 144) {
+                chipRecommendation.textContent = 'NTAG213';
+                chipRecommendation.className = 'text-xl font-bold text-green-400';
+                chipDetail.textContent = 'Capacidad: 144 bytes';
+            } else if (bytes <= 504) {
+                chipRecommendation.textContent = 'NTAG215';
+                chipRecommendation.className = 'text-xl font-bold text-yellow-400';
+                chipDetail.textContent = 'Capacidad: 504 bytes';
+            } else if (bytes <= 888) {
+                chipRecommendation.textContent = 'NTAG216';
+                chipRecommendation.className = 'text-xl font-bold text-orange-400';
+                chipDetail.textContent = 'Capacidad: 888 bytes';
+            } else {
+                chipRecommendation.textContent = 'Excede Estándar';
+                chipRecommendation.className = 'text-xl font-bold text-red-500';
+                chipDetail.textContent = 'Requiere NTAG de alta capacidad (>888b) o usar enlace web.';
+            }
+
+            // Generar/Actualizar el Código QR
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = ''; 
+            
+            // El QR solo lo generaremos si los bytes son menores a ~2900 (Límite típico)
+            if (bytes < 2900) {
+                new QRCode(qrContainer, {
+                    text: vcard,
+                    width: 140,
+                    height: 140,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            } else {
+                qrContainer.innerHTML = '<p class="text-xs text-center text-red-500 p-2">vCard demasiado grande para código QR. Remueve la foto.</p>';
+            }
+        }
+
+        form.addEventListener('input', updateVCard);
+        
+        downloadVcfBtn.addEventListener('click', () => {
+            const blob = new Blob([currentVCardString], { type: 'text/vcard;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            a.style.display = 'none';
+            a.href = url;
+            
+            const fname = document.getElementById('nombre').value || 'vcard';
+            const lname = document.getElementById('apellido').value || 'nfc';
+            a.download = `${fname}_${lname}.vcf`.replace(/\s+/g, '_');
+            
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        });
+
+        downloadQrBtn.addEventListener('click', () => {
+            const qrContainer = document.getElementById('qrcode');
+            const canvas = qrContainer.querySelector('canvas');
+            if (canvas) {
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                
+                const fname = document.getElementById('nombre').value || 'vcard';
+                const lname = document.getElementById('apellido').value || 'nfc';
+                a.download = `${fname}_${lname}_QR.png`.replace(/\s+/g, '_');
+                
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                alert("El código QR no se pudo generar (posiblemente la vCard es muy grande, intenta quitar la foto).");
+            }
+        });
+
+        // Carga inicial
+        updateVCard();
+    </script>
+</body>
+</html>
