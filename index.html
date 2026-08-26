@@ -240,23 +240,31 @@
                 
                 <!-- Foto de Perfil / Logo con Ajuste de Compresión -->
                 <div class="bg-[#12121c] p-5 rounded-[var(--radius-soft)] border border-gray-800 shadow-[var(--shadow-card)]">
-                    <label class="block text-sm font-bruno text-blanco-puro mb-2">Logo o Foto (Se convertirá a WebP)</label>
+                    <label class="block text-sm font-bruno text-blanco-puro mb-2">Logo o Foto (Se convertirá a JPEG miniatura)</label>
                     <input type="file" id="foto" accept="image/png, image/jpeg, image/jpg, image/webp" class="w-full text-sm text-humo file:mr-4 file:py-2 file:px-4 file:rounded-[var(--radius-soft)] file:border-0 file:text-sm file:font-semibold file:bg-[var(--naranja-energy)] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer mb-4">
                     
                     <div id="compression-container" class="opacity-50 pointer-events-none transition-opacity duration-300">
                         <div class="flex justify-between items-center mb-1">
-                            <label class="text-xs font-bruno text-aqua uppercase">Nivel de Compresión WebP</label>
+                            <label class="text-xs font-bruno text-aqua uppercase">Nivel de Compresión JPEG</label>
                             <span id="compression-value" class="text-xs font-bold text-blanco-puro">Media (40%)</span>
                         </div>
                         <input type="range" id="compression-slider" min="0.1" max="1.0" step="0.1" value="0.4">
                         <div class="flex justify-between text-[10px] text-gray-500 mt-1 uppercase tracking-wide">
-                            <span>Máxima compresión (Menos Bytes)</span>
-                            <span>Alta Calidad (OVERLOAD)</span>
+                            <span>Menos Bytes (~50px)</span>
+                            <span>OVERLOAD (~150px)</span>
                         </div>
-                        <p class="text-xs text-humo mt-3 flex items-start gap-2">
-                            <svg class="w-4 h-4 text-[var(--naranja-energy)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            <span>Usa el slider para ajustar el peso dinámicamente si la telemetría te marca "OVERLOAD".</span>
-                        </p>
+                        
+                        <!-- Toggle de incrustación de código -->
+                        <div class="mt-5 flex items-center justify-between bg-black/40 p-3 rounded-lg border border-gray-700">
+                            <div>
+                                <p class="text-xs font-bruno text-white mb-1">Incrustar Foto en Datos</p>
+                                <p class="text-[10px] text-gray-400 leading-tight">Apaga este switch si el medidor marca OVERLOAD. Tu vCard funcionará perfecto en NFC (solo texto), y la foto se mantendrá visualmente en tu panel.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer ml-3 shrink-0">
+                                <input type="checkbox" id="include-photo-toggle" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--naranja-energy)]"></div>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -500,12 +508,9 @@
         function applyImageCompression() {
             if (!currentImageObj) return;
             
-            const factor = parseFloat(compressionSlider.value); // Va de 0.1 a 1.0
-            
-            // EL SECRETO: Reducir las dimensiones físicas, no solo la calidad.
-            // factor 1.0 = 150px, factor 0.1 = 50px (Resoluciones en miniatura para VCF)
+            const factor = parseFloat(compressionSlider.value); 
             const max_size = Math.max(50, Math.floor(150 * factor));
-            const quality = Math.max(0.1, factor); // Calidad JPEG
+            const quality = Math.max(0.1, factor); 
             
             let canvas = document.createElement('canvas');
             let width = currentImageObj.width;
@@ -527,12 +532,10 @@
             canvas.height = Math.floor(height);
             const ctx = canvas.getContext('2d');
             
-            // Fondo blanco forzado para evitar canal alfa (transparencia) que suma peso
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(currentImageObj, 0, 0, canvas.width, canvas.height);
             
-            // Cambiamos a JPEG. vCard 3.0 lo procesa nativamente mejor en todos los iPhones y es más predecible en tamaño miniatura.
             const dataUrl = canvas.toDataURL('image/jpeg', quality); 
             
             base64Photo = dataUrl.split(',')[1];
@@ -552,10 +555,7 @@
                         currentImageObj = img;
                         previewLogoImg.classList.remove('hidden');
                         logoText.style.display = 'none';
-                        
-                        // Habilitar el slider de compresión
                         compressionContainer.classList.remove('opacity-50', 'pointer-events-none');
-                        
                         applyImageCompression();
                     }
                     img.src = evt.target.result;
@@ -567,15 +567,11 @@
                 previewLogoImg.src = '';
                 previewLogoImg.classList.add('hidden');
                 logoText.style.display = 'block';
-                
-                // Deshabilitar el slider
                 compressionContainer.classList.add('opacity-50', 'pointer-events-none');
-                
                 updateVCard();
             }
         });
 
-        // Escuchar cambios en el slider
         compressionSlider.addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             if (val <= 0.2) compressionValue.textContent = "Extrema (" + Math.round(val*100) + "% | ~50px)";
@@ -583,14 +579,13 @@
             else if (val <= 0.8) compressionValue.textContent = "Baja (" + Math.round(val*100) + "% | ~120px)";
             else compressionValue.textContent = "Ninguna (" + Math.round(val*100) + "% | ~150px)";
             
-            // Re-comprimir en tiempo real si hay una imagen cargada
-            if (currentImageObj) {
-                applyImageCompression();
-            }
+            if (currentImageObj) applyImageCompression();
         });
 
+        // Escuchar el switch de incluir foto
+        document.getElementById('include-photo-toggle').addEventListener('change', updateVCard);
+
         function updateVCard() {
-            // Recolectar datos
             const nombre = document.getElementById('nombre').value;
             const apellido = document.getElementById('apellido').value;
             const empresa = document.getElementById('empresa').value;
@@ -599,12 +594,10 @@
             const whatsapp = document.getElementById('whatsapp').value;
             const correo = document.getElementById('correo').value;
             const url = document.getElementById('url').value;
-            
             const linkedin = document.getElementById('linkedin').value;
             const instagram = document.getElementById('instagram').value;
             const facebook = document.getElementById('facebook').value;
             const tiktok = document.getElementById('tiktok').value;
-
             const calle = document.getElementById('calle').value;
             const ciudad = document.getElementById('ciudad').value;
             const estado = document.getElementById('estado').value;
@@ -616,70 +609,52 @@
             const colorPrimario = document.getElementById('color-primario').value;
             const colorSecundario = document.getElementById('color-secundario').value;
             const colorTexto = document.getElementById('color-texto').value;
+            
+            const includePhoto = document.getElementById('include-photo-toggle').checked;
 
-            // Actualizar interfaz
             previewContainer.style.fontFamily = tipografia;
             previewContainer.style.color = colorTexto;
-            
             pNombre.textContent = `${nombre} ${apellido}`.trim() || 'Nombre Apellido';
             pPuesto.textContent = puesto || 'Puesto / Especialidad';
             pPuesto.style.color = colorPrimario;
             pEmpresa.textContent = empresa || '';
-            
             previewStripe.style.backgroundColor = colorSecundario;
 
-            if(telefono || whatsapp) {
-                rowTelefono.classList.remove('hidden');
-                pTelefono.textContent = telefono || whatsapp;
-            } else {
-                rowTelefono.classList.add('hidden');
-            }
+            if(telefono || whatsapp) { rowTelefono.classList.remove('hidden'); pTelefono.textContent = telefono || whatsapp; } 
+            else { rowTelefono.classList.add('hidden'); }
 
-            if(correo) {
-                rowCorreo.classList.remove('hidden');
-                pCorreo.textContent = correo;
-            } else {
-                rowCorreo.classList.add('hidden');
-            }
+            if(correo) { rowCorreo.classList.remove('hidden'); pCorreo.textContent = correo; } 
+            else { rowCorreo.classList.add('hidden'); }
 
-            if(url) {
-                rowUrl.classList.remove('hidden');
-                pUrl.textContent = url;
-            } else {
-                rowUrl.classList.add('hidden');
-            }
+            if(url) { rowUrl.classList.remove('hidden'); pUrl.textContent = url; } 
+            else { rowUrl.classList.add('hidden'); }
             
             pNota.textContent = nota || 'Innovación que impulsa tu crecimiento...';
 
-            // CONSTRUIR STRING VCARD 3.0
             let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
             vcard += `N:${apellido || ''};${nombre || ''};;;\r\n`;
             vcard += `FN:${(nombre + ' ' + apellido).trim()}\r\n`;
-            
             if (empresa) vcard += `ORG:${empresa}\r\n`;
             if (puesto) vcard += `TITLE:${puesto}\r\n`;
             if (telefono) vcard += `TEL;TYPE=CELL,VOICE:${telefono}\r\n`;
             if (whatsapp) vcard += `TEL;TYPE=CELL,VOICE,WA:${whatsapp}\r\n`;
-            
             if (correo) vcard += `EMAIL;TYPE=WORK,INTERNET:${correo}\r\n`;
             if (url) vcard += `URL;TYPE=WORK:${url}\r\n`;
-            
             if (linkedin) vcard += `URL;TYPE=LinkedIn:${linkedin}\r\n`;
             if (instagram) vcard += `URL;TYPE=Instagram:${instagram}\r\n`;
             if (facebook) vcard += `URL;TYPE=Facebook:${facebook}\r\n`;
             if (tiktok) vcard += `URL;TYPE=TikTok:${tiktok}\r\n`;
-            
             if (calle || ciudad || estado || cp || pais) {
                 vcard += `ADR;TYPE=WORK:;;${calle || ''};${ciudad || ''};${estado || ''};${cp || ''};${pais || ''}\r\n`;
             }
             
-            if (base64Photo) {
-                vcard += `PHOTO;ENCODING=b;TYPE=WEBP:${base64Photo}\r\n`;
+            // Aplicar la incrustación de la foto SOLO si el switch está activado
+            if (base64Photo && includePhoto) {
+                vcard += `PHOTO;ENCODING=b;TYPE=JPEG:${base64Photo}\r\n`;
             }
 
             if (nota) vcard += `NOTE:${nota}\r\n`;
             vcard += `END:VCARD`;
-
             currentVCardString = vcard;
 
             const bytes = new Blob([vcard]).size;
@@ -690,11 +665,9 @@
             const colorDorado = '#FFD700';
             const colorRojo = '#EF4444';
 
-            // Reset borders
             chipBox.style.borderColor = '#1f2937';
             downloadQrBtn.disabled = false;
 
-            // Recomendación NFC
             if (bytes <= 144) {
                 chipRecommendation.textContent = 'NTAG213';
                 chipRecommendation.style.color = colorTurquesa;
@@ -714,28 +687,38 @@
                 chipDetail.textContent = 'Requiere alta capacidad (888 bytes)';
                 chipBox.style.borderColor = colorNaranja;
             } else {
-                chipRecommendation.textContent = 'OVERLOAD';
+                chipRecommendation.textContent = 'OVERLOAD LIMIT';
                 chipRecommendation.style.color = colorRojo;
                 chipRecommendation.style.textShadow = '0 0 10px rgba(239, 68, 68, 0.6)';
-                chipDetail.textContent = 'Advertencia: >888B. Comprime más el logo.';
+                chipDetail.textContent = 'Apaga el switch de "Incrustar foto" para poder usar en NFC.';
                 chipBox.style.borderColor = colorRojo;
             }
 
-            // QR Code
+            // REPARACIÓN DEL QR CODE:
+            // Aumentamos el tamaño base para que quepan todos los pixeles y lo re-escalamos.
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = ''; 
             
             if (bytes < 2900) {
                 new QRCode(qrContainer, {
                     text: vcard,
-                    width: 130,
-                    height: 130,
+                    width: 256,
+                    height: 256,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.L
                 });
+                
+                // Forzar escalado por CSS para que no rompa la UI
+                setTimeout(() => {
+                    const canvas = qrContainer.querySelector('canvas');
+                    const img = qrContainer.querySelector('img');
+                    if (canvas) { canvas.style.width = '140px'; canvas.style.height = '140px'; }
+                    if (img) { img.style.width = '140px'; img.style.height = '140px'; }
+                }, 10);
+                
             } else {
-                qrContainer.innerHTML = '<p class="text-xs text-center text-red-500 font-bold max-w-[130px]">PAYLOAD EXCEDIDO PARA QR MATRIX.</p>';
+                qrContainer.innerHTML = '<p class="text-[10px] text-center text-red-500 font-bold max-w-[130px]">PAYLOAD DE QR EXCEDIDO (>2900B)</p>';
                 downloadQrBtn.disabled = true;
             }
         }

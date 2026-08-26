@@ -1,0 +1,30 @@
+{
+  "name": "nfcvcards",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "start": "next start",
+    "build": "next build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whoiselgallo/NFCvCards.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/whoiselgallo/NFCvCards/issues"
+  },
+  "homepage": "https://github.com/whoiselgallo/NFCvCards#readme",
+  "dependencies": {
+    "next": "^16.3.3",
+    "pg": "^8.23.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

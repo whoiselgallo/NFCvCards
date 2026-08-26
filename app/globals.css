@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 1. Paleta Cromática Oficial */
+  --naranja-energy: #F97316;
+  --aqua-turquesa: #00E5FF;
+  --negro-profundo: #04040A;
+  --midnight-panel: #0A0A14;
+  --deep-grid: #0F0F1E;
+  --blanco-puro: #F0F0F8;
+  --humo: #E0E0E0;
+  --dorado: #FFD700;
+  
+  /* 3. Sistema de Luces y Glows */
+  --shadow-glowEnergy: 0 0 12px rgba(249, 115, 22, 0.35);
+  --shadow-glowEnergyHover: 0 0 20px rgba(249, 115, 22, 0.55);
+  --shadow-turquesaSoft: 0 0 10px rgba(0, 229, 255, 0.20);
+  --shadow-turquesaHover: 0 0 14px rgba(0, 229, 255, 0.45);
+  --shadow-blancoPulse: 0 0 10px rgba(255, 255, 255, 0.80);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.5);
+  
+  /* 4. Radios de Borde */
+  --radius-soft: 10px;
+  --radius-medium: 12px;
+  --radius-large: 14px;
+  --radius-full: 999px;
+}
+
+body {
+  background-color: var(--negro-profundo);
+  color: var(--blanco-puro);
+  font-family: 'Inter', sans-serif;
+  background-image: 
+      linear-gradient(var(--deep-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--deep-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  min-height: 100vh;
+}
+
+h1, h2, h3, .font-bruno {
+  font-family: 'Bruno Ace', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.text-humo { color: var(--humo); }
+.text-aqua { color: var(--aqua-turquesa); text-shadow: var(--shadow-turquesaSoft); }
+.text-naranja { color: var(--naranja-energy); }
+
+.panel-glass {
+  background-color: var(--midnight-panel);
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+}
+
+.input-dark {
+  background-color: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--blanco-puro);
+  border-radius: var(--radius-soft);
+  transition: all 0.3s ease;
+  min-height: 48px;
+  padding: 0 12px;
+}
+.input-dark::placeholder { color: rgba(224, 224, 224, 0.3); }
+.input-dark:focus {
+  outline: none;
+  border-color: var(--aqua-turquesa);
+  box-shadow: var(--shadow-turquesaSoft);
+  background-color: rgba(0, 229, 255, 0.05);
+}
+
+.btn-primary {
+  background-color: var(--naranja-energy);
+  color: var(--negro-profundo);
+  font-family: 'Bruno Ace', sans-serif;
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-glowEnergy);
+  transition: all 0.3s ease;
+  min-height: 48px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glowEnergyHover);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.vcard-preview {
+  background: white;
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
