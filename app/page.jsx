@@ -228,7 +228,7 @@ export default function Dashboard() {
                 {formData.nota && <p className="mt-4 text-sm opacity-80" style={{ color: activeTheme.textColor }}>{formData.nota}</p>}
                 
                 {formData.videoYoutubeUrl && (
-                  <div className="mt-4 w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden" style={{ border: 1px solid  }}>
+                  <div className="mt-4 w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden" style={{ border: `1px solid ${design.colorPrimario}` }}>
                     <div className="absolute inset-0 bg-black/40"></div>
                     <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center z-10">
                        <div className="w-0 h-0 border-t-4 border-t-transparent border-l-6 border-l-white border-b-4 border-b-transparent ml-1"></div>
@@ -245,7 +245,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {design.theme === 'modern' && (
+          {mode === 'vcard' && design.theme === 'modern' && (
             <div className="flex-1 overflow-y-auto flex flex-col items-center pt-12 px-6 text-center">
               <div className="w-32 h-32 rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] bg-gray-800 overflow-hidden border-2 flex items-center justify-center mb-6" style={{ borderColor: design.colorPrimario }}>
                 {photo ? <img src={photo} alt="Profile" className="w-full h-full object-cover" /> : <span className="text-xs text-gray-500">LOGO</span>}
@@ -272,7 +272,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {design.theme === 'minimal' && (
+          {mode === 'vcard' && design.theme === 'minimal' && (
             <div className="flex-1 overflow-y-auto pt-16 px-8">
               <h2 className="text-3xl font-light tracking-tighter" style={{ color: activeTheme.textColor }}>
                 {formData.nombre || 'Nombre'} <br/><span className="font-bold">{formData.apellido || 'Apellido'}</span>
@@ -300,11 +300,12 @@ export default function Dashboard() {
           )}
 
           {/* Botón Flotante Falso (Simulación de Guardar Contacto) */}
-          <div className="absolute bottom-6 left-6 right-6">
-             <div className="w-full py-4 rounded-xl text-center font-bold text-white shadow-xl text-sm" style={{ backgroundColor: design.colorPrimario }}>
-               GUARDAR CONTACTO
-             </div>
-          </div>
+          {mode === 'vcard' && (
+            <div className="absolute bottom-6 left-6 right-6">
+               <div className="w-full py-4 rounded-xl text-center font-bold text-white shadow-xl text-sm" style={{ backgroundColor: design.colorPrimario }}>
+                 GUARDAR CONTACTO
+               </div>
+            </div>
           )}
         </div>
 
