@@ -46,7 +46,7 @@ export default function Dashboard() {
         link.rel = 'stylesheet';
         document.head.appendChild(link);
       }
-      link.href = https://fonts.googleapis.com/css2?family= + fontToLoad.replace(/ /g, '+') + :wght@300;400;600;700&display=swap;
+      link.href = "https://fonts.googleapis.com/css2?family=" + fontToLoad.replace(/ /g, "+") + ":wght@300;400;600;700&display=swap";
     }
   }, [design.fontFamily, design.customFont]);
 
@@ -87,10 +87,10 @@ export default function Dashboard() {
 
         {/* MODO DE OPERACIÓN */}
         <div className="flex gap-4 p-1 bg-black/40 rounded-xl border border-gray-800">
-          <button onClick={() => setMode('vcard')} className={lex-1 py-3 text-sm font-bruno rounded-lg transition-all }>
+          <button onClick={() => setMode('vcard')} className={`flex-1 py-3 text-sm font-bruno rounded-lg transition-all ${mode === 'vcard' ? 'bg-[var(--naranja-energy)] text-black' : 'text-gray-400 hover:bg-gray-800'}`}>
             Perfil Digital (vCard)
           </button>
-          <button onClick={() => setMode('review')} className={lex-1 py-3 text-sm font-bruno rounded-lg transition-all }>
+          <button onClick={() => setMode('review')} className={`flex-1 py-3 text-sm font-bruno rounded-lg transition-all ${mode === 'review' ? 'bg-[var(--aqua-turquesa)] text-black' : 'text-gray-400 hover:bg-gray-800'}`}>
             Tap to Review (Google Maps)
           </button>
         </div>
@@ -189,10 +189,7 @@ export default function Dashboard() {
           </div>
           <textarea name="nota" placeholder="Bio / Descripción de la empresa..." className="input-dark w-full mt-4 h-24 py-3" onChange={handleChange}></textarea>
         </div>
-
-        <button onClick={handleSave} className="btn-primary w-full text-lg py-4">
-          Guardar y Desplegar Perfil
-                  </>
+          </>
         )}
 
         <button onClick={handleSave} className="btn-primary w-full text-lg py-4">
@@ -324,5 +321,6 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
