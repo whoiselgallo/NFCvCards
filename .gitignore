@@ -6,3 +6,4 @@ node_modules/
 .next/
 index.old.html
 test-db.js
+node_modules
