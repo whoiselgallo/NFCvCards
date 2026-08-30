@@ -143,7 +143,7 @@ export default function PublicProfileClient({ profile }) {
           color: textColor
         }}
       >
-        {/* TEMA CLÁSICO CORPORATIVO */}
+        {/* TEMA CLÁSICO CORPORATIVO (LOGO CENTRADO Y VISIBILIDAD TOTAL) */}
         {isClassic && (
           <div>
             <div
@@ -168,10 +168,14 @@ export default function PublicProfileClient({ profile }) {
               )}
             </div>
 
-            <div className="px-6 -mt-12">
+            <div className="px-6 -mt-14 relative z-20 flex flex-col items-center text-center">
               <div
-                className="rounded-2xl shadow-xl bg-white p-2.5 border-2 border-white flex items-center justify-center overflow-hidden"
-                style={{ width: `${logo_scale}px`, height: `${logo_scale}px` }}
+                className="rounded-2xl shadow-xl bg-white p-2.5 border-4 border-white flex items-center justify-center overflow-hidden transition-all"
+                style={{
+                  width: `${logo_scale}px`,
+                  height: `${logo_scale}px`,
+                  boxShadow: '0 12px 28px rgba(0,0,0,0.18)'
+                }}
               >
                 {logo_url ? (
                   <img src={logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
@@ -180,16 +184,16 @@ export default function PublicProfileClient({ profile }) {
                 )}
               </div>
 
-              <div className="mt-4">
-                <h1 className="text-2xl font-bold leading-tight">{nombre} {apellido}</h1>
+              <div className="mt-4 w-full">
+                <h1 className="text-2xl font-bold leading-tight text-slate-800">{nombre} {apellido}</h1>
                 <div
-                  className="h-1.5 w-16 my-2.5 rounded-full"
+                  className="h-1.5 w-16 my-2.5 mx-auto rounded-full"
                   style={{ backgroundColor: color_secundario, boxShadow: `0 0 10px ${color_secundario}60` }}
                 ></div>
                 <p className="text-base font-bold" style={{ color: color_primario }}>{puesto}</p>
                 {empresa && (
                   <div
-                    className="inline-block px-3 py-1 mt-2 rounded-md text-xs font-bold tracking-wider uppercase border"
+                    className="inline-block px-3 py-1 mt-2 rounded-full text-xs font-bold tracking-wider uppercase border"
                     style={{
                       backgroundColor: `${color_secundario}15`,
                       borderColor: `${color_secundario}50`,
@@ -202,7 +206,7 @@ export default function PublicProfileClient({ profile }) {
               </div>
 
               {nota && (
-                <p className="text-xs mt-4 p-3 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-4" style={{ borderColor: color_cta }}>
+                <p className="text-xs mt-4 p-3 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-4 w-full" style={{ borderColor: color_cta }}>
                   "{nota}"
                 </p>
               )}
@@ -256,7 +260,7 @@ export default function PublicProfileClient({ profile }) {
 
             <h1 className="text-2xl font-bold tracking-tight mt-2">{nombre} {apellido}</h1>
             <div
-              className="h-1.5 w-16 my-2 rounded-full transition-all"
+              className="h-1.5 w-16 my-2 mx-auto rounded-full transition-all"
               style={{ backgroundColor: color_secundario, boxShadow: `0 0 12px ${color_secundario}80` }}
             ></div>
             <p className="text-sm font-bold mt-1" style={{ color: color_primario }}>{puesto}</p>
@@ -282,11 +286,11 @@ export default function PublicProfileClient({ profile }) {
           </div>
         )}
 
-        {/* TEMA MINIMALISTA */}
+        {/* TEMA MINIMALISTA EJECUTIVO (CUADRO GEOMÉTRICO CENTRADO) */}
         {isMinimal && (
-          <div className="p-8">
+          <div className="p-8 flex flex-col items-center text-center">
             {cover_url && (
-              <div className="w-full h-32 overflow-hidden mb-5 border-b border-gray-200 relative">
+              <div className="w-full h-32 overflow-hidden mb-5 border-b border-gray-200 relative rounded-lg">
                 <img
                   src={cover_url}
                   alt="Cover"
@@ -300,24 +304,30 @@ export default function PublicProfileClient({ profile }) {
               </div>
             )}
 
+            {/* Cuadro Geométrico Minimalista con Acento de Color Primario */}
             <div
-              className="bg-gray-100 p-3 flex items-center justify-center mb-4 border border-gray-200"
-              style={{ width: `${logo_scale}px`, height: `${logo_scale}px` }}
+              className="bg-white p-3 flex items-center justify-center my-3 border-2 transition-all rounded-xl"
+              style={{
+                width: `${logo_scale}px`,
+                height: `${logo_scale}px`,
+                borderColor: color_primario,
+                boxShadow: `0 0 16px ${color_primario}35`
+              }}
             >
               {logo_url ? (
                 <img src={logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
               ) : (
-                <span className="text-xs font-mono text-gray-400">LOGO</span>
+                <span className="text-xs font-mono font-bold tracking-widest uppercase" style={{ color: color_primario }}>LOGO</span>
               )}
             </div>
 
-            <h1 className="text-3xl font-light tracking-tight">{nombre} <span className="font-extrabold">{apellido}</span></h1>
-            <div className="w-16 h-1 my-3 rounded-full" style={{ backgroundColor: color_secundario }}></div>
+            <h1 className="text-3xl font-light tracking-tight text-slate-900">{nombre} <span className="font-extrabold">{apellido}</span></h1>
+            <div className="w-16 h-1 my-3 mx-auto rounded-full" style={{ backgroundColor: color_secundario }}></div>
             <p className="text-sm font-bold tracking-wider uppercase" style={{ color: color_primario }}>{puesto}</p>
             {empresa && <p className="text-xs font-semibold mt-1 text-gray-500">{empresa}</p>}
 
             {nota && (
-              <p className="text-xs mt-4 opacity-75 leading-relaxed italic">
+              <p className="text-xs mt-4 opacity-75 leading-relaxed italic max-w-[90%]">
                 "{nota}"
               </p>
             )}
