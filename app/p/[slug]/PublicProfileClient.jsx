@@ -2,6 +2,20 @@
 
 import React, { useEffect } from 'react';
 
+// Helper para sanitizar y autocomponer URLs de Redes Sociales
+export function getSocialUrl(type, value) {
+  if (!value || !value.trim()) return '';
+  const trimmed = value.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  const clean = trimmed.replace(/^@+/, '').replace(/^https?:\/\/(www\.)?(facebook|instagram|linkedin)\.com\/(in\/)?/, '');
+  if (type === 'facebook') return `https://facebook.com/${clean}`;
+  if (type === 'instagram') return `https://instagram.com/${clean}`;
+  if (type === 'linkedin') return `https://linkedin.com/in/${clean}`;
+  return trimmed;
+}
+
 export default function PublicProfileClient({ profile }) {
   const {
     nombre = '',
@@ -31,11 +45,11 @@ export default function PublicProfileClient({ profile }) {
     logo_scale = 100,
     cover_position_y = 50,
     cover_zoom = 100,
-    logo_img = null,
-    cover_photo = null
+    logo_url = null,
+    cover_url = null
   } = profile;
 
-  // Cargar Google Font dinámica
+  // Inyección de Google Font dinámicamente
   useEffect(() => {
     if (font_family) {
       const linkId = 'gfonts-public-profile';
@@ -50,7 +64,7 @@ export default function PublicProfileClient({ profile }) {
     }
   }, [font_family]);
 
-  // Generador de .VCF descargable
+  // Generador Inteligente de URL de Google Maps
   const effectiveMapsUrl = google_maps_url && google_maps_url.trim().startsWith('http')
     ? google_maps_url.trim()
     : (() => {
@@ -71,6 +85,12 @@ export default function PublicProfileClient({ profile }) {
 
   const locationLabel = [ciudad, pais].filter(Boolean).join(', ') || (empresa ? `Buscar ${empresa}` : 'Ver Ubicación en Google Maps');
 
+  // URLs completas de redes sociales
+  const fbUrl = getSocialUrl('facebook', facebook);
+  const igUrl = getSocialUrl('instagram', instagram);
+  const inUrl = getSocialUrl('linkedin', linkedin);
+
+  // Generador de .VCF descargable
   const downloadVCF = () => {
     let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
     vcard += `N:${apellido || ''};${nombre || ''};;;\r\n`;
@@ -81,20 +101,14 @@ export default function PublicProfileClient({ profile }) {
     if (whatsapp) vcard += `TEL;TYPE=CELL,VOICE,WA:${whatsapp}\r\n`;
     if (correo) vcard += `EMAIL;TYPE=WORK,INTERNET:${correo}\r\n`;
     if (url) vcard += `URL;TYPE=WORK:${url}\r\n`;
-    if (linkedin) vcard += `URL;TYPE=LinkedIn:${linkedin}\r\n`;
-    if (instagram) vcard += `URL;TYPE=Instagram:${instagram}\r\n`;
-    if (facebook) vcard += `URL;TYPE=Facebook:${facebook}\r\n`;
+    if (inUrl) vcard += `URL;TYPE=LinkedIn:${inUrl}\r\n`;
+    if (igUrl) vcard += `URL;TYPE=Instagram:${igUrl}\r\n`;
+    if (fbUrl) vcard += `URL;TYPE=Facebook:${fbUrl}\r\n`;
     if (calle || ciudad || estado || cp || pais) {
       vcard += `ADR;TYPE=WORK:;;${calle || ''};${ciudad || ''};${estado || ''};${cp || ''};${pais || ''}\r\n`;
     }
-    if (google_maps_url) vcard += `NOTE:Google Maps: ${google_maps_url}\\n${nota || ''}\r\n`;
+    if (effectiveMapsUrl) vcard += `NOTE:Google Maps: ${effectiveMapsUrl}\\n${nota || ''}\r\n`;
     else if (nota) vcard += `NOTE:${nota}\r\n`;
-
-    if (logo_img) {
-      const b64 = logo_img.split(',')[1];
-      if (b64) vcard += `PHOTO;ENCODING=b;TYPE=JPEG:${b64}\r\n`;
-    }
-
     vcard += `END:VCARD`;
 
     const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
@@ -108,90 +122,114 @@ export default function PublicProfileClient({ profile }) {
     URL.revokeObjectURL(blobUrl);
   };
 
-  const isDark = theme === 'modern';
-  const bgColor = isDark ? '#090912' : theme === 'minimal' ? '#FAFAFA' : '#FFFFFF';
-  const textColor = isDark ? '#F8FAFC' : '#1E293B';
+  // Configuración de Colores de Fondo según el Tema
+  const isModern = theme === 'modern';
+  const isClassic = theme === 'classic';
+  const isMinimal = theme === 'minimal';
+
+  const bgColor = isModern ? '#090912' : isClassic ? '#ffffff' : '#fafafa';
+  const textColor = isModern ? '#f8fafc' : '#0f172a';
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-3 sm:p-6"
-      style={{
-        backgroundColor: '#04040A',
-        fontFamily: font_family
-      }}
+      className="min-h-screen flex justify-center items-center p-0 sm:p-4 transition-colors"
+      style={{ backgroundColor: isModern ? '#04040A' : '#f1f5f9' }}
     >
       <div
-        className="w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border transition-all relative pb-24"
+        className="w-full max-w-md min-h-screen sm:min-h-[720px] sm:rounded-[36px] shadow-2xl overflow-hidden relative pb-28 select-none transition-all flex flex-col"
         style={{
           backgroundColor: bgColor,
-          color: textColor,
-          borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'
+          fontFamily: font_family,
+          color: textColor
         }}
       >
-        {/* CABECERA / PORTADA */}
-        {theme === 'classic' && (
+        {/* TEMA CLÁSICO CORPORATIVO */}
+        {isClassic && (
           <div>
-            <div className="h-32 w-full relative overflow-hidden" style={{ backgroundColor: color_secundario }}>
-              {cover_photo && (
+            <div
+              className="h-36 w-full relative overflow-hidden flex items-center justify-center transition-colors"
+              style={{ backgroundColor: color_secundario }}
+            >
+              {cover_url ? (
                 <div className="w-full h-full overflow-hidden">
                   <img
-                    src={cover_photo}
+                    src={cover_url}
                     alt="Cover"
-                    className="w-full h-full object-cover transition-all"
+                    className="w-full h-full object-cover"
                     style={{
-                      objectPosition: `center ${cover_position_y || 50}%`,
-                      transform: `scale(${(cover_zoom || 100) / 100})`,
-                      transformOrigin: `center ${cover_position_y || 50}%`
+                      objectPosition: `center ${cover_position_y}%`,
+                      transform: `scale(${cover_zoom / 100})`,
+                      transformOrigin: `center ${cover_position_y}%`
                     }}
                   />
                 </div>
+              ) : (
+                <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
               )}
             </div>
+
             <div className="px-6 -mt-12">
               <div
-                className="rounded-2xl shadow-xl bg-white p-1 border-2 border-white flex items-center justify-center overflow-hidden"
+                className="rounded-2xl shadow-xl bg-white p-2.5 border-2 border-white flex items-center justify-center overflow-hidden"
                 style={{ width: `${logo_scale}px`, height: `${logo_scale}px` }}
               >
-                {logo_img ? (
-                  <img src={logo_img} alt="Logo" className="w-full h-full object-contain" />
+                {logo_url ? (
+                  <img src={logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
                 ) : (
-                  <span className="text-xs font-bold text-gray-400">LOGO</span>
+                  <span className="text-xs font-bold text-gray-400 uppercase">LOGO</span>
                 )}
               </div>
 
               <div className="mt-4">
-                <h1 className="text-2xl font-bold">{nombre} {apellido}</h1>
-                <div className="h-1.5 w-14 my-2.5 rounded-full" style={{ backgroundColor: color_secundario }}></div>
+                <h1 className="text-2xl font-bold leading-tight">{nombre} {apellido}</h1>
+                <div
+                  className="h-1.5 w-16 my-2.5 rounded-full"
+                  style={{ backgroundColor: color_secundario, boxShadow: `0 0 10px ${color_secundario}60` }}
+                ></div>
                 <p className="text-base font-bold" style={{ color: color_primario }}>{puesto}</p>
                 {empresa && (
-                  <div className="inline-block px-2.5 py-0.5 mt-1.5 rounded-md text-xs font-bold tracking-wider uppercase border" style={{ backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}50`, color: color_secundario }}>
+                  <div
+                    className="inline-block px-3 py-1 mt-2 rounded-md text-xs font-bold tracking-wider uppercase border"
+                    style={{
+                      backgroundColor: `${color_secundario}15`,
+                      borderColor: `${color_secundario}50`,
+                      color: color_secundario
+                    }}
+                  >
                     {empresa}
                   </div>
                 )}
               </div>
+
+              {nota && (
+                <p className="text-xs mt-4 p-3 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-4" style={{ borderColor: color_cta }}>
+                  "{nota}"
+                </p>
+              )}
             </div>
           </div>
         )}
 
-        {theme === 'modern' && (
+        {/* TEMA MODERNO CYBER DARK */}
+        {isModern && (
           <div className="p-6 flex flex-col items-center text-center">
-            {cover_photo && (
-              <div className="w-full h-28 rounded-2xl overflow-hidden mb-4 border border-white/10 relative">
+            {cover_url && (
+              <div className="w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/10 relative">
                 <img
-                  src={cover_photo}
+                  src={cover_url}
                   alt="Cover"
-                  className="w-full h-full object-cover transition-all"
+                  className="w-full h-full object-cover"
                   style={{
-                    objectPosition: `center ${cover_position_y || 50}%`,
-                    transform: `scale(${(cover_zoom || 100) / 100})`,
-                    transformOrigin: `center ${cover_position_y || 50}%`
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
                   }}
                 />
               </div>
             )}
 
             <div
-              className="rounded-full shadow-2xl bg-[#090912] p-3 flex items-center justify-center overflow-hidden my-2 border-2 transition-all"
+              className="rounded-full shadow-2xl bg-[#090912] p-3 flex items-center justify-center overflow-hidden my-3 border-2 transition-all"
               style={{
                 width: `${logo_scale}px`,
                 height: `${logo_scale}px`,
@@ -199,70 +237,95 @@ export default function PublicProfileClient({ profile }) {
                 boxShadow: `0 0 20px ${color_primario}60`
               }}
             >
-              {logo_img ? (
-                <img src={logo_img} alt="Logo" className="w-full h-full object-contain p-0.5" />
+              {logo_url ? (
+                <img
+                  src={logo_url}
+                  alt="Logo"
+                  className="w-full h-full object-contain"
+                  style={{ padding: '2px' }}
+                />
               ) : (
-                <span className="text-xs font-mono text-gray-400">LOGO</span>
+                <div className="w-full h-full flex items-center justify-center p-2">
+                  <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <polygon points="50,10 85,28 85,72 50,90 15,72 15,28" fill="none" stroke={color_primario} strokeWidth="6" />
+                    <polygon points="50,28 72,68 28,68" fill={color_primario} />
+                  </svg>
+                </div>
               )}
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight mt-3">{nombre} {apellido}</h1>
-            <div className="h-1.5 w-14 my-2.5 rounded-full" style={{ backgroundColor: color_secundario, boxShadow: `0 0 10px ${color_secundario}80` }}></div>
-            <p className="text-base font-bold" style={{ color: color_primario }}>{puesto}</p>
+            <h1 className="text-2xl font-bold tracking-tight mt-2">{nombre} {apellido}</h1>
+            <div
+              className="h-1.5 w-16 my-2 rounded-full transition-all"
+              style={{ backgroundColor: color_secundario, boxShadow: `0 0 12px ${color_secundario}80` }}
+            ></div>
+            <p className="text-sm font-bold mt-1" style={{ color: color_primario }}>{puesto}</p>
+
             {empresa && (
-              <div className="inline-block px-3 py-1 mt-1.5 rounded-full text-xs uppercase tracking-widest font-bold border" style={{ backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}60`, color: color_secundario }}>
+              <div
+                className="inline-block px-3.5 py-1 mt-2 rounded-full text-xs uppercase tracking-widest font-bold border transition-all"
+                style={{
+                  backgroundColor: `${color_secundario}15`,
+                  borderColor: `${color_secundario}60`,
+                  color: color_secundario
+                }}
+              >
                 {empresa}
               </div>
+            )}
+
+            {nota && (
+              <p className="text-xs mt-4 opacity-80 leading-relaxed px-2 italic">
+                "{nota}"
+              </p>
             )}
           </div>
         )}
 
-        {theme === 'minimal' && (
+        {/* TEMA MINIMALISTA */}
+        {isMinimal && (
           <div className="p-8">
-            {cover_photo && (
-              <div className="w-full h-32 overflow-hidden mb-6 border-b border-gray-200 relative">
+            {cover_url && (
+              <div className="w-full h-32 overflow-hidden mb-5 border-b border-gray-200 relative">
                 <img
-                  src={cover_photo}
+                  src={cover_url}
                   alt="Cover"
-                  className="w-full h-full object-cover transition-all"
+                  className="w-full h-full object-cover"
                   style={{
-                    objectPosition: `center ${cover_position_y || 50}%`,
-                    transform: `scale(${(cover_zoom || 100) / 100})`,
-                    transformOrigin: `center ${cover_position_y || 50}%`
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
                   }}
                 />
               </div>
             )}
 
             <div
-              className="bg-gray-100 p-2 flex items-center justify-center mb-4 border border-gray-200"
+              className="bg-gray-100 p-3 flex items-center justify-center mb-4 border border-gray-200"
               style={{ width: `${logo_scale}px`, height: `${logo_scale}px` }}
             >
-              {logo_img ? (
-                <img src={logo_img} alt="Logo" className="w-full h-full object-contain" />
+              {logo_url ? (
+                <img src={logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
               ) : (
                 <span className="text-xs font-mono text-gray-400">LOGO</span>
               )}
             </div>
 
             <h1 className="text-3xl font-light tracking-tight">{nombre} <span className="font-extrabold">{apellido}</span></h1>
-            <div className="w-12 h-1 my-3 rounded-full" style={{ backgroundColor: color_secundario }}></div>
+            <div className="w-16 h-1 my-3 rounded-full" style={{ backgroundColor: color_secundario }}></div>
             <p className="text-sm font-bold tracking-wider uppercase" style={{ color: color_primario }}>{puesto}</p>
-            {empresa && <p className="text-xs font-semibold mt-1" style={{ color: color_secundario }}>{empresa}</p>}
+            {empresa && <p className="text-xs font-semibold mt-1 text-gray-500">{empresa}</p>}
+
+            {nota && (
+              <p className="text-xs mt-4 opacity-75 leading-relaxed italic">
+                "{nota}"
+              </p>
+            )}
           </div>
         )}
 
-        {/* BIO / NOTA */}
-        {nota && (
-          <div className="px-6 py-2">
-            <p className="text-xs md:text-sm italic opacity-80 leading-relaxed p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
-              "{nota}"
-            </p>
-          </div>
-        )}
-
-        {/* PASTILLAS DE CONTACTO & REDES */}
-        <div className="px-6 space-y-2.5 mt-4">
+        {/* PASTILLAS DE CONTACTO & REDES SOCIALES */}
+        <div className="px-6 space-y-2.5 mt-2 flex-1">
           {telefono && (
             <a
               href={`tel:${telefono}`}
@@ -311,42 +374,42 @@ export default function PublicProfileClient({ profile }) {
             </a>
           )}
 
-          {facebook && (
+          {fbUrl && (
             <a
-              href={facebook}
+              href={fbUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
               style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
             >
               <span className="text-lg" style={{ color: color_secundario }}>📘</span>
-              <span className="truncate">Facebook</span>
+              <span className="truncate font-mono">facebook.com/{facebook.replace(/^https?:\/\/(www\.)?facebook\.com\//, '').replace(/^@/, '')}</span>
             </a>
           )}
 
-          {instagram && (
+          {igUrl && (
             <a
-              href={instagram}
+              href={igUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
               style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
             >
               <span className="text-lg" style={{ color: color_secundario }}>📸</span>
-              <span className="truncate">Instagram</span>
+              <span className="truncate font-mono">instagram.com/{instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/^@/, '')}</span>
             </a>
           )}
 
-          {linkedin && (
+          {inUrl && (
             <a
-              href={linkedin}
+              href={inUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
               style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
             >
               <span className="text-lg" style={{ color: color_secundario }}>💼</span>
-              <span className="truncate">LinkedIn</span>
+              <span className="truncate font-mono">linkedin.com/in/{linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, '').replace(/^@/, '')}</span>
             </a>
           )}
 

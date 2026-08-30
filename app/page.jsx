@@ -42,6 +42,20 @@ const POPULAR_FONTS = [
   { label: 'Syne (Alta Moda / Diseño)', value: 'Syne' }
 ];
 
+// Helper para sanitizar y autocomponer URLs de Redes Sociales
+export function getSocialUrl(type, value) {
+  if (!value || !value.trim()) return '';
+  const trimmed = value.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  const clean = trimmed.replace(/^@+/, '').replace(/^https?:\/\/(www\.)?(facebook|instagram|linkedin)\.com\/(in\/)?/, '');
+  if (type === 'facebook') return `https://facebook.com/${clean}`;
+  if (type === 'instagram') return `https://instagram.com/${clean}`;
+  if (type === 'linkedin') return `https://linkedin.com/in/${clean}`;
+  return trimmed;
+}
+
 // Generador Inteligente de URL de Google Maps
 export function getEffectiveMapsUrl(formData) {
   if (formData.googleMapsUrl && formData.googleMapsUrl.trim().startsWith('http')) {
@@ -213,6 +227,11 @@ export default function VCardEngineDashboard() {
 
   const effectiveMapsUrl = getEffectiveMapsUrl(formData);
 
+  // URLs completas de redes sociales
+  const fbUrl = getSocialUrl('facebook', formData.facebook);
+  const igUrl = getSocialUrl('instagram', formData.instagram);
+  const inUrl = getSocialUrl('linkedin', formData.linkedin);
+
   // Construir string vCard 3.0 para cálculo de bytes y descarga
   const buildVCardString = () => {
     let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
@@ -224,9 +243,9 @@ export default function VCardEngineDashboard() {
     if (formData.whatsapp) vcard += `TEL;TYPE=CELL,VOICE,WA:${formData.whatsapp}\r\n`;
     if (formData.correo) vcard += `EMAIL;TYPE=WORK,INTERNET:${formData.correo}\r\n`;
     if (formData.url) vcard += `URL;TYPE=WORK:${formData.url}\r\n`;
-    if (formData.linkedin) vcard += `URL;TYPE=LinkedIn:${formData.linkedin}\r\n`;
-    if (formData.instagram) vcard += `URL;TYPE=Instagram:${formData.instagram}\r\n`;
-    if (formData.facebook) vcard += `URL;TYPE=Facebook:${formData.facebook}\r\n`;
+    if (inUrl) vcard += `URL;TYPE=LinkedIn:${inUrl}\r\n`;
+    if (igUrl) vcard += `URL;TYPE=Instagram:${igUrl}\r\n`;
+    if (fbUrl) vcard += `URL;TYPE=Facebook:${fbUrl}\r\n`;
     if (formData.calle || formData.ciudad || formData.estado || formData.cp || formData.pais) {
       vcard += `ADR;TYPE=WORK:;;${formData.calle || ''};${formData.ciudad || ''};${formData.estado || ''};${formData.cp || ''};${formData.pais || ''}\r\n`;
     }
@@ -291,7 +310,10 @@ export default function VCardEngineDashboard() {
         mode,
         formData: {
           ...formData,
-          googleMapsUrl: effectiveMapsUrl // Guarda la URL efectiva generada o personalizada
+          facebook: fbUrl,
+          instagram: igUrl,
+          linkedin: inUrl,
+          googleMapsUrl: effectiveMapsUrl
         },
         design,
         logoImg,
@@ -572,21 +594,87 @@ export default function VCardEngineDashboard() {
                   </div>
                 </div>
 
-                {/* REDES SOCIALES (Facebook incluida, TikTok eliminada) */}
-                <div className="border-t border-gray-800 pt-4 mt-4">
-                  <h3 className="text-sm font-bruno text-[#F97316] mb-3 flex items-center gap-2">
+                {/* REDES SOCIALES (CON PREFIJOS PRECARGADOS) */}
+                <div className="border-t border-gray-800 pt-4 mt-4 space-y-3">
+                  <h3 className="text-sm font-bruno text-[#F97316] flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                     </svg>
                     Redes Sociales & Multimedia
                   </h3>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <input type="url" name="facebook" value={formData.facebook} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="Facebook Page URL" />
-                    <input type="url" name="instagram" value={formData.instagram} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="Instagram URL" />
-                    <input type="url" name="linkedin" value={formData.linkedin} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="LinkedIn URL" />
+                    {/* Facebook */}
+                    <div>
+                      <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Facebook</label>
+                      <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
+                        <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                          facebook.com/
+                        </span>
+                        <input
+                          type="text"
+                          name="facebook"
+                          value={formData.facebook}
+                          onChange={handleInputChange}
+                          placeholder="usuario o página"
+                          className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Instagram */}
+                    <div>
+                      <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Instagram</label>
+                      <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
+                        <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                          instagram.com/
+                        </span>
+                        <input
+                          type="text"
+                          name="instagram"
+                          value={formData.instagram}
+                          onChange={handleInputChange}
+                          placeholder="usuario"
+                          className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* LinkedIn */}
+                    <div>
+                      <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">LinkedIn</label>
+                      <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
+                        <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                          linkedin.com/in/
+                        </span>
+                        <input
+                          type="text"
+                          name="linkedin"
+                          value={formData.linkedin}
+                          onChange={handleInputChange}
+                          placeholder="tu-perfil"
+                          className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                        />
+                      </div>
+                    </div>
                   </div>
+
+                  {/* YouTube Video URL */}
                   <div className="mt-3">
-                    <input type="url" name="videoYoutubeUrl" value={formData.videoYoutubeUrl} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="Video de YouTube (Presentación / Pitch URL)" />
+                    <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Video de Presentación / Pitch (YouTube)</label>
+                    <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
+                      <span className="bg-[#12121c] text-red-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                        ▶ YouTube:
+                      </span>
+                      <input
+                        type="url"
+                        name="videoYoutubeUrl"
+                        value={formData.videoYoutubeUrl}
+                        onChange={handleInputChange}
+                        placeholder="https://youtu.be/... o https://youtube.com/watch?v=..."
+                        className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -1026,7 +1114,7 @@ export default function VCardEngineDashboard() {
                     </div>
                   )}
 
-                  {/* PASTILLAS DE CONTACTO (Con Colores Elegidos por el Cliente) */}
+                  {/* PASTILLAS DE CONTACTO & REDES SOCIALES */}
                   <div className="px-5 space-y-2 mt-4">
                     {formData.telefono && (
                       <div
@@ -1064,6 +1152,47 @@ export default function VCardEngineDashboard() {
                         <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
                       </div>
                     )}
+
+                    {/* REDES SOCIALES EN EL CELULAR */}
+                    {formData.facebook && (
+                      <div
+                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
+                        style={{
+                          backgroundColor: `${design.colorSecundario}08`,
+                          borderColor: `${design.colorSecundario}25`
+                        }}
+                      >
+                        <span className="text-xs font-bold text-blue-500">📘</span>
+                        <span className="truncate font-mono">facebook.com/{formData.facebook.replace(/^@+/, '')}</span>
+                      </div>
+                    )}
+
+                    {formData.instagram && (
+                      <div
+                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
+                        style={{
+                          backgroundColor: `${design.colorSecundario}08`,
+                          borderColor: `${design.colorSecundario}25`
+                        }}
+                      >
+                        <span className="text-xs font-bold text-pink-500">📸</span>
+                        <span className="truncate font-mono">instagram.com/{formData.instagram.replace(/^@+/, '')}</span>
+                      </div>
+                    )}
+
+                    {formData.linkedin && (
+                      <div
+                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
+                        style={{
+                          backgroundColor: `${design.colorSecundario}08`,
+                          borderColor: `${design.colorSecundario}25`
+                        }}
+                      >
+                        <span className="text-xs font-bold text-blue-400">💼</span>
+                        <span className="truncate font-mono">linkedin.com/in/{formData.linkedin.replace(/^@+/, '')}</span>
+                      </div>
+                    )}
+
                     {effectiveMapsUrl && (
                       <a
                         href={effectiveMapsUrl}
