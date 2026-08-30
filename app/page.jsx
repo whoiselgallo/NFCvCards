@@ -866,8 +866,8 @@ export default function VCardEngineDashboard() {
           </form>
         </section>
 
-        {/* COLUMNA DERECHA: MOCKUP DE LA TARJETA DEL CLIENTE (100% AISLADA) */}
-        <section className="w-full lg:w-1/2 flex flex-col items-center gap-6">
+        {/* COLUMNA DERECHA: MOCKUP DE LA TARJETA DEL CLIENTE (STICKY / SIEMPRE VISIBLE) */}
+        <section className="w-full lg:w-1/2 flex flex-col items-center gap-6 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto pr-1">
           
           {/* MOCKUP ELEGANTE DEL CELULAR (320px x 640px) */}
           <div className="w-[315px] sm:w-[335px] h-[640px] rounded-[44px] border-[8px] border-[#181826] bg-[#000000] shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden relative flex flex-col">
