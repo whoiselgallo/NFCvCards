@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
-// Temas Estructurales
+// Temas Estructurales de la Tarjeta del Cliente
 const THEMES = {
   classic: {
     id: 'classic',
@@ -68,20 +68,20 @@ export default function VCardEngineDashboard() {
     videoYoutubeUrl: ''
   });
 
-  // Paleta Cromática, Escala y Sliders de Banner
+  // Configuración de la Tarjeta del Cliente (100% Independiente de la Plataforma)
   const [design, setDesign] = useState({
     fontFamily: 'Inter',
     customFont: '',
-    colorPrimario: '#F97316',   // Color 1: Naranja (Títulos / Puesto / Aro de Logo)
-    colorSecundario: '#00E5FF', // Color 2: Aqua (Franjas / Badges / Íconos / Bordes)
-    colorCTA: '#F97316',        // Color 3: Botón de Acción Principal
+    colorPrimario: '#F97316',   // Color 1 del Cliente (Puesto / Aro)
+    colorSecundario: '#00E5FF', // Color 2 del Cliente (Franjas / Badges / Íconos)
+    colorCTA: '#F97316',        // Color 3 del Cliente (Botón Guardar Contacto)
     theme: 'modern',
     logoScale: 100,
     coverPositionY: 50,         // Slider 1: Deslizar Arriba / Abajo (0% a 100%)
     coverZoom: 100              // Slider 2: Acercar / Alejar (100% a 250%)
   });
 
-  // Imágenes
+  // Imágenes de la Tarjeta
   const [logoImg, setLogoImg] = useState(null);
   const [coverPhoto, setCoverPhoto] = useState(null);
 
@@ -114,7 +114,7 @@ export default function VCardEngineDashboard() {
     setDesign(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Extractor de color dominante del logotipo
+  // Extractor de color dominante del logotipo (aplica solo al diseño de la tarjeta del cliente)
   const extractDominantColor = (imgSrc) => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
@@ -302,7 +302,7 @@ export default function VCardEngineDashboard() {
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#04040A] text-[#F0F0F8]">
       
-      {/* HEADER MINIMALISTA CYBERPUNK */}
+      {/* HEADER OFICIAL TSOLUTIONS IPIDD */}
       <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide">
@@ -311,14 +311,14 @@ export default function VCardEngineDashboard() {
           <p className="text-gray-400 text-sm mt-1">Generador de identidad digital con optimización algorítmica y Google Cloud SQL.</p>
         </div>
 
-        {/* CONTROLES DE CABECERA: SELECTOR DE MODO & LOGO */}
+        {/* CONTROLES DE CABECERA: SELECTOR DE MODO & LOGO OFICIAL */}
         <div className="flex items-center gap-4">
           <div className="flex bg-[#0A0A14] p-1 rounded-xl border border-gray-800 shadow-inner">
             <button
               onClick={() => setMode('vcard')}
               className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
                 mode === 'vcard'
-                  ? 'bg-[#F97316] text-black font-extrabold shadow-[0_0_12px_rgba(249,115,22,0.4)]'
+                  ? 'bg-[#F97316] text-black font-extrabold shadow-[0_0_14px_rgba(249,115,22,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -328,7 +328,7 @@ export default function VCardEngineDashboard() {
               onClick={() => setMode('review')}
               className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
                 mode === 'review'
-                  ? 'bg-[#00E5FF] text-black font-extrabold shadow-[0_0_12px_rgba(0,229,255,0.4)]'
+                  ? 'bg-[#F97316] text-black font-extrabold shadow-[0_0_14px_rgba(249,115,22,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -337,7 +337,7 @@ export default function VCardEngineDashboard() {
           </div>
 
           {/* Logo Oficial Tsolutions */}
-          <div className="tsolutions-logo hidden sm:flex shrink-0" title="tsolutions ipidd">
+          <div className="tsolutions-logo hidden sm:flex shrink-0" title="TSOLUTIONS IPIDD">
             <div className="tsolutions-triangle"></div>
           </div>
         </div>
@@ -346,9 +346,9 @@ export default function VCardEngineDashboard() {
       {/* CONTENIDO PRINCIPAL EN 2 COLUMNAS */}
       <main className="flex-1 flex flex-col lg:flex-row gap-8 max-w-[1920px] mx-auto w-full items-start">
         
-        {/* COLUMNA IZQUIERDA: FORMULARIO DATA INPUT */}
+        {/* COLUMNA IZQUIERDA: FORMULARIO PLATAFORMA TSOLUTIONS (DATA INPUT) */}
         <section className="w-full lg:w-1/2 panel-glass p-6 md:p-8 overflow-y-auto space-y-6">
-          <h2 className="text-xl font-bruno text-[#00E5FF] flex items-center gap-2 border-b border-gray-800 pb-3">
+          <h2 className="text-xl font-bruno text-[#F97316] flex items-center gap-2 border-b border-gray-800 pb-3">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
@@ -359,8 +359,8 @@ export default function VCardEngineDashboard() {
             
             {mode === 'review' ? (
               /* MODO GOOGLE REVIEWS */
-              <div className="bg-[#12121c] border border-[#00E5FF]/30 rounded-xl p-5 space-y-4">
-                <div className="flex items-center gap-2 text-[#00E5FF]">
+              <div className="bg-[#12121c] border border-[#F97316]/30 rounded-xl p-5 space-y-4">
+                <div className="flex items-center gap-2 text-[#F97316]">
                   <span className="text-2xl">⭐</span>
                   <div>
                     <h3 className="text-sm font-bruno font-bold">Configuración de Reseñas de Google</h3>
@@ -375,7 +375,7 @@ export default function VCardEngineDashboard() {
 
                 <div>
                   <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Enlace de Reseñas de Google</label>
-                  <input type="url" name="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="input-dark w-full border-[#00E5FF]/40" placeholder="https://g.page/r/tu-negocio/review" />
+                  <input type="url" name="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="input-dark w-full border-[#F97316]/40" placeholder="https://g.page/r/tu-negocio/review" />
                   <p className="text-[10px] text-gray-500 mt-1">Pega el link directo que Google Business te da para solicitar opiniones.</p>
                 </div>
               </div>
@@ -404,7 +404,7 @@ export default function VCardEngineDashboard() {
                         type="file"
                         accept="image/png, image/jpeg, image/jpg, image/webp"
                         onChange={handleCoverUpload}
-                        className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#00E5FF] file:text-black hover:file:bg-cyan-400 transition-colors cursor-pointer"
+                        className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#F97316] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer"
                       />
                       <p className="text-[10px] text-gray-400 mt-1">📸 Al subir una foto se activarán los controles de encuadre y zoom.</p>
                     </div>
@@ -412,7 +412,7 @@ export default function VCardEngineDashboard() {
 
                   {/* Slider de Escala del Logo */}
                   <div className="pt-2 border-t border-gray-800">
-                    <div className="flex justify-between items-center text-xs font-bruno text-[#00E5FF] mb-1 uppercase">
+                    <div className="flex justify-between items-center text-xs font-bruno text-[#F97316] mb-1 uppercase">
                       <span>Tamaño / Escala del Logo</span>
                       <span className="text-white font-mono">{design.logoScale}px</span>
                     </div>
@@ -423,7 +423,7 @@ export default function VCardEngineDashboard() {
                       max="160"
                       value={design.logoScale}
                       onChange={handleDesignChange}
-                      className="w-full cursor-pointer accent-[#00E5FF]"
+                      className="w-full cursor-pointer accent-[#F97316]"
                     />
                     <div className="flex justify-between text-[10px] text-gray-500 mt-1 uppercase tracking-wide">
                       <span>Compacto (50px)</span>
@@ -431,11 +431,11 @@ export default function VCardEngineDashboard() {
                     </div>
                   </div>
 
-                  {/* CONTROLES DE ENCUADRE DE BANNER (ACTIVADOS AL SUBIR FOTO) */}
+                  {/* CONTROLES DE ENCUADRE DE BANNER (TSOLUTIONS NARANJA ENERGY TOKENS) */}
                   {coverPhoto && (
-                    <div className="pt-3 border-t border-gray-800 space-y-3 bg-black/40 p-3.5 rounded-xl border border-cyan-500/30 animate-fadeIn">
-                      <div className="flex justify-between items-center text-xs font-bruno text-[#00E5FF]">
-                        <span className="flex items-center gap-1.5">
+                    <div className="pt-3 border-t border-gray-800 space-y-3 bg-black/40 p-3.5 rounded-xl border border-[#F97316]/40 shadow-[0_0_15px_rgba(249,115,22,0.15)] animate-fadeIn">
+                      <div className="flex justify-between items-center text-xs font-bruno text-[#F97316]">
+                        <span className="flex items-center gap-1.5 font-bold">
                           <span>🖼️</span> Ajuste de Encuadre del Banner
                         </span>
                         <button
@@ -451,7 +451,7 @@ export default function VCardEngineDashboard() {
                       <div>
                         <div className="flex justify-between text-[11px] text-gray-300 mb-1 font-mono">
                           <span>↕️ Desplazamiento Vertical</span>
-                          <span className="text-[#00E5FF] font-bold">{design.coverPositionY}%</span>
+                          <span className="text-[#F97316] font-bold">{design.coverPositionY}%</span>
                         </div>
                         <input
                           type="range"
@@ -460,7 +460,7 @@ export default function VCardEngineDashboard() {
                           max="100"
                           value={design.coverPositionY}
                           onChange={handleDesignChange}
-                          className="w-full cursor-pointer accent-[#00E5FF]"
+                          className="w-full cursor-pointer accent-[#F97316]"
                         />
                         <div className="flex justify-between text-[9px] text-gray-500 mt-0.5 uppercase">
                           <span>Arriba (0%)</span>
@@ -545,7 +545,7 @@ export default function VCardEngineDashboard() {
 
                 {/* REDES SOCIALES (Facebook incluida, TikTok eliminada) */}
                 <div className="border-t border-gray-800 pt-4 mt-4">
-                  <h3 className="text-sm font-bruno text-[#00E5FF] mb-3 flex items-center gap-2">
+                  <h3 className="text-sm font-bruno text-[#F97316] mb-3 flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                     </svg>
@@ -564,7 +564,7 @@ export default function VCardEngineDashboard() {
 
                 {/* DIRECCIÓN */}
                 <div className="border-t border-gray-800 pt-4 mt-4">
-                  <h3 className="text-sm font-bruno text-[#00E5FF] mb-3">Dirección de Trabajo</h3>
+                  <h3 className="text-sm font-bruno text-[#F97316] mb-3">Dirección de Trabajo</h3>
                   <input type="text" name="calle" value={formData.calle} onChange={handleInputChange} className="input-dark w-full mb-3" placeholder="Calle y Número, Colonia" />
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <input type="text" name="ciudad" value={formData.ciudad} onChange={handleInputChange} className="input-dark w-full" placeholder="Ciudad" />
@@ -582,18 +582,18 @@ export default function VCardEngineDashboard() {
                   <textarea name="nota" value={formData.nota} onChange={handleInputChange} className="input-dark w-full h-20 py-2.5" placeholder="Soluciones digitales, optimización y desarrollo..."></textarea>
                 </div>
                 
-                {/* BRANDING DEL CLIENTE (Temas + 3 Colores + Google Fonts) */}
+                {/* BRANDING DEL CLIENTE (Configuración para su Tarjeta) */}
                 <div className="bg-[#0c0c16] border border-gray-800 p-5 rounded-[var(--radius-large)] mt-6 space-y-4">
-                  <h3 className="text-sm font-bruno text-[#FFD700] flex items-center gap-2">
+                  <h3 className="text-sm font-bruno text-[#F97316] flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                     </svg>
-                    Branding, Tema & Paleta Cromática
+                    Personalización de la Tarjeta del Cliente
                   </h3>
 
                   {/* SELECTOR DE TEMAS ESTRUCTURALES */}
                   <div>
-                    <label className="block text-xs text-gray-300 mb-2 uppercase tracking-wide">Tema de la Tarjeta</label>
+                    <label className="block text-xs text-gray-300 mb-2 uppercase tracking-wide">Tema Estructural</label>
                     <div className="grid grid-cols-3 gap-2">
                       {Object.values(THEMES).map(th => (
                         <button
@@ -602,11 +602,11 @@ export default function VCardEngineDashboard() {
                           onClick={() => setDesign(prev => ({ ...prev, theme: th.id }))}
                           className={`p-2.5 rounded-xl border text-left transition-all ${
                             design.theme === th.id
-                              ? 'bg-[#00E5FF]/10 border-[#00E5FF] shadow-[0_0_12px_rgba(0,229,255,0.2)]'
+                              ? 'bg-[#F97316]/10 border-[#F97316] shadow-[0_0_12px_rgba(249,115,22,0.3)]'
                               : 'bg-black/30 border-gray-800 hover:border-gray-700'
                           }`}
                         >
-                          <p className={`text-xs font-bruno font-bold ${design.theme === th.id ? 'text-[#00E5FF]' : 'text-white'}`}>{th.name}</p>
+                          <p className={`text-xs font-bruno font-bold ${design.theme === th.id ? 'text-[#F97316]' : 'text-white'}`}>{th.name}</p>
                           <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{th.desc}</p>
                         </button>
                       ))}
@@ -629,7 +629,7 @@ export default function VCardEngineDashboard() {
                     </div>
                   </div>
 
-                  {/* PALETA 3 COLORES CON ETIQUETAS CLARAS */}
+                  {/* PALETA 3 COLORES DE LA TARJETA DEL CLIENTE */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                     {/* Color 1: Primario */}
                     <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
@@ -640,7 +640,7 @@ export default function VCardEngineDashboard() {
                       </div>
                     </div>
 
-                    {/* Color 2: Secundario (Franjas / Badges / Íconos) */}
+                    {/* Color 2: Secundario */}
                     <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
                       <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">2. Color Secundario (Franjas/Íconos)</label>
                       <div className="flex items-center gap-2">
@@ -663,14 +663,13 @@ export default function VCardEngineDashboard() {
               </>
             )}
 
-            {/* BOTÓN MAESTRO DE GUARDAR EN GOOGLE CLOUD SQL */}
+            {/* BOTÓN MAESTRO DE GUARDAR EN GOOGLE CLOUD SQL (TSOLUTIONS PRIMARY CTA) */}
             <div className="pt-2">
               <button
                 type="button"
                 onClick={handleSaveToCloud}
                 disabled={isSaving}
-                className="btn-primary w-full text-sm font-bruno tracking-wider flex items-center justify-center gap-2"
-                style={{ backgroundColor: design.colorCTA }}
+                className="btn-primary w-full text-sm font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#F97316] text-black font-extrabold hover:bg-orange-400"
               >
                 {isSaving ? (
                   <>
@@ -692,11 +691,11 @@ export default function VCardEngineDashboard() {
                     <span>✅</span> ¡Perfil Desplegado Exitosamente en Google Cloud SQL!
                   </div>
                   <p className="text-[11px] text-gray-300">Este es tu enlace permanente para programar el chip NFC o compartir:</p>
-                  <div className="p-2 bg-black/60 rounded-lg font-mono text-xs text-[#00E5FF] break-all select-all flex items-center justify-between gap-2 border border-white/5">
+                  <div className="p-2 bg-black/60 rounded-lg font-mono text-xs text-[#F97316] break-all select-all flex items-center justify-between gap-2 border border-white/5">
                     <span>{savedUrl}</span>
                     <button
                       onClick={() => { navigator.clipboard.writeText(savedUrl); alert('¡Enlace copiado al portapapeles!'); }}
-                      className="px-2.5 py-1 bg-[#00E5FF] text-black font-bold text-[10px] rounded hover:bg-cyan-400 transition-colors uppercase"
+                      className="px-2.5 py-1 bg-[#F97316] text-black font-bold text-[10px] rounded hover:bg-orange-400 transition-colors uppercase"
                     >
                       Copiar
                     </button>
@@ -708,7 +707,7 @@ export default function VCardEngineDashboard() {
           </form>
         </section>
 
-        {/* COLUMNA DERECHA: MOCKUP DEL CELULAR Y RESULTADOS */}
+        {/* COLUMNA DERECHA: MOCKUP DE LA TARJETA DEL CLIENTE (100% AISLADA) */}
         <section className="w-full lg:w-1/2 flex flex-col items-center gap-6">
           
           {/* MOCKUP ELEGANTE DEL CELULAR (320px x 640px) */}
@@ -720,7 +719,7 @@ export default function VCardEngineDashboard() {
               <div className="w-8 h-1 bg-gray-700 rounded-full"></div>
             </div>
 
-            {/* PANTALLA INTERNA DEL CELULAR */}
+            {/* PANTALLA INTERNA DEL CELULAR (AISLADA: RESPONDE A LOS COLORES DEL CLIENTE) */}
             <div
               className="flex-1 overflow-y-auto relative pb-20 select-none transition-all"
               style={{
@@ -754,7 +753,7 @@ export default function VCardEngineDashboard() {
                   {/* TEMA CLÁSICO */}
                   {design.theme === 'classic' && (
                     <div>
-                      {/* Portada o Franja Secundaria Vibrante con Zoom y Posicionamiento Y */}
+                      {/* Portada con Zoom y Posicionamiento Y */}
                       <div
                         className="h-28 w-full relative overflow-hidden flex items-center justify-center transition-colors"
                         style={{ backgroundColor: design.colorSecundario }}
@@ -793,7 +792,7 @@ export default function VCardEngineDashboard() {
                         <div className="mt-3">
                           <h2 className="text-xl font-bold leading-tight">{formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}</h2>
                           
-                          {/* Franja de Acento (Color Secundario con Glow) */}
+                          {/* Franja de Acento (Color Secundario del Cliente) */}
                           <div
                             className="h-1.5 w-14 my-2.5 rounded-full transition-all"
                             style={{
@@ -846,7 +845,7 @@ export default function VCardEngineDashboard() {
                         </div>
                       )}
 
-                      {/* Logo Circular con Glow Dinámico y 4px+ de Margen de Seguridad Interno */}
+                      {/* Logo Circular con Glow Dinámico del Cliente */}
                       <div
                         className="rounded-full shadow-2xl bg-[#090912] p-3 flex items-center justify-center overflow-hidden my-2 border-2 transition-all"
                         style={{
@@ -875,7 +874,7 @@ export default function VCardEngineDashboard() {
 
                       <h2 className="text-xl font-bold tracking-tight mt-2 font-bruno">{formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}</h2>
                       
-                      {/* Franja de Acento (Color Secundario con Glow) */}
+                      {/* Franja de Acento (Color Secundario del Cliente) */}
                       <div
                         className="h-1.5 w-14 my-2 rounded-full transition-all"
                         style={{
@@ -939,7 +938,7 @@ export default function VCardEngineDashboard() {
 
                       <h2 className="text-2xl font-light tracking-tight">{formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span></h2>
                       
-                      {/* Línea de Color Secundario */}
+                      {/* Línea de Color Secundario del Cliente */}
                       <div className="w-12 h-1 my-2.5 rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
                       
                       <p className="text-xs font-bold tracking-wider uppercase font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
@@ -956,7 +955,7 @@ export default function VCardEngineDashboard() {
                     </div>
                   )}
 
-                  {/* PASTILLAS DE CONTACTO (Con Acentos del Color Secundario) */}
+                  {/* PASTILLAS DE CONTACTO (Con Colores Elegidos por el Cliente) */}
                   <div className="px-5 space-y-2 mt-4">
                     {formData.telefono && (
                       <div
@@ -1016,7 +1015,7 @@ export default function VCardEngineDashboard() {
               )}
             </div>
 
-            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (Color CTA) */}
+            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (Color CTA del Cliente) */}
             {mode === 'vcard' && (
               <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20">
                 <button
@@ -1030,14 +1029,14 @@ export default function VCardEngineDashboard() {
             )}
           </div>
 
-          {/* PANEL DE RESULTADOS, QR Y LOS 2 ENTREGABLES (Midnight Panel) */}
+          {/* PANEL DE RESULTADOS Y TELEMETRÍA (TOKENS OFICIALES TSOLUTIONS IPIDD) */}
           <div className="w-full panel-glass p-6 md:p-8 flex flex-col justify-between space-y-6">
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               
-              {/* Telemetría NTAG */}
+              {/* Telemetría NTAG (TSOLUTIONS BRANDING) */}
               <div>
-                <h3 className="text-base font-bruno text-[#00E5FF] mb-3 flex items-center gap-2">
+                <h3 className="text-base font-bruno text-[#F97316] mb-3 flex items-center gap-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                   </svg>
@@ -1046,7 +1045,7 @@ export default function VCardEngineDashboard() {
                 
                 <div className="mb-4">
                   <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Payload URL para NFC</p>
-                  <div className="flex items-end gap-1.5 text-[#00E5FF]">
+                  <div className="flex items-end gap-1.5 text-[#F97316]">
                     <span className="text-3xl font-bruno font-bold">{new Blob([qrTargetValue]).size}</span>
                     <span className="text-xs mb-1 font-bruno">B</span>
                   </div>
@@ -1054,7 +1053,7 @@ export default function VCardEngineDashboard() {
 
                 <div className="p-3.5 rounded-[var(--radius-soft)] bg-[#12121c] border border-gray-800">
                   <p className="text-[10px] font-bruno text-gray-400 mb-1 uppercase tracking-wider">Chip Sugerido</p>
-                  <p className="text-lg font-bruno font-bold text-green-400">
+                  <p className="text-lg font-bruno font-bold text-[#F97316]">
                     NTAG213 (100% Compatible)
                   </p>
                   <p className="text-[10px] text-gray-400 mt-0.5">
@@ -1077,7 +1076,7 @@ export default function VCardEngineDashboard() {
                 </div>
                 <button
                   onClick={downloadQR}
-                  className="mt-3 px-3 py-1 bg-[#00E5FF]/10 text-[#00E5FF] hover:bg-[#00E5FF] hover:text-black transition-all border border-[#00E5FF]/30 rounded-md text-[10px] font-bruno font-bold uppercase tracking-wider flex items-center gap-1"
+                  className="mt-3 px-3 py-1 bg-[#F97316]/10 text-[#F97316] hover:bg-[#F97316] hover:text-black transition-all border border-[#F97316]/40 rounded-md text-[10px] font-bruno font-bold uppercase tracking-wider flex items-center gap-1"
                 >
                   <span>⬇</span> Descargar QR (.PNG)
                 </button>
@@ -1089,8 +1088,7 @@ export default function VCardEngineDashboard() {
             <div className="pt-2">
               <button
                 onClick={downloadVCF}
-                className="btn-primary w-full text-xs font-bruno tracking-wider flex items-center justify-center gap-2"
-                style={{ backgroundColor: design.colorCTA }}
+                className="btn-primary w-full text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#F97316] text-black font-extrabold hover:bg-orange-400"
               >
                 <span>💾</span> DESCARGAR ARCHIVO .VCF (ENTREGABLE 2)
               </button>
