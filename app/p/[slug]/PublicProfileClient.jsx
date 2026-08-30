@@ -147,16 +147,16 @@ export default function PublicProfileClient({ profile }) {
             )}
 
             <div
-              className="rounded-full shadow-2xl bg-[#090912] p-1 flex items-center justify-center overflow-hidden my-2 border-2"
+              className="rounded-full shadow-2xl bg-[#090912] p-3 flex items-center justify-center overflow-hidden my-2 border-2 transition-all"
               style={{
                 width: `${logo_scale}px`,
                 height: `${logo_scale}px`,
                 borderColor: color_primario,
-                boxShadow: `0 0 20px ${color_primario}50`
+                boxShadow: `0 0 20px ${color_primario}60`
               }}
             >
               {logo_img ? (
-                <img src={logo_img} alt="Logo" className="w-full h-full object-contain rounded-full" />
+                <img src={logo_img} alt="Logo" className="w-full h-full object-contain p-0.5" />
               ) : (
                 <span className="text-xs font-mono text-gray-400">LOGO</span>
               )}

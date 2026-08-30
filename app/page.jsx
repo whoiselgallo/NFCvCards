@@ -72,7 +72,7 @@ export default function VCardEngineDashboard() {
   const [design, setDesign] = useState({
     fontFamily: 'Inter',
     customFont: '',
-    colorPrimario: '#F97316',   // Color 1: Naranja (Títulos / Puesto)
+    colorPrimario: '#F97316',   // Color 1: Naranja (Títulos / Puesto / Aro de Logo)
     colorSecundario: '#00E5FF', // Color 2: Aqua (Franjas / Badges / Íconos / Bordes)
     colorCTA: '#F97316',        // Color 3: Botón de Acción Principal
     theme: 'modern',
@@ -112,11 +112,69 @@ export default function VCardEngineDashboard() {
     setDesign(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  // Extractor de color dominante del logotipo
+  const extractDominantColor = (imgSrc) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 40;
+        canvas.height = 40;
+        ctx.drawImage(img, 0, 0, 40, 40);
+        const data = ctx.getImageData(0, 0, 40, 40).data;
+        
+        let maxScore = 0;
+        let bestHex = null;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i+1];
+          const b = data[i+2];
+          const a = data[i+3];
+
+          if (a < 100) continue; // Ignorar transparencias
+          
+          const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+          if (brightness < 30 || brightness > 230) continue; // Ignorar negros o blancos puros
+
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          const saturation = max === 0 ? 0 : (max - min) / max;
+          const score = saturation * 100 + (max - min);
+
+          if (score > maxScore) {
+            maxScore = score;
+            bestHex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+          }
+        }
+
+        if (bestHex) {
+          setDesign(prev => ({
+            ...prev,
+            colorPrimario: bestHex,
+            colorCTA: bestHex
+          }));
+        }
+      } catch (e) {
+        console.log('Dominant color extraction fallback:', e);
+      }
+    };
+    img.src = imgSrc;
+  };
+
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (evt) => setLogoImg(evt.target?.result);
+      reader.onload = (evt) => {
+        const result = evt.target?.result;
+        setLogoImg(result);
+        if (result) {
+          extractDominantColor(result);
+        }
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -334,6 +392,7 @@ export default function VCardEngineDashboard() {
                         onChange={handleLogoUpload}
                         className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#F97316] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer"
                       />
+                      <p className="text-[10px] text-gray-400 mt-1">🎨 El aro del logo se adaptará automáticamente a los colores de tu imagen.</p>
                     </div>
 
                     {/* Foto de Portada / Banner */}
@@ -642,13 +701,13 @@ export default function VCardEngineDashboard() {
                       </div>
 
                       <div className="px-5 -mt-10">
-                        {/* Logo Escalable */}
+                        {/* Logo Escalable con Margen de Seguridad */}
                         <div
-                          className="rounded-2xl shadow-xl bg-white p-1 border-2 border-white flex items-center justify-center overflow-hidden"
+                          className="rounded-2xl shadow-xl bg-white p-2.5 border-2 border-white flex items-center justify-center overflow-hidden"
                           style={{ width: `${design.logoScale}px`, height: `${design.logoScale}px` }}
                         >
                           {logoImg ? (
-                            <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
+                            <img src={logoImg} alt="Logo" className="w-full h-full object-contain p-1" />
                           ) : (
                             <span className="text-[10px] font-bold text-gray-400 uppercase font-bruno">LOGO</span>
                           )}
@@ -701,20 +760,30 @@ export default function VCardEngineDashboard() {
                         </div>
                       )}
 
-                      {/* Logo Circular con Glow de Color Primario & Secundario */}
+                      {/* Logo Circular con Glow Dinámico y 4px+ de Margen de Seguridad Interno */}
                       <div
-                        className="rounded-full shadow-2xl bg-[#090912] p-1 flex items-center justify-center overflow-hidden my-2 border-2 transition-all"
+                        className="rounded-full shadow-2xl bg-[#090912] p-3 flex items-center justify-center overflow-hidden my-2 border-2 transition-all"
                         style={{
                           width: `${design.logoScale}px`,
                           height: `${design.logoScale}px`,
                           borderColor: design.colorPrimario,
-                          boxShadow: `0 0 16px ${design.colorPrimario}50`
+                          boxShadow: `0 0 18px ${design.colorPrimario}60`
                         }}
                       >
                         {logoImg ? (
-                          <img src={logoImg} alt="Logo" className="w-full h-full object-contain rounded-full" />
+                          <img
+                            src={logoImg}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                            style={{ padding: '2px' }}
+                          />
                         ) : (
-                          <span className="text-[10px] font-mono text-gray-500 font-bruno">LOGO</span>
+                          <div className="w-full h-full flex items-center justify-center p-1">
+                            <svg viewBox="0 0 100 100" className="w-full h-full">
+                              <polygon points="50,10 85,28 85,72 50,90 15,72 15,28" fill="none" stroke={design.colorPrimario} strokeWidth="6" />
+                              <polygon points="50,28 72,68 28,68" fill={design.colorPrimario} />
+                            </svg>
+                          </div>
                         )}
                       </div>
 
@@ -763,11 +832,11 @@ export default function VCardEngineDashboard() {
                       )}
 
                       <div
-                        className="bg-gray-100 p-2 flex items-center justify-center mb-3 border border-gray-200"
+                        className="bg-gray-100 p-2.5 flex items-center justify-center mb-3 border border-gray-200"
                         style={{ width: `${design.logoScale}px`, height: `${design.logoScale}px` }}
                       >
                         {logoImg ? (
-                          <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
+                          <img src={logoImg} alt="Logo" className="w-full h-full object-contain p-1" />
                         ) : (
                           <span className="text-[10px] font-mono text-gray-400 font-bruno">LOGO</span>
                         )}
