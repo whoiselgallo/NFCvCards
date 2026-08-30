@@ -4,3 +4,5 @@ node_modules
 .env.local
 node_modules/
 .next/
+index.old.html
+test-db.js
