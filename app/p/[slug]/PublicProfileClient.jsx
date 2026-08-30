@@ -39,6 +39,8 @@ export default function PublicProfileClient({ profile }) {
     video_youtube_url = '',
     theme = 'modern',
     font_family = 'Inter',
+    font_primary = '',
+    font_secondary = '',
     color_primario = '#F97316',
     color_secundario = '#00E5FF',
     color_cta = '#F97316',
@@ -49,20 +51,25 @@ export default function PublicProfileClient({ profile }) {
     cover_url = null
   } = profile;
 
-  // Inyección de Google Font dinámicamente
+  const currentFontPrimary = font_primary || font_family || 'Inter';
+  const currentFontSecondary = font_secondary || font_family || 'Inter';
+
+  // Inyección de Google Fonts dinámicamente (Primaria + Secundaria)
   useEffect(() => {
-    if (font_family) {
-      const linkId = 'gfonts-public-profile';
-      let link = document.getElementById(linkId);
-      if (!link) {
-        link = document.createElement('link');
-        link.id = linkId;
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-      }
-      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font_family)}:wght@300;400;500;600;700;800&display=swap`;
+    const uniqueFonts = Array.from(new Set([currentFontPrimary, currentFontSecondary]));
+    const linkId = 'gfonts-public-profile';
+    let link = document.getElementById(linkId);
+    if (!link) {
+      link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
     }
-  }, [font_family]);
+    const fontParams = uniqueFonts
+      .map(f => `family=${encodeURIComponent(f)}:wght@300;400;500;600;700;800`)
+      .join('&');
+    link.href = `https://fonts.googleapis.com/css2?${fontParams}&display=swap`;
+  }, [currentFontPrimary, currentFontSecondary]);
 
   // Generador Inteligente de URL de Google Maps
   const effectiveMapsUrl = google_maps_url && google_maps_url.trim().startsWith('http')
@@ -139,7 +146,7 @@ export default function PublicProfileClient({ profile }) {
         className="w-full max-w-md min-h-screen sm:min-h-[720px] sm:rounded-[36px] shadow-2xl overflow-hidden relative pb-28 select-none transition-all flex flex-col"
         style={{
           backgroundColor: bgColor,
-          fontFamily: font_family,
+          fontFamily: currentFontSecondary,
           color: textColor
         }}
       >
@@ -185,7 +192,12 @@ export default function PublicProfileClient({ profile }) {
               </div>
 
               <div className="mt-4 w-full">
-                <h1 className="text-2xl font-bold leading-tight text-slate-800">{nombre} {apellido}</h1>
+                <h1
+                  className="text-2xl font-bold leading-tight text-slate-800"
+                  style={{ fontFamily: currentFontPrimary }}
+                >
+                  {nombre} {apellido}
+                </h1>
                 <div
                   className="h-1.5 w-16 my-2.5 mx-auto rounded-full"
                   style={{ backgroundColor: color_secundario, boxShadow: `0 0 10px ${color_secundario}60` }}
@@ -258,7 +270,12 @@ export default function PublicProfileClient({ profile }) {
               )}
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight mt-2">{nombre} {apellido}</h1>
+            <h1
+              className="text-2xl font-bold tracking-tight mt-2"
+              style={{ fontFamily: currentFontPrimary }}
+            >
+              {nombre} {apellido}
+            </h1>
             <div
               className="h-1.5 w-16 my-2 mx-auto rounded-full transition-all"
               style={{ backgroundColor: color_secundario, boxShadow: `0 0 12px ${color_secundario}80` }}
@@ -321,7 +338,12 @@ export default function PublicProfileClient({ profile }) {
               )}
             </div>
 
-            <h1 className="text-3xl font-light tracking-tight text-slate-900">{nombre} <span className="font-extrabold">{apellido}</span></h1>
+            <h1
+              className="text-3xl font-light tracking-tight text-slate-900"
+              style={{ fontFamily: currentFontPrimary }}
+            >
+              {nombre} <span className="font-extrabold">{apellido}</span>
+            </h1>
             <div className="w-16 h-1 my-3 mx-auto rounded-full" style={{ backgroundColor: color_secundario }}></div>
             <p className="text-sm font-bold tracking-wider uppercase" style={{ color: color_primario }}>{puesto}</p>
             {empresa && <p className="text-xs font-semibold mt-1 text-gray-500">{empresa}</p>}
@@ -393,7 +415,7 @@ export default function PublicProfileClient({ profile }) {
               style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
             >
               <span className="text-lg" style={{ color: color_secundario }}>📘</span>
-              <span className="truncate font-mono">facebook.com/{facebook.replace(/^https?:\/\/(www\.)?facebook\.com\//, '').replace(/^@/, '')}</span>
+              <span className="truncate font-mono">facebook.com/{facebook.replace(/^@+/, '')}</span>
             </a>
           )}
 
@@ -406,7 +428,7 @@ export default function PublicProfileClient({ profile }) {
               style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
             >
               <span className="text-lg" style={{ color: color_secundario }}>📸</span>
-              <span className="truncate font-mono">instagram.com/{instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/^@/, '')}</span>
+              <span className="truncate font-mono">instagram.com/{instagram.replace(/^@+/, '')}</span>
             </a>
           )}
 
@@ -419,7 +441,7 @@ export default function PublicProfileClient({ profile }) {
               style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
             >
               <span className="text-lg" style={{ color: color_secundario }}>💼</span>
-              <span className="truncate font-mono">linkedin.com/in/{linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, '').replace(/^@/, '')}</span>
+              <span className="truncate font-mono">linkedin.com/in/{linkedin.replace(/^@+/, '')}</span>
             </a>
           )}
 
@@ -447,12 +469,15 @@ export default function PublicProfileClient({ profile }) {
           )}
         </div>
 
-        {/* BOTÓN FLOTANTE GUARDAR CONTACTO */}
+        {/* BOTÓN FLOTANTE GUARDAR CONTACTO (TIPOGRAFÍA PRIMARIA Y COLOR CTA) */}
         <div className="absolute bottom-4 left-4 right-4 z-20">
           <button
             onClick={downloadVCF}
             className="w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-wider text-black shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.99]"
-            style={{ backgroundColor: color_cta }}
+            style={{
+              backgroundColor: color_cta,
+              fontFamily: currentFontPrimary
+            }}
           >
             <span>💾</span> Guardar Contacto en Mi Celular
           </button>

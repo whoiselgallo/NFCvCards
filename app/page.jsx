@@ -33,13 +33,17 @@ const THEMES = {
 
 const POPULAR_FONTS = [
   { label: 'Inter (Moderna y Limpia)', value: 'Inter' },
-  { label: 'Space Grotesk (Tecnológica)', value: 'Space Grotesk' },
-  { label: 'Playfair Display (Elegante y Clásica)', value: 'Playfair Display' },
+  { label: 'Bruno Ace SC (Branding Tecnológico)', value: 'Bruno Ace SC' },
+  { label: 'Space Grotesk (Futurista)', value: 'Space Grotesk' },
+  { label: 'Playfair Display (Elegante & Editorial)', value: 'Playfair Display' },
   { label: 'Montserrat (Geométrica)', value: 'Montserrat' },
-  { label: 'Poppins (Amigable y Redondeada)', value: 'Poppins' },
-  { label: 'Roboto (Estándar Android)', value: 'Roboto' },
+  { label: 'Poppins (Amigable y Redonda)', value: 'Poppins' },
+  { label: 'Bebas Neue (Impacto & Mayúsculas)', value: 'Bebas Neue' },
   { label: 'Outfit (Vanguardista)', value: 'Outfit' },
-  { label: 'Syne (Alta Moda / Diseño)', value: 'Syne' }
+  { label: 'Cinzel (Lujo / Clásica)', value: 'Cinzel' },
+  { label: 'Oswald (Condensada / Firme)', value: 'Oswald' },
+  { label: 'Syne (Alta Moda / Diseño)', value: 'Syne' },
+  { label: 'Roboto (Estándar Android)', value: 'Roboto' }
 ];
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
@@ -105,8 +109,8 @@ export default function VCardEngineDashboard() {
 
   // Configuración de la Tarjeta del Cliente (100% Independiente de la Plataforma)
   const [design, setDesign] = useState({
-    fontFamily: 'Inter',
-    customFont: '',
+    fontPrimary: 'Inter',       // Tipografía Primaria: Nombre & Botón Guardar Contacto
+    fontSecondary: 'Inter',     // Tipografía Secundaria: Puesto, Empresa y Contenido
     colorPrimario: '#F97316',   // Color 1 del Cliente (Puesto / Aro / Cuadro)
     colorSecundario: '#00E5FF', // Color 2 del Cliente (Franjas / Badges / Íconos)
     colorCTA: '#F97316',        // Color 3 del Cliente (Botón Guardar Contacto)
@@ -125,21 +129,25 @@ export default function VCardEngineDashboard() {
   const [savedUrl, setSavedUrl] = useState(null);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  // Inyección reactiva de Google Fonts
+  // Inyección reactiva de Google Fonts (Primaria + Secundaria)
   useEffect(() => {
-    const font = design.customFont.trim() || design.fontFamily;
-    if (font) {
-      const linkId = 'gfonts-preview-cdn';
-      let link = document.getElementById(linkId);
-      if (!link) {
-        link = document.createElement('link');
-        link.id = linkId;
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-      }
-      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font)}:wght@300;400;500;600;700;800&display=swap`;
+    const fontP = design.fontPrimary || 'Inter';
+    const fontS = design.fontSecondary || 'Inter';
+    const uniqueFonts = Array.from(new Set([fontP, fontS]));
+
+    const linkId = 'gfonts-preview-cdn';
+    let link = document.getElementById(linkId);
+    if (!link) {
+      link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
     }
-  }, [design.fontFamily, design.customFont]);
+    const fontParams = uniqueFonts
+      .map(f => `family=${encodeURIComponent(f)}:wght@300;400;500;600;700;800`)
+      .join('&');
+    link.href = `https://fonts.googleapis.com/css2?${fontParams}&display=swap`;
+  }, [design.fontPrimary, design.fontSecondary]);
 
   const handleInputChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -342,7 +350,8 @@ export default function VCardEngineDashboard() {
   };
 
   const activeTheme = THEMES[design.theme] || THEMES.modern;
-  const currentFontFamily = design.customFont.trim() || design.fontFamily;
+  const currentFontPrimary = design.fontPrimary || 'Inter';
+  const currentFontSecondary = design.fontSecondary || 'Inter';
   const qrTargetValue = savedUrl || (mode === 'review'
     ? (effectiveMapsUrl || 'https://maps.google.com')
     : (formData.url || 'https://tsolutionsipidd.com'));
@@ -397,7 +406,7 @@ export default function VCardEngineDashboard() {
       {/* CONTENIDO PRINCIPAL EN 2 COLUMNAS */}
       <main className="flex-1 flex flex-col lg:flex-row gap-8 max-w-[1920px] mx-auto w-full items-start">
         
-        {/* COLUMNA 1: PANEL PLATAFORMA TSOLUTIONS (TODO EL FLUJO DE ENTRADA, TELEMETRÍA Y ACCIONES) */}
+        {/* COLUMNA 1: PANEL PLATAFORMA TSOLUTIONS */}
         <section className="w-full lg:w-7/12 panel-glass p-6 md:p-8 space-y-6">
           <h2 className="text-xl font-bruno text-[#F97316] flex items-center gap-2 border-b border-gray-800 pb-3">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -772,19 +781,42 @@ export default function VCardEngineDashboard() {
                     </div>
                   </div>
                   
-                  {/* TIPOGRAFÍA GOOGLE FONTS */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* SELECTORES DESPLEGABLES DE TIPOGRAFÍA (PRIMARIA Y SECUNDARIA) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Tipografía Primaria */}
                     <div>
-                      <label className="block text-xs text-gray-300 mb-1 uppercase tracking-wide">Tipografía</label>
-                      <select name="fontFamily" value={design.fontFamily} onChange={handleDesignChange} className="input-dark w-full cursor-pointer">
+                      <label className="block text-xs text-gray-300 mb-1 uppercase tracking-wide font-bold flex items-center gap-1.5">
+                        <span className="text-[#F97316]">Aa</span> Tipografía Primaria (Nombre & Botón)
+                      </label>
+                      <select
+                        name="fontPrimary"
+                        value={design.fontPrimary}
+                        onChange={handleDesignChange}
+                        className="input-dark w-full cursor-pointer font-medium"
+                      >
                         {POPULAR_FONTS.map(f => (
                           <option key={f.value} value={f.value} className="bg-[#0A0A14] text-white">{f.label}</option>
                         ))}
                       </select>
+                      <p className="text-[10px] text-gray-400 mt-1">Aplica al Nombre del titular y al Botón Guardar Contacto.</p>
                     </div>
+
+                    {/* Tipografía Secundaria */}
                     <div>
-                      <label className="block text-xs text-gray-300 mb-1 uppercase tracking-wide">O Google Font Exacta</label>
-                      <input type="text" name="customFont" value={design.customFont} onChange={handleDesignChange} placeholder="Ej. Bebas Neue, Outfit..." className="input-dark w-full text-xs" />
+                      <label className="block text-xs text-gray-300 mb-1 uppercase tracking-wide font-bold flex items-center gap-1.5">
+                        <span className="text-[#00E5FF]">Aa</span> Tipografía Secundaria (Puesto & Cuerpo)
+                      </label>
+                      <select
+                        name="fontSecondary"
+                        value={design.fontSecondary}
+                        onChange={handleDesignChange}
+                        className="input-dark w-full cursor-pointer font-medium"
+                      >
+                        {POPULAR_FONTS.map(f => (
+                          <option key={f.value} value={f.value} className="bg-[#0A0A14] text-white">{f.label}</option>
+                        ))}
+                      </select>
+                      <p className="text-[10px] text-gray-400 mt-1">Aplica a Puesto, Empresa, Teléfono y Datos de Contacto.</p>
                     </div>
                   </div>
 
@@ -935,12 +967,12 @@ export default function VCardEngineDashboard() {
               <div className="w-8 h-1 bg-gray-700 rounded-full"></div>
             </div>
 
-            {/* PANTALLA INTERNA DEL CELULAR (AISLADA: RESPONDE A LOS COLORES DEL CLIENTE) */}
+            {/* PANTALLA INTERNA DEL CELULAR (AISLADA: RESPONDE A LOS COLORES Y TIPOGRAFÍAS DEL CLIENTE) */}
             <div
               className="flex-1 overflow-y-auto relative pb-20 select-none transition-all"
               style={{
                 backgroundColor: activeTheme.bgColor,
-                fontFamily: currentFontFamily,
+                fontFamily: currentFontSecondary,
                 color: activeTheme.textColor
               }}
             >
@@ -951,7 +983,7 @@ export default function VCardEngineDashboard() {
                   <div className="w-20 h-20 bg-yellow-400/10 border-2 border-yellow-400 rounded-full flex items-center justify-center text-4xl shadow-lg mb-4">
                     ⭐
                   </div>
-                  <h2 className="text-xl font-bold font-bruno">{formData.empresa || 'Nombre del Negocio'}</h2>
+                  <h2 className="text-xl font-bold font-bruno" style={{ fontFamily: currentFontPrimary }}>{formData.empresa || 'Nombre del Negocio'}</h2>
                   <p className="text-xs opacity-70 mt-1">Calificación en Google Maps</p>
                   
                   <div className="flex gap-1 my-4 text-yellow-400 text-lg">
@@ -1010,7 +1042,12 @@ export default function VCardEngineDashboard() {
                         </div>
 
                         <div className="mt-3 w-full">
-                          <h2 className="text-xl font-bold leading-tight text-slate-800">{formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}</h2>
+                          <h2
+                            className="text-xl font-bold leading-tight text-slate-800"
+                            style={{ fontFamily: currentFontPrimary }}
+                          >
+                            {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                          </h2>
                           
                           {/* Franja de Acento (Color Secundario del Cliente) Centrada */}
                           <div
@@ -1021,7 +1058,7 @@ export default function VCardEngineDashboard() {
                             }}
                           ></div>
                           
-                          <p className="text-sm font-bold font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+                          <p className="text-sm font-bold" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                           
                           {/* Badge de Empresa en Color Secundario */}
                           {formData.empresa && (
@@ -1092,7 +1129,12 @@ export default function VCardEngineDashboard() {
                         )}
                       </div>
 
-                      <h2 className="text-xl font-bold tracking-tight mt-2 font-bruno">{formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}</h2>
+                      <h2
+                        className="text-xl font-bold tracking-tight mt-2"
+                        style={{ fontFamily: currentFontPrimary }}
+                      >
+                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                      </h2>
                       
                       {/* Franja de Acento (Color Secundario del Cliente) Centrada */}
                       <div
@@ -1162,12 +1204,17 @@ export default function VCardEngineDashboard() {
                         )}
                       </div>
 
-                      <h2 className="text-2xl font-light tracking-tight text-slate-900">{formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span></h2>
+                      <h2
+                        className="text-2xl font-light tracking-tight text-slate-900"
+                        style={{ fontFamily: currentFontPrimary }}
+                      >
+                        {formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span>
+                      </h2>
                       
                       {/* Línea de Color Secundario del Cliente Centrada */}
                       <div className="w-12 h-1 my-2 mx-auto rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
                       
-                      <p className="text-xs font-bold tracking-wider uppercase font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+                      <p className="text-xs font-bold tracking-wider uppercase" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                       
                       {formData.empresa && (
                         <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
@@ -1285,13 +1332,16 @@ export default function VCardEngineDashboard() {
               )}
             </div>
 
-            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (Color CTA del Cliente) */}
+            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (TIPOGRAFÍA PRIMARIA Y COLOR CTA DEL CLIENTE) */}
             {mode === 'vcard' && (
               <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20">
                 <button
                   onClick={downloadVCF}
-                  className="w-full py-3 rounded-xl text-center font-bruno font-bold text-xs uppercase tracking-wider text-black shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110"
-                  style={{ backgroundColor: design.colorCTA }}
+                  className="w-full py-3 rounded-xl text-center font-bold text-xs uppercase tracking-wider text-black shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110"
+                  style={{
+                    backgroundColor: design.colorCTA,
+                    fontFamily: currentFontPrimary
+                  }}
                 >
                   <span>💾</span> Guardar Contacto (.vcf)
                 </button>
