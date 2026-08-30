@@ -32,13 +32,13 @@ export async function POST(request) {
         telefono, whatsapp, correo, url, linkedin, instagram, facebook,
         calle, ciudad, estado, cp, pais, nota, google_maps_url, video_youtube_url,
         theme, font_family, color_primario, color_secundario, color_cta,
-        logo_scale, logo_img, cover_photo
+        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo
       ) VALUES (
         $1, $2, $3, $4, $5, $6,
         $7, $8, $9, $10, $11, $12, $13,
         $14, $15, $16, $17, $18, $19, $20, $21,
         $22, $23, $24, $25, $26,
-        $27, $28, $29
+        $27, $28, $29, $30, $31
       )
       RETURNING id, slug, created_at;
     `;
@@ -71,6 +71,8 @@ export async function POST(request) {
       design.colorSecundario || '#00E5FF',
       design.colorCTA || '#F97316',
       design.logoScale || 100,
+      design.coverPositionY || 50,
+      design.coverZoom || 100,
       logoImg,
       coverPhoto
     ];

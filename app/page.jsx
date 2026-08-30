@@ -68,7 +68,7 @@ export default function VCardEngineDashboard() {
     videoYoutubeUrl: ''
   });
 
-  // Paleta Cromática (1: Primario, 2: Secundario, 3: CTA)
+  // Paleta Cromática, Escala y Sliders de Banner
   const [design, setDesign] = useState({
     fontFamily: 'Inter',
     customFont: '',
@@ -76,7 +76,9 @@ export default function VCardEngineDashboard() {
     colorSecundario: '#00E5FF', // Color 2: Aqua (Franjas / Badges / Íconos / Bordes)
     colorCTA: '#F97316',        // Color 3: Botón de Acción Principal
     theme: 'modern',
-    logoScale: 100
+    logoScale: 100,
+    coverPositionY: 50,         // Slider 1: Deslizar Arriba / Abajo (0% a 100%)
+    coverZoom: 100              // Slider 2: Acercar / Alejar (100% a 250%)
   });
 
   // Imágenes
@@ -134,10 +136,10 @@ export default function VCardEngineDashboard() {
           const b = data[i+2];
           const a = data[i+3];
 
-          if (a < 100) continue; // Ignorar transparencias
+          if (a < 100) continue;
           
           const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-          if (brightness < 30 || brightness > 230) continue; // Ignorar negros o blancos puros
+          if (brightness < 30 || brightness > 230) continue;
 
           const max = Math.max(r, g, b);
           const min = Math.min(r, g, b);
@@ -380,7 +382,7 @@ export default function VCardEngineDashboard() {
             ) : (
               /* MODO VCARD COMPLETO */
               <>
-                {/* LOGO Y PORTADA CON ESCALADOR */}
+                {/* LOGO Y PORTADA CON ESCALADOR Y SLIDERS DE ENCUADRE */}
                 <div className="bg-[#12121c] p-5 rounded-[var(--radius-soft)] border border-gray-800 shadow-[var(--shadow-card)] space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Logotipo */}
@@ -404,6 +406,7 @@ export default function VCardEngineDashboard() {
                         onChange={handleCoverUpload}
                         className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#00E5FF] file:text-black hover:file:bg-cyan-400 transition-colors cursor-pointer"
                       />
+                      <p className="text-[10px] text-gray-400 mt-1">📸 Al subir una foto se activarán los controles de encuadre y zoom.</p>
                     </div>
                   </div>
 
@@ -420,13 +423,76 @@ export default function VCardEngineDashboard() {
                       max="160"
                       value={design.logoScale}
                       onChange={handleDesignChange}
-                      className="w-full"
+                      className="w-full cursor-pointer accent-[#00E5FF]"
                     />
                     <div className="flex justify-between text-[10px] text-gray-500 mt-1 uppercase tracking-wide">
                       <span>Compacto (50px)</span>
                       <span>Prominente (160px)</span>
                     </div>
                   </div>
+
+                  {/* CONTROLES DE ENCUADRE DE BANNER (ACTIVADOS AL SUBIR FOTO) */}
+                  {coverPhoto && (
+                    <div className="pt-3 border-t border-gray-800 space-y-3 bg-black/40 p-3.5 rounded-xl border border-cyan-500/30 animate-fadeIn">
+                      <div className="flex justify-between items-center text-xs font-bruno text-[#00E5FF]">
+                        <span className="flex items-center gap-1.5">
+                          <span>🖼️</span> Ajuste de Encuadre del Banner
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setCoverPhoto(null)}
+                          className="text-[10px] text-red-400 hover:text-red-300 underline font-sans"
+                        >
+                          Quitar Foto
+                        </button>
+                      </div>
+
+                      {/* Slider 1: Deslizar Arriba y Abajo */}
+                      <div>
+                        <div className="flex justify-between text-[11px] text-gray-300 mb-1 font-mono">
+                          <span>↕️ Desplazamiento Vertical</span>
+                          <span className="text-[#00E5FF] font-bold">{design.coverPositionY}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          name="coverPositionY"
+                          min="0"
+                          max="100"
+                          value={design.coverPositionY}
+                          onChange={handleDesignChange}
+                          className="w-full cursor-pointer accent-[#00E5FF]"
+                        />
+                        <div className="flex justify-between text-[9px] text-gray-500 mt-0.5 uppercase">
+                          <span>Arriba (0%)</span>
+                          <span>Centro (50%)</span>
+                          <span>Abajo (100%)</span>
+                        </div>
+                      </div>
+
+                      {/* Slider 2: Acercar o Alejar (Zoom) */}
+                      <div>
+                        <div className="flex justify-between text-[11px] text-gray-300 mb-1 font-mono">
+                          <span>🔍 Zoom del Banner</span>
+                          <span className="text-[#F97316] font-bold">{(design.coverZoom / 100).toFixed(1)}x</span>
+                        </div>
+                        <input
+                          type="range"
+                          name="coverZoom"
+                          min="100"
+                          max="250"
+                          value={design.coverZoom}
+                          onChange={handleDesignChange}
+                          className="w-full cursor-pointer accent-[#F97316]"
+                        />
+                        <div className="flex justify-between text-[9px] text-gray-500 mt-0.5 uppercase">
+                          <span>Normal (1.0x)</span>
+                          <span>Intermedio (1.7x)</span>
+                          <span>Máximo (2.5x)</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
 
                 {/* NOMBRE Y APELLIDO */}
@@ -688,13 +754,24 @@ export default function VCardEngineDashboard() {
                   {/* TEMA CLÁSICO */}
                   {design.theme === 'classic' && (
                     <div>
-                      {/* Portada o Franja Secundaria Vibrante */}
+                      {/* Portada o Franja Secundaria Vibrante con Zoom y Posicionamiento Y */}
                       <div
                         className="h-28 w-full relative overflow-hidden flex items-center justify-center transition-colors"
                         style={{ backgroundColor: design.colorSecundario }}
                       >
                         {coverPhoto ? (
-                          <img src={coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+                          <div className="w-full h-full overflow-hidden">
+                            <img
+                              src={coverPhoto}
+                              alt="Cover"
+                              className="w-full h-full object-cover transition-all"
+                              style={{
+                                objectPosition: `center ${design.coverPositionY}%`,
+                                transform: `scale(${design.coverZoom / 100})`,
+                                transformOrigin: `center ${design.coverPositionY}%`
+                              }}
+                            />
+                          </div>
                         ) : (
                           <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                         )}
@@ -755,8 +832,17 @@ export default function VCardEngineDashboard() {
                   {design.theme === 'modern' && (
                     <div className="p-5 flex flex-col items-center text-center">
                       {coverPhoto && (
-                        <div className="w-full h-24 rounded-2xl overflow-hidden mb-3 border border-white/10">
-                          <img src={coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+                        <div className="w-full h-24 rounded-2xl overflow-hidden mb-3 border border-white/10 relative">
+                          <img
+                            src={coverPhoto}
+                            alt="Cover"
+                            className="w-full h-full object-cover transition-all"
+                            style={{
+                              objectPosition: `center ${design.coverPositionY}%`,
+                              transform: `scale(${design.coverZoom / 100})`,
+                              transformOrigin: `center ${design.coverPositionY}%`
+                            }}
+                          />
                         </div>
                       )}
 
@@ -826,8 +912,17 @@ export default function VCardEngineDashboard() {
                   {design.theme === 'minimal' && (
                     <div className="p-6">
                       {coverPhoto && (
-                        <div className="w-full h-28 overflow-hidden mb-4 border-b border-gray-200">
-                          <img src={coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+                        <div className="w-full h-28 overflow-hidden mb-4 border-b border-gray-200 relative">
+                          <img
+                            src={coverPhoto}
+                            alt="Cover"
+                            className="w-full h-full object-cover transition-all"
+                            style={{
+                              objectPosition: `center ${design.coverPositionY}%`,
+                              transform: `scale(${design.coverZoom / 100})`,
+                              transformOrigin: `center ${design.coverPositionY}%`
+                            }}
+                          />
                         </div>
                       )}
 

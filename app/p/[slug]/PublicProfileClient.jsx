@@ -29,6 +29,8 @@ export default function PublicProfileClient({ profile }) {
     color_secundario = '#00E5FF',
     color_cta = '#F97316',
     logo_scale = 100,
+    cover_position_y = 50,
+    cover_zoom = 100,
     logo_img = null,
     cover_photo = null
   } = profile;
@@ -110,7 +112,20 @@ export default function PublicProfileClient({ profile }) {
         {theme === 'classic' && (
           <div>
             <div className="h-32 w-full relative overflow-hidden" style={{ backgroundColor: color_secundario }}>
-              {cover_photo && <img src={cover_photo} alt="Cover" className="w-full h-full object-cover" />}
+              {cover_photo && (
+                <div className="w-full h-full overflow-hidden">
+                  <img
+                    src={cover_photo}
+                    alt="Cover"
+                    className="w-full h-full object-cover transition-all"
+                    style={{
+                      objectPosition: `center ${cover_position_y || 50}%`,
+                      transform: `scale(${(cover_zoom || 100) / 100})`,
+                      transformOrigin: `center ${cover_position_y || 50}%`
+                    }}
+                  />
+                </div>
+              )}
             </div>
             <div className="px-6 -mt-12">
               <div
@@ -141,8 +156,17 @@ export default function PublicProfileClient({ profile }) {
         {theme === 'modern' && (
           <div className="p-6 flex flex-col items-center text-center">
             {cover_photo && (
-              <div className="w-full h-28 rounded-2xl overflow-hidden mb-4 border border-white/10">
-                <img src={cover_photo} alt="Cover" className="w-full h-full object-cover" />
+              <div className="w-full h-28 rounded-2xl overflow-hidden mb-4 border border-white/10 relative">
+                <img
+                  src={cover_photo}
+                  alt="Cover"
+                  className="w-full h-full object-cover transition-all"
+                  style={{
+                    objectPosition: `center ${cover_position_y || 50}%`,
+                    transform: `scale(${(cover_zoom || 100) / 100})`,
+                    transformOrigin: `center ${cover_position_y || 50}%`
+                  }}
+                />
               </div>
             )}
 
@@ -176,8 +200,17 @@ export default function PublicProfileClient({ profile }) {
         {theme === 'minimal' && (
           <div className="p-8">
             {cover_photo && (
-              <div className="w-full h-32 overflow-hidden mb-6 border-b border-gray-200">
-                <img src={cover_photo} alt="Cover" className="w-full h-full object-cover" />
+              <div className="w-full h-32 overflow-hidden mb-6 border-b border-gray-200 relative">
+                <img
+                  src={cover_photo}
+                  alt="Cover"
+                  className="w-full h-full object-cover transition-all"
+                  style={{
+                    objectPosition: `center ${cover_position_y || 50}%`,
+                    transform: `scale(${(cover_zoom || 100) / 100})`,
+                    transformOrigin: `center ${cover_position_y || 50}%`
+                  }}
+                />
               </div>
             )}
 
