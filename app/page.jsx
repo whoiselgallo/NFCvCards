@@ -45,26 +45,26 @@ const POPULAR_FONTS = [
 export default function VCardEngineDashboard() {
   const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
 
-  // Datos del Formulario
+  // Datos del Formulario - LIMPIOS POR DEFECTO
   const [formData, setFormData] = useState({
-    nombre: 'Javier E.',
-    apellido: 'Gallardo Arredondo',
-    empresa: 'TSOLUTIONS IPIDD',
-    puesto: 'CEO / Consultor Estratega',
-    telefono: '+526866761131',
-    whatsapp: '+526865261453',
-    correo: 'javier.gallardo@tsolutionsipidd.com',
-    url: 'https://tsolutionsipidd.com',
-    linkedin: 'https://linkedin.com/in/javiergallardoa',
-    instagram: 'https://instagram.com/tsolutionsi',
-    facebook: 'https://facebook.com/tsolutionsipidd',
-    calle: 'Av. Ignacio Aldama #185',
-    ciudad: 'Mexicali',
-    estado: 'Baja California',
-    cp: '21000',
-    pais: 'México',
-    nota: 'Innovación que impulsa tu crecimiento...',
-    googleMapsUrl: 'https://maps.google.com',
+    nombre: '',
+    apellido: '',
+    empresa: '',
+    puesto: '',
+    telefono: '',
+    whatsapp: '',
+    correo: '',
+    url: '',
+    linkedin: '',
+    instagram: '',
+    facebook: '',
+    calle: '',
+    ciudad: '',
+    estado: '',
+    cp: '',
+    pais: '',
+    nota: '',
+    googleMapsUrl: '',
     videoYoutubeUrl: ''
   });
 
@@ -82,6 +82,11 @@ export default function VCardEngineDashboard() {
   // Imágenes
   const [logoImg, setLogoImg] = useState(null);
   const [coverPhoto, setCoverPhoto] = useState(null);
+
+  // Estado de guardado en la nube
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedUrl, setSavedUrl] = useState(null);
+  const [savedSuccess, setSavedSuccess] = useState(false);
 
   // Inyección reactiva de Google Fonts
   useEffect(() => {
@@ -193,11 +198,46 @@ export default function VCardEngineDashboard() {
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
   };
 
+  // Guardar en Google Cloud SQL
+  const handleSaveToCloud = async () => {
+    setIsSaving(true);
+    setSavedSuccess(false);
+
+    try {
+      const payload = {
+        mode,
+        formData,
+        design,
+        logoImg,
+        coverPhoto
+      };
+
+      const res = await fetch('/api/profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const json = await res.json();
+      if (json.success && json.slug) {
+        const fullUrl = `${window.location.origin}/p/${json.slug}`;
+        setSavedUrl(fullUrl);
+        setSavedSuccess(true);
+      } else {
+        alert('Error al guardar: ' + (json.error || 'No se pudo conectar a Google Cloud SQL'));
+      }
+    } catch (err) {
+      alert('Error de conexión con el servidor: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const activeTheme = THEMES[design.theme] || THEMES.modern;
   const currentFontFamily = design.customFont.trim() || design.fontFamily;
-  const qrTargetValue = mode === 'review'
+  const qrTargetValue = savedUrl || (mode === 'review'
     ? (formData.googleMapsUrl || 'https://maps.google.com')
-    : (formData.url || 'https://tsolutionsipidd.com');
+    : (formData.url || 'https://tsolutionsipidd.com'));
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#04040A] text-[#F0F0F8]">
@@ -208,7 +248,7 @@ export default function VCardEngineDashboard() {
           <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide">
             TSOLUTIONS <span className="text-[#F97316]">VCARD</span> ENGINE
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Generador de identidad digital con optimización algorítmica y base de datos.</p>
+          <p className="text-gray-400 text-sm mt-1">Generador de identidad digital con optimización algorítmica y Google Cloud SQL.</p>
         </div>
 
         {/* CONTROLES DE CABECERA: SELECTOR DE MODO & LOGO */}
@@ -498,6 +538,48 @@ export default function VCardEngineDashboard() {
               </>
             )}
 
+            {/* BOTÓN MAESTRO DE GUARDAR EN GOOGLE CLOUD SQL */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleSaveToCloud}
+                disabled={isSaving}
+                className="btn-primary w-full text-sm font-bruno tracking-wider flex items-center justify-center gap-2"
+                style={{ backgroundColor: design.colorCTA }}
+              >
+                {isSaving ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <span>GUARDANDO EN GOOGLE CLOUD SQL...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>🚀</span>
+                    <span>GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)</span>
+                  </>
+                )}
+              </button>
+
+              {/* AVISO DE ÉXITO CUANDO SE GUARDA EN LA NUBE */}
+              {savedSuccess && savedUrl && (
+                <div className="mt-4 p-4 rounded-xl bg-green-950/40 border border-green-500/30 text-green-300 text-xs space-y-2 animate-scaleIn">
+                  <div className="flex items-center gap-2 font-bold text-green-400">
+                    <span>✅</span> ¡Perfil Desplegado Exitosamente en Google Cloud SQL!
+                  </div>
+                  <p className="text-[11px] text-gray-300">Este es tu enlace permanente para programar el chip NFC o compartir:</p>
+                  <div className="p-2 bg-black/60 rounded-lg font-mono text-xs text-[#00E5FF] break-all select-all flex items-center justify-between gap-2 border border-white/5">
+                    <span>{savedUrl}</span>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(savedUrl); alert('¡Enlace copiado al portapapeles!'); }}
+                      className="px-2.5 py-1 bg-[#00E5FF] text-black font-bold text-[10px] rounded hover:bg-cyan-400 transition-colors uppercase"
+                    >
+                      Copiar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
           </form>
         </section>
 
@@ -573,7 +655,7 @@ export default function VCardEngineDashboard() {
                         </div>
 
                         <div className="mt-3">
-                          <h2 className="text-xl font-bold leading-tight">{formData.nombre} {formData.apellido}</h2>
+                          <h2 className="text-xl font-bold leading-tight">{formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}</h2>
                           
                           {/* Franja de Acento (Color Secundario con Glow) */}
                           <div
@@ -584,7 +666,7 @@ export default function VCardEngineDashboard() {
                             }}
                           ></div>
                           
-                          <p className="text-sm font-bold font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto}</p>
+                          <p className="text-sm font-bold font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                           
                           {/* Badge de Empresa en Color Secundario */}
                           {formData.empresa && (
@@ -636,7 +718,7 @@ export default function VCardEngineDashboard() {
                         )}
                       </div>
 
-                      <h2 className="text-xl font-bold tracking-tight mt-2 font-bruno">{formData.nombre} {formData.apellido}</h2>
+                      <h2 className="text-xl font-bold tracking-tight mt-2 font-bruno">{formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}</h2>
                       
                       {/* Franja de Acento (Color Secundario con Glow) */}
                       <div
@@ -647,7 +729,7 @@ export default function VCardEngineDashboard() {
                         }}
                       ></div>
                       
-                      <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto}</p>
+                      <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                       
                       {/* Badge de Empresa con Fondo y Borde Secundario */}
                       {formData.empresa && (
@@ -691,12 +773,12 @@ export default function VCardEngineDashboard() {
                         )}
                       </div>
 
-                      <h2 className="text-2xl font-light tracking-tight">{formData.nombre} <span className="font-extrabold">{formData.apellido}</span></h2>
+                      <h2 className="text-2xl font-light tracking-tight">{formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span></h2>
                       
                       {/* Línea de Color Secundario */}
                       <div className="w-12 h-1 my-2.5 rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
                       
-                      <p className="text-xs font-bold tracking-wider uppercase font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto}</p>
+                      <p className="text-xs font-bold tracking-wider uppercase font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                       
                       {formData.empresa && (
                         <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
@@ -799,20 +881,20 @@ export default function VCardEngineDashboard() {
                 </h3>
                 
                 <div className="mb-4">
-                  <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Payload Generado</p>
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Payload URL para NFC</p>
                   <div className="flex items-end gap-1.5 text-[#00E5FF]">
-                    <span className="text-3xl font-bruno font-bold">{vcardBytes}</span>
+                    <span className="text-3xl font-bruno font-bold">{new Blob([qrTargetValue]).size}</span>
                     <span className="text-xs mb-1 font-bruno">B</span>
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-[var(--radius-soft)] bg-[#12121c] border border-gray-800">
                   <p className="text-[10px] font-bruno text-gray-400 mb-1 uppercase tracking-wider">Chip Sugerido</p>
-                  <p className="text-lg font-bruno font-bold text-[#F97316]">
-                    {vcardBytes <= 144 ? 'NTAG213' : vcardBytes <= 504 ? 'NTAG215' : 'NTAG216'}
+                  <p className="text-lg font-bruno font-bold text-green-400">
+                    NTAG213 (100% Compatible)
                   </p>
                   <p className="text-[10px] text-gray-400 mt-0.5">
-                    {vcardBytes <= 888 ? 'Capacidad óptima compatible' : 'Modo Cloud Activo (Sin límite)'}
+                    Modo Dinámico Google Cloud Activo
                   </p>
                 </div>
               </div>
