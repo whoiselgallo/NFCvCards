@@ -51,6 +51,26 @@ export default function PublicProfileClient({ profile }) {
   }, [font_family]);
 
   // Generador de .VCF descargable
+  const effectiveMapsUrl = google_maps_url && google_maps_url.trim().startsWith('http')
+    ? google_maps_url.trim()
+    : (() => {
+        const parts = [];
+        if (calle?.trim()) parts.push(calle.trim());
+        if (ciudad?.trim()) parts.push(ciudad.trim());
+        if (estado?.trim()) parts.push(estado.trim());
+        if (pais?.trim()) parts.push(pais.trim());
+
+        if (parts.length > 0) {
+          const query = (empresa?.trim() ? empresa.trim() + ', ' : '') + parts.join(', ');
+          return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+        } else if (empresa?.trim()) {
+          return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(empresa.trim())}`;
+        }
+        return '';
+      })();
+
+  const locationLabel = [ciudad, pais].filter(Boolean).join(', ') || (empresa ? `Buscar ${empresa}` : 'Ver Ubicación en Google Maps');
+
   const downloadVCF = () => {
     let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
     vcard += `N:${apellido || ''};${nombre || ''};;;\r\n`;
@@ -330,15 +350,15 @@ export default function PublicProfileClient({ profile }) {
             </a>
           )}
 
-          {google_maps_url && (
+          {effectiveMapsUrl && (
             <a
-              href={google_maps_url}
+              href={effectiveMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-bold border transition-all hover:scale-[1.01]"
               style={{ backgroundColor: `${color_secundario}15`, borderColor: color_secundario, color: color_secundario }}
             >
-              <span>📍</span> Ver Ubicación en Google Maps
+              <span>📍</span> {locationLabel}
             </a>
           )}
 

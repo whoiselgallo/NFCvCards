@@ -42,6 +42,27 @@ const POPULAR_FONTS = [
   { label: 'Syne (Alta Moda / Diseño)', value: 'Syne' }
 ];
 
+// Generador Inteligente de URL de Google Maps
+export function getEffectiveMapsUrl(formData) {
+  if (formData.googleMapsUrl && formData.googleMapsUrl.trim().startsWith('http')) {
+    return formData.googleMapsUrl.trim();
+  }
+  
+  const parts = [];
+  if (formData.calle?.trim()) parts.push(formData.calle.trim());
+  if (formData.ciudad?.trim()) parts.push(formData.ciudad.trim());
+  if (formData.estado?.trim()) parts.push(formData.estado.trim());
+  if (formData.pais?.trim()) parts.push(formData.pais.trim());
+
+  if (parts.length > 0) {
+    const query = (formData.empresa?.trim() ? formData.empresa.trim() + ', ' : '') + parts.join(', ');
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  } else if (formData.empresa?.trim()) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formData.empresa.trim())}`;
+  }
+  return '';
+}
+
 export default function VCardEngineDashboard() {
   const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
 
@@ -114,7 +135,7 @@ export default function VCardEngineDashboard() {
     setDesign(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Extractor de color dominante del logotipo (aplica solo al diseño de la tarjeta del cliente)
+  // Extractor de color dominante del logotipo
   const extractDominantColor = (imgSrc) => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
@@ -190,6 +211,8 @@ export default function VCardEngineDashboard() {
     }
   };
 
+  const effectiveMapsUrl = getEffectiveMapsUrl(formData);
+
   // Construir string vCard 3.0 para cálculo de bytes y descarga
   const buildVCardString = () => {
     let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
@@ -207,7 +230,7 @@ export default function VCardEngineDashboard() {
     if (formData.calle || formData.ciudad || formData.estado || formData.cp || formData.pais) {
       vcard += `ADR;TYPE=WORK:;;${formData.calle || ''};${formData.ciudad || ''};${formData.estado || ''};${formData.cp || ''};${formData.pais || ''}\r\n`;
     }
-    if (formData.googleMapsUrl) vcard += `NOTE:Google Maps: ${formData.googleMapsUrl}\\n${formData.nota || ''}\r\n`;
+    if (effectiveMapsUrl) vcard += `NOTE:Google Maps: ${effectiveMapsUrl}\\n${formData.nota || ''}\r\n`;
     else if (formData.nota) vcard += `NOTE:${formData.nota}\r\n`;
     vcard += `END:VCARD`;
     return vcard;
@@ -266,7 +289,10 @@ export default function VCardEngineDashboard() {
     try {
       const payload = {
         mode,
-        formData,
+        formData: {
+          ...formData,
+          googleMapsUrl: effectiveMapsUrl // Guarda la URL efectiva generada o personalizada
+        },
         design,
         logoImg,
         coverPhoto
@@ -296,8 +322,11 @@ export default function VCardEngineDashboard() {
   const activeTheme = THEMES[design.theme] || THEMES.modern;
   const currentFontFamily = design.customFont.trim() || design.fontFamily;
   const qrTargetValue = savedUrl || (mode === 'review'
-    ? (formData.googleMapsUrl || 'https://maps.google.com')
+    ? (effectiveMapsUrl || 'https://maps.google.com')
     : (formData.url || 'https://tsolutionsipidd.com'));
+
+  // Etiqueta legible de la ubicación para la tarjeta
+  const locationLabel = [formData.ciudad, formData.pais].filter(Boolean).join(', ') || (formData.empresa ? `Buscar ${formData.empresa}` : 'Ver Ubicación en Maps');
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#04040A] text-[#F0F0F8]">
@@ -374,9 +403,9 @@ export default function VCardEngineDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Enlace de Reseñas de Google</label>
-                  <input type="url" name="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="input-dark w-full border-[#F97316]/40" placeholder="https://g.page/r/tu-negocio/review" />
-                  <p className="text-[10px] text-gray-500 mt-1">Pega el link directo que Google Business te da para solicitar opiniones.</p>
+                  <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Enlace de Reseñas de Google o Búsqueda Automática</label>
+                  <input type="url" name="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="input-dark w-full border-[#F97316]/40" placeholder="https://g.page/r/tu-negocio/review o déjalo vacío para búsqueda automática" />
+                  <p className="text-[10px] text-gray-500 mt-1">Si lo dejas vacío, se generará automáticamente con el nombre de tu empresa y ciudad.</p>
                 </div>
               </div>
             ) : (
@@ -549,30 +578,72 @@ export default function VCardEngineDashboard() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                     </svg>
-                    Redes Sociales & Canales Digitales
+                    Redes Sociales & Multimedia
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input type="url" name="facebook" value={formData.facebook} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="Facebook Page URL" />
                     <input type="url" name="instagram" value={formData.instagram} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="Instagram URL" />
                     <input type="url" name="linkedin" value={formData.linkedin} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="LinkedIn URL" />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                    <input type="url" name="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="Google Maps (Ubicación)" />
-                    <input type="url" name="videoYoutubeUrl" value={formData.videoYoutubeUrl} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="Video de YouTube (Presentación)" />
+                  <div className="mt-3">
+                    <input type="url" name="videoYoutubeUrl" value={formData.videoYoutubeUrl} onChange={handleInputChange} className="input-dark w-full text-xs" placeholder="Video de YouTube (Presentación / Pitch URL)" />
                   </div>
                 </div>
 
-                {/* DIRECCIÓN */}
-                <div className="border-t border-gray-800 pt-4 mt-4">
-                  <h3 className="text-sm font-bruno text-[#F97316] mb-3">Dirección de Trabajo</h3>
-                  <input type="text" name="calle" value={formData.calle} onChange={handleInputChange} className="input-dark w-full mb-3" placeholder="Calle y Número, Colonia" />
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <input type="text" name="ciudad" value={formData.ciudad} onChange={handleInputChange} className="input-dark w-full" placeholder="Ciudad" />
-                    <input type="text" name="estado" value={formData.estado} onChange={handleInputChange} className="input-dark w-full" placeholder="Estado" />
+                {/* DIRECCIÓN & VINCULACIÓN CON GOOGLE MAPS */}
+                <div className="border-t border-gray-800 pt-4 mt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bruno text-[#F97316] flex items-center gap-2">
+                      <span>📍</span> Dirección & Vinculación a Google Maps
+                    </h3>
+                    <span className="text-[10px] text-gray-400">Negocio Físico u Online</span>
+                  </div>
+
+                  {/* Campos de Dirección */}
+                  <input type="text" name="calle" value={formData.calle} onChange={handleInputChange} className="input-dark w-full" placeholder="Calle y Número, Colonia (Dejar vacío si es 100% Online)" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="text" name="ciudad" value={formData.ciudad} onChange={handleInputChange} className="input-dark w-full" placeholder="Ciudad (Ej. Mexicali)" />
+                    <input type="text" name="estado" value={formData.estado} onChange={handleInputChange} className="input-dark w-full" placeholder="Estado (Ej. Baja California)" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <input type="text" name="cp" value={formData.cp} onChange={handleInputChange} className="input-dark w-full" placeholder="Código Postal" />
-                    <input type="text" name="pais" value={formData.pais} onChange={handleInputChange} className="input-dark w-full" placeholder="País" />
+                    <input type="text" name="cp" value={formData.cp} onChange={handleInputChange} className="input-dark w-full" placeholder="Código Postal (Opcional)" />
+                    <input type="text" name="pais" value={formData.pais} onChange={handleInputChange} className="input-dark w-full" placeholder="País (Ej. México)" />
+                  </div>
+
+                  {/* CAJA INTELIGENTE DE MAPS */}
+                  <div className="bg-black/40 p-3.5 rounded-xl border border-gray-800 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bruno text-gray-300">Enlace de Ubicación en Google Maps:</span>
+                      {effectiveMapsUrl && (
+                        <a
+                          href={effectiveMapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] text-[#F97316] hover:underline flex items-center gap-1 font-bold"
+                        >
+                          <span>🔍 Probar Búsqueda en Maps ↗</span>
+                        </a>
+                      )}
+                    </div>
+
+                    <input
+                      type="url"
+                      name="googleMapsUrl"
+                      value={formData.googleMapsUrl}
+                      onChange={handleInputChange}
+                      className="input-dark w-full text-xs"
+                      placeholder="Opcional: Pega un link específico de Maps o déjalo vacío para vincular automáticamente"
+                    />
+
+                    {effectiveMapsUrl ? (
+                      <p className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                        <span className="text-green-400">●</span> Maps buscará: <span className="text-white truncate">{decodeURIComponent(effectiveMapsUrl.replace('https://www.google.com/maps/search/?api=1&query=', ''))}</span>
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-gray-500">
+                        💡 Al escribir el nombre de tu empresa, dirección o ciudad, se vinculará a Google Maps automáticamente.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -993,17 +1064,20 @@ export default function VCardEngineDashboard() {
                         <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
                       </div>
                     )}
-                    {formData.googleMapsUrl && (
-                      <div
-                        className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all"
+                    {effectiveMapsUrl && (
+                      <a
+                        href={effectiveMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]"
                         style={{
                           backgroundColor: `${design.colorSecundario}15`,
                           borderColor: design.colorSecundario,
                           color: design.colorSecundario
                         }}
                       >
-                        <span>📍</span> Ver Ubicación en Maps
-                      </div>
+                        <span>📍</span> {locationLabel}
+                      </a>
                     )}
                     {formData.videoYoutubeUrl && (
                       <div className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-md">
