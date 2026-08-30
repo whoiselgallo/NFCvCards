@@ -8,29 +8,26 @@ const THEMES = {
   classic: {
     id: 'classic',
     name: 'Clásico Corporativo',
-    desc: 'Portada elegante, logo destacado y pastillas de contacto',
+    desc: 'Cabecera vibrante, logotipo central y pastillas de contacto',
     bgColor: '#ffffff',
     textColor: '#1e293b',
-    subTextColor: '#64748b',
-    cardBg: '#f8fafc'
+    subTextColor: '#64748b'
   },
   modern: {
     id: 'modern',
     name: 'Cyber Modern / Dark',
-    desc: 'Lienzo oscuro con bordes luminosos, glows y alto contraste',
+    desc: 'Lienzo oscuro con acentos luminosos y doble glow',
     bgColor: '#090912',
     textColor: '#f8fafc',
-    subTextColor: '#94a3b8',
-    cardBg: '#12121f'
+    subTextColor: '#94a3b8'
   },
   minimal: {
     id: 'minimal',
     name: 'Minimalista Ejecutivo',
-    desc: 'Estilo editorial sobrio, tipografía nítida y líneas finas',
+    desc: 'Estilo editorial sobrio con líneas de corte y alto contraste',
     bgColor: '#fafafa',
     textColor: '#0f172a',
-    subTextColor: '#475569',
-    cardBg: '#ffffff'
+    subTextColor: '#475569'
   }
 };
 
@@ -71,15 +68,15 @@ export default function VCardEngineDashboard() {
     videoYoutubeUrl: ''
   });
 
-  // Paleta Cromática (Primario, Secundario, CTA) & Logo Scale
+  // Paleta Cromática (1: Primario, 2: Secundario, 3: CTA)
   const [design, setDesign] = useState({
     fontFamily: 'Inter',
     customFont: '',
-    colorPrimario: '#F97316',   // Naranja Energy (Acentos / Títulos)
-    colorSecundario: '#00E5FF', // Aqua Turquesa (Franja / Bordes)
-    colorCTA: '#F97316',        // Color de Botones de Acción
-    theme: 'modern',            // 'classic' | 'modern' | 'minimal'
-    logoScale: 100              // Escala de 50px a 160px
+    colorPrimario: '#F97316',   // Color 1: Naranja (Títulos / Puesto)
+    colorSecundario: '#00E5FF', // Color 2: Aqua (Franjas / Badges / Íconos / Bordes)
+    colorCTA: '#F97316',        // Color 3: Botón de Acción Principal
+    theme: 'modern',
+    logoScale: 100
   });
 
   // Imágenes
@@ -467,29 +464,29 @@ export default function VCardEngineDashboard() {
                     </div>
                   </div>
 
-                  {/* PALETA 3 COLORES: PRIMARIO, SECUNDARIO, CTA */}
+                  {/* PALETA 3 COLORES CON ETIQUETAS CLARAS */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    {/* Color Primario */}
+                    {/* Color 1: Primario */}
                     <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide font-bold">Color Primario</label>
+                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">1. Color Primario (Puesto/Títulos)</label>
                       <div className="flex items-center gap-2">
                         <input type="color" name="colorPrimario" value={design.colorPrimario} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
                         <input type="text" name="colorPrimario" value={design.colorPrimario} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
                       </div>
                     </div>
 
-                    {/* Color Secundario */}
+                    {/* Color 2: Secundario (Franjas / Badges / Íconos) */}
                     <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide font-bold">Secundario (Franja)</label>
+                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">2. Color Secundario (Franjas/Íconos)</label>
                       <div className="flex items-center gap-2">
                         <input type="color" name="colorSecundario" value={design.colorSecundario} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
                         <input type="text" name="colorSecundario" value={design.colorSecundario} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
                       </div>
                     </div>
 
-                    {/* Color CTA */}
+                    {/* Color 3: CTA */}
                     <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-400 mb-1 uppercase tracking-wide font-bold">Color CTA (Botón)</label>
+                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">3. Color CTA (Botón Acción)</label>
                       <div className="flex items-center gap-2">
                         <input type="color" name="colorCTA" value={design.colorCTA} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
                         <input type="text" name="colorCTA" value={design.colorCTA} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
@@ -550,12 +547,15 @@ export default function VCardEngineDashboard() {
                   {/* TEMA CLÁSICO */}
                   {design.theme === 'classic' && (
                     <div>
-                      {/* Portada o Franja */}
-                      <div className="h-28 w-full relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: design.colorSecundario }}>
+                      {/* Portada o Franja Secundaria Vibrante */}
+                      <div
+                        className="h-28 w-full relative overflow-hidden flex items-center justify-center transition-colors"
+                        style={{ backgroundColor: design.colorSecundario }}
+                      >
                         {coverPhoto ? (
                           <img src={coverPhoto} alt="Cover" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                          <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                         )}
                       </div>
 
@@ -574,13 +574,35 @@ export default function VCardEngineDashboard() {
 
                         <div className="mt-3">
                           <h2 className="text-xl font-bold leading-tight">{formData.nombre} {formData.apellido}</h2>
-                          <div className="accent-stripe my-2" style={{ backgroundColor: design.colorSecundario }}></div>
+                          
+                          {/* Franja de Acento (Color Secundario con Glow) */}
+                          <div
+                            className="h-1.5 w-14 my-2.5 rounded-full transition-all"
+                            style={{
+                              backgroundColor: design.colorSecundario,
+                              boxShadow: `0 0 10px ${design.colorSecundario}60`
+                            }}
+                          ></div>
+                          
                           <p className="text-sm font-bold font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto}</p>
-                          <p className="text-xs opacity-75 font-semibold mt-0.5">{formData.empresa}</p>
+                          
+                          {/* Badge de Empresa en Color Secundario */}
+                          {formData.empresa && (
+                            <div
+                              className="inline-block px-2.5 py-0.5 mt-1.5 rounded-md text-[11px] font-bold tracking-wider uppercase border transition-all"
+                              style={{
+                                backgroundColor: `${design.colorSecundario}15`,
+                                borderColor: `${design.colorSecundario}50`,
+                                color: design.colorSecundario
+                              }}
+                            >
+                              {formData.empresa}
+                            </div>
+                          )}
                         </div>
 
                         {formData.nota && (
-                          <p className="text-xs mt-3 p-2.5 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-2" style={{ borderColor: design.colorCTA }}>
+                          <p className="text-xs mt-3 p-2.5 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-3" style={{ borderColor: design.colorCTA }}>
                             "{formData.nota}"
                           </p>
                         )}
@@ -597,14 +619,14 @@ export default function VCardEngineDashboard() {
                         </div>
                       )}
 
-                      {/* Logo Circular con Glow */}
+                      {/* Logo Circular con Glow de Color Primario & Secundario */}
                       <div
-                        className="rounded-full shadow-2xl bg-[#090912] p-1 flex items-center justify-center overflow-hidden my-2 border-2"
+                        className="rounded-full shadow-2xl bg-[#090912] p-1 flex items-center justify-center overflow-hidden my-2 border-2 transition-all"
                         style={{
                           width: `${design.logoScale}px`,
                           height: `${design.logoScale}px`,
                           borderColor: design.colorPrimario,
-                          boxShadow: `0 0 16px ${design.colorPrimario}40`
+                          boxShadow: `0 0 16px ${design.colorPrimario}50`
                         }}
                       >
                         {logoImg ? (
@@ -615,9 +637,31 @@ export default function VCardEngineDashboard() {
                       </div>
 
                       <h2 className="text-xl font-bold tracking-tight mt-2 font-bruno">{formData.nombre} {formData.apellido}</h2>
-                      <div className="accent-stripe my-2" style={{ backgroundColor: design.colorSecundario }}></div>
-                      <p className="text-sm font-bold mt-1" style={{ color: design.colorPrimario }}>{formData.puesto}</p>
-                      <p className="text-xs uppercase tracking-widest font-semibold mt-0.5" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
+                      
+                      {/* Franja de Acento (Color Secundario con Glow) */}
+                      <div
+                        className="h-1.5 w-14 my-2 rounded-full transition-all"
+                        style={{
+                          backgroundColor: design.colorSecundario,
+                          boxShadow: `0 0 10px ${design.colorSecundario}80`
+                        }}
+                      ></div>
+                      
+                      <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto}</p>
+                      
+                      {/* Badge de Empresa con Fondo y Borde Secundario */}
+                      {formData.empresa && (
+                        <div
+                          className="inline-block px-3 py-1 mt-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border transition-all"
+                          style={{
+                            backgroundColor: `${design.colorSecundario}15`,
+                            borderColor: `${design.colorSecundario}60`,
+                            color: design.colorSecundario
+                          }}
+                        >
+                          {formData.empresa}
+                        </div>
+                      )}
 
                       {formData.nota && (
                         <p className="text-xs mt-3 opacity-80 leading-relaxed px-2 italic">
@@ -648,9 +692,15 @@ export default function VCardEngineDashboard() {
                       </div>
 
                       <h2 className="text-2xl font-light tracking-tight">{formData.nombre} <span className="font-extrabold">{formData.apellido}</span></h2>
-                      <p className="text-xs font-bold mt-1 tracking-wider uppercase font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto}</p>
-                      <div className="w-8 h-0.5 my-2.5" style={{ backgroundColor: design.colorSecundario }}></div>
-                      <p className="text-xs opacity-70 font-semibold">{formData.empresa}</p>
+                      
+                      {/* Línea de Color Secundario */}
+                      <div className="w-12 h-1 my-2.5 rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
+                      
+                      <p className="text-xs font-bold tracking-wider uppercase font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto}</p>
+                      
+                      {formData.empresa && (
+                        <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
+                      )}
 
                       {formData.nota && (
                         <p className="text-xs mt-3 opacity-75 leading-relaxed italic">
@@ -660,33 +710,58 @@ export default function VCardEngineDashboard() {
                     </div>
                   )}
 
-                  {/* PASTILLAS DE CONTACTO DENTRO DEL CELULAR */}
+                  {/* PASTILLAS DE CONTACTO (Con Acentos del Color Secundario) */}
                   <div className="px-5 space-y-2 mt-4">
                     {formData.telefono && (
-                      <div className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
-                        <svg className="w-4 h-4 opacity-60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                      <div
+                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
+                        style={{
+                          backgroundColor: `${design.colorSecundario}08`,
+                          borderColor: `${design.colorSecundario}25`
+                        }}
+                      >
+                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                         <span className="truncate">{formData.telefono}</span>
                       </div>
                     )}
                     {formData.correo && (
-                      <div className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
-                        <svg className="w-4 h-4 opacity-60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                      <div
+                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
+                        style={{
+                          backgroundColor: `${design.colorSecundario}08`,
+                          borderColor: `${design.colorSecundario}25`
+                        }}
+                      >
+                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         <span className="truncate">{formData.correo}</span>
                       </div>
                     )}
                     {formData.url && (
-                      <div className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
-                        <svg className="w-4 h-4 opacity-60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                      <div
+                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
+                        style={{
+                          backgroundColor: `${design.colorSecundario}08`,
+                          borderColor: `${design.colorSecundario}25`
+                        }}
+                      >
+                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
                         <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
                       </div>
                     )}
                     {formData.googleMapsUrl && (
-                      <div className="w-full py-2 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border" style={{ borderColor: design.colorPrimario, color: design.colorPrimario }}>
+                      <div
+                        className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all"
+                        style={{
+                          backgroundColor: `${design.colorSecundario}15`,
+                          borderColor: design.colorSecundario,
+                          color: design.colorSecundario
+                        }}
+                      >
                         <span>📍</span> Ver Ubicación en Maps
                       </div>
                     )}
                     {formData.videoYoutubeUrl && (
-                      <div className="w-full py-2 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-md">
+                      <div className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-md">
                         <span>▶</span> Ver Video de Presentación
                       </div>
                     )}
@@ -695,12 +770,12 @@ export default function VCardEngineDashboard() {
               )}
             </div>
 
-            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP */}
+            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (Color CTA) */}
             {mode === 'vcard' && (
               <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20">
                 <button
                   onClick={downloadVCF}
-                  className="w-full py-3 rounded-xl text-center font-bruno font-bold text-xs uppercase tracking-wider text-black shadow-2xl flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-xl text-center font-bruno font-bold text-xs uppercase tracking-wider text-black shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110"
                   style={{ backgroundColor: design.colorCTA }}
                 >
                   <span>💾</span> Guardar Contacto (.vcf)
