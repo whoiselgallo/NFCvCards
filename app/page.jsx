@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import JSZip from 'jszip';
 
 // Temas Estructurales de la Tarjeta del Cliente
 const THEMES = {
@@ -126,8 +127,12 @@ export default function VCardEngineDashboard() {
 
   // Estado de guardado en la nube
   const [isSaving, setIsSaving] = useState(false);
+  const [isZipping, setIsZipping] = useState(false);
   const [savedUrl, setSavedUrl] = useState(null);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Modal para ver y copiar correo de entrega
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   // Inyección reactiva de Google Fonts (Primaria + Secundaria)
   useEffect(() => {
@@ -266,6 +271,36 @@ export default function VCardEngineDashboard() {
   const vcardString = buildVCardString();
   const vcardBytes = new Blob([vcardString]).size;
 
+  // Obtener Blob o DataURL del QR en alta resolución
+  const getQRPNGData = () => {
+    return new Promise((resolve) => {
+      const svg = document.getElementById('preview-qr-code-svg');
+      if (!svg) {
+        resolve(null);
+        return;
+      }
+
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      canvas.width = 1200;
+      canvas.height = 1200;
+
+      img.onload = () => {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 60, 60, 1080, 1080);
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, 'image/png');
+      };
+
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    });
+  };
+
   // Descarga de archivo .vcf (Entregable 1)
   const downloadVCF = () => {
     const blob = new Blob([vcardString], { type: 'text/vcard;charset=utf-8' });
@@ -280,32 +315,126 @@ export default function VCardEngineDashboard() {
   };
 
   // Descarga de Código QR en PNG (Entregable 2)
-  const downloadQR = () => {
-    const svg = document.getElementById('preview-qr-code-svg');
-    if (!svg) return;
+  const downloadQR = async () => {
+    const blob = await getQRPNGData();
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `QR_${formData.nombre || 'tsolutions'}_${formData.empresa || 'card'}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
+  const activeTheme = THEMES[design.theme] || THEMES.modern;
+  const currentFontPrimary = design.fontPrimary || 'Inter';
+  const currentFontSecondary = design.fontSecondary || 'Inter';
+  const qrTargetValue = savedUrl || (mode === 'review'
+    ? (effectiveMapsUrl || 'https://maps.google.com')
+    : (formData.url || 'https://tsolutionsipidd.com'));
 
-    canvas.width = 1000;
-    canvas.height = 1000;
+  // Etiqueta legible de la ubicación para la tarjeta
+  const locationLabel = [formData.ciudad, formData.pais].filter(Boolean).join(', ') || (formData.empresa ? `Buscar ${formData.empresa}` : 'Ver Ubicación en Maps');
 
-    img.onload = () => {
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 50, 50, 900, 900);
-      const pngUrl = canvas.toDataURL('image/png');
+  // Redacción oficial del correo de entrega
+  const generateDeliveryEmailContent = () => {
+    const titular = (formData.nombre + ' ' + formData.apellido).trim() || 'Estimado(a) Cliente';
+    const empresa = formData.empresa || 'su prestigiosa empresa';
+    const enlacePerfil = savedUrl || `${window.location.origin}/p/tu-enlace`;
+
+    const subject = `🚀 Entrega Oficial de tu Identidad Digital NFC & vCard - TSOLUTIONS IPIDD`;
+    const body = `¡Hola ${titular}!
+
+En nombre de todo el equipo de TSOLUTIONS IPIDD, queremos agradecerte sinceramente por confiar en nosotros para el diseño, desarrollo y despliegue de la nueva Identidad Digital Interactiva para ${empresa}.
+
+A continuación, te presentamos el detalle completo de tus entregables y la guía paso a paso para aprovechar al máximo cada herramienta:
+
+==================================================
+📦 DETALLE DE TUS ENTREGABLES OFICIALES
+==================================================
+
+1️⃣ ENLACE PERMANENTE DE TU TARJETA DIGITAL (En la nube de Google Cloud):
+🔗 Tu Enlace Activo: ${enlacePerfil}
+👉 Este enlace está alojado en servidores Google Cloud de alta disponibilidad y velocidad. Al acercar tu tarjeta física o sticker con chip NFC a cualquier smartphone moderno (iPhone o Android), este enlace abrirá inmediatamente tu perfil interactivo con tu diseño personalizado, logotipo, redes sociales, botón de guardado en agenda y ubicación en Google Maps.
+
+2️⃣ ARCHIVO DE CONTACTO INTELIGENTE (.VCF):
+📁 Archivo: ${formData.nombre || 'Contacto'}_${formData.apellido || 'Digital'}.vcf
+👉 Es tu tarjeta electrónica estandarizada vCard 3.0. Cuando una persona pulsa el botón "Guardar Contacto" en tu perfil digital, su teléfono descarga este archivo y le permite guardar automáticamente tu nombre, puesto, teléfono, WhatsApp, correo y redes en su agenda con 1 solo toque, sin errores de captura.
+
+3️⃣ CÓDIGO QR EN ALTA DEFINICIÓN (.PNG):
+🖼️ Archivo: QR_${formData.nombre || 'TSolutions'}_Oficial.png
+👉 Es el respaldo visual directo a tu perfil digital. Puedes imprimirlo en tarjetas de presentación físicas, volantes, stands, carpetas corporativas o incluirlo en tu firma de correo electrónico para que cualquier persona sin NFC pueda escanearte al instante.
+
+4️⃣ VINCULACIÓN A GOOGLE MAPS:
+📍 Tu perfil incluye acceso directo para que tus prospectos y clientes localicen tu negocio en Google Maps con navegación guiada en tiempo real.
+
+==================================================
+📲 ¿CÓMO PROGRAMAR TU CHIP NFC? (Si lo configuras tú mismo)
+==================================================
+1. Descarga la aplicación gratuita "NFC Tools" (disponible en App Store para iPhone y Google Play para Android).
+2. Abre la aplicación y selecciona la pestaña "Escribir" -> "Añadir un registro" -> "URL / Enlace".
+3. Pega el enlace permanente de tu tarjeta: ${enlacePerfil}
+4. Toca en "Escribir" y acerca tu tarjeta física o sticker NFC al dorso de tu teléfono. ¡Quedará grabada en 3 segundos!
+
+==================================================
+
+Si requieres cualquier actualización estratégica, soporte técnico o la integración de nuevos canales, estamos a tu total disposición.
+
+¡Te deseamos el mayor de los éxitos proyectando una imagen profesional, moderna y de alto impacto!
+
+Atentamente,
+El Equipo de TSOLUTIONS IPIDD
+Soluciones Digitales, Optimización y Desarrollo Estratégico
+🌐 https://tsolutionsipidd.com
+✉️ contacto@tsolutionsipidd.com`;
+
+    return { subject, body };
+  };
+
+  // Descarga del Paquete Completo en Archivo .ZIP
+  const downloadFullPackage = async () => {
+    setIsZipping(true);
+    try {
+      const zip = new JSZip();
+      const titular = `${formData.nombre || 'Contacto'}_${formData.apellido || 'TSolutions'}`.trim();
+      const qrBlob = await getQRPNGData();
+      const { body: instrucciones } = generateDeliveryEmailContent();
+
+      // 1. Archivo .vcf
+      zip.file(`${titular}_Contacto.vcf`, vcardString);
+
+      // 2. Archivo QR .png
+      if (qrBlob) {
+        zip.file(`${titular}_QR_Oficial.png`, qrBlob);
+      }
+
+      // 3. Guía de Instrucciones en .txt
+      zip.file(`Instrucciones_Entrega_TSOLUTIONS_IPIDD.txt`, instrucciones);
+
+      // Generar y descargar el archivo .zip
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
       const a = document.createElement('a');
-      a.href = pngUrl;
-      a.download = `QR_${formData.nombre || 'tsolutions'}_${formData.empresa || 'card'}.png`;
+      a.href = url;
+      a.download = `Paquete_Identidad_Digital_${titular}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    };
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Error al generar el archivo .zip: ' + err.message);
+    } finally {
+      setIsZipping(false);
+    }
+  };
 
-    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  // Abrir cliente de correo con el paquete y carta de entrega
+  const sendDeliveryEmail = () => {
+    const { subject, body } = generateDeliveryEmailContent();
+    const mailto = `mailto:${encodeURIComponent(formData.correo || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
   };
 
   // Guardar en Google Cloud SQL
@@ -348,16 +477,6 @@ export default function VCardEngineDashboard() {
       setIsSaving(false);
     }
   };
-
-  const activeTheme = THEMES[design.theme] || THEMES.modern;
-  const currentFontPrimary = design.fontPrimary || 'Inter';
-  const currentFontSecondary = design.fontSecondary || 'Inter';
-  const qrTargetValue = savedUrl || (mode === 'review'
-    ? (effectiveMapsUrl || 'https://maps.google.com')
-    : (formData.url || 'https://tsolutionsipidd.com'));
-
-  // Etiqueta legible de la ubicación para la tarjeta
-  const locationLabel = [formData.ciudad, formData.pais].filter(Boolean).join(', ') || (formData.empresa ? `Buscar ${formData.empresa}` : 'Ver Ubicación en Maps');
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#04040A] text-[#F0F0F8]">
@@ -854,7 +973,7 @@ export default function VCardEngineDashboard() {
               </>
             )}
 
-            {/* SECCIÓN INTEGRADA DE TELEMETRÍA NTAG, MATRIZ QR Y DESCARGAS DENTRO DEL PANEL TSOLUTIONS */}
+            {/* SECCIÓN INTEGRADA DE TELEMETRÍA, QR Y DESCARGAS DE ENTREGABLES */}
             <div className="border-t border-gray-800 pt-6 mt-6 space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 
@@ -899,18 +1018,55 @@ export default function VCardEngineDashboard() {
 
               </div>
 
-              {/* BOTÓN DESCARGAR .VCF (Entregable 2) */}
-              <div>
+              {/* BOTONES DE DESCARGA INDIVIDUAL & PAQUETE COMPLETO (.ZIP) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={downloadVCF}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-200 border border-gray-800 hover:border-gray-700 transition-all"
+                  className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-200 border border-gray-800 hover:border-gray-700 transition-all"
                 >
-                  <span>💾</span> DESCARGAR ARCHIVO .VCF (ENTREGABLE 2)
+                  <span>💾</span> Descargar .VCF Individual
+                </button>
+                
+                <button
+                  onClick={downloadFullPackage}
+                  disabled={isZipping}
+                  className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-[#F97316] text-black font-extrabold hover:brightness-110 shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all"
+                >
+                  {isZipping ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      <span>EMPAQUETANDO .ZIP...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>📦</span>
+                      <span>DESCARGAR PAQUETE COMPLETO (.ZIP)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* BOTONES DE ENVÍO Y CARTA DE ENTREGA POR CORREO */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={sendDeliveryEmail}
+                  className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#0c1424] hover:bg-[#101d36] text-[#00E5FF] border border-[#00E5FF]/40 hover:border-[#00E5FF] transition-all"
+                >
+                  <span>✉️</span> Enviar Entregables por Correo
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowEmailModal(true)}
+                  className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-300 border border-gray-800 hover:border-gray-700 transition-all"
+                >
+                  <span>📋</span> Ver Carta de Entrega Oficial
                 </button>
               </div>
 
               {/* BOTÓN MAESTRO DE GUARDAR EN GOOGLE CLOUD SQL (TSOLUTIONS PRIMARY CTA) */}
-              <div className="pt-1">
+              <div className="pt-2 border-t border-gray-800">
                 <button
                   type="button"
                   onClick={handleSaveToCloud}
@@ -1214,7 +1370,7 @@ export default function VCardEngineDashboard() {
                       {/* Línea de Color Secundario del Cliente Centrada */}
                       <div className="w-12 h-1 my-2 mx-auto rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
                       
-                      <p className="text-xs font-bold tracking-wider uppercase" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+                      <p className="text-xs font-bold tracking-wider uppercase font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                       
                       {formData.empresa && (
                         <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
@@ -1352,6 +1508,69 @@ export default function VCardEngineDashboard() {
         </section>
 
       </main>
+
+      {/* MODAL DE LA CARTA OFICIAL DE ENTREGA DE TSOLUTIONS IPIDD */}
+      {showEmailModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0c0c16] border border-[#F97316]/50 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-[0_0_40px_rgba(249,115,22,0.25)] flex flex-col overflow-hidden animate-scaleIn">
+            
+            {/* Header Modal */}
+            <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-[#F97316]">
+                <span>📜</span>
+                <h3 className="font-bruno text-sm font-bold text-white">Carta Oficial de Entrega de Entregables</h3>
+              </div>
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Contenido Carta */}
+            <div className="p-6 overflow-y-auto space-y-4 font-sans text-xs text-gray-300 leading-relaxed">
+              <div className="p-3 bg-black/50 border border-gray-800 rounded-lg">
+                <p className="text-[11px] text-gray-400 font-mono"><span className="text-[#F97316] font-bold">Para:</span> {formData.correo || 'correo@cliente.com'}</p>
+                <p className="text-[11px] text-gray-400 font-mono mt-0.5"><span className="text-[#F97316] font-bold">Asunto:</span> {generateDeliveryEmailContent().subject}</p>
+              </div>
+
+              <textarea
+                readOnly
+                value={generateDeliveryEmailContent().body}
+                rows={16}
+                className="w-full bg-[#06060c] border border-gray-800 p-4 rounded-xl text-xs font-mono text-gray-200 focus:outline-none select-all"
+              />
+            </div>
+
+            {/* Footer Modal */}
+            <div className="p-4 bg-[#12121c] border-t border-gray-800 flex flex-wrap gap-3 justify-end items-center">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(generateDeliveryEmailContent().body);
+                  alert('¡Carta de entrega copiada al portapapeles!');
+                }}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bruno rounded-lg transition-colors flex items-center gap-1.5"
+              >
+                <span>📋</span> Copiar al Portapapeles
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sendDeliveryEmail();
+                  setShowEmailModal(false);
+                }}
+                className="px-4 py-2 bg-[#F97316] text-black text-xs font-bruno font-bold rounded-lg hover:bg-orange-400 transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(249,115,22,0.3)]"
+              >
+                <span>✉️</span> Abrir en Cliente de Correo
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

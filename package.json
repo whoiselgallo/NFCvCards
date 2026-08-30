@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/whoiselgallo/NFCvCards#readme",
   "dependencies": {
+    "jszip": "^3.10.1",
     "next": "^16.3.3",
     "pg": "^8.23.0",
     "qrcode.react": "^4.2.0",
