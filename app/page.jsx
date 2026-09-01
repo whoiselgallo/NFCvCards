@@ -331,9 +331,21 @@ export default function VCardEngineDashboard() {
   const activeTheme = THEMES[design.theme] || THEMES.modern;
   const currentFontPrimary = design.fontPrimary || 'Inter';
   const currentFontSecondary = design.fontSecondary || 'Inter';
-  const qrTargetValue = savedUrl || (mode === 'review'
+
+  // URL del Perfil de la Tarjeta Digital en Tiempo Real
+  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://vc.tsolutionsipidd.com';
+  const baseCardSlug = ((formData.nombre || 'card') + '-' + (formData.apellido || formData.empresa || 'profile'))
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'vcard';
+
+  const cardProfileUrl = savedUrl || `${originUrl}/p/${baseCardSlug}`;
+
+  const qrTargetValue = mode === 'review'
     ? (effectiveMapsUrl || 'https://maps.google.com')
-    : (formData.url || 'https://tsolutionsipidd.com'));
+    : cardProfileUrl;
 
   // Etiqueta legible de la ubicación para la tarjeta
   const locationLabel = [formData.ciudad, formData.pais].filter(Boolean).join(', ') || (formData.empresa ? `Buscar ${formData.empresa}` : 'Ver Ubicación en Maps');

@@ -16,7 +16,7 @@ export function getSocialUrl(type, value) {
   return trimmed;
 }
 
-export default function PublicProfileClient({ profile }) {
+export default function PublicProfileClient({ profile = {} }) {
   const {
     nombre = '',
     apellido = '',
@@ -47,14 +47,20 @@ export default function PublicProfileClient({ profile }) {
     logo_scale = 100,
     cover_position_y = 50,
     cover_zoom = 100,
+    logo_img = null,
+    cover_photo = null,
     logo_url = null,
     cover_url = null
   } = profile;
 
+  // IMÁGENES ACTIVAS (Lee directamente de la base de datos Cloud SQL: logo_img y cover_photo)
+  const activeLogo = logo_img || logo_url || profile.logo_img || profile.logo_url || null;
+  const activeCover = cover_photo || cover_url || profile.cover_photo || profile.cover_url || null;
+
   const currentFontPrimary = font_primary || font_family || 'Inter';
   const currentFontSecondary = font_secondary || font_family || 'Inter';
 
-  // Inyección de Google Fonts dinámicamente (Primaria + Secundaria)
+  // Inyección de Google Fonts dinámicamente
   useEffect(() => {
     const uniqueFonts = Array.from(new Set([currentFontPrimary, currentFontSecondary]));
     const linkId = 'gfonts-public-profile';
@@ -71,7 +77,7 @@ export default function PublicProfileClient({ profile }) {
     link.href = `https://fonts.googleapis.com/css2?${fontParams}&display=swap`;
   }, [currentFontPrimary, currentFontSecondary]);
 
-  // Generador Inteligente de URL de Google Maps
+  // Generador Inteligente de Google Maps
   const effectiveMapsUrl = google_maps_url && google_maps_url.trim().startsWith('http')
     ? google_maps_url.trim()
     : (() => {
@@ -92,12 +98,11 @@ export default function PublicProfileClient({ profile }) {
 
   const locationLabel = [ciudad, pais].filter(Boolean).join(', ') || (empresa ? `Buscar ${empresa}` : 'Ver Ubicación en Google Maps');
 
-  // URLs completas de redes sociales
   const fbUrl = getSocialUrl('facebook', facebook);
   const igUrl = getSocialUrl('instagram', instagram);
   const inUrl = getSocialUrl('linkedin', linkedin);
 
-  // Generador de .VCF descargable
+  // Generador .VCF
   const downloadVCF = () => {
     let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
     vcard += `N:${apellido || ''};${nombre || ''};;;\r\n`;
@@ -129,7 +134,6 @@ export default function PublicProfileClient({ profile }) {
     URL.revokeObjectURL(blobUrl);
   };
 
-  // Configuración de Colores de Fondo según el Tema
   const isModern = theme === 'modern';
   const isClassic = theme === 'classic';
   const isMinimal = theme === 'minimal';
@@ -150,17 +154,17 @@ export default function PublicProfileClient({ profile }) {
           color: textColor
         }}
       >
-        {/* TEMA CLÁSICO CORPORATIVO (LOGO CENTRADO Y VISIBILIDAD TOTAL) */}
+        {/* TEMA CLÁSICO */}
         {isClassic && (
           <div>
             <div
               className="h-36 w-full relative overflow-hidden flex items-center justify-center transition-colors"
               style={{ backgroundColor: color_secundario }}
             >
-              {cover_url ? (
+              {activeCover ? (
                 <div className="w-full h-full overflow-hidden">
                   <img
-                    src={cover_url}
+                    src={activeCover}
                     alt="Cover"
                     className="w-full h-full object-cover"
                     style={{
@@ -184,24 +188,18 @@ export default function PublicProfileClient({ profile }) {
                   boxShadow: '0 12px 28px rgba(0,0,0,0.18)'
                 }}
               >
-                {logo_url ? (
-                  <img src={logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
+                {activeLogo ? (
+                  <img src={activeLogo} alt="Logo" className="w-full h-full object-contain p-1" />
                 ) : (
                   <span className="text-xs font-bold text-gray-400 uppercase">LOGO</span>
                 )}
               </div>
 
               <div className="mt-4 w-full">
-                <h1
-                  className="text-2xl font-bold leading-tight text-slate-800"
-                  style={{ fontFamily: currentFontPrimary }}
-                >
+                <h1 className="text-2xl font-bold leading-tight text-slate-800" style={{ fontFamily: currentFontPrimary }}>
                   {nombre} {apellido}
                 </h1>
-                <div
-                  className="h-1.5 w-16 my-2.5 mx-auto rounded-full"
-                  style={{ backgroundColor: color_secundario, boxShadow: `0 0 10px ${color_secundario}60` }}
-                ></div>
+                <div className="h-1.5 w-16 my-2.5 mx-auto rounded-full" style={{ backgroundColor: color_secundario }}></div>
                 <p className="text-base font-bold" style={{ color: color_primario }}>{puesto}</p>
                 {empresa && (
                   <div
@@ -229,10 +227,10 @@ export default function PublicProfileClient({ profile }) {
         {/* TEMA MODERNO CYBER DARK */}
         {isModern && (
           <div className="p-6 flex flex-col items-center text-center">
-            {cover_url && (
+            {activeCover && (
               <div className="w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/10 relative">
                 <img
-                  src={cover_url}
+                  src={activeCover}
                   alt="Cover"
                   className="w-full h-full object-cover"
                   style={{
@@ -253,38 +251,22 @@ export default function PublicProfileClient({ profile }) {
                 boxShadow: `0 0 20px ${color_primario}60`
               }}
             >
-              {logo_url ? (
-                <img
-                  src={logo_url}
-                  alt="Logo"
-                  className="w-full h-full object-contain"
-                  style={{ padding: '2px' }}
-                />
+              {activeLogo ? (
+                <img src={activeLogo} alt="Logo" className="w-full h-full object-contain" style={{ padding: '2px' }} />
               ) : (
-                <div className="w-full h-full flex items-center justify-center p-2">
-                  <svg viewBox="0 0 100 100" className="w-full h-full">
-                    <polygon points="50,10 85,28 85,72 50,90 15,72 15,28" fill="none" stroke={color_primario} strokeWidth="6" />
-                    <polygon points="50,28 72,68 28,68" fill={color_primario} />
-                  </svg>
-                </div>
+                <span className="text-xs font-bold text-gray-400">LOGO</span>
               )}
             </div>
 
-            <h1
-              className="text-2xl font-bold tracking-tight mt-2"
-              style={{ fontFamily: currentFontPrimary }}
-            >
+            <h1 className="text-2xl font-bold tracking-tight mt-2" style={{ fontFamily: currentFontPrimary }}>
               {nombre} {apellido}
             </h1>
-            <div
-              className="h-1.5 w-16 my-2 mx-auto rounded-full transition-all"
-              style={{ backgroundColor: color_secundario, boxShadow: `0 0 12px ${color_secundario}80` }}
-            ></div>
+            <div className="h-1.5 w-16 my-2 mx-auto rounded-full" style={{ backgroundColor: color_secundario }}></div>
             <p className="text-sm font-bold mt-1" style={{ color: color_primario }}>{puesto}</p>
 
             {empresa && (
               <div
-                className="inline-block px-3.5 py-1 mt-2 rounded-full text-xs uppercase tracking-widest font-bold border transition-all"
+                className="inline-block px-3.5 py-1 mt-2 rounded-full text-xs uppercase tracking-widest font-bold border"
                 style={{
                   backgroundColor: `${color_secundario}15`,
                   borderColor: `${color_secundario}60`,
@@ -303,13 +285,13 @@ export default function PublicProfileClient({ profile }) {
           </div>
         )}
 
-        {/* TEMA MINIMALISTA EJECUTIVO (CUADRO GEOMÉTRICO CENTRADO) */}
+        {/* TEMA MINIMALISTA EJECUTIVO */}
         {isMinimal && (
           <div className="p-8 flex flex-col items-center text-center">
-            {cover_url && (
+            {activeCover && (
               <div className="w-full h-32 overflow-hidden mb-5 border-b border-gray-200 relative rounded-lg">
                 <img
-                  src={cover_url}
+                  src={activeCover}
                   alt="Cover"
                   className="w-full h-full object-cover"
                   style={{
@@ -321,7 +303,6 @@ export default function PublicProfileClient({ profile }) {
               </div>
             )}
 
-            {/* Cuadro Geométrico Minimalista con Acento de Color Primario */}
             <div
               className="bg-white p-3 flex items-center justify-center my-3 border-2 transition-all rounded-xl"
               style={{
@@ -331,17 +312,14 @@ export default function PublicProfileClient({ profile }) {
                 boxShadow: `0 0 16px ${color_primario}35`
               }}
             >
-              {logo_url ? (
-                <img src={logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
+              {activeLogo ? (
+                <img src={activeLogo} alt="Logo" className="w-full h-full object-contain p-1" />
               ) : (
                 <span className="text-xs font-mono font-bold tracking-widest uppercase" style={{ color: color_primario }}>LOGO</span>
               )}
             </div>
 
-            <h1
-              className="text-3xl font-light tracking-tight text-slate-900"
-              style={{ fontFamily: currentFontPrimary }}
-            >
+            <h1 className="text-3xl font-light tracking-tight text-slate-900" style={{ fontFamily: currentFontPrimary }}>
               {nombre} <span className="font-extrabold">{apellido}</span>
             </h1>
             <div className="w-16 h-1 my-3 mx-auto rounded-full" style={{ backgroundColor: color_secundario }}></div>
@@ -356,7 +334,7 @@ export default function PublicProfileClient({ profile }) {
           </div>
         )}
 
-        {/* PASTILLAS DE CONTACTO & REDES SOCIALES */}
+        {/* BOTONES DE CONTACTO */}
         <div className="px-6 space-y-2.5 mt-2 flex-1">
           {telefono && (
             <a
@@ -469,7 +447,7 @@ export default function PublicProfileClient({ profile }) {
           )}
         </div>
 
-        {/* BOTÓN FLOTANTE GUARDAR CONTACTO (TIPOGRAFÍA PRIMARIA Y COLOR CTA) */}
+        {/* BOTÓN FLOTANTE */}
         <div className="absolute bottom-4 left-4 right-4 z-20">
           <button
             onClick={downloadVCF}
