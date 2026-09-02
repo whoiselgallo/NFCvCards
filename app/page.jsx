@@ -527,6 +527,15 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
             </button>
           </div>
 
+          {/* Enlace al Panel Administrativo Corporativo */}
+          <a
+            href="/admin"
+            className="px-3.5 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-300 border border-gray-800 transition-colors flex items-center gap-1.5 hidden sm:flex"
+            title="Panel Administrativo Centralizado"
+          >
+            <span>⚙️</span> Admin
+          </a>
+
           {/* Logo Oficial Tsolutions */}
           <div className="tsolutions-logo hidden sm:flex shrink-0" title="TSOLUTIONS IPIDD">
             <div className="tsolutions-triangle"></div>
@@ -1520,6 +1529,105 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
         </section>
 
       </main>
+
+      {/* SECCIÓN MARKETING 2.0: ECOSISTEMA DE SOLUCIONES TSOLUTIONS IPIDD (CONVERSIÓN & UPSELL) */}
+      <section className="mt-16 max-w-[1920px] mx-auto w-full border-t border-gray-800/80 pt-12 pb-8 space-y-10">
+        <div className="text-center max-w-3xl mx-auto space-y-2">
+          <div className="inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-orange-500/10 border border-orange-500/30 text-orange-400">
+            ⚡ Soluciones Tecnológicas de Alto Impacto
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bruno text-white">
+            MÁS ALLÁ DE LA VCARD: ECOSISTEMA <span className="text-[#F97316]">TSOLUTIONS IPIDD</span>
+          </h2>
+          <p className="text-xs text-gray-400">
+            Diseñamos, desarrollamos e implementamos plataformas digitales, software a la medida y automatización inteligente para empresas líderes.
+          </p>
+        </div>
+
+        {/* GRILLA DE 4 PILARES COMERCIALES */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Pilar 1: Software a Medida */}
+          <div className="bg-[#090914] border border-gray-800 hover:border-[#F97316]/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(249,115,22,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-[#F97316]/10 border border-[#F97316]/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              💻
+            </div>
+            <h3 className="font-bruno text-sm text-white font-bold">Software & Apps a la Medida</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Desarrollo de plataformas web, aplicaciones móviles, sistemas ERP y CRMs personalizados a la operativa de tu negocio.
+            </p>
+          </div>
+
+          {/* Pilar 2: Inteligencia Artificial */}
+          <div className="bg-[#090914] border border-gray-800 hover:border-[#00E5FF]/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(0,229,255,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              🤖
+            </div>
+            <h3 className="font-bruno text-sm text-white font-bold">Automatización con IA</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Agentes inteligentes, procesamiento automatizado de datos y chatbots avanzados para multiplicar la productividad de tu equipo.
+            </p>
+          </div>
+
+          {/* Pilar 3: Cloud & Seguridad */}
+          <div className="bg-[#090914] border border-gray-800 hover:border-green-500/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(34,197,94,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              ☁️
+            </div>
+            <h3 className="font-bruno text-sm text-white font-bold">Google Cloud & Ciberseguridad</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Infraestructura escalable, bases de datos PostgreSQL de alta disponibilidad y arquitectura cloud de nivel bancario.
+            </p>
+          </div>
+
+          {/* Pilar 4: Consultoría IPIDD */}
+          <div className="bg-[#090914] border border-gray-800 hover:border-purple-500/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(168,85,247,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              📈
+            </div>
+            <h3 className="font-bruno text-sm text-white font-bold">Consultoría Estratégica IPIDD</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Diagnóstico tecnológico y planes de digitalización orientados a rentabilidad y reducción de costos operativos.
+            </p>
+          </div>
+        </div>
+
+        {/* BANNER CTA DE CAPTACIÓN HIGH-TICKET */}
+        <div className="bg-gradient-to-r from-[#0c0c16] via-[#151224] to-[#0c0c16] border border-[#F97316]/40 p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_40px_rgba(249,115,22,0.15)]">
+          <div className="space-y-1.5 text-center md:text-left">
+            <h3 className="text-lg md:text-xl font-bruno text-white font-bold">
+              ¿Quieres digitalizar o automatizar los procesos de tu empresa?
+            </h3>
+            <p className="text-xs text-gray-400">
+              Agenda una sesión de diagnóstico tecnológico sin costo (30 min) con los ingenieros de TSOLUTIONS IPIDD.
+            </p>
+          </div>
+          <a
+            href="https://wa.me/526860000000?text=Hola%20TSOLUTIONS%20IPIDD,%20me%20gustaria%20agendar%20un%20diagnostico%20tecnologico%20para%20mi%20empresa"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3.5 bg-[#F97316] hover:bg-orange-400 text-black font-bruno font-bold text-xs rounded-xl transition-all shrink-0 shadow-[0_0_20px_rgba(249,115,22,0.35)] flex items-center gap-2"
+          >
+            <span>📅</span> Solicitar Diagnóstico Gratuito
+          </a>
+        </div>
+
+        {/* FOOTER CORPORATIVO TSOLUTIONS IPIDD */}
+        <footer className="border-t border-gray-800/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-2">
+            <span className="font-bruno text-white">TSOLUTIONS IPIDD</span>
+            <span>•</span>
+            <span>Transformación Digital & Soluciones Estratégicas</span>
+          </div>
+          <div className="flex items-center gap-4 font-mono text-[11px]">
+            <a href="https://tsolutionsipidd.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#F97316]">
+              tsolutionsipidd.com ↗
+            </a>
+            <a href="/admin" className="hover:text-[#00E5FF]">
+              Panel de Control Admin
+            </a>
+          </div>
+        </footer>
+      </section>
 
       {/* MODAL DE LA CARTA OFICIAL DE ENTREGA DE TSOLUTIONS IPIDD */}
       {showEmailModal && (
