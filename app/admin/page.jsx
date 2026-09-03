@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import JSZip from 'jszip';
 import { QRCodeSVG } from 'qrcode.react';
+import brandConfig from '../../brand.config';
+import { generateDeliveryInstructions } from '../../lib/brand';
 
 const POPULAR_FONTS = [
   { label: 'Inter (Moderna y Limpia)', value: 'Inter' },
@@ -225,55 +227,14 @@ export default function AdminDashboardPage() {
 
   // Generador de Carta Oficial de Entrega para el modal de reenvío
   const generateEmailText = (p) => {
-    const titular = (p.nombre + ' ' + p.apellido).trim() || 'Estimado(a) Cliente';
-    const empresa = p.empresa || 'su prestigiosa empresa';
-    const enlacePerfil = `${typeof window !== 'undefined' ? window.location.origin : 'https://vc.tsolutionsipidd.com'}/p/${p.slug}`;
-
-    const subject = `🚀 Entrega Oficial de tu Identidad Digital NFC & vCard - TSOLUTIONS IPIDD`;
-    const body = `¡Hola ${titular}!
-
-En nombre de todo el equipo de TSOLUTIONS IPIDD, queremos agradecerte sinceramente por confiar en nosotros para el diseño, desarrollo y despliegue de la nueva Identidad Digital Interactiva para ${empresa}.
-
-A continuación, te presentamos el detalle completo de tus entregables y la guía paso a paso para aprovechar al máximo cada herramienta:
-
-==================================================
-📦 DETALLE DE TUS ENTREGABLES OFICIALES
-==================================================
-
-1️⃣ ENLACE PERMANENTE DE TU TARJETA DIGITAL (En la nube de Google Cloud):
-🔗 Tu Enlace Activo: ${enlacePerfil}
-👉 Este enlace está alojado en servidores Google Cloud de alta disponibilidad y velocidad. Al acercar tu tarjeta física o sticker con chip NFC a cualquier smartphone moderno (iPhone o Android), este enlace abrirá inmediatamente tu perfil interactivo con tu diseño personalizado, logotipo, redes sociales, botón de guardado en agenda y ubicación en Google Maps.
-
-2️⃣ ARCHIVO DE CONTACTO INTELIGENTE (.VCF):
-📁 Archivo: ${p.nombre || 'Contacto'}_${p.apellido || 'Digital'}.vcf
-👉 Es tu tarjeta electrónica estandarizada vCard 3.0. Cuando una persona pulsa el botón "Guardar Contacto" en tu perfil digital, su teléfono descarga este archivo y le permite guardar automáticamente tu nombre, puesto, teléfono, WhatsApp, correo y redes en su agenda con 1 solo toque, sin errores de captura.
-
-3️⃣ CÓDIGO QR EN ALTA DEFINICIÓN (.PNG):
-🖼️ Archivo: QR_${p.nombre || 'TSolutions'}_Oficial.png
-👉 Es el respaldo visual directo a tu perfil digital. Puedes imprimirlo en tarjetas de presentación físicas, volantes, stands, carpetas corporativas o incluirlo en tu firma de correo electrónico para que cualquier persona sin NFC pueda escanearte al instante.
-
-4️⃣ VINCULACIÓN A GOOGLE MAPS:
-📍 Tu perfil incluye acceso directo para que tus prospectos y clientes localicen tu negocio en Google Maps con navegación guiada en tiempo real.
-
-==================================================
-📲 ¿CÓMO PROGRAMAR TU CHIP NFC? (Si lo configuras tú mismo)
-==================================================
-1. Descarga la aplicación gratuita "NFC Tools" (disponible en App Store para iPhone y Google Play para Android).
-2. Abre la aplicación y selecciona la pestaña "Escribir" -> "Añadir un registro" -> "URL / Enlace".
-3. Pega el enlace permanente de tu tarjeta: ${enlacePerfil}
-4. Toca en "Escribir" y acerca tu tarjeta física o sticker NFC al dorso de tu teléfono. ¡Quedará grabada en 3 segundos!
-
-==================================================
-
-Si requieres cualquier actualización estratégica, soporte técnico o la integración de nuevos canales, estamos a tu total disposición.
-
-¡Te deseamos el mayor de los éxitos proyectando una imagen profesional, moderna y de alto impacto!
-
-Atentamente,
-El Equipo de TSOLUTIONS IPIDD
-Soluciones Digitales, Optimización y Desarrollo Estratégico
-🌐 https://tsolutionsipidd.com
-✉️ contacto@tsolutionsipidd.com`;
+    const subject = brandConfig.delivery.emailSubject(p.empresa);
+    const body = generateDeliveryInstructions({
+      nombre: p.nombre,
+      apellido: p.apellido,
+      empresa: p.empresa,
+      slug: p.slug,
+      originUrl: typeof window !== 'undefined' ? window.location.origin : (brandConfig.website || 'https://rosecard.io')
+    });
 
     return { subject, body };
   };
@@ -283,7 +244,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
     setIsZippingId(p.id);
     try {
       const zip = new JSZip();
-      const titular = `${p.nombre || 'Contacto'}_${p.apellido || 'TSolutions'}`.trim();
+      const titular = `${p.nombre || 'Contacto'}_${p.apellido || 'Card'}`.trim();
       const { body: instrucciones } = generateEmailText(p);
 
       // 1. vCard
@@ -304,7 +265,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
       vcard += `END:VCARD`;
 
       zip.file(`${titular}_Contacto.vcf`, vcard);
-      zip.file(`Instrucciones_Entrega_TSOLUTIONS_IPIDD.txt`, instrucciones);
+      zip.file(brandConfig.delivery.instructionsFilename(titular), instrucciones);
 
       const content = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(content);
@@ -326,31 +287,26 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#04040A] flex flex-col items-center justify-center text-white">
-        <div className="w-10 h-10 border-4 border-[#F97316] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="font-bruno text-sm text-gray-400">Verificando Credenciales Corporativas TSOLUTIONS IPIDD...</p>
+        <div className="w-10 h-10 border-4 border-[#E11D48] border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="font-bruno text-sm text-gray-400">Verificando Credenciales de Acceso...</p>
       </div>
     );
   }
 
-  // PANTALLA DE ACCESO CORPORATIVO SI NO ESTÁ AUTENTICADO
+  // PANTALLA DE ACCESO SI NO ESTÁ AUTENTICADO
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-[#04040A] flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#090914] border border-[#F97316]/40 p-8 rounded-3xl shadow-[0_0_50px_rgba(249,115,22,0.25)] space-y-6 animate-scaleIn">
+        <div className="w-full max-w-md bg-[#090914] border border-[#E11D48]/40 p-8 rounded-3xl shadow-[0_0_50px_rgba(225,29,72,0.25)] space-y-6 animate-scaleIn">
           
           {/* Logo y Cabecera */}
           <div className="text-center space-y-2">
-            <div className="inline-flex p-3 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 mb-2">
-              <div className="tsolutions-logo scale-125">
-                <div className="tsolutions-triangle"></div>
-              </div>
-            </div>
             <h1 className="text-2xl font-bruno text-white">
-              TSOLUTIONS <span className="text-[#F97316]">ADMIN</span>
+              {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> ADMIN
             </h1>
             <p className="text-xs text-gray-400">Panel Centralizado de Control de Identidades Digitales</p>
-            <div className="mt-2 inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-orange-500/10 border border-orange-500/30 text-orange-400">
-              🔒 Exclusivo para @tsolutionsipidd.com
+            <div className="mt-2 inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400">
+              {brandConfig.adminAuth.allowedDomains === '*' ? '🔒 Panel Administrativo Seguro' : `🔒 Exclusivo para ${brandConfig.adminAuth.allowedDomains}`}
             </div>
           </div>
 
@@ -371,23 +327,25 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
                   required
                   value={authForm.name}
                   onChange={(e) => setAuthForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Ej. Ing. Javier Gallardo"
+                  placeholder="Ej. Administrador"
                   className="input-dark w-full"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase">Correo Corporativo</label>
+              <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase">Correo Electrónico</label>
               <input
                 type="email"
                 required
                 value={authForm.email}
                 onChange={(e) => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="tu-nombre@tsolutionsipidd.com"
+                placeholder="admin@tudominio.com"
                 className="input-dark w-full font-mono text-xs"
               />
-              <p className="text-[10px] text-gray-500 mt-1">Debe terminar estrictamente en @tsolutionsipidd.com</p>
+              <p className="text-[10px] text-gray-500 mt-1">
+                {brandConfig.adminAuth.allowedDomains === '*' ? 'Introduce tu correo autorizado' : `Debe terminar en: ${brandConfig.adminAuth.allowedDomains}`}
+              </p>
             </div>
 
             <div>
@@ -405,11 +363,11 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
             <button
               type="submit"
               disabled={authSubmitting}
-              className="w-full py-3.5 rounded-xl text-xs font-bruno font-bold uppercase tracking-wider bg-[#F97316] text-black hover:bg-orange-400 transition-all shadow-[0_0_20px_rgba(249,115,22,0.35)] flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl text-xs font-bruno font-bold uppercase tracking-wider bg-[#E11D48] text-white hover:bg-rose-700 transition-all shadow-[0_0_20px_rgba(225,29,72,0.35)] flex items-center justify-center gap-2"
             >
               {authSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>VERIFICANDO ACCESO...</span>
                 </>
               ) : (
@@ -426,9 +384,9 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
                 <button
                   type="button"
                   onClick={() => { setAuthMode('register'); setAuthError(''); }}
-                  className="text-[#F97316] hover:underline font-bold"
+                  className="text-[#E11D48] hover:underline font-bold"
                 >
-                  Registrar mi cuenta corporativa
+                  Registrar mi cuenta
                 </button>
               </p>
             ) : (
@@ -437,7 +395,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
                 <button
                   type="button"
                   onClick={() => { setAuthMode('login'); setAuthError(''); }}
-                  className="text-[#F97316] hover:underline font-bold"
+                  className="text-[#E11D48] hover:underline font-bold"
                 >
                   Iniciar sesión
                 </button>
@@ -463,14 +421,11 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
       {/* HEADER DEL PANEL */}
       <header className="max-w-[1920px] mx-auto w-full mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-800">
         <div className="flex items-center gap-3">
-          <div className="tsolutions-logo shrink-0 scale-110">
-            <div className="tsolutions-triangle"></div>
-          </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide flex items-center gap-2">
-              TSOLUTIONS <span className="text-[#F97316]">ADMIN</span> ENGINE
+              {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> ADMIN ENGINE
             </h1>
-            <p className="text-xs text-gray-400">Centro de Operaciones y Control de Identidades Digitales en Google Cloud SQL</p>
+            <p className="text-xs text-gray-400">Centro de Control y Gestión de Identidades Digitales NFC</p>
           </div>
         </div>
 

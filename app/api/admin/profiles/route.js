@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getPool, initDb } from '../../../../lib/db';
-import { verifySessionToken } from '../../../../lib/auth';
+import { verifySessionToken, SESSION_COOKIE_NAME } from '../../../../lib/auth';
 
 export async function GET(request) {
   try {
-    const token = request.cookies.get('tsolutions_admin_session')?.value;
+    const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     const session = verifySessionToken(token);
 
     if (!session) {
@@ -68,7 +68,7 @@ export async function GET(request) {
       paramIndex++;
     }
 
-    // Ordenar de forma jerárquica: Empresa (Fila 1) y luego fecha de actualización
+    // Ordenar de forma jerárquica: Empresa y luego fecha de actualización
     query += ` ORDER BY COALESCE(NULLIF(empresa, ''), 'zzzz') ASC, updated_at DESC`;
 
     const result = await pool.query(query, values);

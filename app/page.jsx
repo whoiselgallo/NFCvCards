@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import JSZip from 'jszip';
+import brandConfig from '../brand.config';
+import { generateDeliveryInstructions } from '../lib/brand';
 
 // Temas Estructurales de la Tarjeta del Cliente
 const THEMES = {
@@ -321,7 +323,7 @@ export default function VCardEngineDashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `QR_${formData.nombre || 'tsolutions'}_${formData.empresa || 'card'}.png`;
+    a.download = brandConfig.delivery.qrFilename(formData.nombre, formData.empresa);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -333,7 +335,7 @@ export default function VCardEngineDashboard() {
   const currentFontSecondary = design.fontSecondary || 'Inter';
 
   // URL del Perfil de la Tarjeta Digital en Tiempo Real
-  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://vc.tsolutionsipidd.com';
+  const originUrl = typeof window !== 'undefined' ? window.location.origin : (brandConfig.website || 'https://rosecard.io');
   const baseCardSlug = ((formData.nombre || 'card') + '-' + (formData.apellido || formData.empresa || 'profile'))
     .toLowerCase()
     .normalize('NFD')
@@ -352,55 +354,14 @@ export default function VCardEngineDashboard() {
 
   // Redacción oficial del correo de entrega
   const generateDeliveryEmailContent = () => {
-    const titular = (formData.nombre + ' ' + formData.apellido).trim() || 'Estimado(a) Cliente';
-    const empresa = formData.empresa || 'su prestigiosa empresa';
-    const enlacePerfil = savedUrl || `${window.location.origin}/p/tu-enlace`;
-
-    const subject = `🚀 Entrega Oficial de tu Identidad Digital NFC & vCard - TSOLUTIONS IPIDD`;
-    const body = `¡Hola ${titular}!
-
-En nombre de todo el equipo de TSOLUTIONS IPIDD, queremos agradecerte sinceramente por confiar en nosotros para el diseño, desarrollo y despliegue de la nueva Identidad Digital Interactiva para ${empresa}.
-
-A continuación, te presentamos el detalle completo de tus entregables y la guía paso a paso para aprovechar al máximo cada herramienta:
-
-==================================================
-📦 DETALLE DE TUS ENTREGABLES OFICIALES
-==================================================
-
-1️⃣ ENLACE PERMANENTE DE TU TARJETA DIGITAL (En la nube de Google Cloud):
-🔗 Tu Enlace Activo: ${enlacePerfil}
-👉 Este enlace está alojado en servidores Google Cloud de alta disponibilidad y velocidad. Al acercar tu tarjeta física o sticker con chip NFC a cualquier smartphone moderno (iPhone o Android), este enlace abrirá inmediatamente tu perfil interactivo con tu diseño personalizado, logotipo, redes sociales, botón de guardado en agenda y ubicación en Google Maps.
-
-2️⃣ ARCHIVO DE CONTACTO INTELIGENTE (.VCF):
-📁 Archivo: ${formData.nombre || 'Contacto'}_${formData.apellido || 'Digital'}.vcf
-👉 Es tu tarjeta electrónica estandarizada vCard 3.0. Cuando una persona pulsa el botón "Guardar Contacto" en tu perfil digital, su teléfono descarga este archivo y le permite guardar automáticamente tu nombre, puesto, teléfono, WhatsApp, correo y redes en su agenda con 1 solo toque, sin errores de captura.
-
-3️⃣ CÓDIGO QR EN ALTA DEFINICIÓN (.PNG):
-🖼️ Archivo: QR_${formData.nombre || 'TSolutions'}_Oficial.png
-👉 Es el respaldo visual directo a tu perfil digital. Puedes imprimirlo en tarjetas de presentación físicas, volantes, stands, carpetas corporativas o incluirlo en tu firma de correo electrónico para que cualquier persona sin NFC pueda escanearte al instante.
-
-4️⃣ VINCULACIÓN A GOOGLE MAPS:
-📍 Tu perfil incluye acceso directo para que tus prospectos y clientes localicen tu negocio en Google Maps con navegación guiada en tiempo real.
-
-==================================================
-📲 ¿CÓMO PROGRAMAR TU CHIP NFC? (Si lo configuras tú mismo)
-==================================================
-1. Descarga la aplicación gratuita "NFC Tools" (disponible en App Store para iPhone y Google Play para Android).
-2. Abre la aplicación y selecciona la pestaña "Escribir" -> "Añadir un registro" -> "URL / Enlace".
-3. Pega el enlace permanente de tu tarjeta: ${enlacePerfil}
-4. Toca en "Escribir" y acerca tu tarjeta física o sticker NFC al dorso de tu teléfono. ¡Quedará grabada en 3 segundos!
-
-==================================================
-
-Si requieres cualquier actualización estratégica, soporte técnico o la integración de nuevos canales, estamos a tu total disposición.
-
-¡Te deseamos el mayor de los éxitos proyectando una imagen profesional, moderna y de alto impacto!
-
-Atentamente,
-El Equipo de TSOLUTIONS IPIDD
-Soluciones Digitales, Optimización y Desarrollo Estratégico
-🌐 https://tsolutionsipidd.com
-✉️ contacto@tsolutionsipidd.com`;
+    const subject = brandConfig.delivery.emailSubject(formData.empresa);
+    const body = generateDeliveryInstructions({
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      empresa: formData.empresa,
+      slug: baseCardSlug,
+      originUrl: typeof window !== 'undefined' ? window.location.origin : originUrl
+    });
 
     return { subject, body };
   };
@@ -410,7 +371,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
     setIsZipping(true);
     try {
       const zip = new JSZip();
-      const titular = `${formData.nombre || 'Contacto'}_${formData.apellido || 'TSolutions'}`.trim();
+      const titular = `${formData.nombre || 'Contacto'}_${formData.apellido || 'Card'}`.trim();
       const qrBlob = await getQRPNGData();
       const { body: instrucciones } = generateDeliveryEmailContent();
 
@@ -423,7 +384,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
       }
 
       // 3. Guía de Instrucciones en .txt
-      zip.file(`Instrucciones_Entrega_TSOLUTIONS_IPIDD.txt`, instrucciones);
+      zip.file(brandConfig.delivery.instructionsFilename(titular), instrucciones);
 
       // Generar y descargar el archivo .zip
       const content = await zip.generateAsync({ type: 'blob' });
@@ -493,23 +454,23 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#04040A] text-[#F0F0F8]">
       
-      {/* HEADER OFICIAL TSOLUTIONS IPIDD */}
+      {/* HEADER DE LA PLATAFORMA */}
       <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide">
-            TSOLUTIONS <span className="text-[#F97316]">VCARD</span> ENGINE
+            {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> {brandConfig.brandHeading.suffix}
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Generador de identidad digital con optimización algorítmica y Google Cloud SQL.</p>
+          <p className="text-gray-400 text-sm mt-1">{brandConfig.brandDescription}</p>
         </div>
 
-        {/* CONTROLES DE CABECERA: SELECTOR DE MODO & LOGO OFICIAL */}
+        {/* CONTROLES DE CABECERA: SELECTOR DE MODO & ENLACE ADMIN */}
         <div className="flex items-center gap-4">
           <div className="flex bg-[#0A0A14] p-1 rounded-xl border border-gray-800 shadow-inner">
             <button
               onClick={() => setMode('vcard')}
               className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
                 mode === 'vcard'
-                  ? 'bg-[#F97316] text-black font-extrabold shadow-[0_0_14px_rgba(249,115,22,0.5)]'
+                  ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -519,7 +480,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
               onClick={() => setMode('review')}
               className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
                 mode === 'review'
-                  ? 'bg-[#F97316] text-black font-extrabold shadow-[0_0_14px_rgba(249,115,22,0.5)]'
+                  ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -546,7 +507,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
       {/* CONTENIDO PRINCIPAL EN 2 COLUMNAS */}
       <main className="flex-1 flex flex-col lg:flex-row gap-8 max-w-[1920px] mx-auto w-full items-start">
         
-        {/* COLUMNA 1: PANEL PLATAFORMA TSOLUTIONS */}
+        {/* COLUMNA 1: PANEL DE CONFIGURACIÓN */}
         <section className="w-full lg:w-7/12 panel-glass p-6 md:p-8 space-y-6">
           <h2 className="text-xl font-bruno text-[#F97316] flex items-center gap-2 border-b border-gray-800 pb-3">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -570,7 +531,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
 
                 <div>
                   <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Nombre del Negocio</label>
-                  <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. TSolutions IPIDD" />
+                  <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Mi Empresa" />
                 </div>
 
                 <div>
@@ -1024,19 +985,147 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
                       </>
                     )}
                   </button>
-                      <span>{savedUrl}</span>
+
+                  {/* Feedback y Enlace Permanente */}
+                  {savedUrl && (
+                    <div className="p-4 bg-black/60 border border-green-500/50 rounded-xl space-y-2 animate-fadeIn shadow-[0_0_20px_rgba(34,197,94,0.15)]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bruno text-green-400 flex items-center gap-1.5 font-bold">
+                          <span>✓</span> ¡Perfil Activo en Producción!
+                        </span>
+                        <a
+                          href={savedUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-[#00E5FF] hover:underline font-mono"
+                        >
+                          Abrir Perfil ↗
+                        </a>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={savedUrl}
+                          className="w-full bg-[#06060c] border border-gray-800 px-3 py-2 rounded-lg text-xs font-mono text-gray-200 select-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(savedUrl);
+                            alert('¡Enlace copiado al portapapeles!');
+                          }}
+                          className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bruno shrink-0"
+                        >
+                          Copiar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ========================================================= */}
+                {/* PASO 5: TELEMETRÍA NTAG & DESCARGA DE ENTREGABLES         */}
+                {/* ========================================================= */}
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-[#F97316] text-black text-xs font-bruno font-bold flex items-center justify-center shrink-0">5</span>
+                      <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Entregables & Telemetría NFC</h3>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-400 uppercase">Paquete 1-Click</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Telemetría NTAG */}
+                    <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                      <div>
+                        <h4 className="text-xs font-bruno text-[#F97316] mb-2 flex items-center gap-1.5 uppercase">
+                          <span>⚡</span> TELEMETRÍA NTAG
+                        </h4>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wider">Payload URL para NFC</p>
+                        <div className="flex items-end gap-1.5 text-[#F97316] my-1">
+                          <span className="text-2xl font-bruno font-bold">{new Blob([qrTargetValue]).size}</span>
+                          <span className="text-xs font-bruno mb-0.5">Bytes</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-gray-800/80">
+                        <p className="text-[10px] font-bruno text-white font-bold">NTAG213 (100% Compatible)</p>
+                        <p className="text-[9px] text-gray-400">Modo Dinámico Google Cloud Activo</p>
+                      </div>
+                    </div>
+
+                    {/* Matriz QR y Botón de Descarga PNG */}
+                    <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col items-center justify-center text-center">
+                      <p className="text-[10px] font-bruno text-gray-400 mb-2 uppercase tracking-wider">Matriz QR (Entregable 1)</p>
+                      <div className="bg-white p-2 rounded-lg shadow-xl">
+                        <QRCodeSVG
+                          id="preview-qr-code-svg"
+                          value={qrTargetValue}
+                          size={90}
+                          level="M"
+                          includeMargin={false}
+                        />
+                      </div>
                       <button
-                        onClick={() => { navigator.clipboard.writeText(savedUrl); alert('¡Enlace copiado al portapapeles!'); }}
-                        className="px-2.5 py-1 bg-[#F97316] text-black font-bold text-[10px] rounded hover:bg-orange-400 transition-colors uppercase"
+                        onClick={downloadQR}
+                        className="mt-2.5 px-3 py-1 bg-[#F97316]/10 text-[#F97316] hover:bg-[#F97316] hover:text-black transition-all border border-[#F97316]/40 rounded-md text-[10px] font-bruno font-bold uppercase tracking-wider flex items-center gap-1"
                       >
-                        Copiar
+                        <span>⬇</span> Descargar QR (.PNG)
                       </button>
                     </div>
                   </div>
-                )}
-              </div>
 
-            </div>
+                  {/* BOTÓN MAESTRO PAQUETE COMPLETO (.ZIP) & VCF */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <button
+                      onClick={downloadVCF}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-200 border border-gray-800 hover:border-gray-700 transition-all"
+                    >
+                      <span>💾</span> Descargar .VCF Individual
+                    </button>
+                    
+                    <button
+                      onClick={downloadFullPackage}
+                      disabled={isZipping}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-[#F97316] text-black font-extrabold hover:brightness-110 shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all"
+                    >
+                      {isZipping ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                          <span>EMPAQUETANDO .ZIP...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>📦</span>
+                          <span>DESCARGAR PAQUETE COMPLETO (.ZIP)</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* BOTONES DE ENVÍO Y CARTA DE ENTREGA POR CORREO */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={sendDeliveryEmail}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#0c1424] hover:bg-[#101d36] text-[#00E5FF] border border-[#00E5FF]/40 hover:border-[#00E5FF] transition-all"
+                    >
+                      <span>✉️</span> Enviar Entregables por Correo
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowEmailModal(true)}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-300 border border-gray-800 hover:border-gray-700 transition-all"
+                    >
+                      <span>📋</span> Ver Carta de Entrega Oficial
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
 
           </form>
         </section>

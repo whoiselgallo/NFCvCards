@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPool, initDb } from '../../../../../lib/db';
-import { isCorporateEmail, hashPassword, createSessionToken } from '../../../../../lib/auth';
+import { isCorporateEmail, hashPassword, createSessionToken, SESSION_COOKIE_NAME } from '../../../../../lib/auth';
+import brandConfig from '../../../../../brand.config';
 
 export async function POST(request) {
   try {
@@ -9,19 +10,19 @@ export async function POST(request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'Correo corporativo y contraseña requeridos' },
+        { success: false, error: 'Correo y contraseña requeridos' },
         { status: 400 }
       );
     }
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // VALIDACIÓN ESTRICTA: SOLO DOMINIO @tsolutionsipidd.com
+    // Verificación de dominio corporativo / permitido
     if (!isCorporateEmail(cleanEmail)) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Acceso denegado: El registro en el panel administrativo está reservado exclusivamente para cuentas corporativas @tsolutionsipidd.com'
+          error: brandConfig?.adminAuth?.domainRestrictionMessage || 'Acceso restringido: El registro en el panel administrativo está reservado para cuentas autorizadas.'
         },
         { status: 403 }
       );
@@ -40,7 +41,7 @@ export async function POST(request) {
     const existing = await pool.query('SELECT id FROM admin_users WHERE email = $1', [cleanEmail]);
     if (existing.rows.length > 0) {
       return NextResponse.json(
-        { success: false, error: 'Este correo corporativo ya está registrado. Por favor inicia sesión.' },
+        { success: false, error: 'Este correo ya está registrado. Por favor inicia sesión.' },
         { status: 409 }
       );
     }
@@ -50,7 +51,7 @@ export async function POST(request) {
       `INSERT INTO admin_users (email, password_hash, salt, name, role)
        VALUES ($1, $2, $3, $4, 'admin')
        RETURNING id, email, name, role, created_at`,
-      [cleanEmail, hash, salt, name?.trim() || 'Admin TSolutions']
+      [cleanEmail, hash, salt, name?.trim() || 'Admin']
     );
 
     const newUser = result.rows[0];
@@ -58,7 +59,7 @@ export async function POST(request) {
 
     const response = NextResponse.json({
       success: true,
-      message: 'Administrador corporativo registrado exitosamente',
+      message: 'Administrador registrado exitosamente',
       user: {
         id: newUser.id,
         email: newUser.email,
@@ -68,12 +69,12 @@ export async function POST(request) {
     });
 
     // Guardar cookie HTTP-Only segura
-    response.cookies.set('tsolutions_admin_session', token, {
+    response.cookies.set(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60 // 7 días
+      maxAge: (brandConfig?.adminAuth?.sessionDurationDays || 7) * 24 * 60 * 60
     });
 
     return response;

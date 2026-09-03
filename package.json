@@ -1,24 +1,23 @@
 {
-  "name": "nfcvcards",
+  "name": "rose-nfc-vcards",
   "version": "1.0.0",
-  "description": "",
+  "description": "Plataforma de Marca Blanca para Tarjetas de Presentación Digitales NFC & vCard Engine",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
     "start": "next start",
     "build": "next build"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/whoiselgallo/NFCvCards.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/whoiselgallo/NFCvCards/issues"
-  },
-  "homepage": "https://github.com/whoiselgallo/NFCvCards#readme",
+  "keywords": [
+    "nfc",
+    "vcard",
+    "digital-business-card",
+    "white-label",
+    "qr-code",
+    "nextjs",
+    "postgresql"
+  ],
+  "license": "MIT",
   "dependencies": {
     "jszip": "^3.10.1",
     "next": "^16.3.3",

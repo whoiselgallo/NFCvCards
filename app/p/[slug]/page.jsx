@@ -1,6 +1,7 @@
 import { getPool, initDb } from '../../../lib/db';
 import { notFound, redirect } from 'next/navigation';
 import PublicProfileClient from './PublicProfileClient';
+import brandConfig from '../../../brand.config';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,15 +10,15 @@ export async function generateMetadata({ params }) {
   const pool = getPool();
   try {
     const res = await pool.query('SELECT nombre, apellido, empresa, puesto, nota FROM vcard_profiles WHERE slug = $1', [slug]);
-    if (res.rows.length === 0) return { title: 'Perfil no encontrado - TSOLUTIONS IPIDD' };
+    if (res.rows.length === 0) return { title: `Perfil no encontrado - ${brandConfig.brandName}` };
     const p = res.rows[0];
     const name = `${p.nombre || ''} ${p.apellido || ''}`.trim() || p.empresa || 'Contacto';
     return {
-      title: `${name} | ${p.puesto || 'Tarjeta Digital'}`,
+      title: `${name} | ${p.puesto || 'Tarjeta Digital'} - ${brandConfig.brandName}`,
       description: p.nota || `Perfil digital y datos de contacto de ${name}`
     };
   } catch {
-    return { title: 'vCard Profile - TSOLUTIONS IPIDD' };
+    return { title: `vCard Profile - ${brandConfig.brandName}` };
   }
 }
 
@@ -37,7 +38,7 @@ export default async function PublicProfilePage({ params }) {
     // Incrementar contador de visitas en segundo plano
     pool.query('UPDATE vcard_profiles SET views_count = views_count + 1 WHERE id = $1', [profile.id]).catch(() => {});
   } catch (err) {
-    console.error('Error fetching profile from Cloud SQL:', err);
+    console.error('Error fetching profile from database:', err);
     notFound();
   }
 
