@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getPool, initDb } from '../../../../../../lib/db';
-import { verifySessionToken } from '../../../../../../lib/auth';
+import { verifySessionToken, SESSION_COOKIE_NAME } from '../../../../../../lib/auth';
 
 export async function PATCH(request, { params }) {
   try {
-    const token = request.cookies.get('tsolutions_admin_session')?.value;
+    const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     const session = verifySessionToken(token);
     if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
 

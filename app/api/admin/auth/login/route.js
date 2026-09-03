@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPool, initDb } from '../../../../../lib/db';
-import { isCorporateEmail, verifyPassword, createSessionToken } from '../../../../../lib/auth';
+import { isCorporateEmail, verifyPassword, createSessionToken, SESSION_COOKIE_NAME } from '../../../../../lib/auth';
+import brandConfig from '../../../../../brand.config';
 
 export async function POST(request) {
   try {
@@ -9,19 +10,19 @@ export async function POST(request) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'Correo corporativo y contraseña requeridos' },
+        { success: false, error: 'Correo y contraseña requeridos' },
         { status: 400 }
       );
     }
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // Verificación de dominio corporativo
+    // Verificación de dominio autorizado
     if (!isCorporateEmail(cleanEmail)) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Acceso restringido: Solo cuentas corporativas @tsolutionsipidd.com pueden ingresar al panel.'
+          error: brandConfig?.adminAuth?.domainRestrictionMessage || 'Acceso restringido a cuentas autorizadas.'
         },
         { status: 403 }
       );
@@ -60,12 +61,12 @@ export async function POST(request) {
       }
     });
 
-    response.cookies.set('tsolutions_admin_session', token, {
+    response.cookies.set(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60 // 7 días
+      maxAge: (brandConfig?.adminAuth?.sessionDurationDays || 7) * 24 * 60 * 60
     });
 
     return response;

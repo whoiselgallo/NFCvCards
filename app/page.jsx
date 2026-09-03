@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import JSZip from 'jszip';
+import brandConfig from '../brand.config';
+import { generateDeliveryInstructions } from '../lib/brand';
 
 // Temas Estructurales de la Tarjeta del Cliente
 const THEMES = {
@@ -321,7 +323,7 @@ export default function VCardEngineDashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `QR_${formData.nombre || 'tsolutions'}_${formData.empresa || 'card'}.png`;
+    a.download = brandConfig.delivery.qrFilename(formData.nombre, formData.empresa);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -333,7 +335,7 @@ export default function VCardEngineDashboard() {
   const currentFontSecondary = design.fontSecondary || 'Inter';
 
   // URL del Perfil de la Tarjeta Digital en Tiempo Real
-  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://vc.tsolutionsipidd.com';
+  const originUrl = typeof window !== 'undefined' ? window.location.origin : (brandConfig.website || 'https://rosecard.io');
   const baseCardSlug = ((formData.nombre || 'card') + '-' + (formData.apellido || formData.empresa || 'profile'))
     .toLowerCase()
     .normalize('NFD')
@@ -352,55 +354,14 @@ export default function VCardEngineDashboard() {
 
   // Redacción oficial del correo de entrega
   const generateDeliveryEmailContent = () => {
-    const titular = (formData.nombre + ' ' + formData.apellido).trim() || 'Estimado(a) Cliente';
-    const empresa = formData.empresa || 'su prestigiosa empresa';
-    const enlacePerfil = savedUrl || `${window.location.origin}/p/tu-enlace`;
-
-    const subject = `🚀 Entrega Oficial de tu Identidad Digital NFC & vCard - TSOLUTIONS IPIDD`;
-    const body = `¡Hola ${titular}!
-
-En nombre de todo el equipo de TSOLUTIONS IPIDD, queremos agradecerte sinceramente por confiar en nosotros para el diseño, desarrollo y despliegue de la nueva Identidad Digital Interactiva para ${empresa}.
-
-A continuación, te presentamos el detalle completo de tus entregables y la guía paso a paso para aprovechar al máximo cada herramienta:
-
-==================================================
-📦 DETALLE DE TUS ENTREGABLES OFICIALES
-==================================================
-
-1️⃣ ENLACE PERMANENTE DE TU TARJETA DIGITAL (En la nube de Google Cloud):
-🔗 Tu Enlace Activo: ${enlacePerfil}
-👉 Este enlace está alojado en servidores Google Cloud de alta disponibilidad y velocidad. Al acercar tu tarjeta física o sticker con chip NFC a cualquier smartphone moderno (iPhone o Android), este enlace abrirá inmediatamente tu perfil interactivo con tu diseño personalizado, logotipo, redes sociales, botón de guardado en agenda y ubicación en Google Maps.
-
-2️⃣ ARCHIVO DE CONTACTO INTELIGENTE (.VCF):
-📁 Archivo: ${formData.nombre || 'Contacto'}_${formData.apellido || 'Digital'}.vcf
-👉 Es tu tarjeta electrónica estandarizada vCard 3.0. Cuando una persona pulsa el botón "Guardar Contacto" en tu perfil digital, su teléfono descarga este archivo y le permite guardar automáticamente tu nombre, puesto, teléfono, WhatsApp, correo y redes en su agenda con 1 solo toque, sin errores de captura.
-
-3️⃣ CÓDIGO QR EN ALTA DEFINICIÓN (.PNG):
-🖼️ Archivo: QR_${formData.nombre || 'TSolutions'}_Oficial.png
-👉 Es el respaldo visual directo a tu perfil digital. Puedes imprimirlo en tarjetas de presentación físicas, volantes, stands, carpetas corporativas o incluirlo en tu firma de correo electrónico para que cualquier persona sin NFC pueda escanearte al instante.
-
-4️⃣ VINCULACIÓN A GOOGLE MAPS:
-📍 Tu perfil incluye acceso directo para que tus prospectos y clientes localicen tu negocio en Google Maps con navegación guiada en tiempo real.
-
-==================================================
-📲 ¿CÓMO PROGRAMAR TU CHIP NFC? (Si lo configuras tú mismo)
-==================================================
-1. Descarga la aplicación gratuita "NFC Tools" (disponible en App Store para iPhone y Google Play para Android).
-2. Abre la aplicación y selecciona la pestaña "Escribir" -> "Añadir un registro" -> "URL / Enlace".
-3. Pega el enlace permanente de tu tarjeta: ${enlacePerfil}
-4. Toca en "Escribir" y acerca tu tarjeta física o sticker NFC al dorso de tu teléfono. ¡Quedará grabada en 3 segundos!
-
-==================================================
-
-Si requieres cualquier actualización estratégica, soporte técnico o la integración de nuevos canales, estamos a tu total disposición.
-
-¡Te deseamos el mayor de los éxitos proyectando una imagen profesional, moderna y de alto impacto!
-
-Atentamente,
-El Equipo de TSOLUTIONS IPIDD
-Soluciones Digitales, Optimización y Desarrollo Estratégico
-🌐 https://tsolutionsipidd.com
-✉️ contacto@tsolutionsipidd.com`;
+    const subject = brandConfig.delivery.emailSubject(formData.empresa);
+    const body = generateDeliveryInstructions({
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      empresa: formData.empresa,
+      slug: baseCardSlug,
+      originUrl: typeof window !== 'undefined' ? window.location.origin : originUrl
+    });
 
     return { subject, body };
   };
@@ -410,7 +371,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
     setIsZipping(true);
     try {
       const zip = new JSZip();
-      const titular = `${formData.nombre || 'Contacto'}_${formData.apellido || 'TSolutions'}`.trim();
+      const titular = `${formData.nombre || 'Contacto'}_${formData.apellido || 'Card'}`.trim();
       const qrBlob = await getQRPNGData();
       const { body: instrucciones } = generateDeliveryEmailContent();
 
@@ -423,7 +384,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
       }
 
       // 3. Guía de Instrucciones en .txt
-      zip.file(`Instrucciones_Entrega_TSOLUTIONS_IPIDD.txt`, instrucciones);
+      zip.file(brandConfig.delivery.instructionsFilename(titular), instrucciones);
 
       // Generar y descargar el archivo .zip
       const content = await zip.generateAsync({ type: 'blob' });
@@ -493,23 +454,23 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#04040A] text-[#F0F0F8]">
       
-      {/* HEADER OFICIAL TSOLUTIONS IPIDD */}
+      {/* HEADER DE LA PLATAFORMA */}
       <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide">
-            TSOLUTIONS <span className="text-[#F97316]">VCARD</span> ENGINE
+            {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> {brandConfig.brandHeading.suffix}
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Generador de identidad digital con optimización algorítmica y Google Cloud SQL.</p>
+          <p className="text-gray-400 text-sm mt-1">{brandConfig.brandDescription}</p>
         </div>
 
-        {/* CONTROLES DE CABECERA: SELECTOR DE MODO & LOGO OFICIAL */}
+        {/* CONTROLES DE CABECERA: SELECTOR DE MODO & ENLACE ADMIN */}
         <div className="flex items-center gap-4">
           <div className="flex bg-[#0A0A14] p-1 rounded-xl border border-gray-800 shadow-inner">
             <button
               onClick={() => setMode('vcard')}
               className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
                 mode === 'vcard'
-                  ? 'bg-[#F97316] text-black font-extrabold shadow-[0_0_14px_rgba(249,115,22,0.5)]'
+                  ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -519,7 +480,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
               onClick={() => setMode('review')}
               className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
                 mode === 'review'
-                  ? 'bg-[#F97316] text-black font-extrabold shadow-[0_0_14px_rgba(249,115,22,0.5)]'
+                  ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -527,17 +488,20 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
             </button>
           </div>
 
-          {/* Logo Oficial Tsolutions */}
-          <div className="tsolutions-logo hidden sm:flex shrink-0" title="TSOLUTIONS IPIDD">
-            <div className="tsolutions-triangle"></div>
-          </div>
+          <a
+            href="/admin"
+            className="px-3.5 py-2.5 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-300 border border-gray-800 transition-all flex items-center gap-1.5"
+            title="Panel de Administración"
+          >
+            <span>⚙️</span> Admin
+          </a>
         </div>
       </header>
 
       {/* CONTENIDO PRINCIPAL EN 2 COLUMNAS */}
       <main className="flex-1 flex flex-col lg:flex-row gap-8 max-w-[1920px] mx-auto w-full items-start">
         
-        {/* COLUMNA 1: PANEL PLATAFORMA TSOLUTIONS */}
+        {/* COLUMNA 1: PANEL DE CONFIGURACIÓN */}
         <section className="w-full lg:w-7/12 panel-glass p-6 md:p-8 space-y-6">
           <h2 className="text-xl font-bruno text-[#F97316] flex items-center gap-2 border-b border-gray-800 pb-3">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -561,7 +525,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
 
                 <div>
                   <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Nombre del Negocio</label>
-                  <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. TSolutions IPIDD" />
+                  <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Mi Empresa" />
                 </div>
 
                 <div>
@@ -622,7 +586,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
                     </div>
                   </div>
 
-                  {/* CONTROLES DE ENCUADRE DE BANNER (TSOLUTIONS NARANJA ENERGY TOKENS) */}
+                  {/* CONTROLES DE ENCUADRE DE BANNER */}
                   {coverPhoto && (
                     <div className="pt-3 border-t border-gray-800 space-y-3 bg-black/40 p-3.5 rounded-xl border border-[#F97316]/40 shadow-[0_0_15px_rgba(249,115,22,0.15)] animate-fadeIn">
                       <div className="flex justify-between items-center text-xs font-bruno text-[#F97316]">
@@ -702,7 +666,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Empresa</label>
-                    <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="TSolutions" />
+                    <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="Mi Empresa" />
                   </div>
                   <div>
                     <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Puesto</label>
@@ -1077,7 +1041,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
                 </button>
               </div>
 
-              {/* BOTÓN MAESTRO DE GUARDAR EN GOOGLE CLOUD SQL (TSOLUTIONS PRIMARY CTA) */}
+              {/* BOTÓN PRINCIPAL DE GUARDAR EN BASE DE DATOS */}
               <div className="pt-2 border-t border-gray-800">
                 <button
                   type="button"
@@ -1521,7 +1485,7 @@ Soluciones Digitales, Optimización y Desarrollo Estratégico
 
       </main>
 
-      {/* MODAL DE LA CARTA OFICIAL DE ENTREGA DE TSOLUTIONS IPIDD */}
+      {/* MODAL DE LA CARTA OFICIAL DE ENTREGA */}
       {showEmailModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0c0c16] border border-[#F97316]/50 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-[0_0_40px_rgba(249,115,22,0.25)] flex flex-col overflow-hidden animate-scaleIn">

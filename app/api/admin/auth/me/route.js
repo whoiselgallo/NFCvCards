@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { verifySessionToken } from '../../../../../lib/auth';
+import { verifySessionToken, SESSION_COOKIE_NAME } from '../../../../../lib/auth';
 
 export async function GET(request) {
-  const token = request.cookies.get('tsolutions_admin_session')?.value;
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
   if (!token) {
     return NextResponse.json({ authenticated: false }, { status: 401 });

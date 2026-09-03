@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getPool, initDb } from '../../../../../lib/db';
-import { verifySessionToken } from '../../../../../lib/auth';
+import { verifySessionToken, SESSION_COOKIE_NAME } from '../../../../../lib/auth';
 
 // GET perfil individual
 export async function GET(request, { params }) {
   try {
-    const token = request.cookies.get('tsolutions_admin_session')?.value;
+    const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     const session = verifySessionToken(token);
     if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
 
@@ -27,7 +27,7 @@ export async function GET(request, { params }) {
 // PUT actualizar todos los campos de un perfil
 export async function PUT(request, { params }) {
   try {
-    const token = request.cookies.get('tsolutions_admin_session')?.value;
+    const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     const session = verifySessionToken(token);
     if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
 
@@ -149,7 +149,7 @@ export async function PUT(request, { params }) {
 // DELETE eliminar perfil permanentemente
 export async function DELETE(request, { params }) {
   try {
-    const token = request.cookies.get('tsolutions_admin_session')?.value;
+    const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
     const session = verifySessionToken(token);
     if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
 
@@ -165,7 +165,7 @@ export async function DELETE(request, { params }) {
 
     return NextResponse.json({
       success: true,
-      message: 'Perfil eliminado exitosamente de Google Cloud SQL',
+      message: 'Perfil eliminado exitosamente',
       deleted: result.rows[0]
     });
 

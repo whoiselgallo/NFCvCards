@@ -1,15 +1,16 @@
 import './globals.css';
+import brandConfig from '../brand.config';
 
 export const metadata = {
-  title: 'TSOLUTIONS IPIDD - vCard Engine & Identidad Digital',
-  description: 'Generador de Identidad Digital Interactiva, NFC & vCard por TSOLUTIONS IPIDD',
+  title: `${brandConfig.brandName} - ${brandConfig.brandTagline}`,
+  description: brandConfig.brandDescription,
   icons: {
     icon: [
-      { url: '/favicon.png', type: 'image/png' },
-      { url: '/logoTSPNGSQ.png', type: 'image/png' }
+      { url: brandConfig.assets.favicon || '/favicon.png', type: 'image/png' },
+      { url: brandConfig.assets.logo || '/logoTSPNGSQ.png', type: 'image/png' }
     ],
-    shortcut: '/favicon.png',
-    apple: '/apple-icon.png'
+    shortcut: brandConfig.assets.favicon || '/favicon.png',
+    apple: brandConfig.assets.appleIcon || '/apple-icon.png'
   }
 };
 
@@ -17,8 +18,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <head>
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <link rel="icon" type="image/png" href={brandConfig.assets.favicon || '/favicon.png'} />
+        <link rel="apple-touch-icon" href={brandConfig.assets.appleIcon || '/apple-icon.png'} />
         <script src="https://cdn.tailwindcss.com"></script>
         <link
           href="https://fonts.googleapis.com/css2?family=Bruno+Ace&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@300;400;600;700&display=swap"
