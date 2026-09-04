@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import JSZip from 'jszip';
 import brandConfig from '../brand.config';
 import { generateDeliveryInstructions } from '../lib/brand';
+import { getTranslation } from '../lib/i18n';
 
 // Temas Estructurales de la Tarjeta del Cliente
 const THEMES = {
@@ -133,6 +134,27 @@ export default function VCardEngineDashboard() {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
+
+  // Estados de Idioma (Español base + auto-detección flexible)
+  const [lang, setLang] = useState('es');
+
+  // Estados de Logística y Envíos (Mexicali 100% Gratis vs DHL/UPS)
+  const [shippingLocation, setShippingLocation] = useState('mexicali'); // 'mexicali' | 'mexico_dhl' | 'world_ups'
+
+  // Detección automática del idioma del navegador en cliente
+  useEffect(() => {
+    if (typeof window !== 'undefined' && navigator.language) {
+      const browserLang = navigator.language.toLowerCase();
+      if (browserLang.startsWith('en')) {
+        setLang('en');
+      } else {
+        setLang('es');
+      }
+    }
+  }, []);
+
+  // Función helper t() para traducir
+  const t = (key) => getTranslation(lang, key);
 
   // Estados de Pasarela de Pago y Desbloqueo Comercial
   const [isPaid, setIsPaid] = useState(false);
@@ -497,30 +519,40 @@ export default function VCardEngineDashboard() {
           <p className="text-gray-400 text-sm mt-1">{brandConfig.brandDescription}</p>
         </div>
 
-        {/* CONTROLES DE CABECERA: SELECTOR DE MODO & ENLACE ADMIN */}
-        <div className="flex items-center gap-4">
+        {/* CONTROLES DE CABECERA: SELECTOR DE MODO, IDIOMA & ENLACE ADMIN */}
+        <div className="flex items-center gap-3">
           <div className="flex bg-[#0A0A14] p-1 rounded-xl border border-gray-800 shadow-inner">
             <button
               onClick={() => setMode('vcard')}
-              className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
                 mode === 'vcard'
                   ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <span>📇</span> Perfil Digital (vCard)
+              <span>📇</span> {t('mode_vcard')}
             </button>
             <button
               onClick={() => setMode('review')}
-              className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
                 mode === 'review'
                   ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <span>⭐</span> Tap to Review (Maps)
+              <span>⭐</span> {t('mode_review')}
             </button>
           </div>
+
+          {/* Selector de Idioma Flexible (ES / EN) */}
+          <button
+            type="button"
+            onClick={() => setLang(l => (l === 'es' ? 'en' : 'es'))}
+            className="px-3 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-800 hover:border-[#F97316]/50 transition-all flex items-center gap-1.5 shadow-sm"
+            title={lang === 'es' ? 'Cambiar a Inglés' : 'Switch to Spanish'}
+          >
+            <span>{lang === 'es' ? '🇲🇽 ES' : '🇺🇸 EN'}</span>
+          </button>
 
           {/* Enlace al Panel Administrativo Corporativo */}
           <a
@@ -528,7 +560,7 @@ export default function VCardEngineDashboard() {
             className="px-3.5 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-300 border border-gray-800 transition-colors flex items-center gap-1.5 hidden sm:flex"
             title="Panel Administrativo Centralizado"
           >
-            <span>⚙️</span> Admin
+            <span>⚙️</span> {t('admin_btn')}
           </a>
 
           {/* Logo Oficial Tsolutions */}
@@ -1264,6 +1296,43 @@ export default function VCardEngineDashboard() {
                     </div>
                   </div>
 
+                  {/* LOGÍSTICA DE ENVÍO DE TARJETA FÍSICA NFC (MEXICALI 100% GRATIS / DHL & UPS) */}
+                  <div className="bg-[#090914] p-4 rounded-xl border border-gray-800 space-y-3">
+                    <div className="flex items-center justify-between border-b border-gray-800/80 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span>📦</span>
+                        <h4 className="text-xs font-bruno text-white font-bold uppercase">{t('shipping_title')}</h4>
+                      </div>
+                      <span className="text-[10px] font-mono text-[#00E5FF] font-bold">Cobertura Total</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Mexicali 100% Gratis */}
+                      <div className="bg-[#12121c] p-3.5 rounded-xl border border-green-500/40 space-y-1.5 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono font-bold text-green-400 bg-green-950/50 px-2 py-0.5 rounded border border-green-500/30">
+                            {t('shipping_mxl_badge')}
+                          </span>
+                          <span className="text-xs font-bruno font-extrabold text-green-400 uppercase">100% GRATIS</span>
+                        </div>
+                        <h5 className="text-xs font-bruno text-white font-bold">{t('shipping_mxl_title')}</h5>
+                        <p className="text-[10px] text-gray-400 leading-relaxed">{t('shipping_mxl_desc')}</p>
+                      </div>
+
+                      {/* México & Mundo vía DHL / UPS */}
+                      <div className="bg-[#12121c] p-3.5 rounded-xl border border-blue-500/40 space-y-1.5 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-500/30">
+                            {t('shipping_global_badge')}
+                          </span>
+                          <span className="text-xs font-mono font-bold text-yellow-400">DHL / UPS</span>
+                        </div>
+                        <h5 className="text-xs font-bruno text-white font-bold">{t('shipping_global_title')}</h5>
+                        <p className="text-[10px] text-gray-400 leading-relaxed">{t('shipping_global_desc')}</p>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </>
             )}
@@ -1854,10 +1923,10 @@ export default function VCardEngineDashboard() {
             </div>
 
             {/* Resumen del Pedido */}
-            <div className="p-6 space-y-5">
+            <div className="p-6 space-y-5 overflow-y-auto max-h-[75vh]">
               <div className="bg-black/60 p-4 rounded-2xl border border-gray-800 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-mono text-[#F97316] uppercase font-bold">Concepto a Pagar:</span>
+                  <span className="text-[10px] font-mono text-[#F97316] uppercase font-bold">{t('pay_concept')}</span>
                   <p className="text-xs font-bruno text-white font-bold mt-0.5">{selectedProduct.name}</p>
                   <p className="text-[10px] text-gray-400 mt-1">Entrega y desbloqueo digital instantáneo</p>
                 </div>
@@ -1867,17 +1936,64 @@ export default function VCardEngineDashboard() {
                 </div>
               </div>
 
+              {/* Selector de Destino para Envío de Tarjeta Física */}
+              <div className="space-y-2 bg-[#0a0a14] p-3.5 rounded-2xl border border-gray-800">
+                <label className="block text-[11px] font-bruno text-gray-300 uppercase">
+                  📦 Destino para Entrega de Tarjeta Física NFC:
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShippingLocation('mexicali')}
+                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
+                      shippingLocation === 'mexicali'
+                        ? 'bg-green-500/15 border-green-500 text-green-300 font-bold'
+                        : 'bg-black/40 border-gray-800 text-gray-400'
+                    }`}
+                  >
+                    <span className="font-bold">🚚 Mexicali, B.C.</span>
+                    <span className="text-[10px] text-green-400">100% GRATIS ($0)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShippingLocation('mexico_dhl')}
+                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
+                      shippingLocation === 'mexico_dhl'
+                        ? 'bg-blue-500/15 border-blue-500 text-blue-300 font-bold'
+                        : 'bg-black/40 border-gray-800 text-gray-400'
+                    }`}
+                  >
+                    <span className="font-bold">✈️ México (DHL/UPS)</span>
+                    <span className="text-[10px] text-gray-300">Guía Express</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShippingLocation('world_ups')}
+                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
+                      shippingLocation === 'world_ups'
+                        ? 'bg-purple-500/15 border-purple-500 text-purple-300 font-bold'
+                        : 'bg-black/40 border-gray-800 text-gray-400'
+                    }`}
+                  >
+                    <span className="font-bold">🌍 Internacional</span>
+                    <span className="text-[10px] text-gray-300">UPS / DHL Express</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Selector de Método de Pago */}
               <div className="space-y-2">
                 <label className="block text-xs font-bruno text-gray-300 uppercase tracking-wide">
-                  Selecciona tu Método de Pago:
+                  {t('pay_method_label')}
                 </label>
                 <div className="grid grid-cols-2 gap-2.5">
                   {[
-                    { id: 'card', label: '💳 Tarjeta Débito / Crédito' },
-                    { id: 'mercadopago', label: '🔵 Mercado Pago' },
-                    { id: 'spei', label: '🏦 Transferencia SPEI' },
-                    { id: 'paypal', label: '🅿️ PayPal' }
+                    { id: 'card', label: t('pay_card') },
+                    { id: 'mercadopago', label: t('pay_mp') },
+                    { id: 'spei', label: t('pay_spei') },
+                    { id: 'paypal', label: t('pay_paypal') }
                   ].map(m => (
                     <button
                       key={m.id}
@@ -1953,22 +2069,18 @@ export default function VCardEngineDashboard() {
                 {isProcessingPayment ? (
                   <>
                     <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                    <span>PROCESANDO PAGO SEGURO...</span>
+                    <span>{t('pay_processing')}</span>
                   </>
                 ) : (
                   <>
                     <span>🔒</span>
-                    <span>PAGAR ${selectedProduct.price} MXN & DESBLOQUEAR</span>
+                    <span>{t('pay_btn')} (${selectedProduct.price} MXN)</span>
                   </>
                 )}
               </button>
 
-              <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 font-mono">
-                <span>🛡️ Cifrado SSL 256-Bit</span>
-                <span>•</span>
-                <span>⚡ Entrega Digital 1-Click</span>
-                <span>•</span>
-                <span>📄 Recibo Fiscal Incluido</span>
+              <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 font-mono text-center">
+                <span>{t('pay_secure_badge')}</span>
               </div>
             </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getTranslation } from '../../../lib/i18n';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
 export function getSocialUrl(type, value) {
@@ -17,6 +18,17 @@ export function getSocialUrl(type, value) {
 }
 
 export default function PublicProfileClient({ profile = {} }) {
+  const [lang, setLang] = useState('es');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && navigator.language) {
+      if (navigator.language.toLowerCase().startsWith('en')) {
+        setLang('en');
+      }
+    }
+  }, []);
+
+  const t = (key) => getTranslation(lang, key);
   const {
     nombre = '',
     apellido = '',
@@ -447,8 +459,8 @@ export default function PublicProfileClient({ profile = {} }) {
           )}
         </div>
 
-        {/* BADGE DE CONVERSIÓN VIRAL TSOLUTIONS IPIDD (MARKETING 2.0) */}
-        <div className="px-6 pt-6 pb-2 text-center">
+        {/* BADGE DE CONVERSIÓN VIRAL TSOLUTIONS IPIDD (MARKETING 2.0) & SELECTOR DE IDIOMA */}
+        <div className="px-6 pt-6 pb-2 text-center flex flex-col items-center gap-3">
           <a
             href="https://tsolutionsipidd.com"
             target="_blank"
@@ -456,9 +468,19 @@ export default function PublicProfileClient({ profile = {} }) {
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-mono text-gray-400 hover:text-white bg-black/40 hover:bg-black/80 border border-white/10 hover:border-[#F97316]/50 transition-all group"
           >
             <span className="text-[#F97316] group-hover:scale-110 transition-transform">⚡</span>
-            <span>Potenciado por <strong className="text-white">TSOLUTIONS IPIDD</strong></span>
+            <span>{t('card_powered')}</span>
             <span className="text-gray-500 group-hover:text-[#F97316]">↗</span>
           </a>
+
+          {/* Selector de Idioma en Tarjeta Pública */}
+          <button
+            type="button"
+            onClick={() => setLang(l => (l === 'es' ? 'en' : 'es'))}
+            className="px-3 py-1 rounded-full text-[10px] font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 flex items-center gap-1"
+          >
+            <span>🌐</span>
+            <span>{lang === 'es' ? 'English 🇺🇸' : 'Español 🇲🇽'}</span>
+          </button>
         </div>
 
         {/* BOTÓN FLOTANTE */}
@@ -471,7 +493,7 @@ export default function PublicProfileClient({ profile = {} }) {
               fontFamily: currentFontPrimary
             }}
           >
-            <span>💾</span> Guardar Contacto en Mi Celular
+            <span>💾</span> {lang === 'es' ? 'Guardar Contacto en Mi Celular' : 'Save Contact to My Phone'}
           </button>
         </div>
       </div>
