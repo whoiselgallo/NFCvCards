@@ -164,9 +164,63 @@ export default function VCardEngineDashboard() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [unlockedItems, setUnlockedItems] = useState({ qr: false, vcf: false, cloud: false, letter: false, bundle: false });
 
-  // Procesamiento de Pago Seguro
-  const handleProcessPayment = () => {
+  // Detección de Retorno de Pago Exitoso en Stripe (Stripe Checkout Redirect)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment_status');
+      const item = urlParams.get('item') || 'bundle';
+
+      if (paymentStatus === 'success') {
+        setIsPaid(true);
+        if (item === 'bundle') {
+          setUnlockedItems({ qr: true, vcf: true, cloud: true, letter: true, bundle: true });
+        } else {
+          setUnlockedItems(prev => ({ ...prev, [item]: true }));
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+        alert('🎉 ¡Pago procesado con éxito en Stripe!\nTus entregables han sido desbloqueados para descarga inmediata.');
+      } else if (paymentStatus === 'cancelled') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        alert('El pago fue cancelado. Puedes reintentar cuando gustes.');
+      }
+    }
+  }, []);
+
+  // Procesamiento de Pago Seguro (Stripe Checkout Oficial)
+  const handleProcessPayment = async () => {
     setIsProcessingPayment(true);
+
+    if (paymentMethod === 'card') {
+      try {
+        const res = await fetch('/api/checkout/stripe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: selectedProduct.id,
+            name: selectedProduct.name,
+            price: selectedProduct.price,
+            shippingLocation,
+            customerEmail: formData.correo,
+            slug: baseCardSlug
+          })
+        });
+
+        const data = await res.json();
+        if (data.success && data.url) {
+          // Redirección directa al Checkout Oficial y Seguro de Stripe
+          window.location.href = data.url;
+          return;
+        } else {
+          throw new Error(data.error || 'No se pudo generar la sesión de pago con Stripe');
+        }
+      } catch (err) {
+        console.error('Error con Stripe Checkout:', err);
+        alert('Error al conectar con Stripe: ' + err.message + '\nActivando modo de desbloqueo alternativo...');
+      }
+    }
+
+    // Fallback o métodos alternativos (SPEI / MP / PayPal)
     setTimeout(() => {
       setIsProcessingPayment(false);
       setIsPaid(true);
@@ -189,7 +243,7 @@ export default function VCardEngineDashboard() {
       } else if (selectedProduct.id === 'letter') {
         setShowEmailModal(true);
       }
-    }, 1600);
+    }, 1200);
   };
 
   // Inyección reactiva de Google Fonts (Primaria + Secundaria)
