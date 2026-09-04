@@ -129,12 +129,46 @@ export default function VCardEngineDashboard() {
 
   // Estado de guardado en la nube
   const [isSaving, setIsSaving] = useState(false);
-  const [isZipping, setIsZipping] = useState(false);
-  const [savedUrl, setSavedUrl] = useState(null);
+  const [savedUrl, setSavedUrl] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
-
-  // Modal para ver y copiar correo de entrega
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [isZipping, setIsZipping] = useState(false);
+
+  // Estados de Pasarela de Pago y Desbloqueo Comercial
+  const [isPaid, setIsPaid] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' });
+  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [unlockedItems, setUnlockedItems] = useState({ qr: false, vcf: false, cloud: false, letter: false, bundle: false });
+
+  // Procesamiento de Pago Seguro
+  const handleProcessPayment = () => {
+    setIsProcessingPayment(true);
+    setTimeout(() => {
+      setIsProcessingPayment(false);
+      setIsPaid(true);
+      if (selectedProduct.id === 'bundle') {
+        setUnlockedItems({ qr: true, vcf: true, cloud: true, letter: true, bundle: true });
+      } else {
+        setUnlockedItems(prev => ({ ...prev, [selectedProduct.id]: true }));
+      }
+      setShowCheckoutModal(false);
+      alert(`¡Pago de $${selectedProduct.price} MXN procesado con éxito!\nFolio Oficial: TS-PAY-${Math.floor(100000 + Math.random() * 900000)}\nEntregable desbloqueado de inmediato.`);
+      
+      if (selectedProduct.id === 'bundle') {
+        downloadFullPackage();
+      } else if (selectedProduct.id === 'qr') {
+        downloadQR();
+      } else if (selectedProduct.id === 'vcf') {
+        downloadVCF();
+      } else if (selectedProduct.id === 'cloud') {
+        handleSaveToCloud();
+      } else if (selectedProduct.id === 'letter') {
+        setShowEmailModal(true);
+      }
+    }, 1600);
+  };
 
   // Inyección reactiva de Google Fonts (Primaria + Secundaria)
   useEffect(() => {
@@ -962,14 +996,27 @@ export default function VCardEngineDashboard() {
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
                       <span className="w-6 h-6 rounded-full bg-[#F97316] text-black text-xs font-bruno font-bold flex items-center justify-center shrink-0">4</span>
-                      <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Despliegue en la Nube</h3>
+                      <div>
+                        <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Despliegue en la Nube</h3>
+                        <p className="text-[10px] text-gray-400">Alojamiento de alta velocidad en Google Cloud SQL</p>
+                      </div>
                     </div>
-                    <span className="text-[10px] font-mono text-orange-400 font-bold uppercase">Google Cloud SQL</span>
+                    <div className="text-right">
+                      <span className="text-[10px] font-mono text-gray-400 block uppercase">Módulo Individual</span>
+                      <span className="text-xs font-mono text-[#F97316] font-bold">{isPaid || unlockedItems.cloud ? '✓ Incluido' : '$99 MXN'}</span>
+                    </div>
                   </div>
 
                   <button
                     type="button"
-                    onClick={handleSaveToCloud}
+                    onClick={() => {
+                      if (isPaid || unlockedItems.cloud) {
+                        handleSaveToCloud();
+                      } else {
+                        setSelectedProduct({ name: 'Módulo 3: Despliegue Cloud & Enlace Permanente (/p/[slug])', price: 99, id: 'cloud' });
+                        setShowCheckoutModal(true);
+                      }
+                    }}
                     disabled={isSaving}
                     className="btn-primary w-full text-sm font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#F97316] text-black font-extrabold hover:bg-orange-400 py-3.5 shadow-[0_0_20px_rgba(249,115,22,0.35)]"
                   >
@@ -981,7 +1028,7 @@ export default function VCardEngineDashboard() {
                     ) : (
                       <>
                         <span>🚀</span>
-                        <span>GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)</span>
+                        <span>{isPaid || unlockedItems.cloud ? 'GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)' : 'DESPLEGAR EN LA NUBE ($99 MXN O INCLUIDO EN PAQUETE)'}</span>
                       </>
                     )}
                   </button>
@@ -1027,102 +1074,196 @@ export default function VCardEngineDashboard() {
                 {/* ========================================================= */}
                 {/* PASO 5: TELEMETRÍA NTAG & DESCARGA DE ENTREGABLES         */}
                 {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-5 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
                       <span className="w-6 h-6 rounded-full bg-[#F97316] text-black text-xs font-bruno font-bold flex items-center justify-center shrink-0">5</span>
-                      <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Entregables & Telemetría NFC</h3>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-400 uppercase">Paquete 1-Click</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Telemetría NTAG */}
-                    <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
                       <div>
-                        <h4 className="text-xs font-bruno text-[#F97316] mb-2 flex items-center gap-1.5 uppercase">
-                          <span>⚡</span> TELEMETRÍA NTAG
-                        </h4>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-wider">Payload URL para NFC</p>
-                        <div className="flex items-end gap-1.5 text-[#F97316] my-1">
-                          <span className="text-2xl font-bruno font-bold">{new Blob([qrTargetValue]).size}</span>
-                          <span className="text-xs font-bruno mb-0.5">Bytes</span>
-                        </div>
-                      </div>
-
-                      <div className="pt-2 border-t border-gray-800/80">
-                        <p className="text-[10px] font-bruno text-white font-bold">NTAG213 (100% Compatible)</p>
-                        <p className="text-[9px] text-gray-400">Modo Dinámico Google Cloud Activo</p>
+                        <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Entregables & Telemetría NFC</h3>
+                        <p className="text-[10px] text-gray-400">Paquete 1-Click o Módulos Individuales Desglosados</p>
                       </div>
                     </div>
+                    <span className="text-[10px] font-mono text-orange-400 font-bold uppercase">Suite Comercial</span>
+                  </div>
 
-                    {/* Matriz QR y Botón de Descarga PNG */}
-                    <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col items-center justify-center text-center">
-                      <p className="text-[10px] font-bruno text-gray-400 mb-2 uppercase tracking-wider">Matriz QR (Entregable 1)</p>
-                      <div className="bg-white p-2 rounded-lg shadow-xl">
-                        <QRCodeSVG
-                          id="preview-qr-code-svg"
-                          value={qrTargetValue}
-                          size={90}
-                          level="M"
-                          includeMargin={false}
-                        />
-                      </div>
-                      <button
-                        onClick={downloadQR}
-                        className="mt-2.5 px-3 py-1 bg-[#F97316]/10 text-[#F97316] hover:bg-[#F97316] hover:text-black transition-all border border-[#F97316]/40 rounded-md text-[10px] font-bruno font-bold uppercase tracking-wider flex items-center gap-1"
-                      >
-                        <span>⬇</span> Descargar QR (.PNG)
-                      </button>
+                  {/* TELEMETRÍA NTAG */}
+                  <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <h4 className="text-xs font-bruno text-[#F97316] flex items-center gap-1.5 uppercase">
+                        <span>⚡</span> TELEMETRÍA DE MEMORIA NTAG
+                      </h4>
+                      <p className="text-[10px] text-gray-400">Payload URL para Chip NFC Físico o Sticker</p>
+                      <p className="text-[10px] font-mono text-white">NTAG213 (100% Compatible con iPhone y Android)</p>
+                    </div>
+                    <div className="bg-black/50 px-4 py-2.5 rounded-xl border border-gray-800 text-center shrink-0">
+                      <span className="text-[10px] text-gray-400 uppercase font-mono block">Tamaño vCard</span>
+                      <span className="text-2xl font-bruno font-bold text-[#F97316]">{new Blob([qrTargetValue]).size} <span className="text-xs">Bytes</span></span>
                     </div>
                   </div>
 
-                  {/* BOTÓN MAESTRO PAQUETE COMPLETO (.ZIP) & VCF */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {/* PRESENTACIÓN COMERCIAL: PAQUETE COMPLETO ALL-IN-ONE ($199 MXN) */}
+                  <div className="bg-gradient-to-r from-[#18120c] via-[#24170d] to-[#18120c] p-5 rounded-2xl border-2 border-[#F97316] shadow-[0_0_30px_rgba(249,115,22,0.25)] space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase bg-[#F97316] text-black px-2.5 py-0.5 rounded font-extrabold tracking-wider">🔥 OFERTA RECOMENDADA (45% OFF)</span>
+                        <h4 className="text-base font-bruno text-white font-bold mt-1.5">PAQUETE COMPLETO ALL-IN-ONE</h4>
+                        <p className="text-xs text-gray-300">Incluye los 4 Entregables Completos + Despliegue Cloud en archivo .ZIP</p>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <span className="text-xs text-gray-500 line-through font-mono block">Suma Individual: $288 MXN</span>
+                        <span className="text-2xl sm:text-3xl font-bruno text-[#F97316] font-extrabold">$199 <span className="text-xs">MXN</span></span>
+                      </div>
+                    </div>
+
                     <button
-                      onClick={downloadVCF}
-                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-200 border border-gray-800 hover:border-gray-700 transition-all"
-                    >
-                      <span>💾</span> Descargar .VCF Individual
-                    </button>
-                    
-                    <button
-                      onClick={downloadFullPackage}
+                      type="button"
+                      onClick={() => {
+                        if (isPaid || unlockedItems.bundle) {
+                          downloadFullPackage();
+                        } else {
+                          setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables en .ZIP)', price: 199, id: 'bundle' });
+                          setShowCheckoutModal(true);
+                        }
+                      }}
                       disabled={isZipping}
-                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-[#F97316] text-black font-extrabold hover:brightness-110 shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all"
+                      className="w-full py-4 bg-[#F97316] hover:bg-orange-400 text-black font-bruno font-extrabold text-xs sm:text-sm rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
                     >
                       {isZipping ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                          <span>EMPAQUETANDO .ZIP...</span>
+                          <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                          <span>EMPAQUETANDO PAQUETE COMPLETO (.ZIP)...</span>
                         </>
                       ) : (
                         <>
-                          <span>📦</span>
-                          <span>DESCARGAR PAQUETE COMPLETO (.ZIP)</span>
+                          <span>{isPaid || unlockedItems.bundle ? '📦' : '💳'}</span>
+                          <span>{isPaid || unlockedItems.bundle ? 'DESCARGAR PAQUETE COMPLETO (.ZIP)' : 'COMPRAR PAQUETE COMPLETO ($199 MXN)'}</span>
                         </>
                       )}
                     </button>
                   </div>
 
-                  {/* BOTONES DE ENVÍO Y CARTA DE ENTREGA POR CORREO */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <button
-                      type="button"
-                      onClick={sendDeliveryEmail}
-                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#0c1424] hover:bg-[#101d36] text-[#00E5FF] border border-[#00E5FF]/40 hover:border-[#00E5FF] transition-all"
-                    >
-                      <span>✉️</span> Enviar Entregables por Correo
-                    </button>
+                  {/* PRESENTACIÓN DE LOS 4 MÓDULOS INDIVIDUALES DESGLOSADOS (SUMATORIA: 1.45x = $288 MXN) */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bruno text-gray-300 uppercase tracking-wider">
+                        Desglose de Productos Individuales (Sumatoria: $288 MXN = 1.45x):
+                      </h4>
+                      <span className="text-[10px] font-mono text-gray-500">Comprar por Separado</span>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setShowEmailModal(true)}
-                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-300 border border-gray-800 hover:border-gray-700 transition-all"
-                    >
-                      <span>📋</span> Ver Carta de Entrega Oficial
-                    </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      
+                      {/* Módulo 1: Código QR HD */}
+                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="text-[10px] font-mono text-[#F97316] font-bold uppercase">Entregable 1</span>
+                            <h5 className="text-xs font-bruno text-white font-bold">Código QR HD (.PNG)</h5>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Vectorial 1200x1200px listo para impresión</p>
+                          </div>
+                          <span className="text-xs font-mono font-bold text-[#F97316] bg-black/50 px-2 py-1 rounded border border-gray-800">$69 MXN</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (isPaid || unlockedItems.qr || unlockedItems.bundle) {
+                              downloadQR();
+                            } else {
+                              setSelectedProduct({ name: 'Entregable 1: Código QR HD 1200x1200px (.PNG)', price: 69, id: 'qr' });
+                              setShowCheckoutModal(true);
+                            }
+                          }}
+                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-bruno font-bold flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <span>{isPaid || unlockedItems.qr || unlockedItems.bundle ? '⬇' : '💳'}</span>
+                          <span>{isPaid || unlockedItems.qr || unlockedItems.bundle ? 'Descargar QR (.PNG)' : 'Comprar QR ($69 MXN)'}</span>
+                        </button>
+                      </div>
+
+                      {/* Módulo 2: Archivo vCard .VCF */}
+                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="text-[10px] font-mono text-[#F97316] font-bold uppercase">Entregable 2</span>
+                            <h5 className="text-xs font-bruno text-white font-bold">Archivo vCard 3.0 (.VCF)</h5>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Instalación automática en agenda telefónica</p>
+                          </div>
+                          <span className="text-xs font-mono font-bold text-[#F97316] bg-black/50 px-2 py-1 rounded border border-gray-800">$69 MXN</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (isPaid || unlockedItems.vcf || unlockedItems.bundle) {
+                              downloadVCF();
+                            } else {
+                              setSelectedProduct({ name: 'Entregable 2: Archivo de Contacto vCard 3.0 (.VCF)', price: 69, id: 'vcf' });
+                              setShowCheckoutModal(true);
+                            }
+                          }}
+                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-bruno font-bold flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <span>{isPaid || unlockedItems.vcf || unlockedItems.bundle ? '💾' : '💳'}</span>
+                          <span>{isPaid || unlockedItems.vcf || unlockedItems.bundle ? 'Descargar .VCF' : 'Comprar .VCF ($69 MXN)'}</span>
+                        </button>
+                      </div>
+
+                      {/* Módulo 3: Enlace Cloud Permanente */}
+                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="text-[10px] font-mono text-[#F97316] font-bold uppercase">Entregable 3</span>
+                            <h5 className="text-xs font-bruno text-white font-bold">Enlace Cloud (/p/[slug])</h5>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Alojamiento Google Cloud SQL activo 24/7</p>
+                          </div>
+                          <span className="text-xs font-mono font-bold text-[#F97316] bg-black/50 px-2 py-1 rounded border border-gray-800">$99 MXN</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (isPaid || unlockedItems.cloud || unlockedItems.bundle) {
+                              handleSaveToCloud();
+                            } else {
+                              setSelectedProduct({ name: 'Entregable 3: Despliegue Cloud & Enlace Permanente', price: 99, id: 'cloud' });
+                              setShowCheckoutModal(true);
+                            }
+                          }}
+                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-bruno font-bold flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <span>{isPaid || unlockedItems.cloud || unlockedItems.bundle ? '🚀' : '💳'}</span>
+                          <span>{isPaid || unlockedItems.cloud || unlockedItems.bundle ? 'Desplegar Cloud' : 'Comprar Cloud ($99 MXN)'}</span>
+                        </button>
+                      </div>
+
+                      {/* Módulo 4: Carta Oficial de Entrega */}
+                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="text-[10px] font-mono text-[#F97316] font-bold uppercase">Entregable 4</span>
+                            <h5 className="text-xs font-bruno text-white font-bold">Carta de Entrega & Guía</h5>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Manual paso a paso para programar chip NFC</p>
+                          </div>
+                          <span className="text-xs font-mono font-bold text-[#F97316] bg-black/50 px-2 py-1 rounded border border-gray-800">$51 MXN</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (isPaid || unlockedItems.letter || unlockedItems.bundle) {
+                              setShowEmailModal(true);
+                            } else {
+                              setSelectedProduct({ name: 'Entregable 4: Carta Oficial de Entrega + Manual NFC Tools', price: 51, id: 'letter' });
+                              setShowCheckoutModal(true);
+                            }
+                          }}
+                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-bruno font-bold flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <span>{isPaid || unlockedItems.letter || unlockedItems.bundle ? '📜' : '💳'}</span>
+                          <span>{isPaid || unlockedItems.letter || unlockedItems.bundle ? 'Ver Carta de Entrega' : 'Comprar Carta ($51 MXN)'}</span>
+                        </button>
+                      </div>
+
+                    </div>
                   </div>
+
                 </div>
               </>
             )}
@@ -1684,6 +1825,151 @@ export default function VCardEngineDashboard() {
               >
                 <span>✉️</span> Abrir en Cliente de Correo
               </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE PASARELA DE PAGO: TSOLUTIONS SECURE PAY GATEWAY */}
+      {showCheckoutModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0c0c16] border-2 border-[#F97316] w-full max-w-lg rounded-3xl shadow-[0_0_50px_rgba(249,115,22,0.35)] overflow-hidden animate-scaleIn flex flex-col">
+            
+            {/* Header Pasarela */}
+            <div className="p-5 bg-[#12121c] border-b border-gray-800 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-[#F97316]">
+                <span className="text-lg">🔒</span>
+                <div>
+                  <h3 className="font-bruno text-sm font-bold text-white">TSOLUTIONS SECURE PAY</h3>
+                  <p className="text-[10px] text-gray-400 font-mono">Pasarela de Pago Cifrada SSL 256-bit</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCheckoutModal(false)}
+                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Resumen del Pedido */}
+            <div className="p-6 space-y-5">
+              <div className="bg-black/60 p-4 rounded-2xl border border-gray-800 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-mono text-[#F97316] uppercase font-bold">Concepto a Pagar:</span>
+                  <p className="text-xs font-bruno text-white font-bold mt-0.5">{selectedProduct.name}</p>
+                  <p className="text-[10px] text-gray-400 mt-1">Entrega y desbloqueo digital instantáneo</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-2xl font-bruno text-[#F97316] font-extrabold">${selectedProduct.price}</span>
+                  <span className="text-xs font-bruno text-gray-400 block font-mono">MXN</span>
+                </div>
+              </div>
+
+              {/* Selector de Método de Pago */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bruno text-gray-300 uppercase tracking-wide">
+                  Selecciona tu Método de Pago:
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {[
+                    { id: 'card', label: '💳 Tarjeta Débito / Crédito' },
+                    { id: 'mercadopago', label: '🔵 Mercado Pago' },
+                    { id: 'spei', label: '🏦 Transferencia SPEI' },
+                    { id: 'paypal', label: '🅿️ PayPal' }
+                  ].map(m => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setPaymentMethod(m.id)}
+                      className={`p-3 rounded-xl border text-left text-xs font-mono transition-all flex items-center gap-2 ${
+                        paymentMethod === m.id
+                          ? 'bg-[#F97316]/15 border-[#F97316] text-[#F97316] font-bold shadow-[0_0_10px_rgba(249,115,22,0.2)]'
+                          : 'bg-black/30 border-gray-800 text-gray-400 hover:border-gray-700'
+                      }`}
+                    >
+                      <span>{m.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Formulario Dinámico de Tarjeta */}
+              {paymentMethod === 'card' && (
+                <div className="space-y-3 bg-black/40 p-4 rounded-xl border border-gray-800">
+                  <div>
+                    <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">Número de Tarjeta</label>
+                    <input
+                      type="text"
+                      placeholder="4000 1234 5678 9010"
+                      className="input-dark w-full text-xs font-mono"
+                      defaultValue="4242 •••• •••• 4242"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">Vencimiento</label>
+                      <input type="text" placeholder="MM/AA" className="input-dark w-full text-xs font-mono" defaultValue="12/28" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">CVV</label>
+                      <input type="password" placeholder="CVV" className="input-dark w-full text-xs font-mono" defaultValue="123" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Formulario Simulado SPEI / MercadoPago / PayPal */}
+              {paymentMethod === 'spei' && (
+                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 space-y-1 text-xs font-mono">
+                  <p className="text-gray-300"><span className="text-[#F97316] font-bold">Banco:</span> STP / BBVA</p>
+                  <p className="text-gray-300"><span className="text-[#F97316] font-bold">CLABE:</span> 6461 8011 2233 4455 66</p>
+                  <p className="text-gray-300"><span className="text-[#F97316] font-bold">Beneficiario:</span> TSOLUTIONS IPIDD</p>
+                </div>
+              )}
+
+              {paymentMethod === 'mercadopago' && (
+                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 text-xs text-blue-400 font-mono flex items-center gap-2">
+                  <span>🔵</span>
+                  <span>Serás redirigido al Checkout Seguro de Mercado Pago con acreditación instantánea.</span>
+                </div>
+              )}
+
+              {paymentMethod === 'paypal' && (
+                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 text-xs text-yellow-400 font-mono flex items-center gap-2">
+                  <span>🅿️</span>
+                  <span>Pago internacional protegido por la Garantía al Comprador de PayPal.</span>
+                </div>
+              )}
+
+              {/* Botón de Procesamiento de Pago */}
+              <button
+                type="button"
+                onClick={handleProcessPayment}
+                disabled={isProcessingPayment}
+                className="w-full py-4 bg-gradient-to-r from-orange-600 to-[#F97316] hover:brightness-110 text-black font-bruno font-extrabold text-xs sm:text-sm rounded-2xl shadow-[0_0_25px_rgba(249,115,22,0.4)] transition-all flex items-center justify-center gap-2"
+              >
+                {isProcessingPayment ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <span>PROCESANDO PAGO SEGURO...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>🔒</span>
+                    <span>PAGAR ${selectedProduct.price} MXN & DESBLOQUEAR</span>
+                  </>
+                )}
+              </button>
+
+              <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 font-mono">
+                <span>🛡️ Cifrado SSL 256-Bit</span>
+                <span>•</span>
+                <span>⚡ Entrega Digital 1-Click</span>
+                <span>•</span>
+                <span>📄 Recibo Fiscal Incluido</span>
+              </div>
             </div>
 
           </div>
