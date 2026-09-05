@@ -3,28 +3,33 @@
 @tailwind utilities;
 
 :root {
-  /* 1. Paleta Cromática Oficial */
-  --naranja-energy: #F97316;
-  --aqua-turquesa: #00E5FF;
-  --negro-profundo: #04040A;
-  --midnight-panel: #0A0A14;
-  --deep-grid: #0F0F1E;
-  --blanco-puro: #F0F0F8;
-  --humo: #E0E0E0;
-  --dorado: #FFD700;
+  /* 1. Paleta Cromática Oficial - Cyber Rose */
+  --rose-primary: #E11D48;
+  --rose-neon: #FF2A54;
+  --rose-hover: #BE123C;
+  --rose-dark: #881337;
+  --deep-wine: #4C0519;
+  --circuit-silver: #E2E8F0;
+  --circuit-silver-dim: #94A3B8;
+  --aqua-cyber: #00F0FF;
   
-  /* 3. Sistema de Luces y Glows */
-  --shadow-glowEnergy: 0 0 12px rgba(249, 115, 22, 0.35);
-  --shadow-glowEnergyHover: 0 0 20px rgba(249, 115, 22, 0.55);
-  --shadow-turquesaSoft: 0 0 10px rgba(0, 229, 255, 0.20);
-  --shadow-turquesaHover: 0 0 14px rgba(0, 229, 255, 0.45);
-  --shadow-blancoPulse: 0 0 10px rgba(255, 255, 255, 0.80);
-  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --negro-profundo: #060509;
+  --midnight-panel: #0F0B15;
+  --deep-grid: #181122;
+  --blanco-puro: #F8FAFC;
+  --humo: #E2E8F0;
   
-  /* 4. Radios de Borde */
-  --radius-soft: 10px;
-  --radius-medium: 12px;
-  --radius-large: 14px;
+  /* 2. Sistema de Luces y Glows Cyber-Rose */
+  --shadow-glowRose: 0 0 16px rgba(225, 29, 72, 0.45);
+  --shadow-glowRoseHover: 0 0 28px rgba(255, 42, 84, 0.7);
+  --shadow-silverSoft: 0 0 12px rgba(226, 232, 240, 0.25);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.7);
+  --border-rose-subtle: 1px solid rgba(225, 29, 72, 0.25);
+  
+  /* 3. Radios de Borde */
+  --radius-soft: 12px;
+  --radius-medium: 16px;
+  --radius-large: 20px;
   --radius-full: 999px;
 }
 
@@ -33,9 +38,10 @@ body {
   color: var(--blanco-puro);
   font-family: 'Inter', sans-serif;
   background-image: 
+      radial-gradient(ellipse at 50% 0%, rgba(225, 29, 72, 0.12) 0%, transparent 60%),
       linear-gradient(var(--deep-grid) 1px, transparent 1px),
       linear-gradient(90deg, var(--deep-grid) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-size: 100% 100%, 36px 36px, 36px 36px;
   min-height: 100vh;
 }
 
@@ -45,39 +51,41 @@ h1, h2, h3, .font-bruno {
 }
 
 .text-humo { color: var(--humo); }
-.text-aqua { color: var(--aqua-turquesa); text-shadow: var(--shadow-turquesaSoft); }
-.text-naranja { color: var(--naranja-energy); }
+.text-rose { color: var(--rose-primary); text-shadow: var(--shadow-glowRose); }
+.text-rose-neon { color: var(--rose-neon); }
+.text-silver { color: var(--circuit-silver); }
 
 .panel-glass {
   background-color: var(--midnight-panel);
-  border: 1px solid rgba(255,255,255,0.03);
+  border: var(--border-rose-subtle);
   border-radius: var(--radius-large);
   box-shadow: var(--shadow-card);
+  backdrop-filter: blur(12px);
 }
 
 .input-dark {
-  background-color: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.1);
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(225, 29, 72, 0.2);
   color: var(--blanco-puro);
   border-radius: var(--radius-soft);
   transition: all 0.3s ease;
   min-height: 48px;
-  padding: 0 12px;
+  padding: 0 14px;
 }
-.input-dark::placeholder { color: rgba(224, 224, 224, 0.3); }
+.input-dark::placeholder { color: rgba(226, 232, 240, 0.35); }
 .input-dark:focus {
   outline: none;
-  border-color: var(--aqua-turquesa);
-  box-shadow: var(--shadow-turquesaSoft);
-  background-color: rgba(0, 229, 255, 0.05);
+  border-color: var(--rose-neon);
+  box-shadow: 0 0 15px rgba(255, 42, 84, 0.3);
+  background-color: rgba(225, 29, 72, 0.05);
 }
 
 .btn-primary {
-  background-color: var(--naranja-energy);
-  color: var(--negro-profundo);
+  background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%);
+  color: #FFFFFF;
   font-family: 'Bruno Ace', sans-serif;
   border-radius: var(--radius-medium);
-  box-shadow: var(--shadow-glowEnergy);
+  box-shadow: var(--shadow-glowRose);
   transition: all 0.3s ease;
   min-height: 48px;
   font-weight: 800;
@@ -87,13 +95,31 @@ h1, h2, h3, .font-bruno {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .btn-primary:hover {
+  background: linear-gradient(135deg, #FF2A54 0%, #E11D48 100%);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-glowEnergyHover);
+  box-shadow: var(--shadow-glowRoseHover);
 }
 .btn-primary:active {
   transform: translateY(0);
+}
+
+.rose-logo-container {
+  position: relative;
+  border-radius: 20px;
+  padding: 4px;
+  background: linear-gradient(135deg, rgba(255, 42, 84, 0.6), rgba(76, 5, 25, 0.8));
+  box-shadow: 0 0 20px rgba(225, 29, 72, 0.4);
+}
+
+.rose-logo-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  object-fit: cover;
+  display: block;
 }
 
 .vcard-preview {

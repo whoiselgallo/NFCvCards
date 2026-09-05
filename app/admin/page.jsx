@@ -296,13 +296,20 @@ export default function AdminDashboardPage() {
   // PANTALLA DE ACCESO SI NO ESTÁ AUTENTICADO
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-[#04040A] flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#090914] border border-[#E11D48]/40 p-8 rounded-3xl shadow-[0_0_50px_rgba(225,29,72,0.25)] space-y-6 animate-scaleIn">
+      <div className="min-h-screen bg-[#060509] flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[#0F0B15] border border-rose-600/40 p-8 rounded-3xl shadow-[0_0_60px_rgba(225,29,72,0.3)] space-y-6 animate-scaleIn backdrop-blur-xl">
           
           {/* Logo y Cabecera */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bruno text-white">
-              {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> ADMIN
+          <div className="text-center space-y-3">
+            <div className="inline-flex rose-logo-container mb-1 shadow-2xl">
+              <img
+                src={brandConfig.assets.logo || "/brand/logo.png"}
+                alt={brandConfig.brandName}
+                className="w-16 h-16 rounded-2xl object-cover"
+              />
+            </div>
+            <h1 className="text-2xl font-bruno text-white tracking-wide">
+              {brandConfig.brandHeading.prefix} <span className="text-[#FF2A54] drop-shadow-[0_0_12px_rgba(255,42,84,0.6)]">{brandConfig.brandHeading.highlight}</span> ADMIN
             </h1>
             <p className="text-xs text-gray-400">Panel Centralizado de Control de Identidades Digitales</p>
             <div className="mt-2 inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400">
@@ -416,14 +423,21 @@ export default function AdminDashboardPage() {
 
   // DASHBOARD PRINCIPAL ADMINISTRATIVO
   return (
-    <div className="min-h-screen bg-[#04040A] text-[#F0F0F8] p-4 md:p-8 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#060509] text-[#F8FAFC] p-4 md:p-8 flex flex-col font-sans">
       
       {/* HEADER DEL PANEL */}
-      <header className="max-w-[1920px] mx-auto w-full mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-800">
-        <div className="flex items-center gap-3">
+      <header className="max-w-[1920px] mx-auto w-full mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-rose-900/30">
+        <div className="flex items-center gap-3.5">
+          <div className="rose-logo-container shrink-0">
+            <img
+              src={brandConfig.assets.logo || "/brand/logo.png"}
+              alt={brandConfig.brandName}
+              className="rose-logo-img shadow-lg"
+            />
+          </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide flex items-center gap-2">
-              {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> ADMIN ENGINE
+              {brandConfig.brandHeading.prefix} <span className="text-[#FF2A54] drop-shadow-[0_0_12px_rgba(255,42,84,0.6)]">{brandConfig.brandHeading.highlight}</span> ADMIN ENGINE
             </h1>
             <p className="text-xs text-gray-400">Centro de Control y Gestión de Identidades Digitales NFC</p>
           </div>

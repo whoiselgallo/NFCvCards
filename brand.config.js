@@ -1,16 +1,15 @@
 /**
  * BRAND CONFIGURATION - MARCA BLANCA
  * 
- * Modifica este archivo para cambiar completamente la identidad visual,
- * nombres, logotipos, correos, dominios permitidos y textos de entrega
- * de toda la plataforma sin tener que editar componentes individuales.
+ * Configuración centralizada de marca, paleta de colores y recursos visuales
+ * inspirados en la Rosa Geométrica Cyber / Neo-Rose.
  */
 
 const brandConfig = {
   // Identidad de la Marca
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'ROSE Card',
-  brandTagline: 'vCard Engine & Identidad Digital NFC',
-  brandDescription: 'Generador de Identidad Digital Interactiva, NFC & vCard Corporativa.',
+  brandTagline: 'Cyber vCard Engine & Identidad Digital NFC',
+  brandDescription: 'Generador de Identidad Digital Interactiva, NFC & vCard Corporativa con diseño Neo-Rose.',
   brandHeading: {
     prefix: 'ROSE',
     highlight: 'CARD',
@@ -22,29 +21,29 @@ const brandConfig = {
   website: process.env.NEXT_PUBLIC_APP_URL || 'https://rosecard.io',
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'contacto@rosecard.io',
   
-  // Archivos de Medios y Favicons
+  // Archivos de Medios y Favicons (Logotipo Oficial Neo-Rose)
   assets: {
-    logo: '/logoTSPNGSQ.png',
+    logo: '/brand/logo.png',
     icon: '/icon.png',
     favicon: '/favicon.png',
     appleIcon: '/apple-icon.png'
   },
 
-  // Configuración de Paleta de Colores por Defecto
+  // Paleta de Colores Extraída Directamente del Logotipo
   theme: {
-    primaryColor: '#E11D48',     // Color principal Rose
-    primaryHover: '#BE123C',
-    primaryGlow: 'rgba(225, 29, 72, 0.5)',
-    secondaryColor: '#00E5FF',   // Color cian secundario
-    accentColor: '#F43F5E',
-    darkBg: '#04040A',
-    cardDarkBg: '#0A0A14',
-    borderDark: '#1E1E2F'
+    primaryColor: '#E11D48',     // Rojo Rubí / Rose Principal
+    primaryHover: '#BE123C',     // Carmesí Intenso
+    primaryNeon: '#FF2A54',      // Rosa Neón / Resplandor de circuitos
+    primaryGlow: 'rgba(225, 29, 72, 0.45)',
+    deepWine: '#4C0519',         // Vino oscuro de sombra
+    secondaryColor: '#E2E8F0',   // Plata cromada / Nodos de circuito
+    accentCyan: '#00F0FF',       // Cian cibernético secundario
+    darkBg: '#07060A',           // Negro obsidiana de fondo
+    cardDarkBg: '#120E17',       // Fondo de panel con tinte amatista/vino
+    borderRose: 'rgba(225, 29, 72, 0.35)' // Borde con brillo sutil
   },
 
   // Seguridad y Control de Acceso del Panel Administrativo
-  // Si se establece en '*', cualquier correo corporativo o estándar puede registrarse/acceder.
-  // Si se listan dominios separados por coma (ej: '@rosecard.io,@miempresa.com'), solo esos dominios tendrán acceso.
   adminAuth: {
     allowedDomains: process.env.ALLOWED_ADMIN_DOMAINS || '*',
     sessionCookieName: 'rose_admin_session',

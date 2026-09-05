@@ -452,25 +452,34 @@ export default function VCardEngineDashboard() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#04040A] text-[#F0F0F8]">
+    <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#060509] text-[#F8FAFC]">
       
       {/* HEADER DE LA PLATAFORMA */}
-      <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide">
-            {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> {brandConfig.brandHeading.suffix}
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">{brandConfig.brandDescription}</p>
+      <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-rose-900/30">
+        <div className="flex items-center gap-3.5">
+          <div className="rose-logo-container shrink-0">
+            <img
+              src={brandConfig.assets.logo || "/brand/logo.png"}
+              alt={brandConfig.brandName}
+              className="rose-logo-img shadow-lg"
+            />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide flex items-center gap-2">
+              {brandConfig.brandHeading.prefix} <span className="text-[#FF2A54] drop-shadow-[0_0_12px_rgba(255,42,84,0.6)]">{brandConfig.brandHeading.highlight}</span> {brandConfig.brandHeading.suffix}
+            </h1>
+            <p className="text-gray-400 text-xs sm:text-sm mt-0.5">{brandConfig.brandDescription}</p>
+          </div>
         </div>
 
         {/* CONTROLES DE CABECERA: SELECTOR DE MODO & ENLACE ADMIN */}
         <div className="flex items-center gap-4">
-          <div className="flex bg-[#0A0A14] p-1 rounded-xl border border-gray-800 shadow-inner">
+          <div className="flex bg-[#0F0B15] p-1 rounded-xl border border-rose-900/40 shadow-inner">
             <button
               onClick={() => setMode('vcard')}
               className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
                 mode === 'vcard'
-                  ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
+                  ? 'bg-gradient-to-r from-[#E11D48] to-[#BE123C] text-white font-extrabold shadow-[0_0_16px_rgba(225,29,72,0.6)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -480,7 +489,7 @@ export default function VCardEngineDashboard() {
               onClick={() => setMode('review')}
               className={`px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-2 ${
                 mode === 'review'
-                  ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
+                  ? 'bg-gradient-to-r from-[#E11D48] to-[#BE123C] text-white font-extrabold shadow-[0_0_16px_rgba(225,29,72,0.6)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >

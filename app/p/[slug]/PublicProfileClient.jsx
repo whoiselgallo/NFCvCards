@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import brandConfig from '../../../brand.config';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
 export function getSocialUrl(type, value) {
