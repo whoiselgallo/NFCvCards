@@ -497,13 +497,19 @@ export default function VCardEngineDashboard() {
             </button>
           </div>
 
+          {/* Enlace al Panel Administrativo Corporativo */}
           <a
             href="/admin"
-            className="px-3.5 py-2.5 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-300 border border-gray-800 transition-all flex items-center gap-1.5"
-            title="Panel de Administración"
+            className="px-3.5 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-300 border border-gray-800 transition-colors flex items-center gap-1.5 hidden sm:flex"
+            title="Panel Administrativo Centralizado"
           >
             <span>⚙️</span> Admin
           </a>
+
+          {/* Logo Oficial Tsolutions */}
+          <div className="tsolutions-logo hidden sm:flex shrink-0" title="TSOLUTIONS IPIDD">
+            <div className="tsolutions-triangle"></div>
+          </div>
         </div>
       </header>
 
@@ -544,33 +550,43 @@ export default function VCardEngineDashboard() {
                 </div>
               </div>
             ) : (
-              /* MODO VCARD COMPLETO */
+              /* MODO VCARD: FLUJO ESTRUCTURADO EN 5 PASOS */
               <>
-                {/* LOGO Y PORTADA CON ESCALADOR Y SLIDERS DE ENCUADRE */}
-                <div className="bg-[#12121c] p-5 rounded-[var(--radius-soft)] border border-gray-800 shadow-[var(--shadow-card)] space-y-4">
+                {/* ========================================================= */}
+                {/* PASO 1: ACTIVOS VISUALES & ENCUADRE DE PORTADA            */}
+                {/* ========================================================= */}
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-[#F97316] text-black text-xs font-bruno font-bold flex items-center justify-center shrink-0">1</span>
+                      <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Activos Visuales & Encuadre</h3>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-400 uppercase">Logo PNG & Banner</span>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Logotipo */}
                     <div>
-                      <label className="block text-xs font-bruno text-[#F0F0F8] mb-1.5 uppercase tracking-wider">Logotipo de la Empresa</label>
+                      <label className="block text-xs font-bruno text-[#F0F0F8] mb-1.5 uppercase tracking-wider">Logotipo Oficial (PNG Transparente)</label>
                       <input
                         type="file"
                         accept="image/png, image/jpeg, image/jpg, image/webp"
                         onChange={handleLogoUpload}
                         className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#F97316] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer"
                       />
-                      <p className="text-[10px] text-gray-400 mt-1">🎨 El marco del logo se adaptará automáticamente al color de tu imagen.</p>
+                      <p className="text-[10px] text-gray-400 mt-1">🎨 PNG sin fondo para adaptarse a los auras luminosas.</p>
                     </div>
 
                     {/* Foto de Portada / Banner */}
                     <div>
-                      <label className="block text-xs font-bruno text-[#F0F0F8] mb-1.5 uppercase tracking-wider">Foto de Portada / Banner</label>
+                      <label className="block text-xs font-bruno text-[#F0F0F8] mb-1.5 uppercase tracking-wider">Foto de Portada / Banner (16:9)</label>
                       <input
                         type="file"
                         accept="image/png, image/jpeg, image/jpg, image/webp"
                         onChange={handleCoverUpload}
                         className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#F97316] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer"
                       />
-                      <p className="text-[10px] text-gray-400 mt-1">📸 Al subir una foto se activarán los controles de encuadre y zoom.</p>
+                      <p className="text-[10px] text-gray-400 mt-1">📸 Fotografía panorámica de oficina o gráfico publicitario.</p>
                     </div>
                   </div>
 
@@ -614,7 +630,7 @@ export default function VCardEngineDashboard() {
                       {/* Slider 1: Deslizar Arriba y Abajo */}
                       <div>
                         <div className="flex justify-between text-[11px] text-gray-300 mb-1 font-mono">
-                          <span>↕️ Desplazamiento Vertical</span>
+                          <span>↕️ Desplazamiento Vertical (Posición Y)</span>
                           <span className="text-[#F97316] font-bold">{design.coverPositionY}%</span>
                         </div>
                         <input
@@ -626,11 +642,6 @@ export default function VCardEngineDashboard() {
                           onChange={handleDesignChange}
                           className="w-full cursor-pointer accent-[#F97316]"
                         />
-                        <div className="flex justify-between text-[9px] text-gray-500 mt-0.5 uppercase">
-                          <span>Arriba (0%)</span>
-                          <span>Centro (50%)</span>
-                          <span>Abajo (100%)</span>
-                        </div>
                       </div>
 
                       {/* Slider 2: Acercar o Alejar (Zoom) */}
@@ -648,220 +659,226 @@ export default function VCardEngineDashboard() {
                           onChange={handleDesignChange}
                           className="w-full cursor-pointer accent-[#F97316]"
                         />
-                        <div className="flex justify-between text-[9px] text-gray-500 mt-0.5 uppercase">
-                          <span>Normal (1.0x)</span>
-                          <span>Intermedio (1.7x)</span>
-                          <span>Máximo (2.5x)</span>
-                        </div>
                       </div>
                     </div>
                   )}
-
                 </div>
 
-                {/* NOMBRE Y APELLIDO */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Nombre</label>
-                    <input type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Javier" />
+                {/* ========================================================= */}
+                {/* PASO 2: DATOS DE CONTACTO & REDES SOCIALES                */}
+                {/* ========================================================= */}
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-[#F97316] text-black text-xs font-bruno font-bold flex items-center justify-center shrink-0">2</span>
+                      <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Información & Redes Sociales</h3>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-400 uppercase">Datos de Contacto</span>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Apellido</label>
-                    <input type="text" name="apellido" value={formData.apellido} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Gallardo" />
-                  </div>
-                </div>
 
-                {/* EMPRESA Y PUESTO */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Empresa</label>
-                    <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="Mi Empresa" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Puesto</label>
-                    <input type="text" name="puesto" value={formData.puesto} onChange={handleInputChange} className="input-dark w-full" placeholder="CEO / Consultor Estratega" />
-                  </div>
-                </div>
-
-                {/* TELÉFONO Y WHATSAPP */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Teléfono</label>
-                    <input type="tel" name="telefono" value={formData.telefono} onChange={handleInputChange} className="input-dark w-full" placeholder="+526860000000" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">WhatsApp</label>
-                    <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="input-dark w-full" placeholder="+526860000000" />
-                  </div>
-                </div>
-
-                {/* CORREO Y SITIO WEB */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Correo</label>
-                    <input type="email" name="correo" value={formData.correo} onChange={handleInputChange} className="input-dark w-full" placeholder="contacto@tudominio.com" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Sitio Web</label>
-                    <input type="url" name="url" value={formData.url} onChange={handleInputChange} className="input-dark w-full" placeholder="https://tudominio.com" />
-                  </div>
-                </div>
-
-                {/* REDES SOCIALES (CON PREFIJOS PRECARGADOS) */}
-                <div className="border-t border-gray-800 pt-4 mt-4 space-y-3">
-                  <h3 className="text-sm font-bruno text-[#F97316] flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
-                    Redes Sociales & Multimedia
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {/* Facebook */}
+                  {/* NOMBRE Y APELLIDO */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Facebook</label>
+                      <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Nombre</label>
+                      <input type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Javier" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Apellido</label>
+                      <input type="text" name="apellido" value={formData.apellido} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Gallardo" />
+                    </div>
+                  </div>
+
+                  {/* EMPRESA Y PUESTO */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Empresa</label>
+                      <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="TSolutions" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Puesto</label>
+                      <input type="text" name="puesto" value={formData.puesto} onChange={handleInputChange} className="input-dark w-full" placeholder="CEO / Consultor Estratega" />
+                    </div>
+                  </div>
+
+                  {/* TELÉFONO Y WHATSAPP */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Teléfono</label>
+                      <input type="tel" name="telefono" value={formData.telefono} onChange={handleInputChange} className="input-dark w-full" placeholder="+526860000000" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">WhatsApp</label>
+                      <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="input-dark w-full" placeholder="+526860000000" />
+                    </div>
+                  </div>
+
+                  {/* CORREO Y SITIO WEB */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Correo</label>
+                      <input type="email" name="correo" value={formData.correo} onChange={handleInputChange} className="input-dark w-full" placeholder="contacto@tudominio.com" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Sitio Web</label>
+                      <input type="url" name="url" value={formData.url} onChange={handleInputChange} className="input-dark w-full" placeholder="https://tudominio.com" />
+                    </div>
+                  </div>
+
+                  {/* REDES SOCIALES */}
+                  <div className="border-t border-gray-800 pt-4 space-y-3">
+                    <h4 className="text-xs font-bruno text-[#F97316] flex items-center gap-2 uppercase">
+                      <span>🌐</span> Redes Sociales (Solo Usuario)
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {/* Facebook */}
+                      <div>
+                        <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Facebook</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            facebook.com/
+                          </span>
+                          <input
+                            type="text"
+                            name="facebook"
+                            value={formData.facebook}
+                            onChange={handleInputChange}
+                            placeholder="usuario"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Instagram */}
+                      <div>
+                        <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Instagram</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            instagram.com/
+                          </span>
+                          <input
+                            type="text"
+                            name="instagram"
+                            value={formData.instagram}
+                            onChange={handleInputChange}
+                            placeholder="usuario"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* LinkedIn */}
+                      <div>
+                        <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">LinkedIn</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            linkedin.com/in/
+                          </span>
+                          <input
+                            type="text"
+                            name="linkedin"
+                            value={formData.linkedin}
+                            onChange={handleInputChange}
+                            placeholder="tu-perfil"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* YouTube Video URL */}
+                    <div className="mt-2">
+                      <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Video de Presentación / Pitch (YouTube)</label>
                       <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
-                        <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
-                          facebook.com/
+                        <span className="bg-[#12121c] text-red-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                          ▶ YouTube:
                         </span>
                         <input
-                          type="text"
-                          name="facebook"
-                          value={formData.facebook}
+                          type="url"
+                          name="videoYoutubeUrl"
+                          value={formData.videoYoutubeUrl}
                           onChange={handleInputChange}
-                          placeholder="usuario"
+                          placeholder="https://youtu.be/... o https://youtube.com/watch?v=..."
                           className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
                         />
                       </div>
                     </div>
-
-                    {/* Instagram */}
-                    <div>
-                      <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Instagram</label>
-                      <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
-                        <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
-                          instagram.com/
-                        </span>
-                        <input
-                          type="text"
-                          name="instagram"
-                          value={formData.instagram}
-                          onChange={handleInputChange}
-                          placeholder="usuario"
-                          className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
-                        />
-                      </div>
-                    </div>
-
-                    {/* LinkedIn */}
-                    <div>
-                      <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">LinkedIn</label>
-                      <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
-                        <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
-                          linkedin.com/in/
-                        </span>
-                        <input
-                          type="text"
-                          name="linkedin"
-                          value={formData.linkedin}
-                          onChange={handleInputChange}
-                          placeholder="tu-perfil"
-                          className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
-                        />
-                      </div>
-                    </div>
                   </div>
 
-                  {/* YouTube Video URL */}
-                  <div className="mt-3">
-                    <label className="block text-[11px] font-bruno text-gray-300 mb-1 uppercase">Video de Presentación / Pitch (YouTube)</label>
-                    <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#F97316]">
-                      <span className="bg-[#12121c] text-red-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
-                        ▶ YouTube:
-                      </span>
+                  {/* DIRECCIÓN & GOOGLE MAPS */}
+                  <div className="border-t border-gray-800 pt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bruno text-[#F97316] flex items-center gap-2 uppercase">
+                        <span>📍</span> Dirección & Vinculación a Google Maps
+                      </h4>
+                      <span className="text-[10px] text-gray-400">Físico u Online</span>
+                    </div>
+
+                    <input type="text" name="calle" value={formData.calle} onChange={handleInputChange} className="input-dark w-full" placeholder="Calle y Número, Colonia (Dejar vacío si es 100% Online)" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input type="text" name="ciudad" value={formData.ciudad} onChange={handleInputChange} className="input-dark w-full" placeholder="Ciudad (Ej. Mexicali)" />
+                      <input type="text" name="estado" value={formData.estado} onChange={handleInputChange} className="input-dark w-full" placeholder="Estado (Ej. Baja California)" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <input type="text" name="cp" value={formData.cp} onChange={handleInputChange} className="input-dark w-full" placeholder="Código Postal (Opcional)" />
+                      <input type="text" name="pais" value={formData.pais} onChange={handleInputChange} className="input-dark w-full" placeholder="País (Ej. México)" />
+                    </div>
+
+                    {/* CAJA INTELIGENTE DE MAPS */}
+                    <div className="bg-black/40 p-3.5 rounded-xl border border-gray-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bruno text-gray-300">Enlace en Google Maps:</span>
+                        {effectiveMapsUrl && (
+                          <a
+                            href={effectiveMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-[#F97316] hover:underline flex items-center gap-1 font-bold"
+                          >
+                            <span>🔍 Probar Maps ↗</span>
+                          </a>
+                        )}
+                      </div>
+
                       <input
                         type="url"
-                        name="videoYoutubeUrl"
-                        value={formData.videoYoutubeUrl}
+                        name="googleMapsUrl"
+                        value={formData.googleMapsUrl}
                         onChange={handleInputChange}
-                        placeholder="https://youtu.be/... o https://youtube.com/watch?v=..."
-                        className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                        className="input-dark w-full text-xs"
+                        placeholder="Opcional: Pega un link específico de Maps o déjalo vacío para búsqueda automática"
                       />
-                    </div>
-                  </div>
-                </div>
 
-                {/* DIRECCIÓN & VINCULACIÓN CON GOOGLE MAPS */}
-                <div className="border-t border-gray-800 pt-4 mt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bruno text-[#F97316] flex items-center gap-2">
-                      <span>📍</span> Dirección & Vinculación a Google Maps
-                    </h3>
-                    <span className="text-[10px] text-gray-400">Negocio Físico u Online</span>
-                  </div>
-
-                  {/* Campos de Dirección */}
-                  <input type="text" name="calle" value={formData.calle} onChange={handleInputChange} className="input-dark w-full" placeholder="Calle y Número, Colonia (Dejar vacío si es 100% Online)" />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input type="text" name="ciudad" value={formData.ciudad} onChange={handleInputChange} className="input-dark w-full" placeholder="Ciudad (Ej. Mexicali)" />
-                    <input type="text" name="estado" value={formData.estado} onChange={handleInputChange} className="input-dark w-full" placeholder="Estado (Ej. Baja California)" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <input type="text" name="cp" value={formData.cp} onChange={handleInputChange} className="input-dark w-full" placeholder="Código Postal (Opcional)" />
-                    <input type="text" name="pais" value={formData.pais} onChange={handleInputChange} className="input-dark w-full" placeholder="País (Ej. México)" />
-                  </div>
-
-                  {/* CAJA INTELIGENTE DE MAPS */}
-                  <div className="bg-black/40 p-3.5 rounded-xl border border-gray-800 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bruno text-gray-300">Enlace de Ubicación en Google Maps:</span>
-                      {effectiveMapsUrl && (
-                        <a
-                          href={effectiveMapsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[10px] text-[#F97316] hover:underline flex items-center gap-1 font-bold"
-                        >
-                          <span>🔍 Probar Búsqueda en Maps ↗</span>
-                        </a>
+                      {effectiveMapsUrl ? (
+                        <p className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                          <span className="text-green-400">●</span> Destino: <span className="text-white truncate">{decodeURIComponent(effectiveMapsUrl.replace('https://www.google.com/maps/search/?api=1&query=', ''))}</span>
+                        </p>
+                      ) : (
+                        <p className="text-[10px] text-gray-500">
+                          💡 Se vinculará automáticamente al escribir el nombre de tu empresa, dirección o ciudad.
+                        </p>
                       )}
                     </div>
+                  </div>
 
-                    <input
-                      type="url"
-                      name="googleMapsUrl"
-                      value={formData.googleMapsUrl}
-                      onChange={handleInputChange}
-                      className="input-dark w-full text-xs"
-                      placeholder="Opcional: Pega un link específico de Maps o déjalo vacío para vincular automáticamente"
-                    />
-
-                    {effectiveMapsUrl ? (
-                      <p className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                        <span className="text-green-400">●</span> Maps buscará: <span className="text-white truncate">{decodeURIComponent(effectiveMapsUrl.replace('https://www.google.com/maps/search/?api=1&query=', ''))}</span>
-                      </p>
-                    ) : (
-                      <p className="text-[10px] text-gray-500">
-                        💡 Al escribir el nombre de tu empresa, dirección o ciudad, se vinculará a Google Maps automáticamente.
-                      </p>
-                    )}
+                  {/* NOTA / BIO */}
+                  <div className="border-t border-gray-800 pt-3">
+                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Nota / Bio / Propuesta de Valor</label>
+                    <textarea name="nota" value={formData.nota} onChange={handleInputChange} className="input-dark w-full h-20 py-2.5" placeholder="Soluciones digitales, optimización y desarrollo..."></textarea>
                   </div>
                 </div>
 
-                {/* NOTA */}
-                <div>
-                  <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Nota / Bio / Propuesta de Valor</label>
-                  <textarea name="nota" value={formData.nota} onChange={handleInputChange} className="input-dark w-full h-20 py-2.5" placeholder="Soluciones digitales, optimización y desarrollo..."></textarea>
-                </div>
-                
-                {/* BRANDING DEL CLIENTE (Configuración para su Tarjeta) */}
-                <div className="bg-[#0c0c16] border border-gray-800 p-5 rounded-[var(--radius-large)] mt-6 space-y-4">
-                  <h3 className="text-sm font-bruno text-[#F97316] flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                    </svg>
-                    Personalización de la Tarjeta del Cliente
-                  </h3>
+                {/* ========================================================= */}
+                {/* PASO 3: BRANDING, TIPOGRAFÍAS & COLORES                   */}
+                {/* ========================================================= */}
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-[#F97316] text-black text-xs font-bruno font-bold flex items-center justify-center shrink-0">3</span>
+                      <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Branding, Tipografías & Colores</h3>
+                    </div>
+                    <span className="text-[10px] font-mono text-gray-400 uppercase">Estilo Visual</span>
+                  </div>
 
                   {/* SELECTOR DE TEMAS ESTRUCTURALES */}
                   <div>
@@ -885,12 +902,11 @@ export default function VCardEngineDashboard() {
                     </div>
                   </div>
                   
-                  {/* SELECTORES DESPLEGABLES DE TIPOGRAFÍA (PRIMARIA Y SECUNDARIA) */}
+                  {/* SELECTORES DESPLEGABLES DE TIPOGRAFÍA */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Tipografía Primaria */}
                     <div>
                       <label className="block text-xs text-gray-300 mb-1 uppercase tracking-wide font-bold flex items-center gap-1.5">
-                        <span className="text-[#F97316]">Aa</span> Tipografía Primaria (Nombre & Botón)
+                        <span className="text-[#F97316]">Aa</span> Tipografía Primaria
                       </label>
                       <select
                         name="fontPrimary"
@@ -902,13 +918,10 @@ export default function VCardEngineDashboard() {
                           <option key={f.value} value={f.value} className="bg-[#0A0A14] text-white">{f.label}</option>
                         ))}
                       </select>
-                      <p className="text-[10px] text-gray-400 mt-1">Aplica al Nombre del titular y al Botón Guardar Contacto.</p>
                     </div>
-
-                    {/* Tipografía Secundaria */}
                     <div>
                       <label className="block text-xs text-gray-300 mb-1 uppercase tracking-wide font-bold flex items-center gap-1.5">
-                        <span className="text-[#00E5FF]">Aa</span> Tipografía Secundaria (Puesto & Cuerpo)
+                        <span className="text-[#00E5FF]">Aa</span> Tipografía Secundaria
                       </label>
                       <select
                         name="fontSecondary"
@@ -920,178 +933,208 @@ export default function VCardEngineDashboard() {
                           <option key={f.value} value={f.value} className="bg-[#0A0A14] text-white">{f.label}</option>
                         ))}
                       </select>
-                      <p className="text-[10px] text-gray-400 mt-1">Aplica a Puesto, Empresa, Teléfono y Datos de Contacto.</p>
                     </div>
                   </div>
 
-                  {/* PALETA 3 COLORES DE LA TARJETA DEL CLIENTE */}
+                  {/* PALETA 3 COLORES */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    {/* Color 1: Primario */}
                     <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">1. Color Primario (Puesto/Títulos)</label>
+                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">1. Color Primario</label>
                       <div className="flex items-center gap-2">
                         <input type="color" name="colorPrimario" value={design.colorPrimario} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
                         <input type="text" name="colorPrimario" value={design.colorPrimario} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
                       </div>
                     </div>
 
-                    {/* Color 2: Secundario */}
                     <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">2. Color Secundario (Franjas/Íconos)</label>
+                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">2. Color Secundario</label>
                       <div className="flex items-center gap-2">
                         <input type="color" name="colorSecundario" value={design.colorSecundario} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
                         <input type="text" name="colorSecundario" value={design.colorSecundario} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
                       </div>
                     </div>
 
-                    {/* Color 3: CTA */}
                     <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">3. Color CTA (Botón Acción)</label>
+                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">3. Color CTA</label>
                       <div className="flex items-center gap-2">
                         <input type="color" name="colorCTA" value={design.colorCTA} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
                         <input type="text" name="colorCTA" value={design.colorCTA} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
                       </div>
                     </div>
                   </div>
-
                 </div>
-              </>
-            )}
 
-            {/* SECCIÓN INTEGRADA DE TELEMETRÍA, QR Y DESCARGAS DE ENTREGABLES */}
-            <div className="border-t border-gray-800 pt-6 mt-6 space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                
-                {/* Telemetría NTAG */}
-                <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-xs font-bruno text-[#F97316] mb-2 flex items-center gap-1.5 uppercase">
-                      <span>⚡</span> TELEMETRÍA NTAG
-                    </h3>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">Payload URL para NFC</p>
-                    <div className="flex items-end gap-1.5 text-[#F97316] my-1">
-                      <span className="text-2xl font-bruno font-bold">{new Blob([qrTargetValue]).size}</span>
-                      <span className="text-xs font-bruno mb-0.5">Bytes</span>
+                {/* ========================================================= */}
+                {/* PASO 4: DESPLIEGUE EN GOOGLE CLOUD SQL                    */}
+                {/* ========================================================= */}
+                <div className="bg-[#0c0c16] border border-[#F97316]/40 rounded-2xl p-5 space-y-4 shadow-[0_0_30px_rgba(249,115,22,0.1)]">
+                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-[#F97316] text-black text-xs font-bruno font-bold flex items-center justify-center shrink-0">4</span>
+                      <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Despliegue en la Nube</h3>
                     </div>
+                    <span className="text-[10px] font-mono text-orange-400 font-bold uppercase">Google Cloud SQL</span>
                   </div>
 
-                  <div className="pt-2 border-t border-gray-800/80">
-                    <p className="text-[10px] font-bruno text-white font-bold">NTAG213 (100% Compatible)</p>
-                    <p className="text-[9px] text-gray-400">Modo Dinámico Google Cloud Activo</p>
-                  </div>
-                </div>
-
-                {/* Matriz QR y Botón de Descarga PNG */}
-                <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col items-center justify-center text-center">
-                  <p className="text-[10px] font-bruno text-gray-400 mb-2 uppercase tracking-wider">Matriz QR (Entregable 1)</p>
-                  <div className="bg-white p-2 rounded-lg shadow-xl">
-                    <QRCodeSVG
-                      id="preview-qr-code-svg"
-                      value={qrTargetValue}
-                      size={90}
-                      level="M"
-                      includeMargin={false}
-                    />
-                  </div>
                   <button
-                    onClick={downloadQR}
-                    className="mt-2.5 px-3 py-1 bg-[#F97316]/10 text-[#F97316] hover:bg-[#F97316] hover:text-black transition-all border border-[#F97316]/40 rounded-md text-[10px] font-bruno font-bold uppercase tracking-wider flex items-center gap-1"
+                    type="button"
+                    onClick={handleSaveToCloud}
+                    disabled={isSaving}
+                    className="btn-primary w-full text-sm font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#F97316] text-black font-extrabold hover:bg-orange-400 py-3.5 shadow-[0_0_20px_rgba(249,115,22,0.35)]"
                   >
-                    <span>⬇</span> Descargar QR (.PNG)
+                    {isSaving ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                        <span>GUARDANDO EN GOOGLE CLOUD SQL...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🚀</span>
+                        <span>GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)</span>
+                      </>
+                    )}
                   </button>
+
+                  {/* Feedback y Enlace Permanente */}
+                  {savedUrl && (
+                    <div className="p-4 bg-black/60 border border-green-500/50 rounded-xl space-y-2 animate-fadeIn shadow-[0_0_20px_rgba(34,197,94,0.15)]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bruno text-green-400 flex items-center gap-1.5 font-bold">
+                          <span>✓</span> ¡Perfil Activo en Producción!
+                        </span>
+                        <a
+                          href={savedUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-[#00E5FF] hover:underline font-mono"
+                        >
+                          Abrir Perfil ↗
+                        </a>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={savedUrl}
+                          className="w-full bg-[#06060c] border border-gray-800 px-3 py-2 rounded-lg text-xs font-mono text-gray-200 select-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(savedUrl);
+                            alert('¡Enlace copiado al portapapeles!');
+                          }}
+                          className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bruno shrink-0"
+                        >
+                          Copiar
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-              </div>
-
-              {/* BOTONES DE DESCARGA INDIVIDUAL & PAQUETE COMPLETO (.ZIP) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  onClick={downloadVCF}
-                  className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-200 border border-gray-800 hover:border-gray-700 transition-all"
-                >
-                  <span>💾</span> Descargar .VCF Individual
-                </button>
-                
-                <button
-                  onClick={downloadFullPackage}
-                  disabled={isZipping}
-                  className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-[#F97316] text-black font-extrabold hover:brightness-110 shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all"
-                >
-                  {isZipping ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                      <span>EMPAQUETANDO .ZIP...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>📦</span>
-                      <span>DESCARGAR PAQUETE COMPLETO (.ZIP)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* BOTONES DE ENVÍO Y CARTA DE ENTREGA POR CORREO */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={sendDeliveryEmail}
-                  className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#0c1424] hover:bg-[#101d36] text-[#00E5FF] border border-[#00E5FF]/40 hover:border-[#00E5FF] transition-all"
-                >
-                  <span>✉️</span> Enviar Entregables por Correo
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowEmailModal(true)}
-                  className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-300 border border-gray-800 hover:border-gray-700 transition-all"
-                >
-                  <span>📋</span> Ver Carta de Entrega Oficial
-                </button>
-              </div>
-
-              {/* BOTÓN PRINCIPAL DE GUARDAR EN BASE DE DATOS */}
-              <div className="pt-2 border-t border-gray-800">
-                <button
-                  type="button"
-                  onClick={handleSaveToCloud}
-                  disabled={isSaving}
-                  className="btn-primary w-full text-sm font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#F97316] text-black font-extrabold hover:bg-orange-400 py-3.5 shadow-[0_0_20px_rgba(249,115,22,0.35)]"
-                >
-                  {isSaving ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                      <span>GUARDANDO EN GOOGLE CLOUD SQL...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>🚀</span>
-                      <span>GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)</span>
-                    </>
-                  )}
-                </button>
-
-                {/* AVISO DE ÉXITO CUANDO SE GUARDA EN LA NUBE */}
-                {savedSuccess && savedUrl && (
-                  <div className="mt-4 p-4 rounded-xl bg-green-950/40 border border-green-500/30 text-green-300 text-xs space-y-2 animate-scaleIn">
-                    <div className="flex items-center gap-2 font-bold text-green-400">
-                      <span>✅</span> ¡Perfil Desplegado Exitosamente en Google Cloud SQL!
+                {/* ========================================================= */}
+                {/* PASO 5: TELEMETRÍA NTAG & DESCARGA DE ENTREGABLES         */}
+                {/* ========================================================= */}
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-[#F97316] text-black text-xs font-bruno font-bold flex items-center justify-center shrink-0">5</span>
+                      <h3 className="text-xs font-bruno text-white font-bold tracking-wider uppercase">Entregables & Telemetría NFC</h3>
                     </div>
-                    <p className="text-[11px] text-gray-300">Este es tu enlace permanente para programar el chip NFC o compartir:</p>
-                    <div className="p-2 bg-black/60 rounded-lg font-mono text-xs text-[#F97316] break-all select-all flex items-center justify-between gap-2 border border-white/5">
-                      <span>{savedUrl}</span>
+                    <span className="text-[10px] font-mono text-gray-400 uppercase">Paquete 1-Click</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Telemetría NTAG */}
+                    <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col justify-between">
+                      <div>
+                        <h4 className="text-xs font-bruno text-[#F97316] mb-2 flex items-center gap-1.5 uppercase">
+                          <span>⚡</span> TELEMETRÍA NTAG
+                        </h4>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wider">Payload URL para NFC</p>
+                        <div className="flex items-end gap-1.5 text-[#F97316] my-1">
+                          <span className="text-2xl font-bruno font-bold">{new Blob([qrTargetValue]).size}</span>
+                          <span className="text-xs font-bruno mb-0.5">Bytes</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-gray-800/80">
+                        <p className="text-[10px] font-bruno text-white font-bold">NTAG213 (100% Compatible)</p>
+                        <p className="text-[9px] text-gray-400">Modo Dinámico Google Cloud Activo</p>
+                      </div>
+                    </div>
+
+                    {/* Matriz QR y Botón de Descarga PNG */}
+                    <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col items-center justify-center text-center">
+                      <p className="text-[10px] font-bruno text-gray-400 mb-2 uppercase tracking-wider">Matriz QR (Entregable 1)</p>
+                      <div className="bg-white p-2 rounded-lg shadow-xl">
+                        <QRCodeSVG
+                          id="preview-qr-code-svg"
+                          value={qrTargetValue}
+                          size={90}
+                          level="M"
+                          includeMargin={false}
+                        />
+                      </div>
                       <button
-                        onClick={() => { navigator.clipboard.writeText(savedUrl); alert('¡Enlace copiado al portapapeles!'); }}
-                        className="px-2.5 py-1 bg-[#F97316] text-black font-bold text-[10px] rounded hover:bg-orange-400 transition-colors uppercase"
+                        onClick={downloadQR}
+                        className="mt-2.5 px-3 py-1 bg-[#F97316]/10 text-[#F97316] hover:bg-[#F97316] hover:text-black transition-all border border-[#F97316]/40 rounded-md text-[10px] font-bruno font-bold uppercase tracking-wider flex items-center gap-1"
                       >
-                        Copiar
+                        <span>⬇</span> Descargar QR (.PNG)
                       </button>
                     </div>
                   </div>
-                )}
-              </div>
 
-            </div>
+                  {/* BOTÓN MAESTRO PAQUETE COMPLETO (.ZIP) & VCF */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <button
+                      onClick={downloadVCF}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-200 border border-gray-800 hover:border-gray-700 transition-all"
+                    >
+                      <span>💾</span> Descargar .VCF Individual
+                    </button>
+                    
+                    <button
+                      onClick={downloadFullPackage}
+                      disabled={isZipping}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-[#F97316] text-black font-extrabold hover:brightness-110 shadow-[0_0_15px_rgba(249,115,22,0.3)] transition-all"
+                    >
+                      {isZipping ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                          <span>EMPAQUETANDO .ZIP...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>📦</span>
+                          <span>DESCARGAR PAQUETE COMPLETO (.ZIP)</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* BOTONES DE ENVÍO Y CARTA DE ENTREGA POR CORREO */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={sendDeliveryEmail}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#0c1424] hover:bg-[#101d36] text-[#00E5FF] border border-[#00E5FF]/40 hover:border-[#00E5FF] transition-all"
+                    >
+                      <span>✉️</span> Enviar Entregables por Correo
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowEmailModal(true)}
+                      className="py-2.5 px-3 rounded-xl text-xs font-bruno tracking-wider flex items-center justify-center gap-2 bg-[#12121c] hover:bg-white/5 text-gray-300 border border-gray-800 hover:border-gray-700 transition-all"
+                    >
+                      <span>📋</span> Ver Carta de Entrega Oficial
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
 
           </form>
         </section>
@@ -1494,7 +1537,106 @@ export default function VCardEngineDashboard() {
 
       </main>
 
-      {/* MODAL DE LA CARTA OFICIAL DE ENTREGA */}
+      {/* SECCIÓN MARKETING 2.0: ECOSISTEMA DE SOLUCIONES TSOLUTIONS IPIDD (CONVERSIÓN & UPSELL) */}
+      <section className="mt-16 max-w-[1920px] mx-auto w-full border-t border-gray-800/80 pt-12 pb-8 space-y-10">
+        <div className="text-center max-w-3xl mx-auto space-y-2">
+          <div className="inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-orange-500/10 border border-orange-500/30 text-orange-400">
+            ⚡ Soluciones Tecnológicas de Alto Impacto
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bruno text-white">
+            MÁS ALLÁ DE LA VCARD: ECOSISTEMA <span className="text-[#F97316]">TSOLUTIONS IPIDD</span>
+          </h2>
+          <p className="text-xs text-gray-400">
+            Diseñamos, desarrollamos e implementamos plataformas digitales, software a la medida y automatización inteligente para empresas líderes.
+          </p>
+        </div>
+
+        {/* GRILLA DE 4 PILARES COMERCIALES */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Pilar 1: Software a Medida */}
+          <div className="bg-[#090914] border border-gray-800 hover:border-[#F97316]/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(249,115,22,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-[#F97316]/10 border border-[#F97316]/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              💻
+            </div>
+            <h3 className="font-bruno text-sm text-white font-bold">Software & Apps a la Medida</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Desarrollo de plataformas web, aplicaciones móviles, sistemas ERP y CRMs personalizados a la operativa de tu negocio.
+            </p>
+          </div>
+
+          {/* Pilar 2: Inteligencia Artificial */}
+          <div className="bg-[#090914] border border-gray-800 hover:border-[#00E5FF]/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(0,229,255,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              🤖
+            </div>
+            <h3 className="font-bruno text-sm text-white font-bold">Automatización con IA</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Agentes inteligentes, procesamiento automatizado de datos y chatbots avanzados para multiplicar la productividad de tu equipo.
+            </p>
+          </div>
+
+          {/* Pilar 3: Cloud & Seguridad */}
+          <div className="bg-[#090914] border border-gray-800 hover:border-green-500/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(34,197,94,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              ☁️
+            </div>
+            <h3 className="font-bruno text-sm text-white font-bold">Google Cloud & Ciberseguridad</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Infraestructura escalable, bases de datos PostgreSQL de alta disponibilidad y arquitectura cloud de nivel bancario.
+            </p>
+          </div>
+
+          {/* Pilar 4: Consultoría IPIDD */}
+          <div className="bg-[#090914] border border-gray-800 hover:border-purple-500/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(168,85,247,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              📈
+            </div>
+            <h3 className="font-bruno text-sm text-white font-bold">Consultoría Estratégica IPIDD</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Diagnóstico tecnológico y planes de digitalización orientados a rentabilidad y reducción de costos operativos.
+            </p>
+          </div>
+        </div>
+
+        {/* BANNER CTA DE CAPTACIÓN HIGH-TICKET */}
+        <div className="bg-gradient-to-r from-[#0c0c16] via-[#151224] to-[#0c0c16] border border-[#F97316]/40 p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_40px_rgba(249,115,22,0.15)]">
+          <div className="space-y-1.5 text-center md:text-left">
+            <h3 className="text-lg md:text-xl font-bruno text-white font-bold">
+              ¿Quieres digitalizar o automatizar los procesos de tu empresa?
+            </h3>
+            <p className="text-xs text-gray-400">
+              Agenda una sesión de diagnóstico tecnológico sin costo (30 min) con los ingenieros de TSOLUTIONS IPIDD.
+            </p>
+          </div>
+          <a
+            href="https://wa.me/526860000000?text=Hola%20TSOLUTIONS%20IPIDD,%20me%20gustaria%20agendar%20un%20diagnostico%20tecnologico%20para%20mi%20empresa"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3.5 bg-[#F97316] hover:bg-orange-400 text-black font-bruno font-bold text-xs rounded-xl transition-all shrink-0 shadow-[0_0_20px_rgba(249,115,22,0.35)] flex items-center gap-2"
+          >
+            <span>📅</span> Solicitar Diagnóstico Gratuito
+          </a>
+        </div>
+
+        {/* FOOTER CORPORATIVO TSOLUTIONS IPIDD */}
+        <footer className="border-t border-gray-800/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-2">
+            <span className="font-bruno text-white">TSOLUTIONS IPIDD</span>
+            <span>•</span>
+            <span>Transformación Digital & Soluciones Estratégicas</span>
+          </div>
+          <div className="flex items-center gap-4 font-mono text-[11px]">
+            <a href="https://tsolutionsipidd.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#F97316]">
+              tsolutionsipidd.com ↗
+            </a>
+            <a href="/admin" className="hover:text-[#00E5FF]">
+              Panel de Control Admin
+            </a>
+          </div>
+        </footer>
+      </section>
+
+      {/* MODAL DE LA CARTA OFICIAL DE ENTREGA DE TSOLUTIONS IPIDD */}
       {showEmailModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0c0c16] border border-[#F97316]/50 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-[0_0_40px_rgba(249,115,22,0.25)] flex flex-col overflow-hidden animate-scaleIn">

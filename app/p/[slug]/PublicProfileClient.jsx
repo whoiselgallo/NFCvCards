@@ -148,7 +148,7 @@ export default function PublicProfileClient({ profile = {} }) {
       style={{ backgroundColor: isModern ? '#04040A' : '#f1f5f9' }}
     >
       <div
-        className="w-full max-w-md min-h-screen sm:min-h-[720px] sm:rounded-[36px] shadow-2xl overflow-hidden relative pb-28 select-none transition-all flex flex-col"
+        className="w-full max-w-md min-h-screen sm:min-h-[720px] sm:rounded-[36px] shadow-2xl overflow-hidden relative pb-32 select-none transition-all flex flex-col"
         style={{
           backgroundColor: bgColor,
           fontFamily: currentFontSecondary,
@@ -446,6 +446,20 @@ export default function PublicProfileClient({ profile = {} }) {
               <span>▶</span> Ver Video de Presentación
             </a>
           )}
+        </div>
+
+        {/* BADGE DE CONVERSIÓN VIRAL TSOLUTIONS IPIDD (MARKETING 2.0) */}
+        <div className="px-6 pt-6 pb-2 text-center">
+          <a
+            href="https://tsolutionsipidd.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-mono text-gray-400 hover:text-white bg-black/40 hover:bg-black/80 border border-white/10 hover:border-[#F97316]/50 transition-all group"
+          >
+            <span className="text-[#F97316] group-hover:scale-110 transition-transform">⚡</span>
+            <span>Potenciado por <strong className="text-white">TSOLUTIONS IPIDD</strong></span>
+            <span className="text-gray-500 group-hover:text-[#F97316]">↗</span>
+          </a>
         </div>
 
         {/* BOTÓN FLOTANTE */}

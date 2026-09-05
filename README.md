@@ -1,125 +1,169 @@
-# 🌹 ROSE Card - Plataforma de Marca Blanca para Identidad Digital & NFC vCards
+# ⚡ TSOLUTIONS IPIDD — vCard & Review Engine
+### *Plataforma de Identidad Digital Interactiva, NFC & Google Cloud SQL*
 
-Sistema integral de **Marca Blanca (*White-Label*)** para el diseño, generación, gestión y despliegue de **Tarjetas de Presentación Digitales Inteligentes, Identidad Corporativa NFC y Códigos QR Dinámicos**.
-
-Basado en la arquitectura desacoplada de [NFCvCards](https://github.com/whoiselgallo/NFCvCards) y optimizado para ser adaptado a cualquier empresa, agencia o cliente sin referencias al autor original.
-
----
-
-## ✨ Características Principales
-
-- 📇 **Generador Visual en Tiempo Real**: Crea tarjetas digitales interactivas con previsualización instantánea (Mobile-First).
-- 📲 **Soporte NFC con 1 Toque**: Compatible con cualquier chip NFC estándar (**NTAG213, NTAG215, NTAG216**) para abrir la tarjeta sin apps adicionales.
-- 💾 **Descarga Inteligente de Contactos (.vcf)**: Generación de archivos vCard 3.0 para guardar contactos en iOS (Apple Contacts) y Android (Google Contacts) con un solo clic.
-- 🖼️ **Códigos QR de Alta Definición**: Descarga del código QR en formato PNG nítido listo para impresión en tarjetas físicas, volantes o firmas de correo.
-- 📦 **Exportador de Paquetes de Entrega (.ZIP)**: Empaqueta automáticamente el archivo `.vcf`, el código `.png` y la **Carta de Instrucciones Oficial** personalizada para el cliente final.
-- 🔒 **Panel Administrativo Multiusuario**:
-  - Métricas en tiempo real: total de perfiles, vistas acumuladas, empresas registradas y estados de validación.
-  - Gestión integral de perfiles (crear, editar en vivo, cambiar estado, eliminar).
-  - Control de acceso por dominio corporativo o abierto.
-- ⭐ **Modo "Tap to Review" (Google Maps)**: Redirección instantánea a la pantalla de 5 estrellas de Google Business al acercar el teléfono.
-- 🎨 **Temas y Tipografías Dinámicas**: Soporte para temas Oscuro (*Cyber Modern*), Claro (*Clásico Corporativo*) y Minimalista, con inyección dinámica de fuentes desde Google Fonts.
+![TSOLUTIONS IPIDD](public/logoTSPNGSQ.png)
 
 ---
 
-## 🚀 Inicio Rápido
+## 📖 1. Descripción General del Proyecto
 
-### 1. Prerrequisitos
-- **Node.js** >= 18.x
-- **PostgreSQL** (Local, Google Cloud SQL, Supabase, Neon, Railway, etc.)
+**TSOLUTIONS IPIDD vCard Engine** es una solución tecnológica integral de identidad digital diseñada para sustituir las tarjetas de presentación tradicionales de papel por una **experiencia interactiva de alto impacto**. 
 
-### 2. Instalación de dependencias
-```bash
-npm install
+La plataforma permite a profesionales, directivos y empresas diseñar en tiempo real su tarjeta digital personalizada, desplegarla en servidores de alta disponibilidad en **Google Cloud SQL** y programar chips NFC (tarjetas físicas o stickers para smartphone) y códigos QR vectoriales de alta resolución.
+
+### 🌟 Características Principales
+* 🎨 **3 Temas Estructurales:** *Cyber Modern / Dark*, *Clásico Corporativo* y *Minimalista Ejecutivo*.
+* 🎛️ **Doble Selector Tipográfico Google Fonts:** Tipografía Primaria (Nombre y Botón de Acción) y Tipografía Secundaria (Cuerpo y Contacto).
+* 🖼️ **Sliders de Encuadre de Banner:** Control de Desplazamiento Vertical (0% a 100%) y Zoom (1.0x a 2.5x).
+* 📍 **Vinculación Inteligente a Google Maps:** Búsqueda automática por empresa, dirección o ciudad para negocios físicos u online.
+* 🌐 **Prefijos Precargados de Redes Sociales:** Integración limpia para Facebook, Instagram, LinkedIn y video de presentación en YouTube.
+* 💾 **Generador de Entregables 1-Click:** Archivo vCard 3.0 (`.vcf`), Código QR en HD (`.png`), Paquete Integral (`.zip`) y Carta Ejecutiva de Entrega.
+* 🛡️ **Panel Administrativo Centralizado (`/admin`):** Con autenticación exclusiva para cuentas `@tsolutionsipidd.com`, búsqueda universal por etiquetas/tags, visualización jerárquica por Empresa (Fila 1), edición total y control de estados.
+
+---
+
+## 📋 2. Preparativos Previos: Checklist de Materiales
+
+Para armar tu tarjeta digital y aprovechar al máximo la experiencia visual y funcional, asegúrate de tener listos los siguientes elementos antes de iniciar:
+
+### 🖼️ A. Activos Visuales (Imágenes)
+1. **Logotipo Oficial de la Empresa:**
+   * **Formato obligatorio:** **`PNG` con fondo transparente**.
+   * **Resolución recomendada:** Mínimo `500 x 500 px` (cuadrado o circular).
+   * *Tip:* Un logo sin fondo permite que el aura luminosa (*glow*) y los marcos geométricos de la tarjeta se adapten a tu paleta de colores.
+2. **Foto de Portada / Banner:**
+   * **Formato:** `JPG`, `PNG` o `WEBP`.
+   * **Proporción:** Horizontal / Panorámica (ej. `1200 x 600 px` o `1920 x 1080 px`).
+   * *Tip:* Puedes usar una fotografía de tu oficina, equipo de trabajo, textura corporativa o gráfico publicitario. Podrás re-encuadrarla con los sliders en vivo.
+
+### 📝 B. Información de Contacto & Redes
+* **Nombre y Apellido completo.**
+* **Puesto o Cargo:** (Ej. *Director General, Consultor Senior, Especialista en Ventas*).
+* **Empresa:** Nombre oficial de tu negocio.
+* **Teléfono directo y WhatsApp:** Con código de país (Ej. `+52 686 000 0000`).
+* **Correo electrónico y Sitio Web oficial.**
+* **Usuarios de Redes Sociales:** Solo necesitas el nombre de usuario (Ej. en Instagram: `tu_empresa`, en LinkedIn: `tu-perfil`).
+* **Enlace a Video de YouTube (Opcional):** Link a tu pitch de ventas o video institucional.
+* **Dirección o Ciudad:** Para generar tu mapa guiado en Google Maps.
+* **Propuesta de Valor / Bio:** Frase corta de 2 a 3 líneas que resuma lo que resuelves para tus clientes.
+
+### 🎨 C. Paleta de Colores de Marca (Códigos HEX)
+Ten a la mano los colores de tu identidad:
+* **Color 1 (Primario):** Títulos, Puesto y marcos principales.
+* **Color 2 (Secundario):** Franjas de acento, íconos de contacto y badges.
+* **Color 3 (CTA):** Botón principal de *"Guardar Contacto en Mi Celular"*.
+
+---
+
+## 🛠️ 3. Instructivo de Construcción Paso a Paso
+
+Sigue estos 5 pasos dentro de la plataforma (`http://localhost:3000` o `https://vc.tsolutionsipidd.com`):
+
+```
+[ PASO 1: Subir Logo & Banner ] ──► [ PASO 2: Datos de Contacto ] ──► [ PASO 3: Branding & Tipografía ]
+                                                                                   │
+[ PASO 5: Descargar Entregables ] ◄── [ PASO 4: Desplegar en Google Cloud ] ◄─────┘
 ```
 
-### 3. Configuración de Variables de Entorno
-Copia el archivo de ejemplo `.env.example` a `.env.local`:
-```bash
-cp .env.example .env.local
-```
+### Paso 1: Subida de Imágenes y Ajuste de Encuadre
+1. En el panel izquierdo, haz clic en **"Logotipo de la Empresa"** y selecciona tu archivo PNG transparente.
+2. Haz clic en **"Foto de Portada / Banner"** para subir tu imagen horizontal.
+3. Utiliza el **Slider de Desplazamiento Vertical** (Arriba/Abajo) y el **Slider de Zoom** para encuadrar la parte más atractiva de tu foto dentro del teléfono.
+4. Ajusta la **Escala del Logo** (de 50px a 160px) según la prominencia deseada.
 
-Configura tus variables en `.env.local`:
+### Paso 2: Llenado de Datos y Redes Sociales
+1. Escribe tu **Nombre, Apellido, Empresa y Puesto**.
+2. Ingresa tu **Teléfono, WhatsApp y Correo**.
+3. En la sección de **Redes Sociales**, escribe únicamente tu usuario (los prefijos `facebook.com/`, `instagram.com/` y `linkedin.com/in/` ya vienen configurados).
+4. Escribe tu **Dirección** o simplemente tu **Ciudad** para que Google Maps se vincule automáticamente.
+5. Redacta tu **Nota o Bio Ejecutiva**.
+
+### Paso 3: Selección de Tema, Tipografías y Colores
+1. Elige uno de los 3 **Temas Estructurales**:
+   * **Cyber Modern / Dark:** Fondo oscuro midnight con aura de neón.
+   * **Clásico Corporativo:** Cabecera vibrante con logo centrado en marco blanco elevado.
+   * **Minimalista Ejecutivo:** Diseño editorial centrado con marco geométrico.
+2. Selecciona la **Tipografía Primaria** (para tu Nombre y Botón de Acción) y la **Tipografía Secundaria** (para el resto del texto).
+3. Selecciona tus **3 Colores de Marca** con el selector visual o escribiendo tu código hexadecimal (ej. `#F97316`).
+
+### Paso 4: Despliegue en Google Cloud SQL
+1. Revisa la vista previa en tiempo real en la pantalla del celular a la derecha.
+2. Haz clic en el botón naranja:
+   👉 **`🚀 GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)`**
+3. El sistema almacenará tu perfil en la base de datos y te entregará tu **enlace permanente único** (Ej. `https://vc.tsolutionsipidd.com/p/javier-gallardo-tsolutions-a3b1c`).
+
+### Paso 5: Descarga de Entregables
+1. **Código QR HD (.PNG):** Haz clic en `⬇ Descargar QR (.PNG)` para obtener tu código en resolución ultra-alta (1200x1200px) listo para imprimir o enviar.
+2. **Archivo de Contacto (.VCF):** Haz clic en `💾 Descargar .VCF Individual` para guardar tu tarjeta digital.
+3. **Paquete Completo (.ZIP):** Haz clic en `📦 DESCARGAR PAQUETE COMPLETO (.ZIP)` para descargar en 1 solo clic tu QR, tu VCF y tu archivo de instrucciones.
+4. **Carta Oficial de Entrega:** Haz clic en `✉️ Enviar Entregables por Correo` o `📋 Ver Carta de Entrega Oficial` para notificar al cliente final.
+
+---
+
+## 📲 4. Cómo Programar tu Tarjeta o Sticker NFC
+
+Una vez que tengas tu enlace permanente desplegado, grabarlo en un chip físico toma **3 segundos**:
+
+1. Descarga la aplicación gratuita **NFC Tools** (disponible en [App Store para iPhone](https://apps.apple.com/app/nfc-tools/id1252962749) y [Google Play para Android](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc)).
+2. Abre la app y entra a la pestaña **`Escribir`** -> **`Añadir un registro`** -> **`URL / Enlace`**.
+3. Pega el enlace de tu tarjeta digital (Ej. `https://vc.tsolutionsipidd.com/p/tu-slug`).
+4. Pulsa en **`Escribir / [Bytes]`** y acerca tu tarjeta física o sticker NFC a la parte superior trasera de tu celular.
+5. ¡Listo! Al acercar la tarjeta a cualquier smartphone moderno (iPhone o Android), tu tarjeta digital se abrirá automáticamente sin necesidad de que la otra persona tenga apps instaladas.
+
+---
+
+## 🛡️ 5. Panel Administrativo Centralizado (`/admin`)
+
+Diseñado para que el equipo de **TSOLUTIONS IPIDD** o el departamento de Recursos Humanos de una empresa controle todas sus tarjetas:
+
+* **Acceso Exclusivo:** Registro de administradores restringido únicamente a correos corporativos `@tsolutionsipidd.com`.
+* **Fila 1 por Empresa:** Cada registro destaca en grande el nombre de la empresa cliente para auditorías rápidas.
+* **Buscador Universal & Tags:** Filtra al instante por `#VIP`, `#Ventas`, `#Directivo`, `#Mexicali`, nombre, teléfono o slug.
+* **Edición Completa:** Modifica el 100% de los campos de cualquier perfil existente.
+* **Validación en 1 Toque:** Cambia estados entre *Activo*, *Validado*, *Pendiente* y *Archivado*.
+* **Reenvío de Entregables:** Descarga directa de `.ZIP` y reenvío de la carta oficial de entrega.
+
+---
+
+## 💻 6. Arquitectura Técnica & Despliegue
+
+### Stack Tecnológico
+* **Framework:** Next.js 16 (App Router + Turbopack).
+* **Frontend:** React 19, Tailwind CSS 4, Google Fonts API.
+* **Base de Datos:** PostgreSQL en **Google Cloud SQL** (con pool de conexiones `pg` y SSL optimizado).
+* **Empaquetado:** `JSZip` para compilación de bundles en cliente.
+* **Códigos QR:** `qrcode.react` con renderizado vectorial SVG a Canvas PNG en alta resolución.
+* **Seguridad:** Cifrado criptográfico PBKDF2 (`SHA-512`) y Cookies de sesión HTTP-Only seguras.
+
+### Variables de Entorno (`.env`)
 ```env
-# Conexión a la base de datos PostgreSQL
-DATABASE_URL=postgresql://postgres:password@localhost:5432/nfc_vcards
-
-# Clave secreta para la sesión del panel administrativo
-AUTH_SECRET=tu-clave-secreta-aleatoria-2026
-
-# Restricción de dominios permitidos para el admin ('*' para todos, o lista de dominios)
-ALLOWED_ADMIN_DOMAINS=*
-
-# Datos públicos de tu marca (Sobrescriben brand.config.js)
-NEXT_PUBLIC_BRAND_NAME=ROSE Card
-NEXT_PUBLIC_COMPANY_NAME=ROSE Card Digital
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_SUPPORT_EMAIL=contacto@rosecard.io
+DATABASE_URL="postgresql://usuario:contraseña@IP_GOOGLE_CLOUD_SQL:5432/vcard_db?sslmode=require"
+AUTH_SECRET="tu-clave-secreta-de-autenticacion-tsolutions-2026"
 ```
 
-### 4. Ejecutar en Desarrollo
+### Comandos de Ejecución
 ```bash
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo local
 npm run dev
-```
-Abre en tu navegador [http://localhost:3000](http://localhost:3000).
 
----
+# Compilar para producción
+npm run build
 
-## 🎨 Personalización de la Marca Blanca (*White-Label*)
-
-Toda la identidad de la plataforma se controla desde un único archivo central: **`brand.config.js`**.
-
-```javascript
-const brandConfig = {
-  // Identidad
-  brandName: 'Mi Empresa Card',
-  brandTagline: 'Identidad Digital NFC & vCard',
-  brandHeading: {
-    prefix: 'MI EMPRESA',
-    highlight: 'CARD',
-    suffix: 'ENGINE'
-  },
-  
-  // Datos Corporativos
-  companyName: 'Mi Empresa Digital S.A.',
-  website: 'https://miempresa.com',
-  supportEmail: 'contacto@miempresa.com',
-  
-  // Colores del Tema
-  theme: {
-    primaryColor: '#E11D48',
-    secondaryColor: '#00E5FF',
-    accentColor: '#F43F5E',
-  },
-  
-  // Restricción de acceso para Administradores
-  adminAuth: {
-    allowedDomains: '*', // o '@miempresa.com,@agencia.com'
-  }
-};
+# Iniciar en producción
+npm start
 ```
 
 ---
 
-## 📱 Cómo Grabar los Chips NFC para los Clientes
+## 🏢 Créditos & Marca
 
-1. Descarga la aplicación gratuita **NFC Tools** en el smartphone ([iOS App Store](https://apps.apple.com/app/nfc-tools/id1252962749) / [Android Google Play](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc)).
-2. Abre la app y dirígete a la pestaña **Escribir** (*Write*).
-3. Selecciona **Agregar un registro** (*Add a record*) ➔ **URL / Enlace Web**.
-4. Pega el enlace público del perfil del cliente (ej. `https://tu-dominio.com/p/nombre-empresa-12345`).
-5. Presiona **Escribir** y acerca la tarjeta física o sticker con chip NFC al teléfono.
-6. ¡Listo! Al tocar la tarjeta con cualquier smartphone compatible, abrirá directamente el perfil sin necesidad de instalar apps.
+Desarrollado con estándares de ingeniería de alto rendimiento por:
 
----
-
-## 🌐 Despliegue en Producción
-
-### Despliegue en Vercel
-1. Conecta este repositorio en [Vercel](https://vercel.com).
-2. Configura las **Environment Variables** (`DATABASE_URL`, `AUTH_SECRET`, `ALLOWED_ADMIN_DOMAINS`, `NEXT_PUBLIC_APP_URL`, etc.).
-3. Haz clic en **Deploy**. El esquema de base de datos se inicializa automáticamente en la primera petición (`initDb`).
-
----
-
-## 📄 Licencia
-Este proyecto es de código abierto bajo la licencia MIT. Puedes usarlo comercialmente para tu propia agencia o clientes.
+**TSOLUTIONS IPIDD**  
+*Soluciones Digitales, Transformación Operativa & Consultoría Tecnológica*  
+🌐 [https://tsolutionsipidd.com](https://tsolutionsipidd.com)  
+✉️ contacto@tsolutionsipidd.com  
+📍 Mexicali, Baja California, México
