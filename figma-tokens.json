@@ -1,0 +1,118 @@
+{
+  "$schema": "https://tokens.studio/schemas/token-set.json",
+  "name": "ROSE Card - Cyber vCard Engine Tokens",
+  "version": "1.0.0",
+  "description": "Design Tokens oficiales extraídos de la Paleta de Colores de Marca y Logotipo Rosa Geométrica Cyber.",
+  "global": {
+    "color": {
+      "paleta-principal": {
+        "rojo-nucleo": {
+          "value": "#C8102E",
+          "type": "color",
+          "description": "Rojo Núcleo Principal de la Marca. RGB(200, 16, 46). Uso: Botones primarios, branding corporativo, contornos destacados."
+        },
+        "carmesi-geometrico": {
+          "value": "#EE334E",
+          "type": "color",
+          "description": "Carmesí Geométrico. RGB(238, 51, 78). Uso: Focos neón, estados hover, títulos y resplandor de circuitos."
+        },
+        "gris-circuito": {
+          "value": "#B1B3B3",
+          "type": "color",
+          "description": "Gris Circuito. RGB(177, 179, 179). Uso: Textos secundarios, pistas de circuito, líneas divisorias e iconos."
+        },
+        "negro-profundo": {
+          "value": "#0A0A0A",
+          "type": "color",
+          "description": "Negro Profundo. RGB(10, 10, 10). Uso: Fondo principal inmersivo y paneles de contraste extremo."
+        }
+      },
+      "paleta-secundaria": {
+        "gris-apoyo": {
+          "value": "#EBEBF2",
+          "type": "color",
+          "description": "Gris de Apoyo. RGB(235, 235, 242). Uso: Superficies claras, fondos alternos y tipografía de alto contraste."
+        },
+        "azul-tecnologico": {
+          "value": "#4A7AFF",
+          "type": "color",
+          "description": "Azul Tecnológico (Subtle, cool accent). RGB(74, 122, 255). Uso: Badges tecnológicos, enlaces activos y acentos fríos."
+        },
+        "plata-metalizado": {
+          "value": "#D9DADC",
+          "type": "color",
+          "description": "Plata Metalizado (For highlights). RGB(217, 218, 220). Uso: Biseles, reflejos metálicos, bordes de cristal y brillos."
+        },
+        "sombra-carmesi": {
+          "value": "#9A0020",
+          "type": "color",
+          "description": "Sombra Carmesí. RGB(154, 0, 32). Uso: Sombras facetadas, gradientes oscuros y estados active/pressed."
+        }
+      },
+      "semantic": {
+        "background": {
+          "primary": { "value": "{color.paleta-principal.negro-profundo}", "type": "color" },
+          "panel": { "value": "#121114", "type": "color" },
+          "surface-light": { "value": "{color.paleta-secundaria.gris-apoyo}", "type": "color" }
+        },
+        "text": {
+          "primary": { "value": "#FFFFFF", "type": "color" },
+          "secondary": { "value": "{color.paleta-principal.gris-circuito}", "type": "color" },
+          "brand-neon": { "value": "{color.paleta-principal.carmesi-geometrico}", "type": "color" },
+          "brand-ruby": { "value": "{color.paleta-principal.rojo-nucleo}", "type": "color" },
+          "accent-blue": { "value": "{color.paleta-secundaria.azul-tecnologico}", "type": "color" }
+        },
+        "border": {
+          "subtle": { "value": "rgba(200, 16, 46, 0.30)", "type": "color" },
+          "highlight": { "value": "{color.paleta-secundaria.plata-metalizado}", "type": "color" },
+          "glow": { "value": "{color.paleta-principal.carmesi-geometrico}", "type": "color" }
+        }
+      }
+    },
+    "boxShadow": {
+      "glow-rose": {
+        "value": {
+          "x": "0",
+          "y": "0",
+          "blur": "16",
+          "spread": "0",
+          "color": "rgba(200, 16, 46, 0.45)",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow"
+      },
+      "glow-rose-hover": {
+        "value": {
+          "x": "0",
+          "y": "0",
+          "blur": "26",
+          "spread": "0",
+          "color": "rgba(238, 51, 78, 0.70)",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow"
+      },
+      "glow-blue-tech": {
+        "value": {
+          "x": "0",
+          "y": "0",
+          "blur": "14",
+          "spread": "0",
+          "color": "rgba(74, 122, 255, 0.35)",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow"
+      }
+    },
+    "borderRadius": {
+      "soft": { "value": "10px", "type": "borderRadius" },
+      "medium": { "value": "14px", "type": "borderRadius" },
+      "large": { "value": "18px", "type": "borderRadius" },
+      "full": { "value": "9999px", "type": "borderRadius" }
+    },
+    "fontFamilies": {
+      "brand-display": { "value": "Bruno Ace", "type": "fontFamilies" },
+      "body-ui": { "value": "Inter", "type": "fontFamilies" }
+    }
+  }
+}

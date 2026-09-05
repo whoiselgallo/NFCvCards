@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getTranslation } from '../../../lib/i18n';
+import brandConfig from '../../../brand.config';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
 export function getSocialUrl(type, value) {

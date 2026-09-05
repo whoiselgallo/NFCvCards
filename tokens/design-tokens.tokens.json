@@ -1,0 +1,48 @@
+{
+  "color": {
+    "brand": {
+      "rojo-nucleo": {
+        "$value": "#C8102E",
+        "$type": "color",
+        "$description": "Rojo Núcleo Principal de la Marca. RGB(200, 16, 46)."
+      },
+      "carmesi-geometrico": {
+        "$value": "#EE334E",
+        "$type": "color",
+        "$description": "Carmesí Geométrico. RGB(238, 51, 78)."
+      },
+      "gris-circuito": {
+        "$value": "#B1B3B3",
+        "$type": "color",
+        "$description": "Gris Circuito. RGB(177, 179, 179)."
+      },
+      "negro-profundo": {
+        "$value": "#0A0A0A",
+        "$type": "color",
+        "$description": "Negro Profundo. RGB(10, 10, 10)."
+      }
+    },
+    "secondary": {
+      "gris-apoyo": {
+        "$value": "#EBEBF2",
+        "$type": "color",
+        "$description": "Gris de Apoyo. RGB(235, 235, 242)."
+      },
+      "azul-tecnologico": {
+        "$value": "#4A7AFF",
+        "$type": "color",
+        "$description": "Azul Tecnológico (Subtle, cool accent). RGB(74, 122, 255)."
+      },
+      "plata-metalizado": {
+        "$value": "#D9DADC",
+        "$type": "color",
+        "$description": "Plata Metalizado (For highlights). RGB(217, 218, 220)."
+      },
+      "sombra-carmesi": {
+        "$value": "#9A0020",
+        "$type": "color",
+        "$description": "Sombra Carmesí. RGB(154, 0, 32)."
+      }
+    }
+  }
+}

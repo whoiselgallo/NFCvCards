@@ -1,16 +1,15 @@
 /**
  * BRAND CONFIGURATION - MARCA BLANCA
  * 
- * Modifica este archivo para cambiar completamente la identidad visual,
- * nombres, logotipos, correos, dominios permitidos y textos de entrega
- * de toda la plataforma sin tener que editar componentes individuales.
+ * Configuración centralizada de marca, paleta de colores y recursos visuales
+ * inspirados en la Rosa Geométrica Cyber / Neo-Rose y la Guía Oficial de Color.
  */
 
 const brandConfig = {
   // Identidad de la Marca
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'ROSE Card',
-  brandTagline: 'vCard Engine & Identidad Digital NFC',
-  brandDescription: 'Generador de Identidad Digital Interactiva, NFC & vCard Corporativa.',
+  brandTagline: 'Cyber vCard Engine & Identidad Digital NFC',
+  brandDescription: 'Generador de Identidad Digital Interactiva, NFC & vCard Corporativa con diseño Neo-Rose.',
   brandHeading: {
     prefix: 'ROSE',
     highlight: 'CARD',
@@ -22,36 +21,41 @@ const brandConfig = {
   website: process.env.NEXT_PUBLIC_APP_URL || 'https://rosecard.io',
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'contacto@rosecard.io',
   
-  // Archivos de Medios y Favicons
+  // Archivos de Medios y Favicons (Logotipo Oficial Neo-Rose)
   assets: {
-    logo: '/logoTSPNGSQ.png',
+    logo: '/brand/logo.png',
     icon: '/icon.png',
     favicon: '/favicon.png',
     appleIcon: '/apple-icon.png'
   },
 
-  // Configuración de Paleta de Colores Oficial (Cyber Rose Neon Palette)
+  // Configuración de Paleta de Colores Oficial (Figma Design Tokens)
   theme: {
-    cyberRoseNeon: '#FF2A54',     // Títulos principales, resplandor de marca, focos y estados activos
-    rubyRose: '#E11D48',          // Botones de acción primaria (CTA), marcos del logo y acentos corporativos
-    crimsonShadow: '#BE123C',     // Degradados de botones y estados hover
-    deepGarnet: '#4C0519',        // Sombras facetadas, bordes y reflejos de fondo
-    circuitSilver: '#E2E8F0',     // Tipografías de lectura, nodos de circuito y bordes sutiles
-    obsidianCyberDark: '#060509', // Fondo principal inmersivo con gradiente radial y rejilla cibernética
+    // Paleta Principal
+    rojoNucleo: '#C8102E',       // Rojo Núcleo (RGB: 200, 16, 46)
+    carmesiGeometrico: '#EE334E',// Carmesí Geométrico (RGB: 238, 51, 78)
+    grisCircuito: '#B1B3B3',     // Gris Circuito (RGB: 177, 179, 179)
+    negroProfundo: '#0A0A0A',    // Negro Profundo (RGB: 10, 10, 10)
 
-    primaryColor: '#E11D48',
-    primaryNeon: '#FF2A54',
-    primaryHover: '#BE123C',
-    primaryGlow: 'rgba(225, 29, 72, 0.45)',
-    secondaryColor: '#00E5FF',
-    darkBg: '#060509',
-    cardDarkBg: '#0C0A12',
-    borderDark: '#2A0E18'
+    // Paleta Secundaria
+    grisApoyo: '#EBEBF2',        // Gris de Apoyo (RGB: 235, 235, 242)
+    azulTecnologico: '#4A7AFF',  // Azul Tecnológico - Cool Accent (RGB: 74, 122, 255)
+    plataMetalizado: '#D9DADC',  // Plata Metalizado - Highlights (RGB: 217, 218, 220)
+    sombraCarmesi: '#9A0020',    // Sombra Carmesí (RGB: 154, 0, 32)
+
+    // Mapeos de Interfaz
+    primaryColor: '#C8102E',
+    primaryNeon: '#EE334E',
+    primaryHover: '#9A0020',
+    primaryGlow: 'rgba(238, 51, 78, 0.45)',
+    secondaryColor: '#4A7AFF',
+    accentCyan: '#4A7AFF',
+    darkBg: '#0A0A0A',
+    cardDarkBg: '#121114',
+    borderRose: 'rgba(200, 16, 46, 0.35)'
   },
 
   // Seguridad y Control de Acceso del Panel Administrativo
-  // Si se establece en '*', cualquier correo corporativo o estándar puede registrarse/acceder.
-  // Si se listan dominios separados por coma (ej: '@rosecard.io,@miempresa.com'), solo esos dominios tendrán acceso.
   adminAuth: {
     allowedDomains: process.env.ALLOWED_ADMIN_DOMAINS || '*',
     sessionCookieName: 'rose_admin_session',
