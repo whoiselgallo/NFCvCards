@@ -568,7 +568,7 @@ export default function VCardEngineDashboard() {
       <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide">
-            {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> {brandConfig.brandHeading.suffix}
+            {brandConfig.brandHeading.prefix} <span className="text-[#FF2A54]">{brandConfig.brandHeading.highlight}</span> {brandConfig.brandHeading.suffix}
           </h1>
           <p className="text-gray-400 text-sm mt-1">{brandConfig.brandDescription}</p>
         </div>
@@ -580,7 +580,7 @@ export default function VCardEngineDashboard() {
               onClick={() => setMode('vcard')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
                 mode === 'vcard'
-                  ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
+                  ? 'bg-gradient-to-r from-[#FF2A54] to-[#E11D48] text-white font-extrabold shadow-[0_0_16px_rgba(255,42,84,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -590,7 +590,7 @@ export default function VCardEngineDashboard() {
               onClick={() => setMode('review')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
                 mode === 'review'
-                  ? 'bg-[#E11D48] text-white font-extrabold shadow-[0_0_14px_rgba(225,29,72,0.5)]'
+                  ? 'bg-gradient-to-r from-[#FF2A54] to-[#E11D48] text-white font-extrabold shadow-[0_0_16px_rgba(255,42,84,0.5)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -602,7 +602,7 @@ export default function VCardEngineDashboard() {
           <button
             type="button"
             onClick={() => setLang(l => (l === 'es' ? 'en' : 'es'))}
-            className="px-3 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-800 hover:border-[#F97316]/50 transition-all flex items-center gap-1.5 shadow-sm"
+            className="px-3 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-800 hover:border-[#FF2A54]/50 transition-all flex items-center gap-1.5 shadow-sm"
             title={lang === 'es' ? 'Cambiar a Inglés' : 'Switch to Spanish'}
           >
             <span>{lang === 'es' ? '🇲🇽 ES' : '🇺🇸 EN'}</span>
@@ -617,9 +617,9 @@ export default function VCardEngineDashboard() {
             <span>⚙️</span> {t('admin_btn')}
           </a>
 
-          {/* Logo Oficial Tsolutions */}
-          <div className="tsolutions-logo hidden sm:flex shrink-0" title="TSOLUTIONS IPIDD">
-            <div className="tsolutions-triangle"></div>
+          {/* Logo Oficial con Resplandor Cyber Rose */}
+          <div className="rose-logo-container hidden sm:flex shrink-0" title={brandConfig.brandName}>
+            <img src={brandConfig.assets.logo} alt="Rose Emblem" className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(255,42,84,0.7)]" />
           </div>
         </div>
       </header>
@@ -629,7 +629,7 @@ export default function VCardEngineDashboard() {
         
         {/* COLUMNA 1: PANEL DE CONFIGURACIÓN */}
         <section className="w-full lg:w-7/12 panel-glass p-6 md:p-8 space-y-6">
-          <h2 className="text-xl font-bruno text-[#F97316] flex items-center gap-2 border-b border-gray-800 pb-3">
+          <h2 className="text-xl font-bruno text-[#FF2A54] flex items-center gap-2 border-b border-gray-800/80 pb-3">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>

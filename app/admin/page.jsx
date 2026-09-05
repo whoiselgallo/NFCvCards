@@ -299,13 +299,18 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen bg-[#04040A] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-[#090914] border border-[#E11D48]/40 p-8 rounded-3xl shadow-[0_0_50px_rgba(225,29,72,0.25)] space-y-6 animate-scaleIn">
           
-          {/* Logo y Cabecera */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bruno text-white">
-              {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> ADMIN
-            </h1>
-            <p className="text-xs text-gray-400">Panel Centralizado de Control de Identidades Digitales</p>
-            <div className="mt-2 inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400">
+          {/* Logo y Cabecera con Emblema Cyber Rose */}
+          <div className="text-center space-y-3 flex flex-col items-center">
+            <div className="rose-logo-container w-14 h-14 rounded-2xl shadow-[0_0_25px_rgba(255,42,84,0.5)] border-2 border-[#FF2A54]/60">
+              <img src={brandConfig.assets.logo} alt="Rose Emblem" className="w-9 h-9 object-contain drop-shadow-[0_0_10px_rgba(255,42,84,0.8)]" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bruno text-white">
+                {brandConfig.brandHeading.prefix} <span className="text-[#FF2A54]">{brandConfig.brandHeading.highlight}</span> ADMIN
+              </h1>
+              <p className="text-xs text-gray-400 mt-1">Panel Centralizado de Control de Identidades Digitales</p>
+            </div>
+            <div className="mt-1 inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400">
               {brandConfig.adminAuth.allowedDomains === '*' ? '🔒 Panel Administrativo Seguro' : `🔒 Exclusivo para ${brandConfig.adminAuth.allowedDomains}`}
             </div>
           </div>
@@ -420,10 +425,13 @@ export default function AdminDashboardPage() {
       
       {/* HEADER DEL PANEL */}
       <header className="max-w-[1920px] mx-auto w-full mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-800">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3.5">
+          <div className="rose-logo-container w-11 h-11 rounded-xl shadow-[0_0_16px_rgba(225,29,72,0.45)] border border-[#FF2A54]/50 shrink-0">
+            <img src={brandConfig.assets.logo} alt="Rose Emblem" className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(255,42,84,0.7)]" />
+          </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide flex items-center gap-2">
-              {brandConfig.brandHeading.prefix} <span className="text-[#E11D48]">{brandConfig.brandHeading.highlight}</span> ADMIN ENGINE
+              {brandConfig.brandHeading.prefix} <span className="text-[#FF2A54]">{brandConfig.brandHeading.highlight}</span> ADMIN ENGINE
             </h1>
             <p className="text-xs text-gray-400">Centro de Control y Gestión de Identidades Digitales NFC</p>
           </div>
@@ -432,7 +440,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-3 self-end md:self-auto">
           <div className="text-right hidden sm:block">
             <p className="text-xs font-bold text-white">{currentUser.name || currentUser.email}</p>
-            <p className="text-[10px] font-mono text-[#00E5FF]">{currentUser.email}</p>
+            <p className="text-[10px] font-mono text-[#FF2A54]">{currentUser.email}</p>
           </div>
           
           <a

@@ -30,16 +30,23 @@ const brandConfig = {
     appleIcon: '/apple-icon.png'
   },
 
-  // Configuración de Paleta de Colores por Defecto
+  // Configuración de Paleta de Colores Oficial (Cyber Rose Neon Palette)
   theme: {
-    primaryColor: '#E11D48',     // Color principal Rose
+    cyberRoseNeon: '#FF2A54',     // Títulos principales, resplandor de marca, focos y estados activos
+    rubyRose: '#E11D48',          // Botones de acción primaria (CTA), marcos del logo y acentos corporativos
+    crimsonShadow: '#BE123C',     // Degradados de botones y estados hover
+    deepGarnet: '#4C0519',        // Sombras facetadas, bordes y reflejos de fondo
+    circuitSilver: '#E2E8F0',     // Tipografías de lectura, nodos de circuito y bordes sutiles
+    obsidianCyberDark: '#060509', // Fondo principal inmersivo con gradiente radial y rejilla cibernética
+
+    primaryColor: '#E11D48',
+    primaryNeon: '#FF2A54',
     primaryHover: '#BE123C',
-    primaryGlow: 'rgba(225, 29, 72, 0.5)',
-    secondaryColor: '#00E5FF',   // Color cian secundario
-    accentColor: '#F43F5E',
-    darkBg: '#04040A',
-    cardDarkBg: '#0A0A14',
-    borderDark: '#1E1E2F'
+    primaryGlow: 'rgba(225, 29, 72, 0.45)',
+    secondaryColor: '#00E5FF',
+    darkBg: '#060509',
+    cardDarkBg: '#0C0A12',
+    borderDark: '#2A0E18'
   },
 
   // Seguridad y Control de Acceso del Panel Administrativo

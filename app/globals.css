@@ -3,39 +3,39 @@
 @tailwind utilities;
 
 :root {
-  /* 1. Paleta Cromática Oficial */
-  --naranja-energy: #F97316;
-  --aqua-turquesa: #00E5FF;
-  --negro-profundo: #04040A;
-  --midnight-panel: #0A0A14;
-  --deep-grid: #0F0F1E;
-  --blanco-puro: #F0F0F8;
-  --humo: #E0E0E0;
-  --dorado: #FFD700;
+  /* 🌹 1. Paleta de Colores Extraída del Logotipo Cyber Rose */
+  --cyber-rose-neon: #FF2A54;     /* Títulos principales, resplandor de marca, focos interactivos y estados activos */
+  --ruby-rose: #E11D48;            /* Botones de acción primaria (CTA), marcos del logo y acentos corporativos */
+  --crimson-shadow: #BE123C;       /* Degradados de botones y estados hover */
+  --deep-garnet: #4C0519;          /* Sombras facetadas, bordes y reflejos de fondo */
+  --circuit-silver: #E2E8F0;       /* Tipografías de lectura, nodos de circuito y bordes sutiles */
+  --obsidian-cyber-dark: #060509;  /* Fondo principal inmersivo con gradiente radial y rejilla cibernética */
+  --midnight-panel: #0C0A12;
   
-  /* 3. Sistema de Luces y Glows */
-  --shadow-glowEnergy: 0 0 12px rgba(249, 115, 22, 0.35);
-  --shadow-glowEnergyHover: 0 0 20px rgba(249, 115, 22, 0.55);
+  /* Sistema de Luces y Glows */
+  --shadow-glowRose: 0 0 16px rgba(225, 29, 72, 0.45);
+  --shadow-glowRoseHover: 0 0 24px rgba(255, 42, 84, 0.65);
   --shadow-turquesaSoft: 0 0 10px rgba(0, 229, 255, 0.20);
-  --shadow-turquesaHover: 0 0 14px rgba(0, 229, 255, 0.45);
-  --shadow-blancoPulse: 0 0 10px rgba(255, 255, 255, 0.80);
-  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.7);
   
-  /* 4. Radios de Borde */
+  /* Radios de Borde */
   --radius-soft: 10px;
   --radius-medium: 12px;
-  --radius-large: 14px;
+  --radius-large: 16px;
   --radius-full: 999px;
 }
 
 body {
-  background-color: var(--negro-profundo);
-  color: var(--blanco-puro);
+  background-color: var(--obsidian-cyber-dark);
+  color: var(--circuit-silver);
   font-family: 'Inter', sans-serif;
   background-image: 
-      linear-gradient(var(--deep-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--deep-grid) 1px, transparent 1px);
-  background-size: 32px 32px;
+      radial-gradient(circle at 50% 0%, rgba(225, 29, 72, 0.15) 0%, transparent 60%),
+      radial-gradient(circle at 90% 80%, rgba(76, 5, 25, 0.25) 0%, transparent 50%),
+      linear-gradient(rgba(76, 5, 25, 0.2) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(76, 5, 25, 0.2) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+  background-attachment: fixed;
   min-height: 100vh;
 }
 
@@ -44,40 +44,68 @@ h1, h2, h3, .font-bruno {
   letter-spacing: 0.5px;
 }
 
-.text-humo { color: var(--humo); }
-.text-aqua { color: var(--aqua-turquesa); text-shadow: var(--shadow-turquesaSoft); }
-.text-naranja { color: var(--naranja-energy); }
+.text-rose-neon {
+  color: var(--cyber-rose-neon);
+  text-shadow: 0 0 12px rgba(255, 42, 84, 0.5);
+}
+
+.text-ruby {
+  color: var(--ruby-rose);
+}
+
+.text-circuit {
+  color: var(--circuit-silver);
+}
+
+/* Contenedor del Logotipo con resplandor Cyber Rose */
+.rose-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.2) 0%, rgba(76, 5, 25, 0.6) 100%);
+  border: 1px solid rgba(255, 42, 84, 0.4);
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.35);
+  transition: all 0.3s ease;
+}
+.rose-logo-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 22px rgba(255, 42, 84, 0.6);
+  border-color: var(--cyber-rose-neon);
+}
 
 .panel-glass {
   background-color: var(--midnight-panel);
-  border: 1px solid rgba(255,255,255,0.03);
+  border: 1px solid rgba(225, 29, 72, 0.15);
   border-radius: var(--radius-large);
   box-shadow: var(--shadow-card);
 }
 
 .input-dark {
-  background-color: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: var(--blanco-puro);
+  background-color: rgba(12, 10, 18, 0.6);
+  border: 1px solid rgba(76, 5, 25, 0.8);
+  color: var(--circuit-silver);
   border-radius: var(--radius-soft);
   transition: all 0.3s ease;
   min-height: 48px;
   padding: 0 12px;
 }
-.input-dark::placeholder { color: rgba(224, 224, 224, 0.3); }
+.input-dark::placeholder { color: rgba(226, 232, 240, 0.3); }
 .input-dark:focus {
   outline: none;
-  border-color: var(--aqua-turquesa);
-  box-shadow: var(--shadow-turquesaSoft);
-  background-color: rgba(0, 229, 255, 0.05);
+  border-color: var(--cyber-rose-neon);
+  box-shadow: 0 0 12px rgba(255, 42, 84, 0.35);
+  background-color: rgba(225, 29, 72, 0.05);
 }
 
 .btn-primary {
-  background-color: var(--naranja-energy);
-  color: var(--negro-profundo);
+  background: linear-gradient(135deg, var(--ruby-rose) 0%, var(--crimson-shadow) 100%);
+  color: #FFFFFF;
   font-family: 'Bruno Ace', sans-serif;
   border-radius: var(--radius-medium);
-  box-shadow: var(--shadow-glowEnergy);
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.45);
   transition: all 0.3s ease;
   min-height: 48px;
   font-weight: 800;
@@ -87,10 +115,12 @@ h1, h2, h3, .font-bruno {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  border: 1px solid rgba(255, 42, 84, 0.4);
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-glowEnergyHover);
+  box-shadow: 0 0 24px rgba(255, 42, 84, 0.65);
+  background: linear-gradient(135deg, var(--cyber-rose-neon) 0%, var(--ruby-rose) 100%);
 }
 .btn-primary:active {
   transform: translateY(0);
