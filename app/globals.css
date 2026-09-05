@@ -43,13 +43,14 @@
   --radius-soft: 10px;
   --radius-medium: 14px;
   --radius-large: 18px;
+  --radius-device: 44px;
   --radius-full: 999px;
 }
 
 body {
   background-color: var(--negro-profundo);
   color: var(--gris-circuito);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   background-image: 
       radial-gradient(ellipse at 50% 0%, rgba(200, 16, 46, 0.15) 0%, transparent 60%),
       radial-gradient(circle at 90% 80%, rgba(154, 0, 32, 0.20) 0%, transparent 50%),
@@ -60,19 +61,17 @@ body {
   min-height: 100vh;
 }
 
+/* 1. Logotipo y Display en Plaster */
 .font-plaster, .font-brand-primary {
-  font-family: 'Plaster', cursive, sans-serif;
+  font-family: var(--font-primary);
   letter-spacing: 2px;
 }
 
-.font-rosetta, .font-corporate {
-  font-family: 'Rosetta Tech Sans', 'Space Grotesk', 'Inter', sans-serif;
+/* 2. Títulos con Tipografía Secundaria (Rosetta Tech Sans) para Máxima Legibilidad */
+h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
+  font-family: var(--font-secondary);
+  font-weight: 700;
   letter-spacing: 0.5px;
-}
-
-h1, h2, h3, .font-bruno {
-  font-family: 'Plaster', 'Bruno Ace', sans-serif;
-  letter-spacing: 1px;
 }
 
 .text-rose-neon {
@@ -142,15 +141,18 @@ h1, h2, h3, .font-bruno {
   background-color: rgba(200, 16, 46, 0.08);
 }
 
+/* ====================================================================
+   TOKENS: BOTONES DE ACCIÓN (Primary & Secondary & Switchers)
+   ==================================================================== */
 .btn-primary {
   background: linear-gradient(135deg, var(--rojo-nucleo) 0%, var(--sombra-carmesi) 100%);
   color: #FFFFFF;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-secondary);
   border-radius: var(--radius-medium);
   box-shadow: 0 0 16px rgba(200, 16, 46, 0.45);
   transition: all 0.3s ease;
   min-height: 48px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   display: flex;
@@ -162,10 +164,114 @@ h1, h2, h3, .font-bruno {
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--carmesi-geometrico) 0%, var(--rojo-nucleo) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 0 24px rgba(238, 51, 78, 0.65);
+  box-shadow: 0 0 26px rgba(238, 51, 78, 0.70);
 }
 .btn-primary:active {
   transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(235, 235, 242, 0.05);
+  color: var(--gris-apoyo);
+  font-family: var(--font-secondary);
+  border: 1px solid rgba(177, 179, 179, 0.30);
+  border-radius: 12px;
+  min-height: 44px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  background: rgba(238, 51, 78, 0.12);
+  border-color: var(--carmesi-geometrico);
+  color: #FFFFFF;
+}
+
+/* ====================================================================
+   TOKENS: SLIDERS DE CONTROL DE IMAGEN (Logo Scale, Posición Y, Zoom)
+   ==================================================================== */
+input[type="range"].slider-rose,
+.slider-rose {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #1A1622;
+  border: 1px solid rgba(154, 0, 32, 0.60);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider-rose::-webkit-slider-thumb,
+.slider-rose::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #EE334E;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 0 12px rgba(238, 51, 78, 0.80);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"].slider-rose::-webkit-slider-thumb:hover,
+.slider-rose::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
+  box-shadow: 0 0 18px rgba(238, 51, 78, 1);
+}
+
+input[type="range"].slider-rose::-moz-range-thumb,
+.slider-rose::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #EE334E;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 0 12px rgba(238, 51, 78, 0.80);
+  cursor: pointer;
+}
+
+/* ====================================================================
+   TOKENS: ÁREA DE CREACIÓN DEL CELULAR (Smartphone Device Mockup)
+   ==================================================================== */
+.smartphone-mockup-frame {
+  width: 100%;
+  max-width: 390px;
+  min-height: 740px;
+  background: #0A0A0A;
+  border-radius: var(--radius-device);
+  padding: 10px;
+  border: 2px solid rgba(200, 16, 46, 0.35);
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.85), 0 0 30px rgba(200, 16, 46, 0.20);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.smartphone-notch,
+.smartphone-dynamic-island {
+  width: 100px;
+  height: 24px;
+  background-color: #000000;
+  border-radius: 20px;
+  margin: 4px auto 8px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.smartphone-screen {
+  border-radius: 34px;
+  overflow: hidden;
+  background-color: #FFFFFF;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
 .rose-logo-img {

@@ -49,12 +49,12 @@
     "primary": {
       "$value": "Plaster",
       "$type": "fontFamily",
-      "$description": "Tipografía Principal de Marca / Display (Plaster). Usada para el logotipo y branding."
+      "$description": "Tipografía Principal de Marca / Display (Plaster) para logotipo e isotipos."
     },
     "corporate": {
       "$value": "Rosetta Tech Sans",
       "$type": "fontFamily",
-      "$description": "Tipografía de Comunicación Corporativa y Subtítulos (Rosetta Tech Sans)."
+      "$description": "Tipografía Secundaria para titulares y comunicación corporativa legible."
     },
     "body": {
       "$value": "Inter",
@@ -62,25 +62,39 @@
       "$description": "Tipografía de Lectura y UI (Inter)."
     }
   },
-  "typography": {
-    "brandDisplay": {
-      "$type": "typography",
-      "$value": {
-        "fontFamily": "{fontFamily.primary}",
-        "fontWeight": "400",
-        "fontSize": "32px",
-        "letterSpacing": "2px",
-        "lineHeight": "1.1"
+  "components": {
+    "buttons": {
+      "primary": {
+        "background": { "$value": "linear-gradient(135deg, #C8102E 0%, #9A0020 100%)", "$type": "gradient" },
+        "height": { "$value": "48px", "$type": "dimension" },
+        "borderRadius": { "$value": "14px", "$type": "dimension" }
+      },
+      "secondary": {
+        "background": { "$value": "rgba(235, 235, 242, 0.05)", "$type": "color" },
+        "border": { "$value": "1px solid rgba(177, 179, 179, 0.30)", "$type": "border" },
+        "borderRadius": { "$value": "12px", "$type": "dimension" }
       }
     },
-    "corporateHeading": {
-      "$type": "typography",
-      "$value": {
-        "fontFamily": "{fontFamily.corporate}",
-        "fontWeight": "400",
-        "fontSize": "22px",
-        "letterSpacing": "1px",
-        "lineHeight": "1.3"
+    "sliders": {
+      "track": {
+        "height": { "$value": "6px", "$type": "dimension" },
+        "background": { "$value": "#1A1622", "$type": "color" },
+        "borderRadius": { "$value": "999px", "$type": "dimension" }
+      },
+      "thumb": {
+        "size": { "$value": "20px", "$type": "dimension" },
+        "background": { "$value": "#EE334E", "$type": "color" },
+        "border": { "$value": "2.5px solid #FFFFFF", "$type": "border" }
+      }
+    },
+    "smartphoneCanvas": {
+      "frame": {
+        "maxWidth": { "$value": "390px", "$type": "dimension" },
+        "borderRadius": { "$value": "44px", "$type": "dimension" },
+        "border": { "$value": "2px solid rgba(200, 16, 46, 0.35)", "$type": "border" }
+      },
+      "screen": {
+        "borderRadius": { "$value": "34px", "$type": "dimension" }
       }
     }
   }
