@@ -1,8 +1,8 @@
 {
   "$schema": "https://tokens.studio/schemas/token-set.json",
   "name": "ROSE Card - Cyber vCard Engine Tokens",
-  "version": "1.0.0",
-  "description": "Design Tokens oficiales extraídos de la Paleta de Colores de Marca y Logotipo Rosa Geométrica Cyber.",
+  "version": "1.1.0",
+  "description": "Design Tokens oficiales de ROSE Card con Tipografía Principal Plaster y Tipografía Corporativa Rosetta Tech Sans.",
   "global": {
     "color": {
       "paleta-principal": {
@@ -69,6 +69,59 @@
         }
       }
     },
+    "fontFamilies": {
+      "brand-primary": {
+        "value": "Plaster",
+        "type": "fontFamilies",
+        "description": "Tipografía Principal de Marca / Display (Plaster). Utilizada para el logotipo rose vcard, monogramas e isotipos de impacto."
+      },
+      "corporate-secondary": {
+        "value": "Rosetta Tech Sans",
+        "type": "fontFamilies",
+        "description": "Tipografía Secundaria de Marca (Rosetta Tech Sans). Fuente recomendada para comunicación corporativa adyacente al logo y subtítulos."
+      },
+      "body-ui": {
+        "value": "Inter",
+        "type": "fontFamilies",
+        "description": "Tipografía de Lectura, Formularios y UI de Interfaz."
+      }
+    },
+    "typography": {
+      "brand-logo": {
+        "value": {
+          "fontFamily": "{fontFamilies.brand-primary}",
+          "fontWeight": "Regular",
+          "fontSize": "32px",
+          "lineHeight": "1.1",
+          "letterSpacing": "2px",
+          "textCase": "lowercase"
+        },
+        "type": "typography",
+        "description": "Estilo del logotipo institucional 'rose vcard' con acento rojo en 's'."
+      },
+      "corporate-heading": {
+        "value": {
+          "fontFamily": "{fontFamilies.corporate-secondary}",
+          "fontWeight": "Regular",
+          "fontSize": "24px",
+          "lineHeight": "1.3",
+          "letterSpacing": "1px",
+          "textCase": "uppercase"
+        },
+        "type": "typography",
+        "description": "Estilo para titulares corporativos y subtítulos de producto."
+      },
+      "body-regular": {
+        "value": {
+          "fontFamily": "{fontFamilies.body-ui}",
+          "fontWeight": "400",
+          "fontSize": "15px",
+          "lineHeight": "1.5",
+          "letterSpacing": "0px"
+        },
+        "type": "typography"
+      }
+    },
     "boxShadow": {
       "glow-rose": {
         "value": {
@@ -109,10 +162,6 @@
       "medium": { "value": "14px", "type": "borderRadius" },
       "large": { "value": "18px", "type": "borderRadius" },
       "full": { "value": "9999px", "type": "borderRadius" }
-    },
-    "fontFamilies": {
-      "brand-display": { "value": "Bruno Ace", "type": "fontFamilies" },
-      "body-ui": { "value": "Inter", "type": "fontFamilies" }
     }
   }
 }

@@ -44,5 +44,44 @@
         "$description": "Sombra Carmesí. RGB(154, 0, 32)."
       }
     }
+  },
+  "fontFamily": {
+    "primary": {
+      "$value": "Plaster",
+      "$type": "fontFamily",
+      "$description": "Tipografía Principal de Marca / Display (Plaster). Usada para el logotipo y branding."
+    },
+    "corporate": {
+      "$value": "Rosetta Tech Sans",
+      "$type": "fontFamily",
+      "$description": "Tipografía de Comunicación Corporativa y Subtítulos (Rosetta Tech Sans)."
+    },
+    "body": {
+      "$value": "Inter",
+      "$type": "fontFamily",
+      "$description": "Tipografía de Lectura y UI (Inter)."
+    }
+  },
+  "typography": {
+    "brandDisplay": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{fontFamily.primary}",
+        "fontWeight": "400",
+        "fontSize": "32px",
+        "letterSpacing": "2px",
+        "lineHeight": "1.1"
+      }
+    },
+    "corporateHeading": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{fontFamily.corporate}",
+        "fontWeight": "400",
+        "fontSize": "22px",
+        "letterSpacing": "1px",
+        "lineHeight": "1.3"
+      }
+    }
   }
 }

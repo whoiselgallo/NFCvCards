@@ -2,7 +2,7 @@
  * BRAND CONFIGURATION - MARCA BLANCA
  * 
  * Configuración centralizada de marca, paleta de colores y recursos visuales
- * inspirados en la Rosa Geométrica Cyber / Neo-Rose y la Guía Oficial de Color.
+ * inspirados en la Rosa Geométrica Cyber / Neo-Rose y la Guía Oficial de Tipografía.
  */
 
 const brandConfig = {
@@ -14,6 +14,16 @@ const brandConfig = {
     prefix: 'ROSE',
     highlight: 'CARD',
     suffix: 'ENGINE'
+  },
+
+  // Tipografía Oficial de Marca (Design Tokens)
+  typography: {
+    primary: 'Plaster',                  // Tipografía Principal Display / Logotipo oficial
+    secondary: 'Rosetta Tech Sans',      // Tipografía de Comunicación Corporativa y Titulares
+    body: 'Inter',                       // Tipografía de Lectura y Formularios UI
+    displayFont: 'Plaster, sans-serif',
+    corporateFont: 'Rosetta Tech Sans, Space Grotesk, Inter, sans-serif',
+    bodyFont: 'Inter, sans-serif'
   },
 
   // Empresa y Enlaces
@@ -52,7 +62,7 @@ const brandConfig = {
     accentCyan: '#4A7AFF',
     darkBg: '#0A0A0A',
     cardDarkBg: '#121114',
-    borderRose: 'rgba(200, 16, 46, 0.35)'
+    borderRose: 'rgba(200, 16, 46, 0.30)'
   },
 
   // Seguridad y Control de Acceso del Panel Administrativo

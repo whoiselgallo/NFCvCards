@@ -16,6 +16,11 @@
   --plata-metalizado: #D9DADC;     /* HEX: #D9DADC | RGB: 217, 218, 220 - Highlights y biseles */
   --sombra-carmesi: #9A0020;       /* HEX: #9A0020 | RGB: 154, 0, 32 - Sombras y estados hover profundos */
 
+  /* Tipografías Oficiales */
+  --font-primary: 'Plaster', cursive, sans-serif;
+  --font-secondary: 'Rosetta Tech Sans', 'Space Grotesk', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
   /* Alias Semánticos Cyber Neo-Rose */
   --cyber-rose-neon: var(--carmesi-geometrico);
   --ruby-rose: var(--rojo-nucleo);
@@ -55,9 +60,19 @@ body {
   min-height: 100vh;
 }
 
-h1, h2, h3, .font-bruno {
-  font-family: 'Bruno Ace', sans-serif;
+.font-plaster, .font-brand-primary {
+  font-family: 'Plaster', cursive, sans-serif;
+  letter-spacing: 2px;
+}
+
+.font-rosetta, .font-corporate {
+  font-family: 'Rosetta Tech Sans', 'Space Grotesk', 'Inter', sans-serif;
   letter-spacing: 0.5px;
+}
+
+h1, h2, h3, .font-bruno {
+  font-family: 'Plaster', 'Bruno Ace', sans-serif;
+  letter-spacing: 1px;
 }
 
 .text-rose-neon {
@@ -130,7 +145,7 @@ h1, h2, h3, .font-bruno {
 .btn-primary {
   background: linear-gradient(135deg, var(--rojo-nucleo) 0%, var(--sombra-carmesi) 100%);
   color: #FFFFFF;
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: 'Inter', sans-serif;
   border-radius: var(--radius-medium);
   box-shadow: 0 0 16px rgba(200, 16, 46, 0.45);
   transition: all 0.3s ease;

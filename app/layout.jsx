@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href={brandConfig.assets.appleIcon || '/apple-icon.png'} />
         <script src="https://cdn.tailwindcss.com"></script>
         <link
-          href="https://fonts.googleapis.com/css2?family=Bruno+Ace&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@300;400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Plaster&family=Bruno+Ace&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@300;400;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
