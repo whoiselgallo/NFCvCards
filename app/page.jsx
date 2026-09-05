@@ -711,10 +711,10 @@ export default function VCardEngineDashboard() {
                   </div>
 
                   {/* Slider de Escala del Logo */}
-                  <div className="pt-2 border-t border-gray-800">
-                    <div className="flex justify-between items-center text-xs font-bruno text-[#F97316] mb-1 uppercase">
+                  <div className="pt-2 border-t border-gray-800/80">
+                    <div className="flex justify-between items-center text-xs font-rosetta text-[#EE334E] mb-1.5 uppercase font-bold">
                       <span>Tamaño / Escala del Logo</span>
-                      <span className="text-white font-mono">{design.logoScale}px</span>
+                      <span className="text-white font-mono bg-black/60 px-2 py-0.5 rounded border border-[#EE334E]/30">{design.logoScale}px</span>
                     </div>
                     <input
                       type="range"
@@ -723,9 +723,9 @@ export default function VCardEngineDashboard() {
                       max="160"
                       value={design.logoScale}
                       onChange={handleDesignChange}
-                      className="w-full cursor-pointer accent-[#F97316]"
+                      className="w-full slider-rose"
                     />
-                    <div className="flex justify-between text-[10px] text-gray-500 mt-1 uppercase tracking-wide">
+                    <div className="flex justify-between text-[10px] text-[#B1B3B3] mt-1.5 uppercase tracking-wide">
                       <span>Compacto (50px)</span>
                       <span>Prominente (160px)</span>
                     </div>
@@ -733,8 +733,8 @@ export default function VCardEngineDashboard() {
 
                   {/* CONTROLES DE ENCUADRE DE BANNER */}
                   {coverPhoto && (
-                    <div className="pt-3 border-t border-gray-800 space-y-3 bg-black/40 p-3.5 rounded-xl border border-[#F97316]/40 shadow-[0_0_15px_rgba(249,115,22,0.15)] animate-fadeIn">
-                      <div className="flex justify-between items-center text-xs font-bruno text-[#F97316]">
+                    <div className="pt-3 border-t border-gray-800 space-y-3.5 bg-[#121114] p-4 rounded-xl border border-[#EE334E]/40 shadow-[0_0_15px_rgba(200,16,46,0.15)] animate-fadeIn">
+                      <div className="flex justify-between items-center text-xs font-rosetta text-[#EE334E]">
                         <span className="flex items-center gap-1.5 font-bold">
                           <span>🖼️</span> Ajuste de Encuadre del Banner
                         </span>
@@ -749,9 +749,9 @@ export default function VCardEngineDashboard() {
 
                       {/* Slider 1: Deslizar Arriba y Abajo */}
                       <div>
-                        <div className="flex justify-between text-[11px] text-gray-300 mb-1 font-mono">
+                        <div className="flex justify-between text-[11px] text-gray-300 mb-1.5 font-mono">
                           <span>↕️ Desplazamiento Vertical (Posición Y)</span>
-                          <span className="text-[#F97316] font-bold">{design.coverPositionY}%</span>
+                          <span className="text-[#EE334E] font-bold bg-black/50 px-2 py-0.5 rounded border border-[#EE334E]/20">{design.coverPositionY}%</span>
                         </div>
                         <input
                           type="range"
@@ -760,15 +760,15 @@ export default function VCardEngineDashboard() {
                           max="100"
                           value={design.coverPositionY}
                           onChange={handleDesignChange}
-                          className="w-full cursor-pointer accent-[#F97316]"
+                          className="w-full slider-rose"
                         />
                       </div>
 
                       {/* Slider 2: Acercar o Alejar (Zoom) */}
                       <div>
-                        <div className="flex justify-between text-[11px] text-gray-300 mb-1 font-mono">
+                        <div className="flex justify-between text-[11px] text-gray-300 mb-1.5 font-mono">
                           <span>🔍 Zoom del Banner</span>
-                          <span className="text-[#F97316] font-bold">{(design.coverZoom / 100).toFixed(1)}x</span>
+                          <span className="text-[#EE334E] font-bold bg-black/50 px-2 py-0.5 rounded border border-[#EE334E]/20">{(design.coverZoom / 100).toFixed(1)}x</span>
                         </div>
                         <input
                           type="range"
@@ -777,7 +777,7 @@ export default function VCardEngineDashboard() {
                           max="250"
                           value={design.coverZoom}
                           onChange={handleDesignChange}
-                          className="w-full cursor-pointer accent-[#F97316]"
+                          className="w-full slider-rose"
                         />
                       </div>
                     </div>
@@ -1406,18 +1406,18 @@ export default function VCardEngineDashboard() {
         {/* COLUMNA 2: ÁREA EXCLUSIVA DE CONSTRUCCIÓN Y VISTA PREVIA DENTRO DEL CELULAR (STICKY & LIMPIA) */}
         <section className="w-full lg:w-5/12 flex flex-col items-center justify-center lg:sticky lg:top-6 lg:self-start">
           
-          {/* MOCKUP ELEGANTE DEL CELULAR (320px x 640px) */}
-          <div className="w-[315px] sm:w-[340px] h-[650px] rounded-[44px] border-[8px] border-[#181826] bg-[#000000] shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden relative flex flex-col">
+          {/* MOCKUP ELEGANTE DEL CELULAR CON TOKENS OFICIALES */}
+          <div className="smartphone-mockup-frame w-[320px] sm:w-[350px] h-[670px]">
             
-            {/* NOTCH / BOCINA */}
-            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-24 h-4 bg-[#181826] rounded-full z-30 flex items-center justify-center">
-              <div className="w-2.5 h-2.5 bg-black rounded-full mr-2"></div>
-              <div className="w-8 h-1 bg-gray-700 rounded-full"></div>
+            {/* DYNAMIC ISLAND / NOTCH */}
+            <div className="smartphone-dynamic-island">
+              <div className="w-2.5 h-2.5 bg-[#121114] rounded-full border border-gray-800"></div>
+              <div className="w-7 h-1 bg-gray-800 rounded-full"></div>
             </div>
 
             {/* PANTALLA INTERNA DEL CELULAR (AISLADA: RESPONDE A LOS COLORES Y TIPOGRAFÍAS DEL CLIENTE) */}
             <div
-              className="flex-1 overflow-y-auto relative pb-20 select-none transition-all"
+              className="smartphone-screen relative pb-20 select-none transition-all"
               style={{
                 backgroundColor: activeTheme.bgColor,
                 fontFamily: currentFontSecondary,
