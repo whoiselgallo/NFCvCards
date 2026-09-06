@@ -460,7 +460,12 @@ export default function LandingPage() {
             <Nfc className="text-slate-500 w-6 h-6" />
             <span className="text-xl font-bold tracking-tight text-slate-400">Rose VCards</span>
           </div>
-          <p className="text-slate-500 text-sm">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-slate-500 mb-6">
+            <Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link>
+            <span className="hidden md:block">•</span>
+            <Link href="/terminos" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
+          </div>
+          <p className="text-slate-600 text-xs">
             © {new Date().getFullYear()} Rose VCards. Todos los derechos reservados. <br className="md:hidden" />
             Potenciado por Google Cloud Platform.
           </p>
