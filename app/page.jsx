@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
   Nfc, 
@@ -15,8 +15,28 @@ import {
   Layers
 } from 'lucide-react';
 
+const WORDS = [
+  "contacto", 
+  "experiencia", 
+  "transferencia", 
+  "sorpresa", 
+  "ganancia", 
+  "visualización",
+  "conexión",
+  "oportunidad"
+];
+
 export default function LandingPage() {
-  // Variantes de animacin comunes
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % WORDS.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Variantes de animación comunes
   const fadeIn = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
@@ -69,7 +89,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#05050D] via-transparent to-[#05050D]" />
         </div>
 
-        {/* Crculo de resplandor */}
+        {/* Círculo de resplandor */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#EE334E]/20 rounded-full blur-[120px] pointer-events-none z-0" />
         
         <motion.div 
@@ -84,12 +104,28 @@ export default function LandingPage() {
             <span>El Futuro del Networking Corporativo</span>
           </motion.div>
           
-          <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight">
-            Transforma cada contacto <br className="hidden md:block" /> en una <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EE334E] to-[#ff6b81]">Mquina de Ventas</span>
+          <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight" style={{ fontFamily: 'Plaster, sans-serif', fontWeight: 400 }}>
+            Transforma tu primer{" "}
+            <span className="inline-block relative w-[250px] md:w-[320px] text-[#EE334E] text-left">
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={wordIndex}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="absolute left-0"
+                >
+                  {WORDS[wordIndex]}
+                </motion.span>
+              </AnimatePresence>
+              <span className="invisible">visualización</span>
+            </span>
+            <br className="hidden md:block" /> en una <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EE334E] to-[#ff6b81]" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}>Máquina de Ventas</span>
           </motion.h1>
           
           <motion.p variants={fadeIn} className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed backdrop-blur-sm bg-black/20 p-4 rounded-2xl">
-            Unimos hardware NFC de alta gama con la velocidad y robustez de Google Cloud. Escala la presencia de tu negocio y dale autonoma completa a tus clientes con nuestra solucin de Marca Blanca.
+            Unimos hardware NFC de alta gama con la velocidad y robustez de Google Cloud. Escala la presencia de tu negocio y dale autonomía completa a tus clientes con nuestra solución de Marca Blanca.
           </motion.p>
           
           <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -103,7 +139,7 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* USE CASES SECTION (Fotos + Copy) */}
+      {/* USE CASES SECTION */}
       <section id="use-cases" className="py-24 bg-black/60 border-y border-white/5 relative z-10">
         <motion.div 
           className="max-w-7xl mx-auto px-6"
@@ -113,13 +149,13 @@ export default function LandingPage() {
           variants={staggerContainer}
         >
           <motion.div variants={fadeIn} className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Diseado para cada etapa de tu negocio</h2>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Diseñado para cada etapa de tu negocio</h2>
             <p className="text-slate-400 max-w-2xl mx-auto">Soluciones escalables que se adaptan desde el emprendedor individual hasta el corporativo transnacional.</p>
           </motion.div>
 
           <div className="grid lg:grid-cols-3 gap-8">
             
-            {/* Opcin 1 */}
+            {/* Opción 1 */}
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
@@ -132,12 +168,12 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold text-white mb-1">Formal Casual</h3>
                 <p className="text-xs text-[#EE334E] font-bold mb-4 tracking-wide uppercase">Emprendedores y Startups</p>
                 <p className="text-slate-400 text-sm leading-relaxed flex-1">
-                  En el ecosistema de startups nos obsesiona eliminar la friccin. En <strong>Rose VCards</strong> transformamos el primer punto de contacto en un activo de conversin inmediata. Unimos hardware NFC con <strong>Google Cloud</strong>, permitiendo guardar tu perfil con un solo toque, sin apps.
+                  En el ecosistema de startups nos obsesiona eliminar la fricción. En <strong>Rose VCards</strong> transformamos el primer punto de contacto en un activo de conversión inmediata. Unimos hardware NFC con <strong>Google Cloud</strong>, permitiendo guardar tu perfil con un solo toque, sin apps.
                 </p>
               </div>
             </motion.div>
 
-            {/* Opcin 2 */}
+            {/* Opción 2 */}
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
@@ -150,12 +186,12 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold text-white mb-1">Ejecutivo Comercial</h3>
                 <p className="text-xs text-[#EE334E] font-bold mb-4 tracking-wide uppercase">Pymes y Dir. de Ventas</p>
                 <p className="text-slate-400 text-sm leading-relaxed flex-1">
-                  El networking tradicional arrastra un costo oculto: prospectos que se enfran y tarjetas descartadas. Modernizamos la prospeccin fusionando NFC prmium con la alta disponibilidad de <strong>Google Cloud</strong>. Centralizamos la identidad de tu fuerza comercial con tecnologa de vanguardia.
+                  El networking tradicional arrastra un costo oculto: prospectos que se enfrían y tarjetas descartadas. Modernizamos la prospección fusionando NFC prémium con la alta disponibilidad de <strong>Google Cloud</strong>. Centralizamos la identidad de tu fuerza comercial con tecnología de vanguardia.
                 </p>
               </div>
             </motion.div>
 
-            {/* Opcin 3 */}
+            {/* Opción 3 */}
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
@@ -165,10 +201,10 @@ export default function LandingPage() {
                 <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
                   <ShieldCheck className="w-6 h-6 text-[#EE334E]" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-1">Profesional lite</h3>
+                <h3 className="text-xl font-bold text-white mb-1">Profesional Élite</h3>
                 <p className="text-xs text-[#EE334E] font-bold mb-4 tracking-wide uppercase">C-Level Transnacionales</p>
                 <p className="text-slate-400 text-sm leading-relaxed flex-1">
-                  La consistencia de marca y la seguridad no son negociables. Redefinimos el intercambio corporativo mediante una infraestructura de grado empresarial en <strong>Google Cloud Platform</strong>. Proveemos una solucin que refuerza la soberana de datos y proyecta liderazgo.
+                  La consistencia de marca y la seguridad no son negociables. Redefinimos el intercambio corporativo mediante una infraestructura de grado empresarial en <strong>Google Cloud Platform</strong>. Proveemos una solución que refuerza la soberanía de datos y proyecta liderazgo.
                 </p>
               </div>
             </motion.div>
@@ -177,7 +213,7 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* WHITE LABEL & BUSINESS MODEL (con imagen presentacion.jpeg) */}
+      {/* WHITE LABEL & BUSINESS MODEL */}
       <section id="white-label" className="py-24 relative overflow-hidden">
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-[600px] bg-[#EE334E]/10 blur-[150px] pointer-events-none" />
         
@@ -196,7 +232,7 @@ export default function LandingPage() {
               </div>
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Modelo de Marca Blanca</h2>
               <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                Diseado para agencias y empresas que desean revender nuestra tecnologa. Le damos autonoma completa a tu cliente bajo tu propia marca, respaldado por un sistema robusto y escalable.
+                Diseñado para agencias y empresas que desean revender nuestra tecnología. Le damos autonomía completa a tu cliente bajo tu propia marca, respaldado por un sistema robusto y escalable.
               </p>
               
               <ul className="space-y-6">
@@ -205,8 +241,8 @@ export default function LandingPage() {
                     <CheckCircle2 className="w-5 h-5 text-[#EE334E]" />
                   </div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Autonoma Completa al Cliente</h4>
-                    <p className="text-sm text-slate-400">Tus clientes gestionan sus perfiles, tarjetas y mtricas de forma 100% independiente en su propio panel.</p>
+                    <h4 className="text-white font-bold mb-1">Autonomía Completa al Cliente</h4>
+                    <p className="text-sm text-slate-400">Tus clientes gestionan sus perfiles, tarjetas y métricas de forma 100% independiente en su propio panel.</p>
                   </div>
                 </li>
                 <li className="flex gap-4">
@@ -215,7 +251,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h4 className="text-white font-bold mb-1">Mantenimiento Mensual (Contrato Anual)</h4>
-                    <p className="text-sm text-slate-400">Asegura ingresos recurrentes vendiendo suscripciones de mantenimiento y hosting con contratos de 1 ao.</p>
+                    <p className="text-sm text-slate-400">Asegura ingresos recurrentes vendiendo suscripciones de mantenimiento y hosting con contratos de 1 año.</p>
                   </div>
                 </li>
                 <li className="flex gap-4">
@@ -224,14 +260,14 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h4 className="text-white font-bold mb-1">Soporte Premium y Actualizaciones</h4>
-                    <p className="text-sm text-slate-400">Soporte tcnico dedicado y actualizaciones continuas basadas en las sugerencias y necesidades de los clientes.</p>
+                    <p className="text-sm text-slate-400">Soporte técnico dedicado y actualizaciones continuas basadas en las sugerencias y necesidades de los clientes.</p>
                   </div>
                 </li>
               </ul>
             </motion.div>
             
             <motion.div variants={scaleIn} className="flex-1 w-full">
-              {/* Imagen Integrada en la seccin */}
+              {/* Imagen Integrada en la sección */}
               <div className="relative rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl mb-8 group">
                 <div className="absolute inset-0 bg-[#EE334E]/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 mix-blend-overlay" />
                 <img src="/presentacion.jpeg" alt="Panel Administrativo" className="w-full h-auto transform group-hover:scale-105 transition-transform duration-700" />
@@ -239,11 +275,11 @@ export default function LandingPage() {
 
               {/* Review Cards flotantes simulando interfaz */}
               <div className="bg-[#0a0a10]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl relative">
-                <h3 className="text-xl font-bold text-white mb-6">Valoracin y Reseas</h3>
+                <h3 className="text-xl font-bold text-white mb-6">Valoración y Reseñas</h3>
                 <div className="space-y-4">
                   {[
-                    { name: 'Carlos Mendoza', role: 'Director Comercial', text: 'Redujo nuestros costos de impresin a cero y aument la retencin de prospectos en un 40%.' },
-                    { name: 'Ana Sofa', role: 'Startup Founder', text: 'Tener autonoma completa sobre el diseo y ver las analticas en tiempo real es increble.' }
+                    { name: 'Carlos Mendoza', role: 'Director Comercial', text: 'Redujo nuestros costos de impresión a cero y aumentó la retención de prospectos en un 40%.' },
+                    { name: 'Ana Sofía', role: 'Startup Founder', text: 'Tener autonomía completa sobre el diseño y ver las analíticas en tiempo real es increíble.' }
                   ].map((review, i) => (
                     <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/5">
                       <div className="flex items-center gap-1 mb-2">
@@ -296,10 +332,10 @@ export default function LandingPage() {
               </p>
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Tarjeta digital bsica
+                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Tarjeta digital básica
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Uso estrictamente acadmico
+                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Uso estrictamente académico
                 </li>
               </ul>
               <button className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-white/20 transition-colors">
@@ -314,17 +350,17 @@ export default function LandingPage() {
                 <span className="text-4xl font-extrabold text-white">Pro</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
-                Ideal para freelancers, consultores y pequeos equipos.
+                Ideal para freelancers, consultores y pequeños equipos.
               </p>
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-start gap-3 text-sm text-slate-300">
                   <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>5 Temas</strong> abiertos
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Hasta <strong>15 Tarjetas</strong> de presentacin
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Hasta <strong>15 Tarjetas</strong> de presentación
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Soporte estndar
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Soporte estándar
                 </li>
               </ul>
               <button className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] group-hover:text-white transition-all">
@@ -335,7 +371,7 @@ export default function LandingPage() {
             {/* 3. EMPRESA */}
             <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-[#EE334E]/50 rounded-3xl p-8 flex flex-col relative shadow-[0_0_30px_rgba(238,51,78,0.15)] transform md:-translate-y-4">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#EE334E] text-white text-xs font-bold px-4 py-1 rounded-full">
-                MS POPULAR
+                MÁS POPULAR
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Empresa</h3>
               <div className="mb-6">
@@ -346,7 +382,7 @@ export default function LandingPage() {
               </p>
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>10 Temas</strong> estticos
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>10 Temas</strong> estáticos
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
                   <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>25 Tarjetas</strong> disponibles
@@ -370,7 +406,7 @@ export default function LandingPage() {
                 <span className="text-4xl font-extrabold text-white">Elite</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
-                Control absoluto, expansin sin lmites y mxima personalizacin.
+                Control absoluto, expansión sin límites y máxima personalización.
               </p>
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-start gap-3 text-sm text-slate-300">
@@ -383,7 +419,7 @@ export default function LandingPage() {
                   <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> <strong>Acceso Total</strong> al Panel
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <Layers className="w-5 h-5 text-purple-400 shrink-0" /> Editor Libre <strong>(Mdulo de Diseo)</strong>
+                  <Layers className="w-5 h-5 text-purple-400 shrink-0" /> Editor Libre <strong>(Módulo de Diseño)</strong>
                 </li>
               </ul>
               <button className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
@@ -403,7 +439,7 @@ export default function LandingPage() {
             <span className="text-xl font-bold tracking-tight text-slate-400">Rose VCards</span>
           </div>
           <p className="text-slate-500 text-sm">
-             {new Date().getFullYear()} Rose VCards. Todos los derechos reservados. <br className="md:hidden" />
+            © {new Date().getFullYear()} Rose VCards. Todos los derechos reservados. <br className="md:hidden" />
             Potenciado por Google Cloud Platform.
           </p>
         </div>
