@@ -5,7 +5,7 @@
 :root {
   /* 🌹 1. Paleta de Colores de la Marca (Figma Official Design Tokens) */
   /* Paleta Principal */
-  --rojo-nucleo: #C8102E;           /* HEX: #C8102E | RGB: 200, 16, 46 - Color Primario de Marca */
+  --rojo-nucleo: #ff0003;           /* HEX: #ff0003 | RGB: 255, 0, 3 - Color Primario de Marca */
   --carmesi-geometrico: #EE334E;    /* HEX: #EE334E | RGB: 238, 51, 78 - Acentos, resplandores y CTA */
   --gris-circuito: #B1B3B3;        /* HEX: #B1B3B3 | RGB: 177, 179, 179 - Líneas, circuitos y texto secundario */
   --negro-profundo: #0A0A0A;       /* HEX: #0A0A0A | RGB: 10, 10, 10 - Fondo inmersivo */
@@ -32,12 +32,12 @@
   --humo: #EBEBF2;
   
   /* Sistema de Luces, Sombras y Glows */
-  --shadow-glowRose: 0 0 16px rgba(200, 16, 46, 0.45);
+  --shadow-glowRose: 0 0 16px rgba(255, 0, 3, 0.45);
   --shadow-glowRoseHover: 0 0 26px rgba(238, 51, 78, 0.70);
   --shadow-blueTechSoft: 0 0 14px rgba(74, 122, 255, 0.35);
   --shadow-silverSoft: 0 0 12px rgba(217, 218, 220, 0.25);
   --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.75);
-  --border-rose-subtle: 1px solid rgba(200, 16, 46, 0.30);
+  --border-rose-subtle: 1px solid rgba(255, 0, 3, 0.30);
   
   /* Radios de Borde */
   --radius-soft: 10px;
@@ -52,7 +52,7 @@ body {
   color: var(--gris-circuito);
   font-family: var(--font-body);
   background-image: 
-      radial-gradient(ellipse at 50% 0%, rgba(200, 16, 46, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 0%, rgba(255, 0, 3, 0.15) 0%, transparent 60%),
       radial-gradient(circle at 90% 80%, rgba(154, 0, 32, 0.20) 0%, transparent 50%),
       linear-gradient(rgba(154, 0, 32, 0.15) 1px, transparent 1px),
       linear-gradient(90deg, rgba(154, 0, 32, 0.15) 1px, transparent 1px);
@@ -103,9 +103,9 @@ h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(200, 16, 46, 0.25) 0%, rgba(154, 0, 32, 0.65) 100%);
+  background: linear-gradient(135deg, rgba(255, 0, 3, 0.25) 0%, rgba(154, 0, 32, 0.65) 100%);
   border: 1px solid rgba(238, 51, 78, 0.45);
-  box-shadow: 0 0 16px rgba(200, 16, 46, 0.4);
+  box-shadow: 0 0 16px rgba(255, 0, 3, 0.4);
   transition: all 0.3s ease;
 }
 .rose-logo-container:hover {
@@ -116,7 +116,7 @@ h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
 
 .panel-glass {
   background-color: var(--midnight-panel);
-  border: 1px solid rgba(200, 16, 46, 0.20);
+  border: 1px solid rgba(255, 0, 3, 0.20);
   border-radius: var(--radius-large);
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(14px);
@@ -138,7 +138,7 @@ h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
   outline: none;
   border-color: var(--carmesi-geometrico);
   box-shadow: 0 0 14px rgba(238, 51, 78, 0.4);
-  background-color: rgba(200, 16, 46, 0.08);
+  background-color: rgba(255, 0, 3, 0.08);
 }
 
 /* ====================================================================
@@ -149,7 +149,7 @@ h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
   color: #FFFFFF;
   font-family: var(--font-secondary);
   border-radius: var(--radius-medium);
-  box-shadow: 0 0 16px rgba(200, 16, 46, 0.45);
+  box-shadow: 0 0 16px rgba(255, 0, 3, 0.45);
   transition: all 0.3s ease;
   min-height: 48px;
   font-weight: 700;
@@ -244,8 +244,8 @@ input[type="range"].slider-rose::-moz-range-thumb,
   background: #0A0A0A;
   border-radius: var(--radius-device);
   padding: 10px;
-  border: 2px solid rgba(200, 16, 46, 0.35);
-  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.85), 0 0 30px rgba(200, 16, 46, 0.20);
+  border: 2px solid rgba(255, 0, 3, 0.35);
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.85), 0 0 30px rgba(255, 0, 3, 0.20);
   position: relative;
   display: flex;
   flex-direction: column;

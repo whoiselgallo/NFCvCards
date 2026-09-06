@@ -2,9 +2,9 @@
   "color": {
     "brand": {
       "rojo-nucleo": {
-        "$value": "#C8102E",
+        "$value": "#ff0003",
         "$type": "color",
-        "$description": "Rojo Núcleo Principal de la Marca. RGB(200, 16, 46)."
+        "$description": "Rojo Núcleo Principal de la Marca. RGB(255, 0, 3)."
       },
       "carmesi-geometrico": {
         "$value": "#EE334E",
@@ -65,7 +65,7 @@
   "components": {
     "buttons": {
       "primary": {
-        "background": { "$value": "linear-gradient(135deg, #C8102E 0%, #9A0020 100%)", "$type": "gradient" },
+        "background": { "$value": "linear-gradient(135deg, #ff0003 0%, #9A0020 100%)", "$type": "gradient" },
         "height": { "$value": "48px", "$type": "dimension" },
         "borderRadius": { "$value": "14px", "$type": "dimension" }
       },
@@ -91,7 +91,7 @@
       "frame": {
         "maxWidth": { "$value": "390px", "$type": "dimension" },
         "borderRadius": { "$value": "44px", "$type": "dimension" },
-        "border": { "$value": "2px solid rgba(200, 16, 46, 0.35)", "$type": "border" }
+        "border": { "$value": "2px solid rgba(255, 0, 3, 0.35)", "$type": "border" }
       },
       "screen": {
         "borderRadius": { "$value": "34px", "$type": "dimension" }
