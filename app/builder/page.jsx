@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { Lock } from 'lucide-react';
 import JSZip from 'jszip';
 import brandConfig from '../../brand.config';
 import { generateDeliveryInstructions } from '../../lib/brand';
@@ -156,8 +157,32 @@ export function getEffectiveMapsUrl(formData) {
   return '';
 }
 
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
 export default function VCardEngineDashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
+
+  if (status === 'loading') {
+    return <div className="min-h-screen flex items-center justify-center bg-[#05050D] text-white">Cargando editor...</div>;
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  // Determinar el plan del usuario
+  const userPlan = session?.user?.plan_id || 'free';
+  const isPremium = userPlan === 'business' || userPlan === 'elite';
+  const isPro = userPlan === 'pro' || isPremium;
 
   // Datos del Formulario - LIMPIOS POR DEFECTO
   const [formData, setFormData] = useState({
@@ -887,12 +912,19 @@ export default function VCardEngineDashboard() {
                   )}
 
                   {/* NUEVO: MÓDULO DE DISEÑO LIBRE */}
-                  <div className="pt-4 border-t border-gray-800/80 space-y-4">
-                    <h4 className="text-xs font-rosetta text-white font-bold uppercase tracking-wider flex items-center gap-2">
-                      <span className="text-[#EE334E]">🎨</span> Controles de Diseño Libre
+                  <div className="pt-4 border-t border-gray-800/80 space-y-4 relative">
+                    {!isPremium && (
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-xl border border-purple-500/30">
+                        <Lock className="w-8 h-8 text-purple-400 mb-2" />
+                        <span className="text-sm font-bold text-white">Exclusivo Plan Business / Elite</span>
+                        <p className="text-xs text-slate-400 text-center px-4 mt-1">Mejora tu plan para acceder al editor libre.</p>
+                      </div>
+                    )}
+                    <h4 className={"text-xs font-rosetta text-white font-bold uppercase tracking-wider flex items-center gap-2 " + (!isPremium ? 'opacity-50' : '')}>
+                      <span className="text-[#EE334E]">✦</span> Controles de Diseño Libre
                     </h4>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className={"grid grid-cols-1 sm:grid-cols-2 gap-4 " + (!isPremium ? 'opacity-30 pointer-events-none' : '')}>
                       {/* Ocultar / Mostrar Banner */}
                       <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-800 bg-black/30 cursor-pointer hover:border-gray-600 transition-colors">
                         <div className="relative flex items-center">
@@ -1182,39 +1214,54 @@ export default function VCardEngineDashboard() {
                       <span className="text-[10px] font-mono text-[#EE334E] font-bold">10 Diseños Disponibles</span>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-                      {Object.values(THEMES).map(th => (
-                        <button
-                          key={th.id}
-                          type="button"
-                          onClick={() => setDesign(prev => ({ ...prev, theme: th.id }))}
-                          className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between relative group ${
-                            design.theme === th.id
-                              ? 'bg-[#ff0003]/15 border-[#EE334E] shadow-[0_0_15px_rgba(255,0,3,0.35)] scale-[1.02]'
-                              : 'bg-black/40 border-gray-800/90 hover:border-gray-700 hover:bg-black/60'
-                          }`}
-                        >
-                          <div>
-                            <div className="flex items-center justify-between gap-1 mb-1.5">
-                              <span
-                                className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full font-bold border ${
-                                  design.theme === th.id
-                                    ? 'bg-[#ff0003] text-white border-[#EE334E]'
-                                    : 'bg-white/5 text-gray-400 border-white/10'
-                                }`}
-                              >
-                                {th.badge || 'Tema'}
-                              </span>
-                              {design.theme === th.id && (
-                                <span className="w-2 h-2 rounded-full bg-[#EE334E] animate-pulse"></span>
-                              )}
+                      {Object.values(THEMES).map((th, index) => {
+                        const isLocked = (!isPro && index >= 2) || (!isPremium && index >= 5);
+                        
+                        return (
+                          <button
+                            key={th.id}
+                            type="button"
+                            onClick={() => {
+                              if (isLocked) {
+                                alert("Este diseño Premium requiere mejorar tu paquete.");
+                                return;
+                              }
+                              setDesign(prev => ({ ...prev, theme: th.id }));
+                            }}
+                            className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between relative group ${
+                              design.theme === th.id
+                                ? 'bg-[#ff0003]/15 border-[#EE334E] shadow-[0_0_15px_rgba(255,0,3,0.35)] scale-[1.02]'
+                                : 'bg-black/40 border-gray-800/90 hover:border-gray-700 hover:bg-black/60'
+                            } ${isLocked ? 'opacity-40 cursor-not-allowed grayscale hover:opacity-70' : ''}`}
+                          >
+                            {isLocked && (
+                              <div className="absolute top-2 right-2 bg-black/80 rounded-full p-1 border border-white/10 z-10">
+                                <Lock className="w-3 h-3 text-slate-300" />
+                              </div>
+                            )}
+                            <div className={isLocked ? 'pointer-events-none' : ''}>
+                              <div className="flex items-center justify-between gap-1 mb-1.5">
+                                <span
+                                  className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full font-bold border ${
+                                    design.theme === th.id
+                                      ? 'bg-[#ff0003] text-white border-[#EE334E]'
+                                      : 'bg-white/5 text-gray-400 border-white/10'
+                                  }`}
+                                >
+                                  {th.badge || 'Tema'}
+                                </span>
+                                {design.theme === th.id && (
+                                  <span className="w-2 h-2 rounded-full bg-[#EE334E] animate-pulse"></span>
+                                )}
+                              </div>
+                              <p className={`text-xs font-rosetta font-bold leading-snug ${design.theme === th.id ? 'text-[#EE334E]' : 'text-white'}`}>
+                                {th.name}
+                              </p>
                             </div>
-                            <p className={`text-xs font-rosetta font-bold leading-snug ${design.theme === th.id ? 'text-[#EE334E]' : 'text-white'}`}>
-                              {th.name}
-                            </p>
-                          </div>
-                          <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed line-clamp-2">{th.desc}</p>
-                        </button>
-                      ))}
+                            <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed line-clamp-2">{th.desc}</p>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                   
