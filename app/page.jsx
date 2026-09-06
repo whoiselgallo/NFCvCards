@@ -7,32 +7,70 @@ import brandConfig from '../brand.config';
 import { generateDeliveryInstructions } from '../lib/brand';
 import { getTranslation } from '../lib/i18n';
 
-// Temas Estructurales de la Tarjeta del Cliente
+// Layout Presets — 10 estilos estructurales de la tarjeta del cliente
 const THEMES = {
-  classic: {
-    id: 'classic',
-    name: 'Clásico Corporativo',
-    desc: 'Cabecera vibrante, logotipo centrado y pastillas de contacto',
-    bgColor: '#ffffff',
-    textColor: '#1e293b',
-    subTextColor: '#64748b'
-  },
+  // ── LAYOUTS ORIGINALES ──────────────────────────────────────────
   modern: {
-    id: 'modern',
-    name: 'Cyber Modern / Dark',
+    id: 'modern', name: 'Cyber Modern / Dark', icon: '🌑',
     desc: 'Lienzo oscuro con acentos luminosos y doble glow',
-    bgColor: '#090912',
-    textColor: '#f8fafc',
-    subTextColor: '#94a3b8'
+    bgColor: '#090912', textColor: '#f8fafc', subTextColor: '#94a3b8',
+    layout: 'cover_float'
+  },
+  classic: {
+    id: 'classic', name: 'Clásico Corporativo', icon: '🏢',
+    desc: 'Cabecera vibrante, logotipo centrado en marco blanco',
+    bgColor: '#ffffff', textColor: '#1e293b', subTextColor: '#64748b',
+    layout: 'header_center'
   },
   minimal: {
-    id: 'minimal',
-    name: 'Minimalista Ejecutivo',
-    desc: 'Estilo editorial geométrico centrado y alto contraste',
-    bgColor: '#fafafa',
-    textColor: '#0f172a',
-    subTextColor: '#475569'
-  }
+    id: 'minimal', name: 'Minimalista Ejecutivo', icon: '◻️',
+    desc: 'Editorial geométrico centrado, bordes ultrafinos',
+    bgColor: '#fafafa', textColor: '#0f172a', subTextColor: '#475569',
+    layout: 'editorial'
+  },
+  // ── 7 NUEVOS LAYOUT PRESETS ─────────────────────────────────────
+  split_hero: {
+    id: 'split_hero', name: 'Split Hero', icon: '◑',
+    desc: 'Cover full con overlay de gradiente e info superpuesta desde abajo',
+    bgColor: '#000000', textColor: '#ffffff', subTextColor: '#e2e8f0',
+    layout: 'split_hero'
+  },
+  neon_cyber: {
+    id: 'neon_cyber', name: 'Cyberpunk Neón', icon: '⚡',
+    desc: 'Estética futurista con bordes de luz neón rosa-cian de alto impacto',
+    bgColor: '#05050D', textColor: '#ffffff', subTextColor: '#38BDF8',
+    layout: 'neon_grid'
+  },
+  midnight_gold: {
+    id: 'midnight_gold', name: 'Midnight Gold / Lujo', icon: '✦',
+    desc: 'Negro azabache con biseles en oro champagne y brillo VIP',
+    bgColor: '#0A0A0A', textColor: '#FFFDF5', subTextColor: '#A3A3A3',
+    layout: 'luxury_center'
+  },
+  avatar_focus: {
+    id: 'avatar_focus', name: 'Avatar Focus', icon: '👤',
+    desc: 'Logo circular gigante centrado, sin cover, máxima personalidad',
+    bgColor: '#0D0D1E', textColor: '#ffffff', subTextColor: '#94a3b8',
+    layout: 'avatar_center'
+  },
+  sidebar_stripe: {
+    id: 'sidebar_stripe', name: 'Sidebar Stripe', icon: '▌',
+    desc: 'Franja vertical de color a la izquierda con logo y datos alineados',
+    bgColor: '#F8FAFC', textColor: '#0f172a', subTextColor: '#475569',
+    layout: 'sidebar'
+  },
+  glassmorphism: {
+    id: 'glassmorphism', name: 'Glass Premium', icon: '🔮',
+    desc: 'Glassmorphism con desenfoque, bordes iridiscentes y brillo suave',
+    bgColor: '#0B0A14', textColor: '#ffffff', subTextColor: '#E0E7FF',
+    layout: 'glass'
+  },
+  sunset_gradient: {
+    id: 'sunset_gradient', name: 'Sunset Gradient', icon: '🌅',
+    desc: 'Gradiente cálido de puesta de sol en violeta, rosa y naranja',
+    bgColor: '#0E071A', textColor: '#FFF1F2', subTextColor: '#FDA4AF',
+    layout: 'gradient_bg'
+  },
 };
 
 const POPULAR_FONTS = [
@@ -1000,23 +1038,63 @@ export default function VCardEngineDashboard() {
                     <span className="text-[10px] font-mono text-gray-400 uppercase">Estilo Visual</span>
                   </div>
 
-                  {/* SELECTOR DE TEMAS ESTRUCTURALES */}
+                  {/* SELECTOR DE LAYOUT PRESETS — 10 ESTILOS */}
                   <div>
-                    <label className="block text-xs text-gray-300 mb-2 uppercase tracking-wide">Tema Estructural</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {Object.values(THEMES).map(th => (
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-xs text-gray-300 uppercase tracking-wide">
+                        Layout Preset
+                      </label>
+                      <span className="text-[10px] font-mono text-[#EE334E] font-bold">
+                        {Object.values(THEMES).findIndex(t => t.id === design.theme) + 1} / {Object.values(THEMES).length} — {THEMES[design.theme]?.name}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.values(THEMES).map((th, idx) => (
                         <button
                           key={th.id}
                           type="button"
                           onClick={() => setDesign(prev => ({ ...prev, theme: th.id }))}
-                          className={`p-2.5 rounded-xl border text-left transition-all ${
+                          className={`relative p-0 rounded-xl border overflow-hidden transition-all text-left ${
                             design.theme === th.id
-                              ? 'bg-[#C8102E]/15 border-[#EE334E] shadow-[0_0_12px_rgba(200,16,46,0.4)]'
-                              : 'bg-black/30 border-gray-800 hover:border-gray-700'
+                              ? 'border-[#EE334E] shadow-[0_0_14px_rgba(238,52,78,0.5)] ring-1 ring-[#EE334E]/40'
+                              : 'border-gray-800 hover:border-gray-600'
                           }`}
                         >
-                          <p className={`text-xs font-rosetta font-bold ${design.theme === th.id ? 'text-[#EE334E]' : 'text-white'}`}>{th.name}</p>
-                          <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{th.desc}</p>
+                          {/* Mini-preview de color */}
+                          <div
+                            className="h-10 w-full relative overflow-hidden"
+                            style={{ backgroundColor: th.bgColor }}
+                          >
+                            {/* Acento de color derecho */}
+                            <div
+                              className="absolute right-0 top-0 h-full w-6 opacity-70"
+                              style={{ backgroundColor: design.colorPrimario }}
+                            />
+                            {/* Ícono layout */}
+                            <span className="absolute inset-0 flex items-center justify-center text-base opacity-60">
+                              {th.icon}
+                            </span>
+                            {/* Número */}
+                            <span className="absolute top-1 left-1.5 text-[9px] font-mono opacity-50"
+                              style={{ color: th.textColor }}>
+                              {String(idx + 1).padStart(2, '0')}
+                            </span>
+                            {/* Badge seleccionado */}
+                            {design.theme === th.id && (
+                              <span className="absolute top-1 right-7 text-[9px] font-bold text-[#EE334E] bg-black/70 px-1 rounded">
+                                ✓
+                              </span>
+                            )}
+                          </div>
+                          {/* Nombre */}
+                          <div className="px-2 py-1.5 bg-black/50">
+                            <p className={`text-[10px] font-rosetta font-bold leading-tight truncate ${
+                              design.theme === th.id ? 'text-[#EE334E]' : 'text-white'
+                            }`}>
+                              {th.name}
+                            </p>
+                            <p className="text-[9px] text-gray-500 mt-0.5 truncate">{th.desc}</p>
+                          </div>
                         </button>
                       ))}
                     </div>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { getTranslation } from '../../../lib/i18n';
@@ -209,99 +209,256 @@ export default function PublicProfileClient({ profile = {} }) {
           boxShadow: `0 20px 50px rgba(0,0,0,0.6)`
         }}
       >
-        {/* CABECERA / PORTADA */}
-        <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-black/60">
-          {activeCover ? (
-            <img
-              src={activeCover}
-              alt="Portada"
-              className="w-full h-full object-cover transition-all"
-              style={{
-                objectPosition: `center ${cover_position_y}%`,
-                transform: `scale(${cover_zoom / 100})`
-              }}
-            />
-          ) : (
-            <div
-              className="w-full h-full flex items-center justify-center relative overflow-hidden"
-              style={{
-                background: `linear-gradient(135deg, ${color_primario}40 0%, ${color_secundario}20 50%, #000000 100%)`
-              }}
-            >
-              <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-              <span className="font-bruno text-4xl opacity-20 tracking-widest text-white">
-                {empresa ? empresa.substring(0, 3).toUpperCase() : 'NFC'}
-              </span>
-            </div>
-          )}
+        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            LAYOUT RENDERER — 10 PRESETS
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
 
-          {/* BADGE DE PLAN (SI ES ELITE / PRO) */}
-          {plan_tier !== 'free' && (
-            <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-bruno font-bold uppercase tracking-wider backdrop-blur-md border shadow-lg flex items-center gap-1"
-              style={{
-                backgroundColor: `${color_primario}30`,
-                borderColor: color_primario,
-                color: '#FFFFFF'
-              }}
-            >
-              <span>⭐</span> {plan_tier === 'elite' ? 'Business Elite' : plan_tier === 'business' ? 'Business' : 'Pro'}
-            </div>
-          )}
-        </div>
-
-        {/* CONTENEDOR DE AVATAR / LOGOTIPO */}
-        <div className={`relative px-6 ${logoPosition === 'left' ? 'text-left' : 'text-center'} -mt-14 mb-4 z-10`}>
-          <div className="inline-block relative">
-            <div
-              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 shadow-2xl flex items-center justify-center overflow-hidden border-2 bg-[#0a0a10]"
-              style={{
-                borderColor: color_primario,
-                boxShadow: `0 0 24px ${color_primario}40`
-              }}
-            >
-              {activeLogo ? (
-                <img
-                  src={activeLogo}
-                  alt={nombre}
-                  className="w-full h-full object-contain rounded-xl"
-                  style={{ transform: `scale(${logo_scale / 100})` }}
-                />
+        {/* ── LAYOUT: SPLIT HERO ─────────────────────────────────────
+            Cover full-bleed con info superpuesta desde abajo       */}
+        {theme === 'split_hero' && (
+          <div className="relative">
+            <div className="relative h-64 w-full overflow-hidden">
+              {activeCover ? (
+                <img src={activeCover} alt="Cover" className="w-full h-full object-cover"
+                  style={{ objectPosition: `center ${cover_position_y}%`, transform: `scale(${cover_zoom/100})`, transformOrigin: `center ${cover_position_y}%` }} />
               ) : (
-                <div
-                  className="w-full h-full rounded-xl flex items-center justify-center font-bruno text-2xl font-bold text-white"
-                  style={{ backgroundColor: color_primario }}
-                >
-                  {nombre ? nombre.charAt(0).toUpperCase() : '★'}
+                <div className="w-full h-full" style={{ background: `linear-gradient(160deg, ${color_primario} 0%, ${color_secundario}60 60%, #000 100%)` }} />
+              )}
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)' }} />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <div className="flex items-end gap-4">
+                  <div className="w-16 h-16 rounded-2xl border-2 overflow-hidden shrink-0 bg-black/50 flex items-center justify-center"
+                    style={{ borderColor: color_primario, boxShadow: `0 0 20px ${color_primario}60` }}>
+                    {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                      : <div className="w-full h-full flex items-center justify-center font-bold text-2xl text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '★'}</div>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl font-bold text-white leading-tight" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+                    {puesto && <p className="text-xs font-semibold uppercase mt-0.5" style={{ color: color_primario }}>{puesto}</p>}
+                    {empresa && <p className="text-xs text-gray-300 opacity-80 font-mono">{empresa}</p>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── LAYOUT: NEON CYBER ─────────────────────────────────────
+            Grid oscuro con bordes neón rosa-cian               */}
+        {theme === 'neon_cyber' && (
+          <div className="relative p-5">
+            <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,.05) 28px,rgba(255,255,255,.05) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,.05) 28px,rgba(255,255,255,.05) 29px)' }} />
+            <div className="relative flex flex-col items-center text-center gap-3">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 flex items-center justify-center"
+                style={{ borderColor: color_secundario, boxShadow: `0 0 20px ${color_secundario}80, 0 0 40px ${color_primario}40` }}>
+                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '⚡'}</div>}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: '#fff', textShadow: `0 0 20px ${color_primario}` }}>{nombre} {apellido}</h1>
+                {puesto && <p className="text-xs font-mono uppercase tracking-widest mt-1" style={{ color: color_secundario }}>{puesto}</p>}
+                {empresa && <p className="text-xs text-gray-400 font-mono mt-0.5">{empresa}</p>}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── LAYOUT: MIDNIGHT GOLD ──────────────────────────────────
+            Negro azabache, divisores dorados, logo premium     */}
+        {theme === 'midnight_gold' && (
+          <div className="relative">
+            <div className="h-2 w-full" style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, ${color_secundario}, ${color_primario}, transparent)` }} />
+            <div className="p-6 flex flex-col items-center text-center gap-3">
+              <div className="w-20 h-20 rounded-xl overflow-hidden border flex items-center justify-center bg-black"
+                style={{ borderColor: color_primario, boxShadow: `0 0 30px ${color_primario}50` }}>
+                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold" style={{ color: color_primario }}>{nombre?.charAt(0) || '✦'}</div>}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: color_primario }}>{nombre} {apellido}</h1>
+                <div className="h-px w-16 mx-auto my-2" style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, transparent)` }} />
+                {puesto && <p className="text-xs uppercase tracking-widest font-mono" style={{ color: color_secundario }}>{puesto}</p>}
+                {empresa && <p className="text-xs opacity-60 mt-1" style={{ color: '#A3A3A3' }}>{empresa}</p>}
+              </div>
+            </div>
+            <div className="h-px mx-6" style={{ background: `linear-gradient(90deg, transparent, ${color_primario}60, transparent)` }} />
+          </div>
+        )}
+
+        {/* ── LAYOUT: AVATAR FOCUS ───────────────────────────────────
+            Logo circular gigante centrado, gradiente radial     */}
+        {theme === 'avatar_focus' && (
+          <div className="relative pt-8 pb-4 flex flex-col items-center text-center gap-3">
+            <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at top, ${color_primario}25 0%, transparent 70%)` }} />
+            <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 flex items-center justify-center"
+              style={{ borderColor: color_primario, boxShadow: `0 0 0 6px ${color_primario}20, 0 0 40px ${color_primario}40` }}>
+              {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                : <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '👤'}</div>}
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+              {puesto && <p className="text-sm font-semibold uppercase mt-1" style={{ color: color_primario }}>{puesto}</p>}
+              {empresa && <p className="text-xs text-gray-400 font-mono mt-0.5">{empresa}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* ── LAYOUT: SIDEBAR STRIPE ─────────────────────────────────
+            Franja vertical izquierda + info a la derecha        */}
+        {theme === 'sidebar_stripe' && (
+          <div className="relative flex min-h-[160px]">
+            <div className="w-3 shrink-0 rounded-bl-none" style={{ background: `linear-gradient(180deg, ${color_primario}, ${color_secundario})` }} />
+            <div className="flex-1 p-5 flex items-center gap-4">
+              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 flex items-center justify-center bg-gray-100"
+                style={{ borderColor: color_primario }}>
+                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '▌'}</div>}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: '#0f172a' }}>{nombre} {apellido}</h1>
+                {puesto && <p className="text-xs font-bold uppercase mt-1" style={{ color: color_primario }}>{puesto}</p>}
+                {empresa && <p className="text-xs text-gray-500 font-mono mt-0.5 truncate">{empresa}</p>}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── LAYOUT: GLASSMORPHISM ──────────────────────────────────
+            Glassmorphism con desenfoque e iridiscencia          */}
+        {theme === 'glassmorphism' && (
+          <div className="relative overflow-hidden">
+            <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 20% 30%, ${color_primario}30, transparent 60%), radial-gradient(circle at 80% 70%, ${color_secundario}20, transparent 60%)` }} />
+            <div className="relative p-6 flex flex-col items-center text-center gap-3 backdrop-blur-sm">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', boxShadow: `0 0 30px ${color_primario}40` }}>
+                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white">{nombre?.charAt(0) || '🔮'}</div>}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+                {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
+                {empresa && <p className="text-xs text-white/50 font-mono mt-0.5">{empresa}</p>}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── LAYOUT: SUNSET GRADIENT ────────────────────────────────
+            Gradiente cálido violeta-rosa-naranja de fondo       */}
+        {theme === 'sunset_gradient' && (
+          <div className="relative">
+            <div className="h-40 w-full relative overflow-hidden flex items-center justify-center"
+              style={{ background: `linear-gradient(135deg, ${color_primario} 0%, #7c3aed 40%, #f43f5e 70%, #fb923c 100%)` }}>
+              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+              <div className="w-20 h-20 rounded-2xl border-4 border-white/30 overflow-hidden flex items-center justify-center bg-white/10 backdrop-blur-sm">
+                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white">{nombre?.charAt(0) || '🌅'}</div>}
+              </div>
+            </div>
+            <div className="px-5 pt-4 pb-2 text-center">
+              <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: activeThemeConfig.textColor || '#FFF1F2' }}>{nombre} {apellido}</h1>
+              {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
+              {empresa && <p className="text-xs opacity-60 font-mono mt-0.5" style={{ color: activeThemeConfig.subTextColor || '#FDA4AF' }}>{empresa}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* ── LAYOUT: COVER FLOAT (modern/default) ───────────────────
+            Cover → logo flotante → nombre (original)            */}
+        {(theme === 'modern' || theme === 'cover_float' || !['split_hero','neon_cyber','midnight_gold','avatar_focus','sidebar_stripe','glassmorphism','sunset_gradient','classic','minimal'].includes(theme)) && (
+          <>
+            <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-black/60">
+              {activeCover ? (
+                <img src={activeCover} alt="Portada" className="w-full h-full object-cover transition-all"
+                  style={{ objectPosition: `center ${cover_position_y}%`, transform: `scale(${cover_zoom / 100})` }} />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center relative overflow-hidden"
+                  style={{ background: `linear-gradient(135deg, ${color_primario}40 0%, ${color_secundario}20 50%, #000000 100%)` }}>
+                  <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+                  <span className="font-bruno text-4xl opacity-20 tracking-widest text-white">
+                    {empresa ? empresa.substring(0, 3).toUpperCase() : 'NFC'}
+                  </span>
+                </div>
+              )}
+              {plan_tier !== 'free' && (
+                <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-bruno font-bold uppercase tracking-wider backdrop-blur-md border shadow-lg flex items-center gap-1"
+                  style={{ backgroundColor: `${color_primario}30`, borderColor: color_primario, color: '#FFFFFF' }}>
+                  <span>⭐</span> {plan_tier === 'elite' ? 'Business Elite' : plan_tier === 'business' ? 'Business' : 'Pro'}
                 </div>
               )}
             </div>
-          </div>
+            <div className={`relative px-6 ${logoPosition === 'left' ? 'text-left' : 'text-center'} -mt-14 mb-4 z-10`}>
+              <div className="inline-block relative">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 shadow-2xl flex items-center justify-center overflow-hidden border-2 bg-[#0a0a10]"
+                  style={{ borderColor: color_primario, boxShadow: `0 0 24px ${color_primario}40` }}>
+                  {activeLogo ? (
+                    <img src={activeLogo} alt={nombre} className="w-full h-full object-contain rounded-xl" style={{ transform: `scale(${logo_scale / 100})` }} />
+                  ) : (
+                    <div className="w-full h-full rounded-xl flex items-center justify-center font-bruno text-2xl font-bold text-white" style={{ backgroundColor: color_primario }}>
+                      {nombre ? nombre.charAt(0).toUpperCase() : '★'}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+                {puesto && <p className="text-sm font-semibold tracking-wide mt-1 uppercase" style={{ color: color_primario }}>{puesto}</p>}
+                {empresa && <p className="text-xs font-mono tracking-wider opacity-80 mt-0.5">{empresa}</p>}
+              </div>
+            </div>
+          </>
+        )}
 
-          {/* NOMBRE Y PUESTO */}
-          <div className="mt-3">
-            <h1
-              className="text-2xl sm:text-3xl font-bold tracking-tight text-white"
-              style={{ fontFamily: currentFontPrimary }}
-            >
-              {nombre} {apellido}
-            </h1>
-            
-            {puesto && (
-              <p
-                className="text-sm font-semibold tracking-wide mt-1 uppercase"
-                style={{ color: color_primario }}
-              >
-                {puesto}
-              </p>
-            )}
+        {/* ── LAYOUT: CLÁSICO CORPORATIVO ────────────────────────────
+            Header color sólido → logo centrado en marco blanco  */}
+        {theme === 'classic' && (
+          <>
+            <div className="h-36 w-full relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: color_secundario }}>
+              {activeCover ? (
+                <img src={activeCover} alt="Cover" className="w-full h-full object-cover"
+                  style={{ objectPosition: `center ${cover_position_y}%`, transform: `scale(${cover_zoom/100})`, transformOrigin: `center ${cover_position_y}%` }} />
+              ) : (
+                <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              )}
+            </div>
+            <div className="px-6 -mt-14 relative z-20 flex flex-col items-center text-center">
+              <div className="w-24 h-24 rounded-2xl border-4 border-white overflow-hidden shadow-xl bg-white flex items-center justify-center"
+                style={{ boxShadow: `0 4px 20px ${color_primario}30` }}>
+                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '🏢'}</div>}
+              </div>
+              <div className="mt-4 w-full">
+                <h1 className="text-2xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: '#1E293B' }}>{nombre} {apellido}</h1>
+                <div className="h-1.5 w-16 my-2.5 mx-auto rounded-full" style={{ backgroundColor: color_secundario }} />
+                <p className="text-base font-bold" style={{ color: color_primario }}>{puesto}</p>
+                {empresa && <p className="text-xs text-gray-500 font-mono mt-1">{empresa}</p>}
+              </div>
+            </div>
+          </>
+        )}
 
-            {empresa && (
-              <p className="text-xs font-mono tracking-wider opacity-80 mt-0.5">
-                {empresa}
-              </p>
-            )}
+        {/* ── LAYOUT: MINIMALISTA EJECUTIVO ──────────────────────────
+            Sin cover · línea geométrica · editorial centrado     */}
+        {theme === 'minimal' && (
+          <div className="px-8 pt-8 pb-4 flex flex-col items-center text-center gap-4">
+            <div className="flex items-center gap-3 w-full justify-center">
+              <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: color_primario }} />
+              <div className="w-20 h-20 rounded-xl overflow-hidden border flex items-center justify-center bg-gray-50"
+                style={{ borderColor: `${color_primario}40` }}>
+                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '◻'}</div>}
+              </div>
+              <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: color_primario }} />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: '#0F172A' }}>{nombre} {apellido}</h1>
+              {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
+              {empresa && <p className="text-xs text-gray-400 font-mono mt-0.5">{empresa}</p>}
+            </div>
           </div>
-        </div>
+        )}
+
+
 
         {/* CONTENIDO Y SECCIONES */}
         <div className="px-5 sm:px-6 space-y-4">
