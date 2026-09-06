@@ -347,7 +347,8 @@ export default function LandingPage() {
             <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-[#EE334E]/50 transition-colors group">
               <h3 className="text-xl font-bold text-white mb-2">Profesional</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">Pro</span>
+                <span className="text-4xl font-extrabold text-white">$199</span>
+                <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
                 Ideal para freelancers, consultores y pequeños equipos.
@@ -375,7 +376,8 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Empresa</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">Business</span>
+                <span className="text-4xl font-extrabold text-white">$249</span>
+                <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
                 Para corporativos en crecimiento con equipos de ventas estructurados.
@@ -403,7 +405,9 @@ export default function LandingPage() {
             <motion.div variants={fadeIn} className="bg-gradient-to-b from-[#1a1525] to-[#0a0a10] border border-purple-500/30 rounded-3xl p-8 flex flex-col hover:border-purple-500/60 transition-colors group">
               <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-[#EE334E] mb-2">Elite Plus</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">Elite</span>
+                <span className="text-4xl font-extrabold text-white">$1,299</span>
+                <span className="text-slate-400 ml-1">/1er año</span>
+                <p className="text-xs text-purple-400 mt-2 font-semibold">+ iguala de $299/mes a partir del 2º mes</p>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
                 Control absoluto, expansión sin límites y máxima personalización.
