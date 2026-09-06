@@ -117,9 +117,9 @@ export default function PublicProfileClient({ profile = {} }) {
     font_family = 'Inter',
     font_primary = '',
     font_secondary = '',
-    color_primario = '#C8102E',
+    color_primario = '#ff0003',
     color_secundario = '#00E5FF',
-    color_cta = '#C8102E',
+    color_cta = '#ff0003',
     logo_scale = 100,
     cover_position_y = 50,
     cover_zoom = 100,
@@ -403,7 +403,7 @@ export default function PublicProfileClient({ profile = {} }) {
         {/* 4. TEMA GLASSMORPHISM FROST */}
         {theme === 'glassmorphism' && (
           <div className="p-6 flex flex-col items-center relative">
-            <div className="absolute top-6 -left-10 w-44 h-44 rounded-full bg-[#C8102E]/25 blur-3xl pointer-events-none"></div>
+            <div className="absolute top-6 -left-10 w-44 h-44 rounded-full bg-[#ff0003]/25 blur-3xl pointer-events-none"></div>
             <div className="absolute top-24 -right-10 w-44 h-44 rounded-full bg-[#00E5FF]/20 blur-3xl pointer-events-none"></div>
 
             {activeCover && (
@@ -467,7 +467,7 @@ export default function PublicProfileClient({ profile = {} }) {
         {theme === 'monolith' && (
           <div className="p-6 flex flex-col items-center text-center bg-[#0d0d0d] relative">
             <div
-              className="w-full h-1 rounded-full mb-4 shadow-[0_0_15px_rgba(200,16,46,0.5)]"
+              className="w-full h-1 rounded-full mb-4 shadow-[0_0_15px_rgba(255,0,3,0.5)]"
               style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, ${color_secundario}, transparent)` }}
             ></div>
 
@@ -771,7 +771,7 @@ export default function PublicProfileClient({ profile = {} }) {
                 <img
                   src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
                   alt="Logo"
-                  className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(200,16,46,0.6)]"
+                  className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,0,3,0.6)]"
                 />
               </div>
               <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
@@ -1089,11 +1089,11 @@ export default function PublicProfileClient({ profile = {} }) {
             href="https://tsolutionsipidd.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-mono text-gray-400 hover:text-white bg-black/40 hover:bg-black/80 border border-white/10 hover:border-[#C8102E]/50 transition-all group"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-mono text-gray-400 hover:text-white bg-black/40 hover:bg-black/80 border border-white/10 hover:border-[#ff0003]/50 transition-all group"
           >
-            <span className="text-[#C8102E] group-hover:scale-110 transition-transform">⚡</span>
+            <span className="text-[#ff0003] group-hover:scale-110 transition-transform">⚡</span>
             <span>{t('card_powered')}</span>
-            <span className="text-gray-500 group-hover:text-[#C8102E]">↗</span>
+            <span className="text-gray-500 group-hover:text-[#ff0003]">↗</span>
           </a>
 
           {/* Selector de Idioma en Tarjeta Pública */}

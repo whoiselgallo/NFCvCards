@@ -463,7 +463,7 @@ export default function AdminDashboardPage() {
       <section className="max-w-[1920px] mx-auto w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
           <p className="text-[11px] font-rosetta text-gray-400 uppercase">Total Perfiles</p>
-          <p className="text-2xl font-rosetta font-bold text-[#C8102E] mt-1">{metrics.total_profiles}</p>
+          <p className="text-2xl font-rosetta font-bold text-[#ff0003] mt-1">{metrics.total_profiles}</p>
         </div>
 
         <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
@@ -504,7 +504,7 @@ export default function AdminDashboardPage() {
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder="Buscar por Empresa, Nombre, Correo, Teléfono, Slug o Etiquetas..."
-              className="w-full bg-[#06060c] border border-gray-800 pl-10 pr-4 py-2.5 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#C8102E] transition-colors"
+              className="w-full bg-[#06060c] border border-gray-800 pl-10 pr-4 py-2.5 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff0003] transition-colors"
             />
             {searchQuery && (
               <button
@@ -522,7 +522,7 @@ export default function AdminDashboardPage() {
             <select
               value={selectedStatus}
               onChange={(e) => handleStatusFilter(e.target.value)}
-              className="bg-[#06060c] border border-gray-800 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-[#C8102E]"
+              className="bg-[#06060c] border border-gray-800 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-[#ff0003]"
             >
               <option value="all">Todos los Estados</option>
               <option value="active">Activo</option>
@@ -544,7 +544,7 @@ export default function AdminDashboardPage() {
               onClick={() => handleTagFilter('')}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
                 selectedTag === ''
-                  ? 'bg-[#C8102E] text-white font-extrabold shadow-[0_0_10px_rgba(200,16,46,0.3)]'
+                  ? 'bg-[#ff0003] text-white font-extrabold shadow-[0_0_10px_rgba(255,0,3,0.3)]'
                   : 'bg-black/40 text-gray-400 hover:text-white border border-gray-800'
               }`}
             >
@@ -571,7 +571,7 @@ export default function AdminDashboardPage() {
       <section className="max-w-[1920px] mx-auto w-full flex-1">
         {loadingProfiles ? (
           <div className="p-12 text-center text-gray-400">
-            <div className="w-8 h-8 border-3 border-[#C8102E] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <div className="w-8 h-8 border-3 border-[#ff0003] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
             <p className="text-xs font-rosetta">Cargando base de datos de Google Cloud SQL...</p>
           </div>
         ) : profiles.length === 0 ? (
@@ -589,12 +589,12 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={p.id}
-                  className="bg-[#090914] border border-gray-800 hover:border-[#C8102E]/50 rounded-2xl p-5 transition-all shadow-lg hover:shadow-[0_0_25px_rgba(200,16,46,0.12)] space-y-4"
+                  className="bg-[#090914] border border-gray-800 hover:border-[#ff0003]/50 rounded-2xl p-5 transition-all shadow-lg hover:shadow-[0_0_25px_rgba(255,0,3,0.12)] space-y-4"
                 >
                   {/* FILA 1: NOMBRE DE LA EMPRESA (PROMINENTE) & ESTADO & MODO */}
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-black border border-[#C8102E]/40 flex items-center justify-center text-base shrink-0 overflow-hidden shadow-inner">
+                      <div className="w-9 h-9 rounded-xl bg-black border border-[#ff0003]/40 flex items-center justify-center text-base shrink-0 overflow-hidden shadow-inner">
                         {p.logo_img ? (
                           <img src={p.logo_img} alt="Logo" className="w-full h-full object-contain p-1" />
                         ) : (
@@ -612,7 +612,7 @@ export default function AdminDashboardPage() {
                               ⭐ Review Mode
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[9px] font-rosetta bg-[#C8102E]/10 border border-[#C8102E]/30 text-[#EE334E]">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-rosetta bg-[#ff0003]/10 border border-[#ff0003]/30 text-[#EE334E]">
                               📇 vCard 3.0
                             </span>
                           )}
@@ -636,7 +636,7 @@ export default function AdminDashboardPage() {
                             ? 'bg-yellow-950/60 border-yellow-500/40 text-yellow-300'
                             : p.status === 'archived'
                             ? 'bg-gray-800 border-gray-700 text-gray-400'
-                            : 'bg-[#C8102E]/20 border-[#C8102E]/50 text-[#EE334E]'
+                            : 'bg-[#ff0003]/20 border-[#ff0003]/50 text-[#EE334E]'
                         }`}
                       >
                         <option value="active" className="bg-[#090914] text-[#EE334E]">● Activo</option>
@@ -662,10 +662,10 @@ export default function AdminDashboardPage() {
                       <p className="text-gray-400 text-[10px] uppercase tracking-wider font-rosetta">Contacto</p>
                       <div className="mt-0.5 space-y-0.5 text-[11px] font-mono">
                         {p.telefono && (
-                          <p className="text-gray-300">📞 <a href={`tel:${p.telefono}`} className="hover:text-[#C8102E]">{p.telefono}</a></p>
+                          <p className="text-gray-300">📞 <a href={`tel:${p.telefono}`} className="hover:text-[#ff0003]">{p.telefono}</a></p>
                         )}
                         {p.correo && (
-                          <p className="text-gray-300 truncate">✉️ <a href={`mailto:${p.correo}`} className="hover:text-[#C8102E]">{p.correo}</a></p>
+                          <p className="text-gray-300 truncate">✉️ <a href={`mailto:${p.correo}`} className="hover:text-[#ff0003]">{p.correo}</a></p>
                         )}
                         {p.whatsapp && (
                           <p className="text-green-400">💬 <a href={`https://wa.me/${p.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="hover:underline">WA: {p.whatsapp}</a></p>
@@ -724,7 +724,7 @@ export default function AdminDashboardPage() {
                       <button
                         onClick={() => downloadProfileZip(p)}
                         disabled={isZippingId === p.id}
-                        className="px-3 py-1.5 bg-[#C8102E]/10 hover:bg-[#C8102E] text-[#EE334E] hover:text-white font-bold rounded-lg text-xs font-rosetta border border-[#C8102E]/30 transition-all flex items-center gap-1.5"
+                        className="px-3 py-1.5 bg-[#ff0003]/10 hover:bg-[#ff0003] text-[#EE334E] hover:text-white font-bold rounded-lg text-xs font-rosetta border border-[#ff0003]/30 transition-all flex items-center gap-1.5"
                       >
                         {isZippingId === p.id ? (
                           <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -769,11 +769,11 @@ export default function AdminDashboardPage() {
       {/* MODAL DE EDICIÓN INTEGRAL (TODOS LOS CAMPOS DE CREACIÓN DE LA PLATAFORMA) */}
       {editingProfile && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-[#C8102E]/50 w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-[0_0_50px_rgba(200,16,46,0.3)] flex flex-col overflow-hidden animate-scaleIn">
+          <div className="bg-[#0c0c16] border border-[#ff0003]/50 w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-[0_0_50px_rgba(255,0,3,0.3)] flex flex-col overflow-hidden animate-scaleIn">
             
             {/* Header Modal Edición */}
             <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-2 text-[#C8102E]">
+              <div className="flex items-center gap-2 text-[#ff0003]">
                 <span className="text-xl">✏️</span>
                 <div>
                   <h3 className="font-rosetta text-sm font-bold text-white">
@@ -795,7 +795,7 @@ export default function AdminDashboardPage() {
               
               {/* SECCIÓN 1: DATOS PERSONALES & EMPRESA */}
               <div className="space-y-3 bg-[#080810] p-4 rounded-xl border border-gray-800">
-                <h4 className="font-rosetta text-[#C8102E] text-xs uppercase flex items-center gap-1.5">
+                <h4 className="font-rosetta text-[#ff0003] text-xs uppercase flex items-center gap-1.5">
                   <span>🏢</span> Datos Principales & Empresa
                 </h4>
                 
@@ -1061,13 +1061,13 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center gap-1.5">
                       <input
                         type="color"
-                        value={editingProfile.color_primario || '#C8102E'}
+                        value={editingProfile.color_primario || '#ff0003'}
                         onChange={(e) => setEditingProfile({ ...editingProfile, color_primario: e.target.value })}
                         className="w-7 h-7 rounded border-0 bg-transparent cursor-pointer"
                       />
                       <input
                         type="text"
-                        value={editingProfile.color_primario || '#C8102E'}
+                        value={editingProfile.color_primario || '#ff0003'}
                         onChange={(e) => setEditingProfile({ ...editingProfile, color_primario: e.target.value })}
                         className="input-dark w-full font-mono text-[11px] uppercase h-7 px-1.5"
                       />
@@ -1097,13 +1097,13 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center gap-1.5">
                       <input
                         type="color"
-                        value={editingProfile.color_cta || '#C8102E'}
+                        value={editingProfile.color_cta || '#ff0003'}
                         onChange={(e) => setEditingProfile({ ...editingProfile, color_cta: e.target.value })}
                         className="w-7 h-7 rounded border-0 bg-transparent cursor-pointer"
                       />
                       <input
                         type="text"
-                        value={editingProfile.color_cta || '#C8102E'}
+                        value={editingProfile.color_cta || '#ff0003'}
                         onChange={(e) => setEditingProfile({ ...editingProfile, color_cta: e.target.value })}
                         className="input-dark w-full font-mono text-[11px] uppercase h-7 px-1.5"
                       />
@@ -1199,7 +1199,7 @@ export default function AdminDashboardPage() {
                 <button
                   type="submit"
                   disabled={editSaving}
-                  className="px-6 py-2 bg-[#C8102E] text-white font-rosetta font-bold rounded-xl text-xs hover:bg-[#EE334E] transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(200,16,46,0.3)]"
+                  className="px-6 py-2 bg-[#ff0003] text-white font-rosetta font-bold rounded-xl text-xs hover:bg-[#EE334E] transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(255,0,3,0.3)]"
                 >
                   {editSaving ? (
                     <>
@@ -1295,7 +1295,7 @@ export default function AdminDashboardPage() {
 
             <div className="p-3 bg-black/60 border border-gray-800 rounded-xl text-xs space-y-1">
               <p className="text-white font-bold">{deleteModalProfile.nombre} {deleteModalProfile.apellido}</p>
-              <p className="text-[#C8102E] font-mono text-[11px]">{deleteModalProfile.empresa}</p>
+              <p className="text-[#ff0003] font-mono text-[11px]">{deleteModalProfile.empresa}</p>
               <p className="text-gray-500 font-mono text-[10px]">Slug: /p/{deleteModalProfile.slug}</p>
             </div>
 
