@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import JSZip from 'jszip';
-import brandConfig from '../brand.config';
-import { generateDeliveryInstructions } from '../lib/brand';
+import brandConfig from '../../brand.config';
+import { generateDeliveryInstructions } from '../../lib/brand';
 
 // Temas Estructurales de la Tarjeta del Cliente
 const THEMES = {
