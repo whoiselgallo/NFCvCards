@@ -1,2935 +1,327 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
-import JSZip from 'jszip';
+import React from 'react';
+import Link from 'next/link';
+import { 
+  CheckCircle2, 
+  Nfc, 
+  Cloud, 
+  Smartphone, 
+  ShieldCheck, 
+  BarChart3,
+  Star,
+  Zap,
+  ArrowRight
+} from 'lucide-react';
 import brandConfig from '../brand.config';
-import { generateDeliveryInstructions } from '../lib/brand';
-import { getTranslation } from '../lib/i18n';
 
-// Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
-const THEMES = {
-  classic: {
-    id: 'classic',
-    name: 'Clásico Corporativo',
-    badge: 'Formal',
-    desc: 'Cabecera vibrante, logotipo centrado y pastillas de contacto',
-    bgColor: '#ffffff',
-    textColor: '#1e293b',
-    subTextColor: '#64748b'
-  },
-  modern: {
-    id: 'modern',
-    name: 'Cyber Modern Dark',
-    badge: 'Tecnología',
-    desc: 'Lienzo oscuro con acentos luminosos y doble glow',
-    bgColor: '#090912', textColor: '#f8fafc', subTextColor: '#94a3b8',
-    layout: 'cover_float'
-  },
-  classic: {
-    id: 'classic', name: 'Clásico Corporativo', icon: '🏢',
-    desc: 'Cabecera vibrante, logotipo centrado en marco blanco',
-    bgColor: '#ffffff', textColor: '#1e293b', subTextColor: '#64748b',
-    layout: 'header_center'
-  },
-  minimal: {
-    id: 'minimal',
-    name: 'Minimalista Ejecutivo',
-    badge: 'Clean',
-    desc: 'Estilo editorial geométrico centrado y alto contraste',
-    bgColor: '#fafafa',
-    textColor: '#0f172a',
-    subTextColor: '#475569'
-  },
-  glassmorphism: {
-    id: 'glassmorphism',
-    name: 'Glassmorphism Frost',
-    badge: 'Vanguardia',
-    desc: 'Efecto cristal esmerilado, reflejos translúcidos y glow suave',
-    bgColor: '#0b0f19',
-    textColor: '#f1f5f9',
-    subTextColor: '#94a3b8'
-  },
-  monolith: {
-    id: 'monolith',
-    name: 'Monolito Luxury VIP',
-    badge: 'High-End',
-    desc: 'Obsidiana profunda, destellos metalizados y lujo refinado',
-    bgColor: '#0d0d0d',
-    textColor: '#f5f5f5',
-    subTextColor: '#a3a3a3'
-  },
-  neobrutalism: {
-    id: 'neobrutalism',
-    name: 'Neo-Brutalism Pop',
-    badge: 'Impacto',
-    desc: 'Bordes gruesos 3px, sombras rígidas y alto impacto visual',
-    bgColor: '#fffdfa',
-    textColor: '#000000',
-    subTextColor: '#262626'
-  },
-  split_hero: {
-    id: 'split_hero',
-    name: 'Hero Asimétrico',
-    badge: 'Dinámico',
-    desc: 'Cabecera diagonal, disposición dinámica y corte moderno',
-    bgColor: '#0a0e17',
-    textColor: '#ffffff',
-    subTextColor: '#94a3b8'
-  },
-  bento_grid: {
-    id: 'bento_grid',
-    name: 'Bento Grid Tech',
-    badge: 'Modular',
-    desc: 'Mosaico modular estilo Apple con micro-cards interactivas',
-    bgColor: '#0f0f14',
-    textColor: '#f8fafc',
-    subTextColor: '#a1a1aa'
-  },
-  cyber_matrix: {
-    id: 'cyber_matrix',
-    name: 'Cyber Neon Matrix',
-    badge: 'Sci-Fi HUD',
-    desc: 'Terminal cibernética con HUD brackets y halo reactivo',
-    bgColor: '#050508',
-    textColor: '#f8fafc',
-    subTextColor: '#71717a'
-  },
-  editorial_swiss: {
-    id: 'editorial_swiss',
-    name: 'Suizo Editorial Clean',
-    badge: 'Modernist',
-    desc: 'Diseño internacional suizo, líneas finas y blanco puro',
-    bgColor: '#ffffff',
-    textColor: '#09090b',
-    subTextColor: '#71717a'
-  }
-};
-
-const POPULAR_FONTS = [
-  { label: 'Inter (Moderna y Limpia)', value: 'Inter' },
-  { label: 'Bruno Ace SC (Branding Tecnológico)', value: 'Bruno Ace SC' },
-  { label: 'Space Grotesk (Futurista)', value: 'Space Grotesk' },
-  { label: 'Playfair Display (Elegante & Editorial)', value: 'Playfair Display' },
-  { label: 'Montserrat (Geométrica)', value: 'Montserrat' },
-  { label: 'Poppins (Amigable y Redonda)', value: 'Poppins' },
-  { label: 'Bebas Neue (Impacto & Mayúsculas)', value: 'Bebas Neue' },
-  { label: 'Outfit (Vanguardista)', value: 'Outfit' },
-  { label: 'Cinzel (Lujo / Clásica)', value: 'Cinzel' },
-  { label: 'Oswald (Condensada / Firme)', value: 'Oswald' },
-  { label: 'Syne (Alta Moda / Diseño)', value: 'Syne' },
-  { label: 'Roboto (Estándar Android)', value: 'Roboto' }
-];
-
-// Helper para sanitizar y autocomponer URLs de Redes Sociales
-export function getSocialUrl(type, value) {
-  if (!value || !value.trim()) return '';
-  const trimmed = value.trim();
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-    return trimmed;
-  }
-  const clean = trimmed.replace(/^@+/, '').replace(/^https?:\/\/(www\.)?(facebook|instagram|linkedin)\.com\/(in\/)?/, '');
-  if (type === 'facebook') return `https://facebook.com/${clean}`;
-  if (type === 'instagram') return `https://instagram.com/${clean}`;
-  if (type === 'linkedin') return `https://linkedin.com/in/${clean}`;
-  return trimmed;
-}
-
-// Generador Inteligente de URL de Google Maps
-export function getEffectiveMapsUrl(formData) {
-  if (formData.googleMapsUrl && formData.googleMapsUrl.trim().startsWith('http')) {
-    return formData.googleMapsUrl.trim();
-  }
-  
-  const parts = [];
-  if (formData.calle?.trim()) parts.push(formData.calle.trim());
-  if (formData.ciudad?.trim()) parts.push(formData.ciudad.trim());
-  if (formData.estado?.trim()) parts.push(formData.estado.trim());
-  if (formData.pais?.trim()) parts.push(formData.pais.trim());
-
-  if (parts.length > 0) {
-    const query = (formData.empresa?.trim() ? formData.empresa.trim() + ', ' : '') + parts.join(', ');
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-  } else if (formData.empresa?.trim()) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formData.empresa.trim())}`;
-  }
-  return '';
-}
-
-export default function VCardEngineDashboard() {
-  const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
-
-  // Datos del Formulario - LIMPIOS POR DEFECTO
-  const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    empresa: '',
-    puesto: '',
-    telefono: '',
-    whatsapp: '',
-    correo: '',
-    url: '',
-    linkedin: '',
-    instagram: '',
-    facebook: '',
-    calle: '',
-    ciudad: '',
-    estado: '',
-    cp: '',
-    pais: '',
-    nota: '',
-    googleMapsUrl: '',
-    videoYoutubeUrl: ''
-  });
-
-  // Configuración de la Tarjeta del Cliente (100% Independiente de la Plataforma)
-  const [design, setDesign] = useState({
-    fontPrimary: 'Inter',       // Tipografía Primaria: Nombre & Botón Guardar Contacto
-    fontSecondary: 'Inter',     // Tipografía Secundaria: Puesto, Empresa y Contenido
-    colorPrimario: '#ff0003',   // Color 1 del Cliente (Rojo Núcleo #ff0003)
-    colorSecundario: '#00E5FF', // Color 2 del Cliente (Franjas / Badges / Íconos)
-    colorCTA: '#ff0003',        // Color 3 del Cliente (Botón Guardar Contacto)
-    theme: 'modern',
-    logoScale: 100,
-    coverPositionY: 50,         // Slider 1: Deslizar Arriba / Abajo (0% a 100%)
-    coverZoom: 100,             // Slider 2: Acercar / Alejar (100% a 250%)
-    
-    // NUEVO MÓDULO DE DISEÑO LIBRE
-    hideBanner: false,          // Toggle para quitar el banner/portada
-    logoPosition: 'center',     // center, left, right, hidden
-    hideBio: false,             // Toggle contenedor Nota/Bio
-    hideContact: false,         // Toggle contenedor Canales de Contacto Directo
-    hideSocial: false,          // Toggle contenedor Redes Sociales
-    hideMap: false,             // Toggle contenedor de Maps
-    hideVideo: false,           // Toggle contenedor de Video
-    customLabels: {
-      bio: 'Nota / Bio / Propuesta de Valor',
-      contact: 'Canales de Contacto Directo',
-      social: 'Redes Sociales',
-      portfolio: 'Portafolio & Proyectos',
-      gallery: 'Fototeca & Instalaciones',
-      reviews: 'Reseñas de Clientes'
-    }
-  });
-
-  // Imágenes de la Tarjeta
-  const [logoImg, setLogoImg] = useState(null);
-  const [coverPhoto, setCoverPhoto] = useState(null);
-
-  // Estado de guardado en la nube
-  const [isSaving, setIsSaving] = useState(false);
-  const [savedUrl, setSavedUrl] = useState('');
-  const [savedSuccess, setSavedSuccess] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [isZipping, setIsZipping] = useState(false);
-
-  // Estados de Idioma (Español base + auto-detección flexible)
-  const [lang, setLang] = useState('es');
-
-  // Estados de Logística y Envíos (Mexicali 100% Gratis vs DHL/UPS)
-  const [shippingLocation, setShippingLocation] = useState('mexicali'); // 'mexicali' | 'mexico_dhl' | 'world_ups'
-
-  // Detección automática del idioma del navegador en cliente
-  useEffect(() => {
-    if (typeof window !== 'undefined' && navigator.language) {
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith('en')) {
-        setLang('en');
-      } else {
-        setLang('es');
-      }
-    }
-  }, []);
-
-  // Función helper t() para traducir
-  const t = (key) => getTranslation(lang, key);
-
-  // Estados de Pasarela de Pago y Desbloqueo Comercial
-  const [isPaid, setIsPaid] = useState(false);
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' });
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [unlockedItems, setUnlockedItems] = useState({ qr: false, vcf: false, cloud: false, letter: false, bundle: false });
-
-  // Detección de Retorno de Pago Exitoso en Stripe (Stripe Checkout Redirect)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const paymentStatus = urlParams.get('payment_status');
-      const item = urlParams.get('item') || 'bundle';
-
-      if (paymentStatus === 'success') {
-        setIsPaid(true);
-        if (item === 'bundle') {
-          setUnlockedItems({ qr: true, vcf: true, cloud: true, letter: true, bundle: true });
-        } else {
-          setUnlockedItems(prev => ({ ...prev, [item]: true }));
-        }
-        window.history.replaceState({}, document.title, window.location.pathname);
-        alert('🎉 ¡Pago procesado con éxito en Stripe!\nTus entregables han sido desbloqueados para descarga inmediata.');
-      } else if (paymentStatus === 'cancelled') {
-        window.history.replaceState({}, document.title, window.location.pathname);
-        alert('El pago fue cancelado. Puedes reintentar cuando gustes.');
-      }
-    }
-  }, []);
-
-  // Procesamiento de Pago Seguro (Stripe Checkout Oficial)
-  const handleProcessPayment = async () => {
-    setIsProcessingPayment(true);
-
-    if (paymentMethod === 'card') {
-      try {
-        const res = await fetch('/api/checkout/stripe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            productId: selectedProduct.id,
-            name: selectedProduct.name,
-            price: selectedProduct.price,
-            shippingLocation,
-            customerEmail: formData.correo,
-            slug: baseCardSlug
-          })
-        });
-
-        const data = await res.json();
-        if (data.success && data.url) {
-          // Redirección directa al Checkout Oficial y Seguro de Stripe
-          window.location.href = data.url;
-          return;
-        } else {
-          throw new Error(data.error || 'No se pudo generar la sesión de pago con Stripe');
-        }
-      } catch (err) {
-        console.error('Error con Stripe Checkout:', err);
-        alert('Error al conectar con Stripe: ' + err.message + '\nActivando modo de desbloqueo alternativo...');
-      }
-    }
-
-    // Fallback o métodos alternativos (SPEI / MP / PayPal)
-    setTimeout(() => {
-      setIsProcessingPayment(false);
-      setIsPaid(true);
-      if (selectedProduct.id === 'bundle') {
-        setUnlockedItems({ qr: true, vcf: true, cloud: true, letter: true, bundle: true });
-      } else {
-        setUnlockedItems(prev => ({ ...prev, [selectedProduct.id]: true }));
-      }
-      setShowCheckoutModal(false);
-      alert(`¡Pago de $${selectedProduct.price} MXN procesado con éxito!\nFolio Oficial: TS-PAY-${Math.floor(100000 + Math.random() * 900000)}\nEntregable desbloqueado de inmediato.`);
-      
-      if (selectedProduct.id === 'bundle') {
-        downloadFullPackage();
-      } else if (selectedProduct.id === 'qr') {
-        downloadQR();
-      } else if (selectedProduct.id === 'vcf') {
-        downloadVCF();
-      } else if (selectedProduct.id === 'cloud') {
-        handleSaveToCloud();
-      } else if (selectedProduct.id === 'letter') {
-        setShowEmailModal(true);
-      }
-    }, 1200);
-  };
-
-  // Inyección reactiva de Google Fonts (Primaria + Secundaria)
-  useEffect(() => {
-    const fontP = design.fontPrimary || 'Inter';
-    const fontS = design.fontSecondary || 'Inter';
-    const uniqueFonts = Array.from(new Set([fontP, fontS]));
-
-    const linkId = 'gfonts-preview-cdn';
-    let link = document.getElementById(linkId);
-    if (!link) {
-      link = document.createElement('link');
-      link.id = linkId;
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-    const fontParams = uniqueFonts
-      .map(f => `family=${encodeURIComponent(f)}:wght@300;400;500;600;700;800`)
-      .join('&');
-    link.href = `https://fonts.googleapis.com/css2?${fontParams}&display=swap`;
-  }, [design.fontPrimary, design.fontSecondary]);
-
-  const handleInputChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleDesignChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setDesign(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
-    }));
-  };
-
-  const handleCustomLabelChange = (e) => {
-    const { name, value } = e.target;
-    setDesign(prev => ({
-      ...prev,
-      customLabels: {
-        ...prev.customLabels,
-        [name]: value
-      }
-    }));
-  };
-
-  // Extractor de color dominante del logotipo
-  const extractDominantColor = (imgSrc) => {
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-    img.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 40;
-        canvas.height = 40;
-        ctx.drawImage(img, 0, 0, 40, 40);
-        const data = ctx.getImageData(0, 0, 40, 40).data;
-        
-        let maxScore = 0;
-        let bestHex = null;
-
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i+1];
-          const b = data[i+2];
-          const a = data[i+3];
-
-          if (a < 100) continue;
-          
-          const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-          if (brightness < 30 || brightness > 230) continue;
-
-          const max = Math.max(r, g, b);
-          const min = Math.min(r, g, b);
-          const saturation = max === 0 ? 0 : (max - min) / max;
-          const score = saturation * 100 + (max - min);
-
-          if (score > maxScore) {
-            maxScore = score;
-            bestHex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-          }
-        }
-
-        if (bestHex) {
-          setDesign(prev => ({
-            ...prev,
-            colorPrimario: bestHex,
-            colorCTA: bestHex
-          }));
-        }
-      } catch (e) {
-        console.log('Dominant color extraction fallback:', e);
-      }
-    };
-    img.src = imgSrc;
-  };
-
-  const handleLogoUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const result = evt.target?.result;
-        setLogoImg(result);
-        if (result) {
-          extractDominantColor(result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCoverUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (evt) => setCoverPhoto(evt.target?.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const effectiveMapsUrl = getEffectiveMapsUrl(formData);
-
-  // URLs completas de redes sociales
-  const fbUrl = getSocialUrl('facebook', formData.facebook);
-  const igUrl = getSocialUrl('instagram', formData.instagram);
-  const inUrl = getSocialUrl('linkedin', formData.linkedin);
-
-  // Construir string vCard 3.0 para cálculo de bytes y descarga
-  const buildVCardString = () => {
-    let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
-    vcard += `N:${formData.apellido || ''};${formData.nombre || ''};;;\r\n`;
-    vcard += `FN:${(formData.nombre + ' ' + formData.apellido).trim()}\r\n`;
-    if (formData.empresa) vcard += `ORG:${formData.empresa}\r\n`;
-    if (formData.puesto) vcard += `TITLE:${formData.puesto}\r\n`;
-    if (formData.telefono) vcard += `TEL;TYPE=CELL,VOICE:${formData.telefono}\r\n`;
-    if (formData.whatsapp) vcard += `TEL;TYPE=CELL,VOICE,WA:${formData.whatsapp}\r\n`;
-    if (formData.correo) vcard += `EMAIL;TYPE=WORK,INTERNET:${formData.correo}\r\n`;
-    if (formData.url) vcard += `URL;TYPE=WORK:${formData.url}\r\n`;
-    if (inUrl) vcard += `URL;TYPE=LinkedIn:${inUrl}\r\n`;
-    if (igUrl) vcard += `URL;TYPE=Instagram:${igUrl}\r\n`;
-    if (fbUrl) vcard += `URL;TYPE=Facebook:${fbUrl}\r\n`;
-    if (formData.calle || formData.ciudad || formData.estado || formData.cp || formData.pais) {
-      vcard += `ADR;TYPE=WORK:;;${formData.calle || ''};${formData.ciudad || ''};${formData.estado || ''};${formData.cp || ''};${formData.pais || ''}\r\n`;
-    }
-    if (effectiveMapsUrl) vcard += `NOTE:Google Maps: ${effectiveMapsUrl}\\n${formData.nota || ''}\r\n`;
-    else if (formData.nota) vcard += `NOTE:${formData.nota}\r\n`;
-    vcard += `END:VCARD`;
-    return vcard;
-  };
-
-  const vcardString = buildVCardString();
-  const vcardBytes = new Blob([vcardString]).size;
-
-  // Obtener Blob o DataURL del QR en alta resolución
-  const getQRPNGData = () => {
-    return new Promise((resolve) => {
-      const svg = document.getElementById('preview-qr-code-svg');
-      if (!svg) {
-        resolve(null);
-        return;
-      }
-
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-
-      canvas.width = 1200;
-      canvas.height = 1200;
-
-      img.onload = () => {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 60, 60, 1080, 1080);
-        canvas.toBlob((blob) => {
-          resolve(blob);
-        }, 'image/png');
-      };
-
-      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
-    });
-  };
-
-  // Descarga de archivo .vcf (Entregable 1)
-  const downloadVCF = () => {
-    const blob = new Blob([vcardString], { type: 'text/vcard;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${formData.nombre || 'contacto'}_${formData.apellido || 'vcard'}.vcf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  // Descarga de Código QR en PNG (Entregable 2)
-  const downloadQR = async () => {
-    const blob = await getQRPNGData();
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = brandConfig.delivery.qrFilename(formData.nombre, formData.empresa);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const activeTheme = THEMES[design.theme] || THEMES.modern;
-  const currentFontPrimary = design.fontPrimary || 'Inter';
-  const currentFontSecondary = design.fontSecondary || 'Inter';
-
-  // URL del Perfil de la Tarjeta Digital en Tiempo Real
-  const originUrl = typeof window !== 'undefined' ? window.location.origin : (brandConfig.website || 'https://rosecard.io');
-  const baseCardSlug = ((formData.nombre || 'card') + '-' + (formData.apellido || formData.empresa || 'profile'))
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'vcard';
-
-  const cardProfileUrl = savedUrl || `${originUrl}/p/${baseCardSlug}`;
-
-  const qrTargetValue = mode === 'review'
-    ? (effectiveMapsUrl || 'https://maps.google.com')
-    : cardProfileUrl;
-
-  // Etiqueta legible de la ubicación para la tarjeta
-  const locationLabel = [formData.ciudad, formData.pais].filter(Boolean).join(', ') || (formData.empresa ? `Buscar ${formData.empresa}` : 'Ver Ubicación en Maps');
-
-  // Redacción oficial del correo de entrega
-  const generateDeliveryEmailContent = () => {
-    const subject = brandConfig.delivery.emailSubject(formData.empresa);
-    const body = generateDeliveryInstructions({
-      nombre: formData.nombre,
-      apellido: formData.apellido,
-      empresa: formData.empresa,
-      slug: baseCardSlug,
-      originUrl: typeof window !== 'undefined' ? window.location.origin : originUrl
-    });
-
-    return { subject, body };
-  };
-
-  // Descarga del Paquete Completo en Archivo .ZIP
-  const downloadFullPackage = async () => {
-    setIsZipping(true);
-    try {
-      const zip = new JSZip();
-      const titular = `${formData.nombre || 'Contacto'}_${formData.apellido || 'Card'}`.trim();
-      const qrBlob = await getQRPNGData();
-      const { body: instrucciones } = generateDeliveryEmailContent();
-
-      // 1. Archivo .vcf
-      zip.file(`${titular}_Contacto.vcf`, vcardString);
-
-      // 2. Archivo QR .png
-      if (qrBlob) {
-        zip.file(`${titular}_QR_Oficial.png`, qrBlob);
-      }
-
-      // 3. Guía de Instrucciones en .txt
-      zip.file(brandConfig.delivery.instructionsFilename(titular), instrucciones);
-
-      // Generar y descargar el archivo .zip
-      const content = await zip.generateAsync({ type: 'blob' });
-      const url = URL.createObjectURL(content);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Paquete_Identidad_Digital_${titular}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      alert('Error al generar el archivo .zip: ' + err.message);
-    } finally {
-      setIsZipping(false);
-    }
-  };
-
-  // Abrir cliente de correo con el paquete y carta de entrega
-  const sendDeliveryEmail = () => {
-    const { subject, body } = generateDeliveryEmailContent();
-    const mailto = `mailto:${encodeURIComponent(formData.correo || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
-  };
-
-  // Guardar en Google Cloud SQL
-  const handleSaveToCloud = async () => {
-    setIsSaving(true);
-    setSavedSuccess(false);
-
-    try {
-      const payload = {
-        mode,
-        formData: {
-          ...formData,
-          facebook: fbUrl,
-          instagram: igUrl,
-          linkedin: inUrl,
-          googleMapsUrl: effectiveMapsUrl
-        },
-        design,
-        logoImg,
-        coverPhoto
-      };
-
-      const res = await fetch('/api/profiles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const json = await res.json();
-      if (json.success && json.slug) {
-        const fullUrl = `${window.location.origin}/p/${json.slug}`;
-        setSavedUrl(fullUrl);
-        setSavedSuccess(true);
-      } else {
-        alert('Error al guardar: ' + (json.error || 'No se pudo conectar a Google Cloud SQL'));
-      }
-    } catch (err) {
-      alert('Error de conexión con el servidor: ' + err.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#060509] text-[#F8FAFC]">
-      
-      {/* HEADER DE LA PLATAFORMA */}
-      <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-rose-900/30">
-        <div className="flex items-center gap-3.5">
-          <div className="rose-logo-container w-11 h-11 rounded-xl shadow-[0_0_16px_rgba(255,0,3,0.45)] border border-[#EE334E]/50 shrink-0 flex items-center justify-center">
-            <img
-              src={brandConfig.assets.logo || "/brand/logo.png"}
-              alt={brandConfig.brandName}
-              className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(238,51,78,0.7)]"
-            />
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide flex items-center gap-2">
-              {brandConfig.brandHeading.prefix} <span className="text-[#EE334E] drop-shadow-[0_0_12px_rgba(238,51,78,0.6)]">{brandConfig.brandHeading.highlight}</span> {brandConfig.brandHeading.suffix}
-            </h1>
-            <p className="text-gray-400 text-xs sm:text-sm mt-0.5">{brandConfig.brandDescription}</p>
-          </div>
-        </div>
-
-        {/* CONTROLES DE CABECERA: SELECTOR DE MODO, IDIOMA & ENLACE ADMIN */}
-        <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-          <div className="flex bg-[#0F0B15] p-1 rounded-xl border border-rose-900/40 shadow-inner">
-            <button
-              onClick={() => setMode('vcard')}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
-                mode === 'vcard'
-                  ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(255,0,3,0.6)]'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <span>📇</span> {t('mode_vcard')}
-            </button>
-            <button
-              onClick={() => setMode('review')}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
-                mode === 'review'
-                  ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(238,51,78,0.6)]'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <span>⭐</span> {t('mode_review')}
-            </button>
-          </div>
-
-          {/* Selector de Idioma Flexible (ES / EN) */}
-          <button
-            type="button"
-            onClick={() => setLang(l => (l === 'es' ? 'en' : 'es'))}
-            className="px-3 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-800 hover:border-[#FF2A54]/50 transition-all flex items-center gap-1.5 shadow-sm"
-            title={lang === 'es' ? 'Cambiar a Inglés' : 'Switch to Spanish'}
-          >
-            <span>{lang === 'es' ? '🇲🇽 ES' : '🇺🇸 EN'}</span>
-          </button>
-
-          {/* Enlace al Panel Administrativo Corporativo */}
-          <a
-            href="/admin"
-            className="px-3.5 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-300 border border-gray-800 transition-colors flex items-center gap-1.5 hidden sm:flex"
-            title="Panel Administrativo Centralizado"
-          >
-            <span>⚙️</span> {t('admin_btn')}
-          </a>
-
-          {/* Logo Oficial con Resplandor Cyber Rose */}
-          <div className="rose-logo-container hidden sm:flex shrink-0" title={brandConfig.brandName}>
-            <img src={brandConfig.assets.logo} alt="Rose Emblem" className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(255,42,84,0.7)]" />
-          </div>
-        </div>
-      </header>
-
-      {/* CONTENIDO PRINCIPAL EN 2 COLUMNAS */}
-      <main className="flex-1 flex flex-col lg:flex-row gap-8 max-w-[1920px] mx-auto w-full items-start">
-        
-        {/* COLUMNA 1: PANEL DE CONFIGURACIÓN */}
-        <section className="w-full lg:w-7/12 panel-glass p-6 md:p-8 space-y-6">
-          <h2 className="text-xl font-bruno text-[#FF2A54] flex items-center gap-2 border-b border-gray-800/80 pb-3">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            DATA INPUT & CONFIGURACIÓN
-          </h2>
-          
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-            
-            {mode === 'review' ? (
-              /* MODO GOOGLE REVIEWS */
-              <div className="bg-[#12121c] border border-[#ff0003]/30 rounded-xl p-5 space-y-4">
-                <div className="flex items-center gap-2 text-[#EE334E]">
-                  <span className="text-2xl">⭐</span>
-                  <div>
-                    <h3 className="text-sm font-rosetta font-bold">Configuración de Reseñas de Google</h3>
-                    <p className="text-xs text-gray-400">Redirección directa a la pantalla de 5 estrellas al acercar el teléfono</p>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Nombre del Negocio</label>
-                  <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Mi Empresa" />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Enlace de Reseñas de Google o Búsqueda Automática</label>
-                  <input type="url" name="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="input-dark w-full border-[#ff0003]/40" placeholder="https://g.page/r/tu-negocio/review o déjalo vacío para búsqueda automática" />
-                  <p className="text-[10px] text-gray-500 mt-1">Si lo dejas vacío, se generará automáticamente con el nombre de tu empresa y ciudad.</p>
-                </div>
-              </div>
-            ) : (
-              /* MODO VCARD: FLUJO ESTRUCTURADO EN 5 PASOS */
-              <>
-                {/* ========================================================= */}
-                {/* PASO 1: ACTIVOS VISUALES & ENCUADRE DE PORTADA            */}
-                {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">1</span>
-                      <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Activos Visuales & Encuadre</h3>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-400 uppercase">Logo PNG & Banner</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Logotipo */}
-                    <div>
-                      <label className="block text-xs font-rosetta text-[#F0F0F8] mb-1.5 uppercase tracking-wider">Logotipo Oficial (PNG Transparente)</label>
-                      <input
-                        type="file"
-                        accept="image/png, image/jpeg, image/jpg, image/webp"
-                        onChange={handleLogoUpload}
-                        className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#ff0003] file:text-white hover:file:bg-[#EE334E] transition-colors cursor-pointer"
-                      />
-                      <p className="text-[10px] text-gray-400 mt-1">🎨 PNG sin fondo para adaptarse a los auras luminosas.</p>
-                    </div>
-
-                    {/* Foto de Portada / Banner */}
-                    <div>
-                      <label className="block text-xs font-rosetta text-[#F0F0F8] mb-1.5 uppercase tracking-wider">Foto de Portada / Banner (16:9)</label>
-                      <input
-                        type="file"
-                        accept="image/png, image/jpeg, image/jpg, image/webp"
-                        onChange={handleCoverUpload}
-                        className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#ff0003] file:text-white hover:file:bg-[#EE334E] transition-colors cursor-pointer"
-                      />
-                      <p className="text-[10px] text-gray-400 mt-1">📸 Fotografía panorámica de oficina o gráfico publicitario.</p>
-                    </div>
-                  </div>
-
-                  {/* Slider de Escala del Logo */}
-                  <div className="pt-2 border-t border-gray-800/80">
-                    <div className="flex justify-between items-center text-xs font-rosetta text-[#EE334E] mb-1.5 uppercase font-bold">
-                      <span>Tamaño / Escala del Logo</span>
-                      <span className="text-white font-mono bg-black/60 px-2 py-0.5 rounded border border-[#EE334E]/30">{design.logoScale}px</span>
-                    </div>
-                    <input
-                      type="range"
-                      name="logoScale"
-                      min="50"
-                      max="160"
-                      value={design.logoScale}
-                      onChange={handleDesignChange}
-                      className="w-full slider-rose"
-                    />
-                    <div className="flex justify-between text-[10px] text-[#B1B3B3] mt-1.5 uppercase tracking-wide">
-                      <span>Compacto (50px)</span>
-                      <span>Prominente (160px)</span>
-                    </div>
-                  </div>
-
-                  {/* CONTROLES DE ENCUADRE DE BANNER */}
-                  {coverPhoto && (
-                    <div className="pt-3 border-t border-gray-800 space-y-3.5 bg-[#121114] p-4 rounded-xl border border-[#EE334E]/40 shadow-[0_0_15px_rgba(255,0,3,0.15)] animate-fadeIn">
-                      <div className="flex justify-between items-center text-xs font-rosetta text-[#EE334E]">
-                        <span className="flex items-center gap-1.5 font-bold">
-                          <span>🖼️</span> Ajuste de Encuadre del Banner
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setCoverPhoto(null)}
-                          className="text-[10px] text-red-400 hover:text-red-300 underline font-sans"
-                        >
-                          Quitar Foto
-                        </button>
-                      </div>
-
-                      {/* Slider 1: Deslizar Arriba y Abajo */}
-                      <div>
-                        <div className="flex justify-between text-[11px] text-gray-300 mb-1.5 font-mono">
-                          <span>↕️ Desplazamiento Vertical (Posición Y)</span>
-                          <span className="text-[#EE334E] font-bold bg-black/50 px-2 py-0.5 rounded border border-[#EE334E]/20">{design.coverPositionY}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          name="coverPositionY"
-                          min="0"
-                          max="100"
-                          value={design.coverPositionY}
-                          onChange={handleDesignChange}
-                          className="w-full slider-rose"
-                        />
-                      </div>
-
-                      {/* Slider 2: Acercar o Alejar (Zoom) */}
-                      <div>
-                        <div className="flex justify-between text-[11px] text-gray-300 mb-1.5 font-mono">
-                          <span>🔍 Zoom del Banner</span>
-                          <span className="text-[#EE334E] font-bold bg-black/50 px-2 py-0.5 rounded border border-[#EE334E]/20">{(design.coverZoom / 100).toFixed(1)}x</span>
-                        </div>
-                        <input
-                          type="range"
-                          name="coverZoom"
-                          min="100"
-                          max="250"
-                          value={design.coverZoom}
-                          onChange={handleDesignChange}
-                          className="w-full slider-rose"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* NUEVO: MÓDULO DE DISEÑO LIBRE */}
-                  <div className="pt-4 border-t border-gray-800/80 space-y-4">
-                    <h4 className="text-xs font-rosetta text-white font-bold uppercase tracking-wider flex items-center gap-2">
-                      <span className="text-[#EE334E]">🎨</span> Controles de Diseño Libre
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Ocultar / Mostrar Banner */}
-                      <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-800 bg-black/30 cursor-pointer hover:border-gray-600 transition-colors">
-                        <div className="relative flex items-center">
-                          <input type="checkbox" name="hideBanner" checked={design.hideBanner} onChange={handleDesignChange} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#EE334E]"></div>
-                        </div>
-                        <span className="text-xs text-gray-300 font-semibold uppercase tracking-wider">Ocultar Banner / Portada</span>
-                      </label>
-
-                      {/* Posición del Logotipo */}
-                      <div className="space-y-1">
-                        <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Posición del Logotipo</label>
-                        <select name="logoPosition" value={design.logoPosition} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                          <option value="center">Centrado (Por Defecto)</option>
-                          <option value="left">Alineado a la Izquierda</option>
-                          <option value="right">Alineado a la Derecha</option>
-                          <option value="hidden">Ocultar Logotipo</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Visibilidad de Contenedores de Información */}
-                    <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3 mt-2">
-                      <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Ocultar Contenedores de Información</h5>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideBio" checked={design.hideBio} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Nota / Bio</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideContact" checked={design.hideContact} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Datos de Contacto</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideSocial" checked={design.hideSocial} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Redes Sociales</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideMap" checked={design.hideMap} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Google Maps</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Etiquetas Personalizadas */}
-                    <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 mt-2 space-y-3">
-                      <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Etiquetas Personalizadas</h5>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Nota / Bio</label>
-                          <input type="text" name="bio" value={design.customLabels.bio} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Nota / Bio / Valor" />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Contacto</label>
-                          <input type="text" name="contact" value={design.customLabels.contact} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Canales de Contacto Directo" />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Redes Sociales</label>
-                          <input type="text" name="social" value={design.customLabels.social} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Redes Sociales" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* ========================================================= */}
-                {/* PASO 2: DATOS DE CONTACTO & REDES SOCIALES                */}
-                {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">2</span>
-                      <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Información & Redes Sociales</h3>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-400 uppercase">Datos de Contacto</span>
-                  </div>
-
-                  {/* NOMBRE Y APELLIDO */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Nombre</label>
-                      <input type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Javier" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Apellido</label>
-                      <input type="text" name="apellido" value={formData.apellido} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Gallardo" />
-                    </div>
-                  </div>
-
-                  {/* EMPRESA Y PUESTO */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Empresa</label>
-                      <input type="text" name="empresa" value={formData.empresa} onChange={handleInputChange} className="input-dark w-full" placeholder="TSolutions" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Puesto</label>
-                      <input type="text" name="puesto" value={formData.puesto} onChange={handleInputChange} className="input-dark w-full" placeholder="CEO / Consultor Estratega" />
-                    </div>
-                  </div>
-
-                  {/* TELÉFONO Y WHATSAPP */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Teléfono</label>
-                      <input type="tel" name="telefono" value={formData.telefono} onChange={handleInputChange} className="input-dark w-full" placeholder="+526860000000" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">WhatsApp</label>
-                      <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="input-dark w-full" placeholder="+526860000000" />
-                    </div>
-                  </div>
-
-                  {/* CORREO Y SITIO WEB */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Correo</label>
-                      <input type="email" name="correo" value={formData.correo} onChange={handleInputChange} className="input-dark w-full" placeholder="contacto@tudominio.com" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Sitio Web</label>
-                      <input type="url" name="url" value={formData.url} onChange={handleInputChange} className="input-dark w-full" placeholder="https://tudominio.com" />
-                    </div>
-                  </div>
-
-                  {/* REDES SOCIALES */}
-                  <div className="border-t border-gray-800 pt-4 space-y-3">
-                    <h4 className="text-xs font-rosetta text-[#EE334E] flex items-center gap-2 uppercase">
-                      <span>🌐</span> Redes Sociales (Solo Usuario)
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {/* Facebook */}
-                      <div>
-                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">Facebook</label>
-                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
-                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
-                            facebook.com/
-                          </span>
-                          <input
-                            type="text"
-                            name="facebook"
-                            value={formData.facebook}
-                            onChange={handleInputChange}
-                            placeholder="usuario"
-                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Instagram */}
-                      <div>
-                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">Instagram</label>
-                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
-                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
-                            instagram.com/
-                          </span>
-                          <input
-                            type="text"
-                            name="instagram"
-                            value={formData.instagram}
-                            onChange={handleInputChange}
-                            placeholder="usuario"
-                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
-                          />
-                        </div>
-                      </div>
-
-                      {/* LinkedIn */}
-                      <div>
-                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">LinkedIn</label>
-                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
-                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
-                            linkedin.com/in/
-                          </span>
-                          <input
-                            type="text"
-                            name="linkedin"
-                            value={formData.linkedin}
-                            onChange={handleInputChange}
-                            placeholder="tu-perfil"
-                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* YouTube Video URL */}
-                    <div className="mt-2">
-                      <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">Video de Presentación / Pitch (YouTube)</label>
-                      <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
-                        <span className="bg-[#12121c] text-red-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
-                          ▶ YouTube:
-                        </span>
-                        <input
-                          type="url"
-                          name="videoYoutubeUrl"
-                          value={formData.videoYoutubeUrl}
-                          onChange={handleInputChange}
-                          placeholder="https://youtu.be/... o https://youtube.com/watch?v=..."
-                          className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* DIRECCIÓN & GOOGLE MAPS */}
-                  <div className="border-t border-gray-800 pt-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-rosetta text-[#EE334E] flex items-center gap-2 uppercase">
-                        <span>📍</span> Dirección & Vinculación a Google Maps
-                      </h4>
-                      <span className="text-[10px] text-gray-400">Físico u Online</span>
-                    </div>
-
-                    <input type="text" name="calle" value={formData.calle} onChange={handleInputChange} className="input-dark w-full" placeholder="Calle y Número, Colonia (Dejar vacío si es 100% Online)" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <input type="text" name="ciudad" value={formData.ciudad} onChange={handleInputChange} className="input-dark w-full" placeholder="Ciudad (Ej. Mexicali)" />
-                      <input type="text" name="estado" value={formData.estado} onChange={handleInputChange} className="input-dark w-full" placeholder="Estado (Ej. Baja California)" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <input type="text" name="cp" value={formData.cp} onChange={handleInputChange} className="input-dark w-full" placeholder="Código Postal (Opcional)" />
-                      <input type="text" name="pais" value={formData.pais} onChange={handleInputChange} className="input-dark w-full" placeholder="País (Ej. México)" />
-                    </div>
-
-                    {/* CAJA INTELIGENTE DE MAPS */}
-                    <div className="bg-black/40 p-3.5 rounded-xl border border-gray-800 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-rosetta text-gray-300">Enlace en Google Maps:</span>
-                        {effectiveMapsUrl && (
-                          <a
-                            href={effectiveMapsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[10px] text-[#EE334E] hover:underline flex items-center gap-1 font-bold"
-                          >
-                            <span>🔍 Probar Maps ↗</span>
-                          </a>
-                        )}
-                      </div>
-
-                      <input
-                        type="url"
-                        name="googleMapsUrl"
-                        value={formData.googleMapsUrl}
-                        onChange={handleInputChange}
-                        className="input-dark w-full text-xs"
-                        placeholder="Opcional: Pega un link específico de Maps o déjalo vacío para búsqueda automática"
-                      />
-
-                      {effectiveMapsUrl ? (
-                        <p className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                          <span className="text-green-400">●</span> Destino: <span className="text-white truncate">{decodeURIComponent(effectiveMapsUrl.replace('https://www.google.com/maps/search/?api=1&query=', ''))}</span>
-                        </p>
-                      ) : (
-                        <p className="text-[10px] text-gray-500">
-                          💡 Se vinculará automáticamente al escribir el nombre de tu empresa, dirección o ciudad.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* NOTA / BIO */}
-                  <div className="border-t border-gray-800 pt-3">
-                    <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase tracking-wider">Nota / Bio / Propuesta de Valor</label>
-                    <textarea name="nota" value={formData.nota} onChange={handleInputChange} className="input-dark w-full h-20 py-2.5" placeholder="Soluciones digitales, optimización y desarrollo..."></textarea>
-                  </div>
-                </div>
-
-                {/* ========================================================= */}
-                {/* PASO 3: BRANDING, TIPOGRAFÍAS & COLORES                   */}
-                {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">3</span>
-                      <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Branding, Tipografías & Colores</h3>
-                    </div>
-                    <span className="text-[10px] font-mono text-gray-400 uppercase">Estilo Visual</span>
-                  </div>
-
-                  {/* SELECTOR DE TEMAS ESTRUCTURALES (10 TEMAS PROFESIONALES) */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="block text-xs text-gray-300 uppercase tracking-wide font-bold">Tema Estructural & Layout</label>
-                      <span className="text-[10px] font-mono text-[#EE334E] font-bold">10 Diseños Disponibles</span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-                      {Object.values(THEMES).map(th => (
-                        <button
-                          key={th.id}
-                          type="button"
-                          onClick={() => setDesign(prev => ({ ...prev, theme: th.id }))}
-                          className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between relative group ${
-                            design.theme === th.id
-                              ? 'bg-[#ff0003]/15 border-[#EE334E] shadow-[0_0_15px_rgba(255,0,3,0.35)] scale-[1.02]'
-                              : 'bg-black/40 border-gray-800/90 hover:border-gray-700 hover:bg-black/60'
-                          }`}
-                        >
-                          <div>
-                            <div className="flex items-center justify-between gap-1 mb-1.5">
-                              <span
-                                className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full font-bold border ${
-                                  design.theme === th.id
-                                    ? 'bg-[#ff0003] text-white border-[#EE334E]'
-                                    : 'bg-white/5 text-gray-400 border-white/10'
-                                }`}
-                              >
-                                {th.badge || 'Tema'}
-                              </span>
-                              {design.theme === th.id && (
-                                <span className="w-2 h-2 rounded-full bg-[#EE334E] animate-pulse"></span>
-                              )}
-                            </div>
-                            <p className={`text-xs font-rosetta font-bold leading-snug ${design.theme === th.id ? 'text-[#EE334E]' : 'text-white'}`}>
-                              {th.name}
-                            </p>
-                          </div>
-                          <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed line-clamp-2">{th.desc}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* SELECTORES DESPLEGABLES DE TIPOGRAFÍA */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs text-gray-300 mb-1 uppercase tracking-wide font-bold flex items-center gap-1.5">
-                        <span className="text-[#EE334E]">Aa</span> Tipografía Primaria
-                      </label>
-                      <select
-                        name="fontPrimary"
-                        value={design.fontPrimary}
-                        onChange={handleDesignChange}
-                        className="input-dark w-full cursor-pointer font-medium"
-                      >
-                        {POPULAR_FONTS.map(f => (
-                          <option key={f.value} value={f.value} className="bg-[#0A0A14] text-white">{f.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-300 mb-1 uppercase tracking-wide font-bold flex items-center gap-1.5">
-                        <span className="text-[#4A7AFF]">Aa</span> Tipografía Secundaria
-                      </label>
-                      <select
-                        name="fontSecondary"
-                        value={design.fontSecondary}
-                        onChange={handleDesignChange}
-                        className="input-dark w-full cursor-pointer font-medium"
-                      >
-                        {POPULAR_FONTS.map(f => (
-                          <option key={f.value} value={f.value} className="bg-[#0A0A14] text-white">{f.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* PALETA 3 COLORES */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">1. Color Primario</label>
-                      <div className="flex items-center gap-2">
-                        <input type="color" name="colorPrimario" value={design.colorPrimario} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
-                        <input type="text" name="colorPrimario" value={design.colorPrimario} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">2. Color Secundario</label>
-                      <div className="flex items-center gap-2">
-                        <input type="color" name="colorSecundario" value={design.colorSecundario} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
-                        <input type="text" name="colorSecundario" value={design.colorSecundario} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col bg-black/40 p-2.5 rounded-lg border border-gray-800">
-                      <label className="text-[10px] text-gray-300 mb-1 uppercase tracking-wide font-bold">3. Color CTA</label>
-                      <div className="flex items-center gap-2">
-                        <input type="color" name="colorCTA" value={design.colorCTA} onChange={handleDesignChange} className="w-8 h-8 rounded border-0 bg-transparent cursor-pointer shrink-0" />
-                        <input type="text" name="colorCTA" value={design.colorCTA} onChange={handleDesignChange} className="input-dark w-full h-8 text-xs font-mono uppercase px-2" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ========================================================= */}
-                {/* PASO 4: DESPLIEGUE EN GOOGLE CLOUD SQL                    */}
-                {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-[#ff0003]/40 rounded-2xl p-5 space-y-4 shadow-[0_0_30px_rgba(255,0,3,0.15)]">
-                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">4</span>
-                      <div>
-                        <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Despliegue en la Nube</h3>
-                        <p className="text-[10px] text-gray-400">Alojamiento de alta velocidad en Google Cloud SQL</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] font-mono text-gray-400 block uppercase">Módulo Individual</span>
-                      <span className="text-xs font-mono text-[#EE334E] font-bold">{isPaid || unlockedItems.cloud ? '✓ Incluido' : '$99 MXN'}</span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isPaid || unlockedItems.cloud) {
-                        handleSaveToCloud();
-                      } else {
-                        setSelectedProduct({ name: 'Módulo 3: Despliegue Cloud & Enlace Permanente (/p/[slug])', price: 99, id: 'cloud' });
-                        setShowCheckoutModal(true);
-                      }
-                    }}
-                    disabled={isSaving}
-                    className="btn-primary w-full text-sm tracking-wider flex items-center justify-center gap-2 py-3.5"
-                  >
-                    {isSaving ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>GUARDANDO EN GOOGLE CLOUD SQL...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>🚀</span>
-                        <span>{isPaid || unlockedItems.cloud ? 'GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)' : 'DESPLEGAR EN LA NUBE ($99 MXN O INCLUIDO EN PAQUETE)'}</span>
-                      </>
-                    )}
-                  </button>
-
-                  {/* Feedback y Enlace Permanente */}
-                  {savedUrl && (
-                    <div className="p-4 bg-black/60 border border-green-500/50 rounded-xl space-y-2 animate-fadeIn shadow-[0_0_20px_rgba(34,197,94,0.15)]">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-rosetta text-green-400 flex items-center gap-1.5 font-bold">
-                          <span>✓</span> ¡Perfil Activo en Producción!
-                        </span>
-                        <a
-                          href={savedUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[11px] text-[#4A7AFF] hover:underline font-mono"
-                        >
-                          Abrir Perfil ↗
-                        </a>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          readOnly
-                          value={savedUrl}
-                          className="w-full bg-[#06060c] border border-gray-800 px-3 py-2 rounded-lg text-xs font-mono text-gray-200 select-all"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard.writeText(savedUrl);
-                            alert('¡Enlace copiado al portapapeles!');
-                          }}
-                          className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-rosetta shrink-0"
-                        >
-                          Copiar
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* ========================================================= */}
-                {/* PASO 5: TELEMETRÍA NTAG & DESCARGA DE ENTREGABLES         */}
-                {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-5 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">5</span>
-                      <div>
-                        <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Entregables & Telemetría NFC</h3>
-                        <p className="text-[10px] text-gray-400">Paquete 1-Click o Módulos Individuales Desglosados</p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Suite Comercial</span>
-                  </div>
-
-                  {/* TELEMETRÍA NTAG */}
-                  <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-rosetta text-[#EE334E] flex items-center gap-1.5 uppercase">
-                        <span>⚡</span> TELEMETRÍA DE MEMORIA NTAG
-                      </h4>
-                      <p className="text-[10px] text-gray-400">Payload URL para Chip NFC Físico o Sticker</p>
-                      <p className="text-[10px] font-mono text-white">NTAG213 (100% Compatible con iPhone y Android)</p>
-                    </div>
-                    <div className="bg-black/50 px-4 py-2.5 rounded-xl border border-gray-800 text-center shrink-0">
-                      <span className="text-[10px] text-gray-400 uppercase font-mono block">Tamaño vCard</span>
-                      <span className="text-2xl font-rosetta font-bold text-[#EE334E]">{new Blob([qrTargetValue]).size} <span className="text-xs">Bytes</span></span>
-                    </div>
-                  </div>
-
-                  {/* PRESENTACIÓN COMERCIAL: PAQUETE COMPLETO ALL-IN-ONE ($199 MXN) */}
-                  <div className="bg-gradient-to-r from-[#180c0f] via-[#240d12] to-[#180c0f] p-5 rounded-2xl border-2 border-[#ff0003] shadow-[0_0_30px_rgba(255,0,3,0.25)] space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase bg-[#ff0003] text-white px-2.5 py-0.5 rounded font-extrabold tracking-wider">🔥 OFERTA RECOMENDADA (45% OFF)</span>
-                        <h4 className="text-base font-rosetta text-white font-bold mt-1.5">PAQUETE COMPLETO ALL-IN-ONE</h4>
-                        <p className="text-xs text-gray-300">Incluye los 4 Entregables Completos + Despliegue Cloud en archivo .ZIP</p>
-                      </div>
-                      <div className="text-left sm:text-right">
-                        <span className="text-xs text-gray-500 line-through font-mono block">Suma Individual: $288 MXN</span>
-                        <span className="text-2xl sm:text-3xl font-rosetta text-[#EE334E] font-extrabold">$199 <span className="text-xs">MXN</span></span>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isPaid || unlockedItems.bundle) {
-                          downloadFullPackage();
-                        } else {
-                          setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables en .ZIP)', price: 199, id: 'bundle' });
-                          setShowCheckoutModal(true);
-                        }
-                      }}
-                      disabled={isZipping}
-                      className="btn-primary w-full py-4 text-xs sm:text-sm tracking-wider"
-                    >
-                      {isZipping ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>EMPAQUETANDO PAQUETE COMPLETO (.ZIP)...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>{isPaid || unlockedItems.bundle ? '📦' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.bundle ? 'DESCARGAR PAQUETE COMPLETO (.ZIP)' : 'COMPRAR PAQUETE COMPLETO ($199 MXN)'}</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* PRESENTACIÓN DE LOS 4 MÓDULOS INDIVIDUALES DESGLOSADOS (SUMATORIA: 1.45x = $288 MXN) */}
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-rosetta text-gray-300 uppercase tracking-wider">
-                        Desglose de Productos Individuales (Sumatoria: $288 MXN = 1.45x):
-                      </h4>
-                      <span className="text-[10px] font-mono text-gray-500">Comprar por Separado</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      
-                      {/* Módulo 1: Código QR HD */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 1</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Código QR HD (.PNG)</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Vectorial 1200x1200px listo para impresión</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$69 MXN</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isPaid || unlockedItems.qr || unlockedItems.bundle) {
-                              downloadQR();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 1: Código QR HD 1200x1200px (.PNG)', price: 69, id: 'qr' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{isPaid || unlockedItems.qr || unlockedItems.bundle ? '⬇' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.qr || unlockedItems.bundle ? 'Descargar QR (.PNG)' : 'Comprar QR ($69 MXN)'}</span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 2: Archivo vCard .VCF */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 2</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Archivo vCard 3.0 (.VCF)</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Instalación automática en agenda telefónica</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$69 MXN</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isPaid || unlockedItems.vcf || unlockedItems.bundle) {
-                              downloadVCF();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 2: Archivo de Contacto vCard 3.0 (.VCF)', price: 69, id: 'vcf' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{isPaid || unlockedItems.vcf || unlockedItems.bundle ? '💾' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.vcf || unlockedItems.bundle ? 'Descargar .VCF' : 'Comprar .VCF ($69 MXN)'}</span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 3: Enlace Cloud Permanente */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 3</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Enlace Cloud (/p/[slug])</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Alojamiento Google Cloud SQL activo 24/7</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$99 MXN</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isPaid || unlockedItems.cloud || unlockedItems.bundle) {
-                              handleSaveToCloud();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 3: Despliegue Cloud & Enlace Permanente', price: 99, id: 'cloud' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{isPaid || unlockedItems.cloud || unlockedItems.bundle ? '🚀' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.cloud || unlockedItems.bundle ? 'Desplegar Cloud' : 'Comprar Cloud ($99 MXN)'}</span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 4: Carta Oficial de Entrega */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 4</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Carta de Entrega & Guía</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Manual paso a paso para programar chip NFC</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$51 MXN</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isPaid || unlockedItems.letter || unlockedItems.bundle) {
-                              setShowEmailModal(true);
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 4: Carta Oficial de Entrega + Manual NFC Tools', price: 51, id: 'letter' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{isPaid || unlockedItems.letter || unlockedItems.bundle ? '📜' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.letter || unlockedItems.bundle ? 'Ver Carta de Entrega' : 'Comprar Carta ($51 MXN)'}</span>
-                        </button>
-                      </div>
-
-                    </div>
-                  </div>
-
-                  {/* LOGÍSTICA DE ENVÍO DE TARJETA FÍSICA NFC (MEXICALI 100% GRATIS / DHL & UPS) */}
-                  <div className="bg-[#090914] p-4 rounded-xl border border-gray-800 space-y-3">
-                    <div className="flex items-center justify-between border-b border-gray-800/80 pb-2">
-                      <div className="flex items-center gap-2">
-                        <span>📦</span>
-                        <h4 className="text-xs font-bruno text-white font-bold uppercase">{t('shipping_title')}</h4>
-                      </div>
-                      <span className="text-[10px] font-mono text-[#00E5FF] font-bold">Cobertura Total</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {/* Mexicali 100% Gratis */}
-                      <div className="bg-[#12121c] p-3.5 rounded-xl border border-green-500/40 space-y-1.5 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono font-bold text-green-400 bg-green-950/50 px-2 py-0.5 rounded border border-green-500/30">
-                            {t('shipping_mxl_badge')}
-                          </span>
-                          <span className="text-xs font-bruno font-extrabold text-green-400 uppercase">100% GRATIS</span>
-                        </div>
-                        <h5 className="text-xs font-bruno text-white font-bold">{t('shipping_mxl_title')}</h5>
-                        <p className="text-[10px] text-gray-400 leading-relaxed">{t('shipping_mxl_desc')}</p>
-                      </div>
-
-                      {/* México & Mundo vía DHL / UPS */}
-                      <div className="bg-[#12121c] p-3.5 rounded-xl border border-blue-500/40 space-y-1.5 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-500/30">
-                            {t('shipping_global_badge')}
-                          </span>
-                          <span className="text-xs font-mono font-bold text-yellow-400">DHL / UPS</span>
-                        </div>
-                        <h5 className="text-xs font-bruno text-white font-bold">{t('shipping_global_title')}</h5>
-                        <p className="text-[10px] text-gray-400 leading-relaxed">{t('shipping_global_desc')}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </>
-            )}
-
-          </form>
-        </section>
-
-        {/* COLUMNA 2: ÁREA EXCLUSIVA DE CONSTRUCCIÓN Y VISTA PREVIA DENTRO DEL CELULAR (STICKY & LIMPIA) */}
-        <section className="w-full lg:w-5/12 flex flex-col items-center justify-center lg:sticky lg:top-6 lg:self-start">
-          
-          {/* MOCKUP ELEGANTE DEL CELULAR CON TOKENS OFICIALES */}
-          <div className="smartphone-mockup-frame w-[320px] sm:w-[350px] h-[670px]">
-            
-            {/* DYNAMIC ISLAND / NOTCH */}
-            <div className="smartphone-dynamic-island">
-              <div className="w-2.5 h-2.5 bg-[#121114] rounded-full border border-gray-800"></div>
-              <div className="w-7 h-1 bg-gray-800 rounded-full"></div>
-            </div>
-
-            {/* PANTALLA INTERNA DEL CELULAR (AISLADA: RESPONDE A LOS COLORES Y TIPOGRAFÍAS DEL CLIENTE) */}
-            <div
-              className="smartphone-screen relative pb-20 select-none transition-all"
-              style={{
-                backgroundColor: activeTheme.bgColor,
-                fontFamily: currentFontSecondary,
-                color: activeTheme.textColor
-              }}
-            >
-              
-              {mode === 'review' ? (
-                /* MODO REVIEW EN CELULAR */
-                <div className="h-full flex flex-col items-center justify-center p-6 text-center">
-                  <div className="w-20 h-20 bg-yellow-400/10 border-2 border-yellow-400 rounded-full flex items-center justify-center text-4xl shadow-lg mb-4">
-                    ⭐
-                  </div>
-                  <h2 className="text-xl font-bold font-bruno" style={{ fontFamily: currentFontPrimary }}>{formData.empresa || 'Nombre del Negocio'}</h2>
-                  <p className="text-xs opacity-70 mt-1">Calificación en Google Maps</p>
-                  
-                  <div className="flex gap-1 my-4 text-yellow-400 text-lg">
-                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                  </div>
-
-                  <div className="p-4 bg-black/5 rounded-2xl border border-black/10 w-full mt-4">
-                    <p className="text-xs font-semibold mb-2">Redirigiendo a Google...</p>
-                    <div className="w-8 h-8 border-3 border-t-transparent rounded-full animate-spin mx-auto" style={{ borderColor: `${design.colorPrimario} transparent transparent transparent` }}></div>
-                  </div>
-                </div>
-              ) : (
-                /* MODO VCARD SEGÚN EL TEMA */
-                <>
-                  {/* 1. TEMA CLÁSICO CORPORATIVO */}
-                  {design.theme === 'classic' && (
-                    <div>
-                      {/* Portada / Banner */}
-                      <div
-                        className="h-28 w-full relative overflow-hidden flex items-center justify-center transition-colors"
-                        style={{ backgroundColor: design.colorSecundario }}
-                      >
-                        {coverPhoto ? (
-                          <div className="w-full h-full overflow-hidden">
-                            <img
-                              src={coverPhoto}
-                              alt="Cover"
-                              className="w-full h-full object-cover transition-all"
-                              style={{
-                                objectPosition: `center ${design.coverPositionY}%`,
-                                transform: `scale(${design.coverZoom / 100})`,
-                                transformOrigin: `center ${design.coverPositionY}%`
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                        )}
-                      </div>
-
-                      {/* Logo Centrado con Visibilidad Total (z-20) */}
-                      <div className="px-5 -mt-12 relative z-20 flex flex-col items-center text-center">
-                        <div
-                          className="flex items-center justify-center overflow-hidden transition-all bg-transparent border-0 shadow-none"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-
-                        <div className="mt-3 w-full">
-                          <h2
-                            className="text-xl font-bold leading-tight text-slate-800"
-                            style={{ fontFamily: currentFontPrimary }}
-                          >
-                            {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                          </h2>
-                          
-                          {/* Franja de Acento (Color Secundario del Cliente) Centrada */}
-                          <div
-                            className="h-1.5 w-14 my-2.5 mx-auto rounded-full transition-all"
-                            style={{
-                              backgroundColor: design.colorSecundario,
-                              boxShadow: `0 0 10px ${design.colorSecundario}60`
-                            }}
-                          ></div>
-                          
-                          <p className="text-sm font-bold" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                          
-                          {/* Badge de Empresa en Color Secundario */}
-                          {formData.empresa && (
-                            <div
-                              className="inline-block px-3 py-0.5 mt-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase border transition-all"
-                              style={{
-                                backgroundColor: `${design.colorSecundario}15`,
-                                borderColor: `${design.colorSecundario}50`,
-                                color: design.colorSecundario
-                              }}
-                            >
-                              {formData.empresa}
-                            </div>
-                          )}
-                        </div>
-
-                        {formData.nota && (
-                          <p className="text-xs mt-3 p-2.5 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-3 w-full" style={{ borderColor: design.colorCTA }}>
-                            "{formData.nota}"
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 2. TEMA MODERNO (CYBER DARK) */}
-                  {design.theme === 'modern' && (
-                    <div className="p-5 flex flex-col items-center text-center">
-                      {coverPhoto && (
-                        <div className="w-full h-24 rounded-2xl overflow-hidden mb-3 border border-white/10 relative">
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all"
-                            style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
-                            }}
-                          />
-                        </div>
-                      )}
-
-                      {/* Logo Centrado sin fondo ni accesorios */}
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <h2
-                        className="text-xl font-bold tracking-tight mt-2 text-white"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                      </h2>
-                      
-                      {/* Franja de Acento (Color Secundario del Cliente) Centrada */}
-                      <div
-                        className="h-1.5 w-14 my-2 mx-auto rounded-full transition-all"
-                        style={{
-                          backgroundColor: design.colorSecundario,
-                          boxShadow: `0 0 10px ${design.colorSecundario}80`
-                        }}
-                      ></div>
-                      
-                      <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                      
-                      {/* Badge de Empresa con Fondo y Borde Secundario */}
-                      {formData.empresa && (
-                        <div
-                          className="inline-block px-3 py-1 mt-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border transition-all"
-                          style={{
-                            backgroundColor: `${design.colorSecundario}15`,
-                            borderColor: `${design.colorSecundario}60`,
-                            color: design.colorSecundario
-                          }}
-                        >
-                          {formData.empresa}
-                        </div>
-                      )}
-
-                      {formData.nota && (
-                        <p className="text-xs mt-3 opacity-80 leading-relaxed px-2 italic text-gray-300">
-                          "{formData.nota}"
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 3. TEMA MINIMALISTA EJECUTIVO */}
-                  {design.theme === 'minimal' && (
-                    <div className="p-6 flex flex-col items-center text-center">
-                      {coverPhoto && (
-                        <div className="w-full h-28 overflow-hidden mb-3 border-b border-gray-200 relative rounded-lg">
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all"
-                            style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
-                            }}
-                          />
-                        </div>
-                      )}
-
-                      {/* Logo Centrado sin fondo ni accesorios */}
-                      <div
-                        className="flex items-center justify-center my-2.5 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <h2
-                        className="text-2xl font-light tracking-tight text-slate-900"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span>
-                      </h2>
-                      
-                      {/* Línea de Color Secundario del Cliente Centrada */}
-                      <div className="w-12 h-1 my-2 mx-auto rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
-                      
-                      <p className="text-xs font-bold tracking-wider uppercase font-rosetta" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                      
-                      {formData.empresa && (
-                        <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
-                      )}
-
-                      {formData.nota && (
-                        <p className="text-xs mt-3 opacity-75 leading-relaxed italic max-w-[90%] text-slate-600">
-                          "{formData.nota}"
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 4. TEMA GLASSMORPHISM FROST */}
-                  {design.theme === 'glassmorphism' && (
-                    <div className="p-5 flex flex-col items-center text-center relative overflow-hidden">
-                      <div
-                        className="absolute -top-10 -left-10 w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-30"
-                        style={{ backgroundColor: design.colorPrimario }}
-                      ></div>
-                      <div
-                        className="absolute top-1/2 -right-10 w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-30"
-                        style={{ backgroundColor: design.colorSecundario }}
-                      ></div>
-
-                      {coverPhoto && (
-                        <div className="w-full h-24 rounded-3xl overflow-hidden mb-3 border border-white/15 backdrop-blur-md shadow-lg relative">
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all"
-                            style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        </div>
-                      )}
-
-                      <div className="w-full backdrop-blur-xl bg-white/[0.06] border border-white/15 rounded-3xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col items-center text-center">
-                        <div
-                          className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
-                          />
-                        </div>
-
-                        <h2
-                          className="text-xl font-bold tracking-tight mt-1 text-white"
-                          style={{ fontFamily: currentFontPrimary }}
-                        >
-                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                        </h2>
-
-                        <div
-                          className="h-1 w-12 my-2 rounded-full backdrop-blur-md"
-                          style={{ backgroundColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}` }}
-                        ></div>
-
-                        <p className="text-sm font-semibold tracking-wide" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-
-                        {formData.empresa && (
-                          <div className="inline-block px-3 py-0.5 mt-2 rounded-full text-[10px] uppercase font-mono tracking-widest backdrop-blur-md bg-white/10 border border-white/20 text-gray-200">
-                            ✨ {formData.empresa}
-                          </div>
-                        )}
-
-                        {formData.nota && (
-                          <p className="text-xs mt-3 text-gray-300 italic leading-relaxed backdrop-blur-sm bg-black/20 p-2.5 rounded-2xl border border-white/10 w-full">
-                            "{formData.nota}"
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 5. TEMA MONOLITO LUXURY VIP */}
-                  {design.theme === 'monolith' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#0d0d0d] relative">
-                      <div
-                        className="w-full h-1 rounded-full mb-3 shadow-[0_0_15px_rgba(255,0,3,0.5)]"
-                        style={{ background: `linear-gradient(90deg, transparent, ${design.colorPrimario}, ${design.colorSecundario}, transparent)` }}
-                      ></div>
-
-                      {coverPhoto && (
-                        <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border border-white/10 relative shadow-2xl">
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all filter contrast-110"
-                            style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent to-black/30"></div>
-                        </div>
-                      )}
-
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-2 justify-center text-[10px] uppercase font-mono tracking-widest text-amber-300/80 mb-1">
-                        <span>◆</span>
-                        <span>VIP EXECUTIVE</span>
-                        <span>◆</span>
-                      </div>
-
-                      <h2
-                        className="text-xl font-extrabold uppercase tracking-wider text-white"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                      </h2>
-
-                      <p className="text-xs font-mono uppercase tracking-widest mt-1 font-bold" style={{ color: design.colorPrimario }}>
-                        {formData.puesto || 'Puesto / Cargo'}
-                      </p>
-
-                      {formData.empresa && (
-                        <div
-                          className="inline-block px-4 py-1 mt-2 rounded-lg text-[10px] font-mono uppercase tracking-widest font-bold border"
-                          style={{
-                            borderColor: `${design.colorSecundario}60`,
-                            backgroundColor: `${design.colorSecundario}10`,
-                            color: design.colorSecundario
-                          }}
-                        >
-                          {formData.empresa}
-                        </div>
-                      )}
-
-                      {formData.nota && (
-                        <div className="mt-3 p-3 rounded-xl bg-black/60 border border-white/10 text-xs italic text-gray-300 leading-relaxed w-full">
-                          "{formData.nota}"
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 6. TEMA NEO-BRUTALISM POP */}
-                  {design.theme === 'neobrutalism' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#fffdfa] text-black">
-                      {coverPhoto && (
-                        <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border-3 border-black shadow-[4px_4px_0px_#000000] relative bg-white">
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all"
-                            style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
-                            }}
-                          />
-                        </div>
-                      )}
-
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <div className="bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-3 rounded-2xl w-full mt-1">
-                        <h2
-                          className="text-xl font-black tracking-tight text-black uppercase"
-                          style={{ fontFamily: currentFontPrimary }}
-                        >
-                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                        </h2>
-
-                        <div className="h-1 w-full bg-black my-2"></div>
-
-                        <p className="text-xs font-extrabold uppercase font-mono" style={{ color: design.colorPrimario }}>
-                          {formData.puesto || 'Puesto / Cargo'}
-                        </p>
-
-                        {formData.empresa && (
-                          <div
-                            className="inline-block px-3 py-0.5 mt-2 rounded-md text-[11px] font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_#000000]"
-                            style={{ backgroundColor: design.colorSecundario, color: '#000000' }}
-                          >
-                            {formData.empresa}
-                          </div>
-                        )}
-                      </div>
-
-                      {formData.nota && (
-                        <div className="mt-3 p-2.5 rounded-xl bg-yellow-200/90 border-2 border-black shadow-[3px_3px_0px_#000000] text-xs font-bold italic text-black leading-relaxed w-full">
-                          "{formData.nota}"
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 7. TEMA HERO ASIMÉTRICO */}
-                  {design.theme === 'split_hero' && (
-                    <div className="p-5 flex flex-col bg-[#0a0e17] text-white">
-                      {coverPhoto ? (
-                        <div
-                          className="w-full h-28 overflow-hidden rounded-2xl mb-3 relative border border-white/10"
-                          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)' }}
-                        >
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all"
-                            style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className="w-full h-14 rounded-2xl mb-2"
-                          style={{
-                            background: `linear-gradient(135deg, ${design.colorPrimario}, ${design.colorSecundario})`,
-                            clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 100%)'
-                          }}
-                        ></div>
-                      )}
-
-                      <div className="flex items-start justify-between gap-3 mt-1">
-                        <div className="flex-1 text-left">
-                          <h2
-                            className="text-xl font-extrabold leading-tight text-white tracking-tight"
-                            style={{ fontFamily: currentFontPrimary }}
-                          >
-                            {formData.nombre || 'Nombre'} <span className="block text-gray-300">{formData.apellido || 'Apellido'}</span>
-                          </h2>
-                          <p className="text-xs font-bold mt-1" style={{ color: design.colorPrimario }}>
-                            {formData.puesto || 'Puesto / Cargo'}
-                          </p>
-                          {formData.empresa && (
-                            <div
-                              className="inline-block px-2.5 py-0.5 mt-1.5 rounded-md text-[10px] font-mono uppercase font-bold border"
-                              style={{
-                                backgroundColor: `${design.colorSecundario}15`,
-                                borderColor: `${design.colorSecundario}50`,
-                                color: design.colorSecundario
-                              }}
-                            >
-                              {formData.empresa}
-                            </div>
-                          )}
-                        </div>
-
-                        <div
-                          className="flex items-center justify-center overflow-hidden shrink-0 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${Math.min(design.logoScale, 90)}px`,
-                            height: `${Math.min(design.logoScale, 90)}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      </div>
-
-                      {formData.nota && (
-                        <div
-                          className="mt-3 p-2.5 rounded-xl bg-white/[0.04] border-l-3 text-xs italic text-gray-300 leading-relaxed text-left"
-                          style={{ borderColor: design.colorCTA }}
-                        >
-                          "{formData.nota}"
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 8. TEMA BENTO GRID TECH */}
-                  {design.theme === 'bento_grid' && (
-                    <div className="p-4 flex flex-col gap-3 bg-[#0f0f14] text-white">
-                      <div className="bg-white/[0.05] border border-white/10 rounded-3xl p-4 flex flex-col items-center text-center relative overflow-hidden shadow-lg">
-                        {coverPhoto && (
-                          <div className="w-full h-20 rounded-2xl overflow-hidden mb-3 relative border border-white/10">
-                            <img
-                              src={coverPhoto}
-                              alt="Cover"
-                              className="w-full h-full object-cover"
-                              style={{
-                                objectPosition: `center ${design.coverPositionY}%`,
-                                transform: `scale(${design.coverZoom / 100})`,
-                                transformOrigin: `center ${design.coverPositionY}%`
-                              }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f14]/80 to-transparent"></div>
-                          </div>
-                        )}
-
-                        <div
-                          className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-
-                        <h2
-                          className="text-lg font-bold text-white mt-1"
-                          style={{ fontFamily: currentFontPrimary }}
-                        >
-                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                        </h2>
-
-                        <p className="text-xs font-semibold" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-
-                        {formData.empresa && (
-                          <span
-                            className="inline-block px-3 py-0.5 mt-2 rounded-full text-[10px] font-mono uppercase font-bold border"
-                            style={{
-                              backgroundColor: `${design.colorSecundario}15`,
-                              borderColor: `${design.colorSecundario}40`,
-                              color: design.colorSecundario
-                            }}
-                          >
-                            {formData.empresa}
-                          </span>
-                        )}
-                      </div>
-
-                      {formData.nota && (
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3 text-xs italic text-gray-300 text-center leading-relaxed">
-                          "{formData.nota}"
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 9. TEMA CYBER NEON MATRIX */}
-                  {design.theme === 'cyber_matrix' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#050508] text-white relative font-mono">
-                      <div className="w-full flex justify-between text-[10px] text-cyan-400/80 mb-2 border-b border-cyan-500/20 pb-1 font-mono">
-                        <span>[SYS_PROFILE]</span>
-                        <span className="text-emerald-400">● LIVE HUD</span>
-                      </div>
-
-                      {coverPhoto && (
-                        <div className="w-full h-24 rounded-lg overflow-hidden mb-3 border border-cyan-500/30 relative shadow-[0_0_15px_rgba(0,255,255,0.15)]">
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all"
-                            style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#050508] to-transparent opacity-80"></div>
-                        </div>
-                      )}
-
-                      <div className="relative my-2">
-                        <div
-                          className="flex items-center justify-center overflow-hidden bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,0,3,0.6)]"
-                          />
-                        </div>
-                        <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
-                        <span className="absolute -bottom-1 -right-1 text-[10px] text-cyan-400">+</span>
-                      </div>
-
-                      <h2
-                        className="text-xl font-bold tracking-widest text-cyan-100 uppercase mt-1"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                      </h2>
-
-                      <div className="flex items-center gap-1.5 my-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#EE334E] animate-ping"></span>
-                        <p className="text-xs uppercase tracking-wider font-bold" style={{ color: design.colorPrimario }}>
-                          // {formData.puesto || 'Puesto / Cargo'}
-                        </p>
-                      </div>
-
-                      {formData.empresa && (
-                        <div
-                          className="px-3 py-0.5 mt-1 rounded text-[10px] uppercase tracking-widest font-bold border border-cyan-500/40 bg-cyan-950/30 text-cyan-300"
-                        >
-                          ID: {formData.empresa}
-                        </div>
-                      )}
-
-                      {formData.nota && (
-                        <div className="mt-3 p-2.5 rounded bg-black/80 border-l-2 border-r-2 border-cyan-500/40 text-[11px] text-cyan-200/80 leading-relaxed text-left w-full">
-                          &gt; {formData.nota}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 10. TEMA SUIZO EDITORIAL CLEAN */}
-                  {design.theme === 'editorial_swiss' && (
-                    <div className="p-6 flex flex-col items-center text-center bg-white text-zinc-900">
-                      {coverPhoto && (
-                        <div className="w-full h-24 overflow-hidden mb-3 border-b border-zinc-200 relative">
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all"
-                            style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
-                            }}
-                          />
-                        </div>
-                      )}
-
-                      <div
-                        className="flex items-center justify-center my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <div className="w-full h-[1px] bg-zinc-200 my-2"></div>
-
-                      <h2
-                        className="text-2xl font-light tracking-tighter text-zinc-950 uppercase"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} <span className="font-bold">{formData.apellido || 'Apellido'}</span>
-                      </h2>
-
-                      <p className="text-xs font-medium tracking-wider uppercase text-zinc-500 mt-1" style={{ color: design.colorPrimario }}>
-                        {formData.puesto || 'Puesto / Cargo'}
-                      </p>
-
-                      {formData.empresa && (
-                        <p className="text-xs font-semibold text-zinc-800 tracking-wide mt-1" style={{ color: design.colorSecundario }}>
-                          {formData.empresa}
-                        </p>
-                      )}
-
-                      <div className="w-full h-[1px] bg-zinc-200 my-2"></div>
-
-                      {formData.nota && (
-                        <p className="text-xs text-zinc-600 leading-relaxed italic px-2">
-                          "{formData.nota}"
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* PASTILLAS DE CONTACTO & REDES SOCIALES ADAPTABLES AL TEMA */}
-                  <div className="px-5 space-y-2 mt-3">
-                    {formData.telefono && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                        <span className="truncate">{formData.telefono}</span>
-                      </div>
-                    )}
-                    {formData.correo && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                        <span className="truncate">{formData.correo}</span>
-                      </div>
-                    )}
-                    {formData.url && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                        <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
-                      </div>
-                    )}
-
-                    {/* REDES SOCIALES EN EL CELULAR */}
-                    {formData.facebook && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <span className="text-xs font-bold text-blue-500">📘</span>
-                        <span className="truncate font-mono">facebook.com/{formData.facebook.replace(/^@+/, '')}</span>
-                      </div>
-                    )}
-
-                    {formData.instagram && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <span className="text-xs font-bold text-pink-500">📸</span>
-                        <span className="truncate font-mono">instagram.com/{formData.instagram.replace(/^@+/, '')}</span>
-                      </div>
-                    )}
-
-                    {formData.linkedin && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <span className="text-xs font-bold text-blue-400">💼</span>
-                        <span className="truncate font-mono">linkedin.com/in/{formData.linkedin.replace(/^@+/, '')}</span>
-                      </div>
-                    )}
-
-                    {effectiveMapsUrl && (
-                      <a
-                        href={effectiveMapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]"
-                        style={{
-                          backgroundColor: `${design.colorSecundario}15`,
-                          borderColor: design.colorSecundario,
-                          color: design.colorSecundario
-                        }}
-                      >
-                        <span>📍</span> {locationLabel}
-                      </a>
-                    )}
-                    {formData.videoYoutubeUrl && (
-                      <div className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-md">
-                        <span>▶</span> Ver Video de Presentación
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (TIPOGRAFÍA PRIMARIA Y COLOR CTA DEL CLIENTE) */}
-            {mode === 'vcard' && (
-              <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20">
-                <button
-                  onClick={downloadVCF}
-                  className={`w-full py-3 rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all hover:brightness-110 flex items-center justify-center gap-2 ${
-                    design.theme === 'neobrutalism'
-                      ? 'border-2.5 border-black shadow-[4px_4px_0px_#000] text-white font-black'
-                      : design.theme === 'glassmorphism'
-                      ? 'backdrop-blur-xl border border-white/30 text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
-                      : design.theme === 'cyber_matrix'
-                      ? 'border border-cyan-400 text-white font-mono shadow-[0_0_15px_rgba(0,255,255,0.4)]'
-                      : design.theme === 'monolith'
-                      ? 'border border-white/20 text-white shadow-2xl font-bold'
-                      : 'text-white shadow-xl'
-                  }`}
-                  style={{
-                    backgroundColor: design.colorCTA,
-                    fontFamily: currentFontPrimary
-                  }}
-                >
-                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                  <span>{t('preview_save_btn')}</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-        </section>
-
-      </main>
-
-      {/* SECCIÓN MARKETING 2.0: ECOSISTEMA DE SOLUCIONES TSOLUTIONS IPIDD (CONVERSIÓN & UPSELL) */}
-      <section className="mt-16 max-w-[1920px] mx-auto w-full border-t border-gray-800/80 pt-12 pb-8 space-y-10">
-        <div className="text-center max-w-3xl mx-auto space-y-2">
-          <div className="inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-[#ff0003]/10 border border-[#ff0003]/30 text-[#EE334E]">
-            ⚡ Soluciones Tecnológicas de Alto Impacto
-          </div>
-          <h2 className="text-2xl md:text-3xl font-rosetta text-white">
-            MÁS ALLÁ DE LA VCARD: ECOSISTEMA <span className="text-[#ff0003]">TSOLUTIONS IPIDD</span>
-          </h2>
-          <p className="text-xs text-gray-400">
-            Diseñamos, desarrollamos e implementamos plataformas digitales, software a la medida y automatización inteligente para empresas líderes.
-          </p>
-        </div>
-
-        {/* GRILLA DE 4 PILARES COMERCIALES */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Pilar 1: Software a Medida */}
-          <div className="bg-[#090914] border border-gray-800 hover:border-[#ff0003]/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(255,0,3,0.15)]">
-            <div className="w-12 h-12 rounded-xl bg-[#ff0003]/10 border border-[#ff0003]/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-              💻
-            </div>
-            <h3 className="font-rosetta text-sm text-white font-bold">Software & Apps a la Medida</h3>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Desarrollo de plataformas web, aplicaciones móviles, sistemas ERP y CRMs personalizados a la operativa de tu negocio.
-            </p>
-          </div>
-
-          {/* Pilar 2: Inteligencia Artificial */}
-          <div className="bg-[#090914] border border-gray-800 hover:border-[#00E5FF]/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(0,229,255,0.15)]">
-            <div className="w-12 h-12 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-              🤖
-            </div>
-            <h3 className="font-rosetta text-sm text-white font-bold">Automatización con IA</h3>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Agentes inteligentes, procesamiento automatizado de datos y chatbots avanzados para multiplicar la productividad de tu equipo.
-            </p>
-          </div>
-
-          {/* Pilar 3: Cloud & Seguridad */}
-          <div className="bg-[#090914] border border-gray-800 hover:border-green-500/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(34,197,94,0.15)]">
-            <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-              ☁️
-            </div>
-            <h3 className="font-rosetta text-sm text-white font-bold">Google Cloud & Ciberseguridad</h3>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Infraestructura escalable, bases de datos PostgreSQL de alta disponibilidad y arquitectura cloud de nivel bancario.
-            </p>
-          </div>
-
-          {/* Pilar 4: Consultoría IPIDD */}
-          <div className="bg-[#090914] border border-gray-800 hover:border-purple-500/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(168,85,247,0.15)]">
-            <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-              📈
-            </div>
-            <h3 className="font-rosetta text-sm text-white font-bold">Consultoría Estratégica IPIDD</h3>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Diagnóstico tecnológico y planes de digitalización orientados a rentabilidad y reducción de costos operativos.
-            </p>
-          </div>
-        </div>
-
-        {/* BANNER CTA DE CAPTACIÓN HIGH-TICKET */}
-        <div className="bg-gradient-to-r from-[#0c0c16] via-[#1a050a] to-[#0c0c16] border border-[#ff0003]/40 p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_40px_rgba(255,0,3,0.15)]">
-          <div className="space-y-1.5 text-center md:text-left">
-            <h3 className="text-lg md:text-xl font-rosetta text-white font-bold">
-              ¿Quieres digitalizar o automatizar los procesos de tu empresa?
-            </h3>
-            <p className="text-xs text-gray-400">
-              Agenda una sesión de diagnóstico tecnológico sin costo (30 min) con los ingenieros de TSOLUTIONS IPIDD.
-            </p>
-          </div>
-          <a
-            href="https://wa.me/526860000000?text=Hola%20TSOLUTIONS%20IPIDD,%20me%20gustaria%20agendar%20un%20diagnostico%20tecnologico%20para%20mi%20empresa"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-6 py-3.5 bg-[#ff0003] hover:bg-[#EE334E] text-white font-rosetta font-bold text-xs rounded-xl transition-all shrink-0 shadow-[0_0_20px_rgba(255,0,3,0.35)] flex items-center gap-2"
-          >
-            <span>📅</span> Solicitar Diagnóstico Gratuito
-          </a>
-        </div>
-
-        {/* FOOTER CORPORATIVO TSOLUTIONS IPIDD */}
-        <footer className="border-t border-gray-800/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+    <div className="min-h-screen bg-[#05050D] text-slate-200 font-sans selection:bg-[#EE334E] selection:text-white">
+      {/* HEADER / NAVBAR */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#05050D]/80 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="font-rosetta text-white">TSOLUTIONS IPIDD</span>
-            <span>•</span>
-            <span>Transformación Digital & Soluciones Estratégicas</span>
+            <Nfc className="text-[#EE334E] w-8 h-8" />
+            <span className="text-2xl font-bold tracking-tight text-white">Rose VCards</span>
           </div>
-          <div className="flex items-center gap-4 font-mono text-[11px]">
-            <a href="https://tsolutionsipidd.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff0003]">
-              tsolutionsipidd.com ↗
-            </a>
-            <a href="/admin" className="hover:text-[#00E5FF]">
-              Panel de Control Admin
-            </a>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+            <a href="#use-cases" className="hover:text-white transition-colors">Casos de Uso</a>
+            <a href="#white-label" className="hover:text-white transition-colors">Marca Blanca</a>
+            <a href="#pricing" className="hover:text-white transition-colors">Precios</a>
+            <Link href="/builder" className="text-[#EE334E] hover:text-white transition-colors">Entrar al Editor</Link>
           </div>
-        </footer>
+        </div>
+      </nav>
+
+      {/* HERO SECTION */}
+      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#EE334E]/20 rounded-full blur-[120px] opacity-50 pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm mb-8 text-slate-300">
+            <Zap className="w-4 h-4 text-[#EE334E]" />
+            <span>El Futuro del Networking Corporativo</span>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight">
+            Transforma cada contacto <br className="hidden md:block" /> en una <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EE334E] to-[#ff6b81]">Máquina de Ventas</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed">
+            Unimos hardware NFC de alta gama con la velocidad y robustez de Google Cloud. Escala la presencia de tu negocio y dale autonomía completa a tus clientes con nuestra solución de Marca Blanca.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="#pricing" className="w-full sm:w-auto px-8 py-4 bg-[#EE334E] hover:bg-[#ff0003] text-white rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-[0_0_30px_rgba(238,51,78,0.4)]">
+              Ver Planes y Precios
+            </a>
+            <Link href="/builder" className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2">
+              Probar Editor <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
       </section>
 
-      {/* MODAL DE LA CARTA OFICIAL DE ENTREGA DE TSOLUTIONS IPIDD */}
-      {showEmailModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-[#ff0003]/50 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-[0_0_40px_rgba(255,0,3,0.25)] flex flex-col overflow-hidden animate-scaleIn">
-            
-            {/* Header Modal */}
-            <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-[#ff0003]">
-                <span>📜</span>
-                <h3 className="font-rosetta text-sm font-bold text-white">Carta Oficial de Entrega de Entregables</h3>
+      {/* USE CASES SECTION (The 3 Options provided by User) */}
+      <section id="use-cases" className="py-24 bg-black/40 border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Diseñado para cada etapa de tu negocio</h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">Soluciones escalables que se adaptan desde el emprendedor individual hasta el corporativo transnacional.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Opción 1 */}
+            <div className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 hover:border-[#EE334E]/50 transition-colors group">
+              <div className="w-14 h-14 bg-[#EE334E]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Zap className="w-7 h-7 text-[#EE334E]" />
               </div>
-              <button
-                onClick={() => setShowEmailModal(false)}
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center text-sm font-bold"
-              >
-                ✕
-              </button>
+              <h3 className="text-xl font-bold text-white mb-2">Formal Casual</h3>
+              <p className="text-sm text-[#EE334E] font-semibold mb-6">Para Emprendedores, Startups y Fundadores</p>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                En el ecosistema de startups nos obsesiona eliminar la fricción: optimizamos embudos, automatizamos procesos y medimos cada conversión. Sin embargo, seguimos yendo a eventos entregando cartón olvidado.
+                En <strong>Rose VCards</strong> transformamos ese primer punto de contacto en un activo de conversión inmediata. Unimos hardware NFC con <strong>Google Cloud</strong>, permitiendo guardar tu perfil con un solo toque, sin apps y con compatibilidad .vcf.
+              </p>
             </div>
 
-            {/* Contenido Carta */}
-            <div className="p-6 overflow-y-auto space-y-4 font-sans text-xs text-gray-300 leading-relaxed">
-              <div className="p-3 bg-black/50 border border-gray-800 rounded-lg">
-                <p className="text-[11px] text-gray-400 font-mono"><span className="text-[#ff0003] font-bold">Para:</span> {formData.correo || 'correo@cliente.com'}</p>
-                <p className="text-[11px] text-gray-400 font-mono mt-0.5"><span className="text-[#ff0003] font-bold">Asunto:</span> {generateDeliveryEmailContent().subject}</p>
+            {/* Opción 2 */}
+            <div className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 hover:border-[#EE334E]/50 transition-colors group">
+              <div className="w-14 h-14 bg-[#EE334E]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <BarChart3 className="w-7 h-7 text-[#EE334E]" />
               </div>
-
-              <textarea
-                readOnly
-                value={generateDeliveryEmailContent().body}
-                rows={16}
-                className="w-full bg-[#06060c] border border-gray-800 p-4 rounded-xl text-xs font-mono text-gray-200 focus:outline-none select-all"
-              />
+              <h3 className="text-xl font-bold text-white mb-2">Ejecutivo Comercial</h3>
+              <p className="text-sm text-[#EE334E] font-semibold mb-6">Para Directores de Ventas y Pymes</p>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                El networking tradicional arrastra un costo oculto: prospectos que se enfrían y un 88% de tarjetas impresas descartadas. <strong>Rose VCards</strong> moderniza la prospección fusionando NFC prémium con la arquitectura de alta disponibilidad de <strong>Google Cloud</strong>.
+                La información se transfiere de forma nativa e inmediata vía .vcf. Centralizamos la identidad de su fuerza comercial, garantizando vanguardia, agilidad en ventas y cero costes de reimpresión.
+              </p>
             </div>
 
-            {/* Footer Modal */}
-            <div className="p-4 bg-[#12121c] border-t border-gray-800 flex flex-wrap gap-3 justify-end items-center">
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(generateDeliveryEmailContent().body);
-                  alert('¡Carta de entrega copiada al portapapeles!');
-                }}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-rosetta rounded-lg transition-colors flex items-center gap-1.5"
-              >
-                <span>📋</span> Copiar al Portapapeles
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  sendDeliveryEmail();
-                  setShowEmailModal(false);
-                }}
-                className="px-4 py-2 bg-[#ff0003] text-white text-xs font-rosetta font-bold rounded-lg hover:bg-[#EE334E] transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(255,0,3,0.3)]"
-              >
-                <span>✉️</span> Abrir en Cliente de Correo
-              </button>
+            {/* Opción 3 */}
+            <div className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 hover:border-[#EE334E]/50 transition-colors group">
+              <div className="w-14 h-14 bg-[#EE334E]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-7 h-7 text-[#EE334E]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Profesional Élite</h3>
+              <p className="text-sm text-[#EE334E] font-semibold mb-6">Para Directores y C-Level Transnacionales</p>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                La consistencia de marca y la seguridad son no negociables. <strong>Rose VCards</strong> redefine el intercambio corporativo mediante una infraestructura de grado empresarial en <strong>Google Cloud Platform</strong>, garantizando disponibilidad 24/7 y latencias mínimas.
+                Proveemos una solución centralizada que mitiga la fricción operativa, refuerza la soberanía de datos comerciales y proyecta el liderazgo tecnológico que sus socios globales exigen.
+              </p>
             </div>
-
           </div>
         </div>
-      )}
+      </section>
 
-      {/* MODAL DE PASARELA DE PAGO: TSOLUTIONS SECURE PAY GATEWAY */}
-      {showCheckoutModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border-2 border-[#ff0003] w-full max-w-lg rounded-3xl shadow-[0_0_50px_rgba(255,0,3,0.35)] overflow-hidden animate-scaleIn flex flex-col">
-            
-            {/* Header Pasarela */}
-            <div className="p-5 bg-[#12121c] border-b border-gray-800 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-[#ff0003]">
-                <span className="text-lg">🔒</span>
-                <div>
-                  <h3 className="font-rosetta text-sm font-bold text-white">TSOLUTIONS SECURE PAY</h3>
-                  <p className="text-[10px] text-gray-400 font-mono">Pasarela de Pago Cifrada SSL 256-bit</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowCheckoutModal(false)}
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center text-sm font-bold"
-              >
-                ✕
-              </button>
+      {/* WHITE LABEL & BUSINESS MODEL */}
+      <section id="white-label" className="py-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center gap-16">
+            <div className="flex-1">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Modelo de Marca Blanca (SaaS)</h2>
+              <p className="text-slate-400 text-lg mb-8 leading-relaxed">
+                Diseñado para agencias y empresas que desean revender nuestra tecnología. Le damos autonomía completa a tu cliente bajo tu propia marca, respaldado por un sistema robusto y escalable.
+              </p>
+              
+              <ul className="space-y-6">
+                <li className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-[#EE334E]/20 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-[#EE334E]" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Autonomía Completa al Cliente</h4>
+                    <p className="text-sm text-slate-400">Tus clientes gestionan sus perfiles, tarjetas y métricas de forma 100% independiente en su propio panel.</p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-[#EE334E]/20 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-[#EE334E]" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Mantenimiento Mensual (Contrato Anual)</h4>
+                    <p className="text-sm text-slate-400">Asegura ingresos recurrentes vendiendo suscripciones de mantenimiento y hosting con contratos de 1 año.</p>
+                  </div>
+                </li>
+                <li className="flex gap-4">
+                  <div className="w-10 h-10 rounded-full bg-[#EE334E]/20 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-[#EE334E]" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold mb-1">Soporte Premium y Actualizaciones</h4>
+                    <p className="text-sm text-slate-400">Soporte técnico dedicado y actualizaciones continuas basadas en las sugerencias y necesidades reales de los clientes.</p>
+                  </div>
+                </li>
+              </ul>
             </div>
-
-            {/* Resumen del Pedido */}
-            <div className="p-6 space-y-5 overflow-y-auto max-h-[75vh]">
-              <div className="bg-black/60 p-4 rounded-2xl border border-gray-800 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-mono text-[#ff0003] uppercase font-bold">{t('pay_concept')}</span>
-                  <p className="text-xs font-rosetta text-white font-bold mt-0.5">{selectedProduct.name}</p>
-                  <p className="text-[10px] text-gray-400 mt-1">Entrega y desbloqueo digital instantáneo</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-2xl font-rosetta text-[#ff0003] font-extrabold">${selectedProduct.price}</span>
-                  <span className="text-xs font-rosetta text-gray-400 block font-mono">MXN</span>
-                </div>
-              </div>
-
-              {/* Selector de Destino para Envío de Tarjeta Física */}
-              <div className="space-y-2 bg-[#0a0a14] p-3.5 rounded-2xl border border-gray-800">
-                <label className="block text-[11px] font-rosetta text-gray-300 uppercase">
-                  📦 Destino para Entrega de Tarjeta Física NFC:
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShippingLocation('mexicali')}
-                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
-                      shippingLocation === 'mexicali'
-                        ? 'bg-green-500/15 border-green-500 text-green-300 font-bold'
-                        : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
-                  >
-                    <span className="font-bold">🚚 Mexicali, B.C.</span>
-                    <span className="text-[10px] text-green-400">100% GRATIS ($0)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setShippingLocation('mexico_dhl')}
-                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
-                      shippingLocation === 'mexico_dhl'
-                        ? 'bg-blue-500/15 border-blue-500 text-blue-300 font-bold'
-                        : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
-                  >
-                    <span className="font-bold">✈️ México (DHL/UPS)</span>
-                    <span className="text-[10px] text-gray-300">Guía Express</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setShippingLocation('world_ups')}
-                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
-                      shippingLocation === 'world_ups'
-                        ? 'bg-purple-500/15 border-purple-500 text-purple-300 font-bold'
-                        : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
-                  >
-                    <span className="font-bold">🌍 Internacional</span>
-                    <span className="text-[10px] text-gray-300">UPS / DHL Express</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Selector de Método de Pago */}
-              <div className="space-y-2">
-                <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wide">
-                  {t('pay_method_label')}
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
+            
+            <div className="flex-1 w-full relative">
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#EE334E]/20 to-transparent rounded-3xl blur-3xl"></div>
+              <div className="relative bg-[#0a0a10] border border-white/10 rounded-3xl p-8 shadow-2xl">
+                <h3 className="text-2xl font-bold text-white mb-6">Valoración y Reseñas del Producto</h3>
+                
+                <div className="space-y-6">
                   {[
-                    { id: 'card', label: t('pay_card') },
-                    { id: 'mercadopago', label: t('pay_mp') },
-                    { id: 'spei', label: t('pay_spei') },
-                    { id: 'paypal', label: t('pay_paypal') }
-                  ].map(m => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setPaymentMethod(m.id)}
-                      className={`p-3 rounded-xl border text-left text-xs font-mono transition-all flex items-center gap-2 ${
-                        paymentMethod === m.id
-                          ? 'bg-[#ff0003]/15 border-[#ff0003] text-[#EE334E] font-bold shadow-[0_0_10px_rgba(255,0,3,0.2)]'
-                          : 'bg-black/30 border-gray-800 text-gray-400 hover:border-gray-700'
-                      }`}
-                    >
-                      <span>{m.label}</span>
-                    </button>
+                    { name: 'Carlos Mendoza', role: 'Director Comercial', text: 'La adopción de Rose VCards redujo nuestros costos de impresión a cero y aumentó la retención de prospectos en un 40%.' },
+                    { name: 'Ana Sofía', role: 'Startup Founder', text: 'Tener autonomía completa sobre el diseño de mi tarjeta y ver las analíticas en tiempo real es un game-changer absoluto.' },
+                    { name: 'Roberto Garza', role: 'CEO Transnacional', text: 'La infraestructura en Google Cloud nos da la tranquilidad de que nuestra fuerza de ventas siempre estará conectada y segura.' }
+                  ].map((review, i) => (
+                    <div key={i} className="bg-white/5 p-5 rounded-2xl border border-white/5">
+                      <div className="flex items-center gap-1 mb-2">
+                        {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 text-yellow-500 fill-yellow-500" />)}
+                      </div>
+                      <p className="text-sm text-slate-300 italic mb-4">"{review.text}"</p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#EE334E]/20 flex items-center justify-center text-[#EE334E] font-bold text-xs">
+                          {review.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-sm text-white font-bold leading-none">{review.name}</p>
+                          <p className="text-xs text-slate-500">{review.role}</p>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {/* Formulario Dinámico de Tarjeta */}
-              {paymentMethod === 'card' && (
-                <div className="space-y-3 bg-black/40 p-4 rounded-xl border border-gray-800">
-                  <div>
-                    <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">Número de Tarjeta</label>
-                    <input
-                      type="text"
-                      placeholder="4000 1234 5678 9010"
-                      className="input-dark w-full text-xs font-mono"
-                      defaultValue="4242 •••• •••• 4242"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">Vencimiento</label>
-                      <input type="text" placeholder="MM/AA" className="input-dark w-full text-xs font-mono" defaultValue="12/28" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">CVV</label>
-                      <input type="password" placeholder="CVV" className="input-dark w-full text-xs font-mono" defaultValue="123" />
-                    </div>
-                  </div>
-                </div>
-              )}
+      {/* PRICING SECTION */}
+      <section id="pricing" className="py-24 bg-black/40 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Planes y Paquetes</h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">Elige el paquete que mejor se adapte al volumen de tu equipo o tu modelo de agencia. Todos incluyen soporte en Google Cloud.</p>
+          </div>
 
-              {/* Formulario Simulado SPEI / MercadoPago / PayPal */}
-              {paymentMethod === 'spei' && (
-                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 space-y-1 text-xs font-mono">
-                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">Banco:</span> STP / BBVA</p>
-                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">CLABE:</span> 6461 8011 2233 4455 66</p>
-                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">Beneficiario:</span> TSOLUTIONS IPIDD</p>
-                </div>
-              )}
-
-              {paymentMethod === 'mercadopago' && (
-                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 text-xs text-blue-400 font-mono flex items-center gap-2">
-                  <span>🔵</span>
-                  <span>Serás redirigido al Checkout Seguro de Mercado Pago con acreditación instantánea.</span>
-                </div>
-              )}
-
-              {paymentMethod === 'paypal' && (
-                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 text-xs text-yellow-400 font-mono flex items-center gap-2">
-                  <span>🅿️</span>
-                  <span>Pago internacional protegido por la Garantía al Comprador de PayPal.</span>
-                </div>
-              )}
-
-              {/* Botón de Procesamiento de Pago */}
-              <button
-                type="button"
-                onClick={handleProcessPayment}
-                disabled={isProcessingPayment}
-                className="w-full py-4 bg-gradient-to-r from-[#ff0003] to-[#EE334E] hover:brightness-110 text-white font-rosetta font-extrabold text-xs sm:text-sm rounded-2xl shadow-[0_0_25px_rgba(255,0,3,0.4)] transition-all flex items-center justify-center gap-2"
-              >
-                {isProcessingPayment ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>{t('pay_processing')}</span>
-                  </>
-                ) : (
-                  <>
-                    <span>🔒</span>
-                    <span>{t('pay_btn')} (${selectedProduct.price} MXN)</span>
-                  </>
-                )}
-              </button>
-
-              <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 font-mono text-center">
-                <span>{t('pay_secure_badge')}</span>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* 1. ESTUDIANTE */}
+            <div className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-slate-500 transition-colors">
+              <h3 className="text-xl font-bold text-white mb-2">Estudiante</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-extrabold text-white">Gratis</span>
               </div>
+              <p className="text-xs text-[#EE334E] font-semibold mb-6 pb-6 border-b border-white/10">
+                *Requiere correo educativo (.edu) activo de cualquier parte del mundo.
+              </p>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Tarjeta digital básica
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Uso estrictamente académico
+                </li>
+              </ul>
+              <button className="w-full py-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors">
+                Solicitar Acceso
+              </button>
+            </div>
+
+            {/* 2. PROFESIONAL */}
+            <div className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-slate-500 transition-colors">
+              <h3 className="text-xl font-bold text-white mb-2">Profesional</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-extrabold text-white">Pro</span>
+              </div>
+              <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
+                Ideal para freelancers, consultores y pequeños equipos.
+              </p>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>5 Temas</strong> abiertos
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Hasta <strong>15 Tarjetas</strong> de presentación
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Soporte estándar
+                </li>
+              </ul>
+              <button className="w-full py-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors">
+                Contratar Pro
+              </button>
+            </div>
+
+            {/* 3. EMPRESA */}
+            <div className="bg-[#0a0a10] border border-[#EE334E]/50 rounded-3xl p-8 flex flex-col relative shadow-[0_0_30px_rgba(238,51,78,0.15)] transform md:-translate-y-4">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#EE334E] text-white text-xs font-bold px-4 py-1 rounded-full">
+                MÁS POPULAR
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Empresa</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-extrabold text-white">Business</span>
+              </div>
+              <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
+                Para corporativos en crecimiento con equipos de ventas estructurados.
+              </p>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>10 Temas</strong> estáticos
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>25 Tarjetas</strong> disponibles
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Acceso a <strong>Consulta de Datos</strong> en el Admin
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Soporte Premium
+                </li>
+              </ul>
+              <button className="w-full py-3 rounded-xl bg-[#EE334E] text-white font-bold hover:bg-[#ff0003] transition-colors shadow-lg">
+                Contratar Empresa
+              </button>
+            </div>
+
+            {/* 4. ELITE BUSINESS PLUS */}
+            <div className="bg-gradient-to-b from-[#1a1525] to-[#0a0a10] border border-purple-500/30 rounded-3xl p-8 flex flex-col hover:border-purple-500/60 transition-colors">
+              <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-[#EE334E] mb-2">Elite Business Plus</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-extrabold text-white">Elite</span>
+              </div>
+              <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
+                Control absoluto, expansión sin límites y máxima personalización.
+              </p>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> <strong>Todo lo anterior</strong>
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> <strong>50 Tarjetas</strong> libres incluidas
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> <strong>Acceso Total</strong> al Panel Admin
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> Editor Libre <strong>(Módulo de Diseño)</strong>
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> Compra de espacio/tarjetas adicionales
+                </li>
+              </ul>
+              <button className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
+                Contactar Ventas
+              </button>
             </div>
 
           </div>
         </div>
-      )}
+      </section>
 
+      {/* FOOTER */}
+      <footer className="py-12 border-t border-white/5 bg-[#030308] text-center">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Nfc className="text-slate-500 w-6 h-6" />
+            <span className="text-xl font-bold tracking-tight text-slate-400">Rose VCards</span>
+          </div>
+          <p className="text-slate-500 text-sm">
+            © {new Date().getFullYear()} Rose VCards. Todos los derechos reservados. <br className="md:hidden" />
+            Potenciado por Google Cloud Platform.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
-
