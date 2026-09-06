@@ -32,16 +32,27 @@ export async function POST(request) {
         telefono, whatsapp, correo, url, linkedin, instagram, facebook,
         calle, ciudad, estado, cp, pais, nota, google_maps_url, video_youtube_url,
         theme, font_family, font_primary, font_secondary, color_primario, color_secundario, color_cta,
-        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo
+        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo, custom_layout
       ) VALUES (
         $1, $2, $3, $4, $5, $6,
         $7, $8, $9, $10, $11, $12, $13,
         $14, $15, $16, $17, $18, $19, $20, $21,
         $22, $23, $24, $25, $26, $27, $28,
-        $29, $30, $31, $32, $33
+        $29, $30, $31, $32, $33, $34
       )
       RETURNING id, slug, created_at;
     `;
+
+    // Preparar JSON para custom_layout
+    const customLayout = {
+      logoPosition: design.logoPosition || 'center',
+      hideBanner: !!design.hideBanner,
+      hideBio: !!design.hideBio,
+      hideContact: !!design.hideContact,
+      hideSocial: !!design.hideSocial,
+      hideMap: !!design.hideMap,
+      customLabels: design.customLabels || {}
+    };
 
     const values = [
       slug,
@@ -76,7 +87,8 @@ export async function POST(request) {
       design.coverPositionY || 50,
       design.coverZoom || 100,
       logoImg,
-      coverPhoto
+      coverPhoto,
+      JSON.stringify(customLayout)
     ];
 
     const result = await pool.query(query, values);
