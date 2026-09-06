@@ -29,6 +29,25 @@ const WORDS = [
 ];
 
 export default function LandingPage() {
+  const handleCheckout = async (planId) => {
+    // Aquí puedes agregar validación de sesión para enviar el email del usuario logueado
+    // Por ahora redirigimos al checkout donde Stripe pedirá el correo
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId, userEmail: '' }) // Si está logueado, pasar email
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Error al procesar el pago');
+      }
+    } catch (e) {
+      alert('Error de conexión');
+    }
+  };
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
@@ -68,7 +87,7 @@ export default function LandingPage() {
             <a href="#use-cases" className="hover:text-white transition-colors">Casos de Uso</a>
             <a href="#white-label" className="hover:text-white transition-colors">Marca Blanca</a>
             <a href="#pricing" className="hover:text-white transition-colors">Precios</a>
-            <Link href="/builder" className="text-[#EE334E] hover:text-white transition-colors">Entrar al Editor</Link>
+            <Link href="/login" className="text-white bg-[#EE334E] hover:bg-[#ff0003] px-4 py-2 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(238,51,78,0.3)]">Iniciar Sesión</Link>
           </div>
         </div>
       </nav>
@@ -339,9 +358,7 @@ export default function LandingPage() {
                   <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Uso estrictamente académico
                 </li>
               </ul>
-              <button className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-white/20 transition-colors">
-                Solicitar Acceso
-              </button>
+              <Link href="/login" className="block text-center w-full py-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors">Solicitar Acceso</Link>
             </motion.div>
 
             {/* 2. PROFESIONAL */}
@@ -365,7 +382,7 @@ export default function LandingPage() {
                   <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Soporte estándar
                 </li>
               </ul>
-              <button className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] group-hover:text-white transition-all">
+              <button onClick={() => handleCheckout('pro')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] group-hover:text-white transition-all">
                 Contratar Pro
               </button>
             </motion.div>
@@ -397,7 +414,7 @@ export default function LandingPage() {
                   <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Soporte Premium
                 </li>
               </ul>
-              <button className="w-full py-3 rounded-xl bg-[#EE334E] text-white font-bold hover:bg-[#ff0003] transition-colors shadow-lg">
+              <button onClick={() => handleCheckout('business')} className="w-full py-3 rounded-xl bg-[#EE334E] text-white font-bold hover:bg-[#ff0003] transition-colors shadow-lg">
                 Contratar Empresa
               </button>
             </motion.div>
@@ -427,7 +444,7 @@ export default function LandingPage() {
                   <Layers className="w-5 h-5 text-purple-400 shrink-0" /> Editor Libre <strong>(Módulo de Diseño)</strong>
                 </li>
               </ul>
-              <button className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
+              <button onClick={() => handleCheckout('elite')} className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
                 Contactar Ventas
               </button>
             </motion.div>
