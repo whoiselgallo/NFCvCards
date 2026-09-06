@@ -159,7 +159,24 @@ export default function VCardEngineDashboard() {
     theme: 'modern',
     logoScale: 100,
     coverPositionY: 50,         // Slider 1: Deslizar Arriba / Abajo (0% a 100%)
-    coverZoom: 100              // Slider 2: Acercar / Alejar (100% a 250%)
+    coverZoom: 100,             // Slider 2: Acercar / Alejar (100% a 250%)
+    
+    // NUEVO MÓDULO DE DISEÑO LIBRE
+    hideBanner: false,          // Toggle para quitar el banner/portada
+    logoPosition: 'center',     // center, left, right, hidden
+    hideBio: false,             // Toggle contenedor Nota/Bio
+    hideContact: false,         // Toggle contenedor Canales de Contacto Directo
+    hideSocial: false,          // Toggle contenedor Redes Sociales
+    hideMap: false,             // Toggle contenedor de Maps
+    hideVideo: false,           // Toggle contenedor de Video
+    customLabels: {
+      bio: 'Nota / Bio / Propuesta de Valor',
+      contact: 'Canales de Contacto Directo',
+      social: 'Redes Sociales',
+      portfolio: 'Portafolio & Proyectos',
+      gallery: 'Fototeca & Instalaciones',
+      reviews: 'Reseñas de Clientes'
+    }
   });
 
   // Imágenes de la Tarjeta
@@ -309,7 +326,22 @@ export default function VCardEngineDashboard() {
   };
 
   const handleDesignChange = (e) => {
-    setDesign(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value, type, checked } = e.target;
+    setDesign(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
+  };
+
+  const handleCustomLabelChange = (e) => {
+    const { name, value } = e.target;
+    setDesign(prev => ({
+      ...prev,
+      customLabels: {
+        ...prev.customLabels,
+        [name]: value
+      }
+    }));
   };
 
   // Extractor de color dominante del logotipo
@@ -820,6 +852,78 @@ export default function VCardEngineDashboard() {
                       </div>
                     </div>
                   )}
+
+                  {/* NUEVO: MÓDULO DE DISEÑO LIBRE */}
+                  <div className="pt-4 border-t border-gray-800/80 space-y-4">
+                    <h4 className="text-xs font-rosetta text-white font-bold uppercase tracking-wider flex items-center gap-2">
+                      <span className="text-[#EE334E]">🎨</span> Controles de Diseño Libre
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Ocultar / Mostrar Banner */}
+                      <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-800 bg-black/30 cursor-pointer hover:border-gray-600 transition-colors">
+                        <div className="relative flex items-center">
+                          <input type="checkbox" name="hideBanner" checked={design.hideBanner} onChange={handleDesignChange} className="sr-only peer" />
+                          <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#EE334E]"></div>
+                        </div>
+                        <span className="text-xs text-gray-300 font-semibold uppercase tracking-wider">Ocultar Banner / Portada</span>
+                      </label>
+
+                      {/* Posición del Logotipo */}
+                      <div className="space-y-1">
+                        <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Posición del Logotipo</label>
+                        <select name="logoPosition" value={design.logoPosition} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                          <option value="center">Centrado (Por Defecto)</option>
+                          <option value="left">Alineado a la Izquierda</option>
+                          <option value="right">Alineado a la Derecha</option>
+                          <option value="hidden">Ocultar Logotipo</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Visibilidad de Contenedores de Información */}
+                    <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3 mt-2">
+                      <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Ocultar Contenedores de Información</h5>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" name="hideBio" checked={design.hideBio} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                          <span className="text-[10px] text-gray-300">Nota / Bio</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" name="hideContact" checked={design.hideContact} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                          <span className="text-[10px] text-gray-300">Datos de Contacto</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" name="hideSocial" checked={design.hideSocial} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                          <span className="text-[10px] text-gray-300">Redes Sociales</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" name="hideMap" checked={design.hideMap} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                          <span className="text-[10px] text-gray-300">Google Maps</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Etiquetas Personalizadas */}
+                    <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 mt-2 space-y-3">
+                      <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Etiquetas Personalizadas</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Nota / Bio</label>
+                          <input type="text" name="bio" value={design.customLabels.bio} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Nota / Bio / Valor" />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Contacto</label>
+                          <input type="text" name="contact" value={design.customLabels.contact} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Canales de Contacto Directo" />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Redes Sociales</label>
+                          <input type="text" name="social" value={design.customLabels.social} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Redes Sociales" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 {/* ========================================================= */}

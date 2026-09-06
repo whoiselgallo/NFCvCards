@@ -367,39 +367,44 @@ export default function PublicProfileClient({ profile = {} }) {
             Cover → logo flotante → nombre (original)            */}
         {(theme === 'modern' || theme === 'cover_float' || !['split_hero','neon_cyber','midnight_gold','avatar_focus','sidebar_stripe','glassmorphism','sunset_gradient','classic','minimal'].includes(theme)) && (
           <>
-            <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-black/60">
-              {activeCover ? (
-                <img src={activeCover} alt="Portada" className="w-full h-full object-cover transition-all"
-                  style={{ objectPosition: `center ${cover_position_y}%`, transform: `scale(${cover_zoom / 100})` }} />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center relative overflow-hidden"
-                  style={{ background: `linear-gradient(135deg, ${color_primario}40 0%, ${color_secundario}20 50%, #000000 100%)` }}>
-                  <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
-                  <span className="font-bruno text-4xl opacity-20 tracking-widest text-white">
-                    {empresa ? empresa.substring(0, 3).toUpperCase() : 'NFC'}
-                  </span>
-                </div>
-              )}
-              {plan_tier !== 'free' && (
-                <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-bruno font-bold uppercase tracking-wider backdrop-blur-md border shadow-lg flex items-center gap-1"
-                  style={{ backgroundColor: `${color_primario}30`, borderColor: color_primario, color: '#FFFFFF' }}>
-                  <span>⭐</span> {plan_tier === 'elite' ? 'Business Elite' : plan_tier === 'business' ? 'Business' : 'Pro'}
-                </div>
-              )}
-            </div>
-            <div className={`relative px-6 ${logoPosition === 'left' ? 'text-left' : 'text-center'} -mt-14 mb-4 z-10`}>
-              <div className="inline-block relative">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 shadow-2xl flex items-center justify-center overflow-hidden border-2 bg-[#0a0a10]"
-                  style={{ borderColor: color_primario, boxShadow: `0 0 24px ${color_primario}40` }}>
-                  {activeLogo ? (
-                    <img src={activeLogo} alt={nombre} className="w-full h-full object-contain rounded-xl" style={{ transform: `scale(${logo_scale / 100})` }} />
-                  ) : (
-                    <div className="w-full h-full rounded-xl flex items-center justify-center font-bruno text-2xl font-bold text-white" style={{ backgroundColor: color_primario }}>
-                      {nombre ? nombre.charAt(0).toUpperCase() : '★'}
-                    </div>
-                  )}
-                </div>
+            {!layout.hideBanner && (
+              <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-black/60">
+                {activeCover ? (
+                  <img src={activeCover} alt="Portada" className="w-full h-full object-cover transition-all"
+                    style={{ objectPosition: `center ${cover_position_y}%`, transform: `scale(${cover_zoom / 100})` }} />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center relative overflow-hidden"
+                    style={{ background: `linear-gradient(135deg, ${color_primario}40 0%, ${color_secundario}20 50%, #000000 100%)` }}>
+                    <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+                    <span className="font-bruno text-4xl opacity-20 tracking-widest text-white">
+                      {empresa ? empresa.substring(0, 3).toUpperCase() : 'NFC'}
+                    </span>
+                  </div>
+                )}
+                {plan_tier !== 'free' && (
+                  <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-bruno font-bold uppercase tracking-wider backdrop-blur-md border shadow-lg flex items-center gap-1"
+                    style={{ backgroundColor: `${color_primario}30`, borderColor: color_primario, color: '#FFFFFF' }}>
+                    <span>⭐</span> {plan_tier === 'elite' ? 'Business Elite' : plan_tier === 'business' ? 'Business' : 'Pro'}
+                  </div>
+                )}
               </div>
+            )}
+            
+            <div className={`relative px-6 ${layout.logoPosition === 'left' ? 'text-left' : layout.logoPosition === 'right' ? 'text-right' : 'text-center'} ${!layout.hideBanner ? '-mt-14' : 'pt-8'} mb-4 z-10`}>
+              {layout.logoPosition !== 'hidden' && (
+                <div className="inline-block relative">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 shadow-2xl flex items-center justify-center overflow-hidden border-2 bg-[#0a0a10]"
+                    style={{ borderColor: color_primario, boxShadow: `0 0 24px ${color_primario}40` }}>
+                    {activeLogo ? (
+                      <img src={activeLogo} alt={nombre} className="w-full h-full object-contain rounded-xl" style={{ transform: `scale(${logo_scale / 100})` }} />
+                    ) : (
+                      <div className="w-full h-full rounded-xl flex items-center justify-center font-bruno text-2xl font-bold text-white" style={{ backgroundColor: color_primario }}>
+                        {nombre ? nombre.charAt(0).toUpperCase() : '★'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="mt-3">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
                 {puesto && <p className="text-sm font-semibold tracking-wide mt-1 uppercase" style={{ color: color_primario }}>{puesto}</p>}
@@ -464,16 +469,23 @@ export default function PublicProfileClient({ profile = {} }) {
         <div className="px-5 sm:px-6 space-y-4">
 
           {/* BIO / NOTA */}
-          {nota && (
-            <div
-              className="p-3.5 rounded-2xl text-xs leading-relaxed border backdrop-blur-md"
-              style={{
-                backgroundColor: `${color_secundario}08`,
-                borderColor: `${color_secundario}25`,
-                color: activeThemeConfig.textColor
-              }}
-            >
-              <p>{nota}</p>
+          {(!layout.hideBio && nota) && (
+            <div className="space-y-2.5">
+              {layout.customLabels?.bio && (
+                <h3 className="text-[11px] font-bruno uppercase tracking-wider pl-1" style={{ color: color_primario }}>
+                  {layout.customLabels.bio}
+                </h3>
+              )}
+              <div
+                className="p-3.5 rounded-2xl text-xs leading-relaxed border backdrop-blur-md"
+                style={{
+                  backgroundColor: `${color_secundario}08`,
+                  borderColor: `${color_secundario}25`,
+                  color: activeThemeConfig.textColor
+                }}
+              >
+                <p>{nota}</p>
+              </div>
             </div>
           )}
 
@@ -537,101 +549,120 @@ export default function PublicProfileClient({ profile = {} }) {
           )}
 
           {/* CANALES DE CONTACTO DIRECTO */}
+          {!layout.hideContact && (telefono || whatsapp || correo || url) && (
+            <div className="space-y-2.5">
+              {layout.customLabels?.contact && (
+                <h3 className="text-[11px] font-bruno uppercase tracking-wider pl-1 mt-2" style={{ color: color_primario }}>
+                  {layout.customLabels.contact}
+                </h3>
+              )}
+              {telefono && (
+                <a
+                  href={`tel:${telefono.replace(/\s+/g, '')}`}
+                  onClick={() => trackEvent('call_click')}
+                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
+                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
+                >
+                  <span className="text-base" style={{ color: color_primario }}>📞</span>
+                  <span className="truncate font-mono">Llamar: {telefono}</span>
+                </a>
+              )}
+
+              {whatsapp && (
+                <a
+                  href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent('whatsapp_click')}
+                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
+                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
+                >
+                  <span className="text-base" style={{ color: '#25D366' }}>💬</span>
+                  <span className="truncate">WhatsApp: {whatsapp}</span>
+                </a>
+              )}
+
+              {correo && (
+                <a
+                  href={`mailto:${correo}`}
+                  onClick={() => trackEvent('email_click')}
+                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
+                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
+                >
+                  <span className="text-base" style={{ color: color_primario }}>✉️</span>
+                  <span className="truncate">{correo}</span>
+                </a>
+              )}
+
+              {url && (
+                <a
+                  href={url.startsWith('http') ? url : `https://${url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent('website_click')}
+                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
+                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
+                >
+                  <span className="text-base" style={{ color: color_secundario }}>🌐</span>
+                  <span className="truncate">{url.replace(/^https?:\/\//, '')}</span>
+                </a>
+              )}
+            </div>
+          )}
+
+          {/* REDES SOCIALES */}
+          {!layout.hideSocial && (fbUrl || igUrl || inUrl) && (
+            <div className="space-y-2.5">
+              {layout.customLabels?.social && (
+                <h3 className="text-[11px] font-bruno uppercase tracking-wider pl-1 mt-2" style={{ color: color_primario }}>
+                  {layout.customLabels.social}
+                </h3>
+              )}
+              {fbUrl && (
+                <a
+                  href={fbUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent('social_click')}
+                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
+                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
+                >
+                  <span className="text-base text-blue-500">📘</span>
+                  <span className="truncate font-mono">facebook.com/{facebook.replace(/^@+/, '')}</span>
+                </a>
+              )}
+
+              {igUrl && (
+                <a
+                  href={igUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent('social_click')}
+                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
+                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
+                >
+                  <span className="text-base text-pink-500">📸</span>
+                  <span className="truncate font-mono">instagram.com/{instagram.replace(/^@+/, '')}</span>
+                </a>
+              )}
+
+              {inUrl && (
+                <a
+                  href={inUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent('social_click')}
+                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
+                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
+                >
+                  <span className="text-base text-sky-400">💼</span>
+                  <span className="truncate font-mono">linkedin.com/in/{linkedin.replace(/^@+/, '')}</span>
+                </a>
+              )}
+            </div>
+          )}
+
           <div className="space-y-2.5">
-            {telefono && (
-              <a
-                href={`tel:${telefono.replace(/\s+/g, '')}`}
-                onClick={() => trackEvent('call_click')}
-                className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-              >
-                <span className="text-base" style={{ color: color_primario }}>📞</span>
-                <span className="truncate font-mono">Llamar: {telefono}</span>
-              </a>
-            )}
-
-            {whatsapp && (
-              <a
-                href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent('whatsapp_click')}
-                className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-              >
-                <span className="text-base" style={{ color: '#25D366' }}>💬</span>
-                <span className="truncate">WhatsApp: {whatsapp}</span>
-              </a>
-            )}
-
-            {correo && (
-              <a
-                href={`mailto:${correo}`}
-                onClick={() => trackEvent('email_click')}
-                className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-              >
-                <span className="text-base" style={{ color: color_primario }}>✉️</span>
-                <span className="truncate">{correo}</span>
-              </a>
-            )}
-
-            {url && (
-              <a
-                href={url.startsWith('http') ? url : `https://${url}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent('website_click')}
-                className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-              >
-                <span className="text-base" style={{ color: color_secundario }}>🌐</span>
-                <span className="truncate">{url.replace(/^https?:\/\//, '')}</span>
-              </a>
-            )}
-
-            {fbUrl && (
-              <a
-                href={fbUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent('social_click')}
-                className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-              >
-                <span className="text-base text-blue-500">📘</span>
-                <span className="truncate font-mono">facebook.com/{facebook.replace(/^@+/, '')}</span>
-              </a>
-            )}
-
-            {igUrl && (
-              <a
-                href={igUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent('social_click')}
-                className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-              >
-                <span className="text-base text-pink-500">📸</span>
-                <span className="truncate font-mono">instagram.com/{instagram.replace(/^@+/, '')}</span>
-              </a>
-            )}
-
-            {inUrl && (
-              <a
-                href={inUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackEvent('social_click')}
-                className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-              >
-                <span className="text-base text-sky-400">💼</span>
-                <span className="truncate font-mono">linkedin.com/in/{linkedin.replace(/^@+/, '')}</span>
-              </a>
-            )}
-
             {/* CAMPOS DINÁMICOS PERSONALIZADOS (AGREGADOS EN EL PORTAL ELITE) */}
             {safeCustomFields.map((field, idx) => (
               <a
@@ -648,7 +679,7 @@ export default function PublicProfileClient({ profile = {} }) {
               </a>
             ))}
 
-            {effectiveMapsUrl && (
+            {!layout.hideMap && effectiveMapsUrl && (
               <a
                 href={effectiveMapsUrl}
                 target="_blank"
@@ -661,7 +692,7 @@ export default function PublicProfileClient({ profile = {} }) {
               </a>
             )}
 
-            {video_youtube_url && (
+            {!layout.hideVideo && video_youtube_url && (
               <a
                 href={video_youtube_url}
                 target="_blank"
