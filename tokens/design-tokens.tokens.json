@@ -1,0 +1,101 @@
+{
+  "color": {
+    "brand": {
+      "rojo-nucleo": {
+        "$value": "#C8102E",
+        "$type": "color",
+        "$description": "Rojo Núcleo Principal de la Marca. RGB(200, 16, 46)."
+      },
+      "carmesi-geometrico": {
+        "$value": "#EE334E",
+        "$type": "color",
+        "$description": "Carmesí Geométrico. RGB(238, 51, 78)."
+      },
+      "gris-circuito": {
+        "$value": "#B1B3B3",
+        "$type": "color",
+        "$description": "Gris Circuito. RGB(177, 179, 179)."
+      },
+      "negro-profundo": {
+        "$value": "#0A0A0A",
+        "$type": "color",
+        "$description": "Negro Profundo. RGB(10, 10, 10)."
+      }
+    },
+    "secondary": {
+      "gris-apoyo": {
+        "$value": "#EBEBF2",
+        "$type": "color",
+        "$description": "Gris de Apoyo. RGB(235, 235, 242)."
+      },
+      "azul-tecnologico": {
+        "$value": "#4A7AFF",
+        "$type": "color",
+        "$description": "Azul Tecnológico (Subtle, cool accent). RGB(74, 122, 255)."
+      },
+      "plata-metalizado": {
+        "$value": "#D9DADC",
+        "$type": "color",
+        "$description": "Plata Metalizado (For highlights). RGB(217, 218, 220)."
+      },
+      "sombra-carmesi": {
+        "$value": "#9A0020",
+        "$type": "color",
+        "$description": "Sombra Carmesí. RGB(154, 0, 32)."
+      }
+    }
+  },
+  "fontFamily": {
+    "primary": {
+      "$value": "Plaster",
+      "$type": "fontFamily",
+      "$description": "Tipografía Principal de Marca / Display (Plaster) para logotipo e isotipos."
+    },
+    "corporate": {
+      "$value": "Rosetta Tech Sans",
+      "$type": "fontFamily",
+      "$description": "Tipografía Secundaria para titulares y comunicación corporativa legible."
+    },
+    "body": {
+      "$value": "Inter",
+      "$type": "fontFamily",
+      "$description": "Tipografía de Lectura y UI (Inter)."
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": {
+        "background": { "$value": "linear-gradient(135deg, #C8102E 0%, #9A0020 100%)", "$type": "gradient" },
+        "height": { "$value": "48px", "$type": "dimension" },
+        "borderRadius": { "$value": "14px", "$type": "dimension" }
+      },
+      "secondary": {
+        "background": { "$value": "rgba(235, 235, 242, 0.05)", "$type": "color" },
+        "border": { "$value": "1px solid rgba(177, 179, 179, 0.30)", "$type": "border" },
+        "borderRadius": { "$value": "12px", "$type": "dimension" }
+      }
+    },
+    "sliders": {
+      "track": {
+        "height": { "$value": "6px", "$type": "dimension" },
+        "background": { "$value": "#1A1622", "$type": "color" },
+        "borderRadius": { "$value": "999px", "$type": "dimension" }
+      },
+      "thumb": {
+        "size": { "$value": "20px", "$type": "dimension" },
+        "background": { "$value": "#EE334E", "$type": "color" },
+        "border": { "$value": "2.5px solid #FFFFFF", "$type": "border" }
+      }
+    },
+    "smartphoneCanvas": {
+      "frame": {
+        "maxWidth": { "$value": "390px", "$type": "dimension" },
+        "borderRadius": { "$value": "44px", "$type": "dimension" },
+        "border": { "$value": "2px solid rgba(200, 16, 46, 0.35)", "$type": "border" }
+      },
+      "screen": {
+        "borderRadius": { "$value": "34px", "$type": "dimension" }
+      }
+    }
+  }
+}

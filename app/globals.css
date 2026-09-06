@@ -3,121 +3,281 @@
 @tailwind utilities;
 
 :root {
-  /* 1. Paleta Cromática Oficial - Cyber Rose */
-  --rose-primary: #E11D48;
-  --rose-neon: #FF2A54;
-  --rose-hover: #BE123C;
-  --rose-dark: #881337;
-  --deep-wine: #4C0519;
-  --circuit-silver: #E2E8F0;
-  --circuit-silver-dim: #94A3B8;
-  --aqua-cyber: #00F0FF;
-  
-  --negro-profundo: #060509;
-  --midnight-panel: #0F0B15;
-  --deep-grid: #181122;
+  /* 🌹 1. Paleta de Colores de la Marca (Figma Official Design Tokens) */
+  /* Paleta Principal */
+  --rojo-nucleo: #C8102E;           /* HEX: #C8102E | RGB: 200, 16, 46 - Color Primario de Marca */
+  --carmesi-geometrico: #EE334E;    /* HEX: #EE334E | RGB: 238, 51, 78 - Acentos, resplandores y CTA */
+  --gris-circuito: #B1B3B3;        /* HEX: #B1B3B3 | RGB: 177, 179, 179 - Líneas, circuitos y texto secundario */
+  --negro-profundo: #0A0A0A;       /* HEX: #0A0A0A | RGB: 10, 10, 10 - Fondo inmersivo */
+
+  /* Paleta Secundaria */
+  --gris-apoyo: #EBEBF2;           /* HEX: #EBEBF2 | RGB: 235, 235, 242 - Tarjetas claras / Fondos suaves */
+  --azul-tecnologico: #4A7AFF;     /* HEX: #4A7AFF | RGB: 74, 122, 255 - Subtle cool accent */
+  --plata-metalizado: #D9DADC;     /* HEX: #D9DADC | RGB: 217, 218, 220 - Highlights y biseles */
+  --sombra-carmesi: #9A0020;       /* HEX: #9A0020 | RGB: 154, 0, 32 - Sombras y estados hover profundos */
+
+  /* Tipografías Oficiales */
+  --font-primary: 'Plaster', cursive, sans-serif;
+  --font-secondary: 'Rosetta Tech Sans', 'Space Grotesk', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Alias Semánticos Cyber Neo-Rose */
+  --cyber-rose-neon: var(--carmesi-geometrico);
+  --ruby-rose: var(--rojo-nucleo);
+  --crimson-shadow: var(--sombra-carmesi);
+  --circuit-silver: var(--gris-circuito);
+  --obsidian-cyber-dark: var(--negro-profundo);
+  --midnight-panel: #121114;
   --blanco-puro: #F8FAFC;
-  --humo: #E2E8F0;
+  --humo: #EBEBF2;
   
-  /* 2. Sistema de Luces y Glows Cyber-Rose */
-  --shadow-glowRose: 0 0 16px rgba(225, 29, 72, 0.45);
-  --shadow-glowRoseHover: 0 0 28px rgba(255, 42, 84, 0.7);
-  --shadow-silverSoft: 0 0 12px rgba(226, 232, 240, 0.25);
-  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.7);
-  --border-rose-subtle: 1px solid rgba(225, 29, 72, 0.25);
+  /* Sistema de Luces, Sombras y Glows */
+  --shadow-glowRose: 0 0 16px rgba(200, 16, 46, 0.45);
+  --shadow-glowRoseHover: 0 0 26px rgba(238, 51, 78, 0.70);
+  --shadow-blueTechSoft: 0 0 14px rgba(74, 122, 255, 0.35);
+  --shadow-silverSoft: 0 0 12px rgba(217, 218, 220, 0.25);
+  --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.75);
+  --border-rose-subtle: 1px solid rgba(200, 16, 46, 0.30);
   
-  /* 3. Radios de Borde */
-  --radius-soft: 12px;
-  --radius-medium: 16px;
-  --radius-large: 20px;
+  /* Radios de Borde */
+  --radius-soft: 10px;
+  --radius-medium: 14px;
+  --radius-large: 18px;
+  --radius-device: 44px;
   --radius-full: 999px;
 }
 
 body {
   background-color: var(--negro-profundo);
-  color: var(--blanco-puro);
-  font-family: 'Inter', sans-serif;
+  color: var(--gris-circuito);
+  font-family: var(--font-body);
   background-image: 
-      radial-gradient(ellipse at 50% 0%, rgba(225, 29, 72, 0.12) 0%, transparent 60%),
-      linear-gradient(var(--deep-grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--deep-grid) 1px, transparent 1px);
-  background-size: 100% 100%, 36px 36px, 36px 36px;
+      radial-gradient(ellipse at 50% 0%, rgba(200, 16, 46, 0.15) 0%, transparent 60%),
+      radial-gradient(circle at 90% 80%, rgba(154, 0, 32, 0.20) 0%, transparent 50%),
+      linear-gradient(rgba(154, 0, 32, 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(154, 0, 32, 0.15) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+  background-attachment: fixed;
   min-height: 100vh;
 }
 
-h1, h2, h3, .font-bruno {
-  font-family: 'Bruno Ace', sans-serif;
+/* 1. Logotipo y Display en Plaster */
+.font-plaster, .font-brand-primary {
+  font-family: var(--font-primary);
+  letter-spacing: 2px;
+}
+
+/* 2. Títulos con Tipografía Secundaria (Rosetta Tech Sans) para Máxima Legibilidad */
+h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
+  font-family: var(--font-secondary);
+  font-weight: 700;
   letter-spacing: 0.5px;
 }
 
-.text-humo { color: var(--humo); }
-.text-rose { color: var(--rose-primary); text-shadow: var(--shadow-glowRose); }
-.text-rose-neon { color: var(--rose-neon); }
-.text-silver { color: var(--circuit-silver); }
+.text-rose-neon {
+  color: var(--carmesi-geometrico);
+  text-shadow: 0 0 12px rgba(238, 51, 78, 0.5);
+}
+
+.text-ruby {
+  color: var(--rojo-nucleo);
+}
+
+.text-circuit {
+  color: var(--gris-circuito);
+}
+
+.text-silver {
+  color: var(--plata-metalizado);
+}
+
+.text-blue-tech {
+  color: var(--azul-tecnologico);
+}
+
+/* Contenedor del Logotipo con resplandor Cyber Rose */
+.rose-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(200, 16, 46, 0.25) 0%, rgba(154, 0, 32, 0.65) 100%);
+  border: 1px solid rgba(238, 51, 78, 0.45);
+  box-shadow: 0 0 16px rgba(200, 16, 46, 0.4);
+  transition: all 0.3s ease;
+}
+.rose-logo-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 24px rgba(238, 51, 78, 0.7);
+  border-color: var(--carmesi-geometrico);
+}
 
 .panel-glass {
   background-color: var(--midnight-panel);
-  border: var(--border-rose-subtle);
+  border: 1px solid rgba(200, 16, 46, 0.20);
   border-radius: var(--radius-large);
   box-shadow: var(--shadow-card);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
 }
 
 .input-dark {
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(225, 29, 72, 0.2);
-  color: var(--blanco-puro);
+  background-color: rgba(18, 17, 20, 0.65);
+  border: 1px solid rgba(154, 0, 32, 0.6);
+  color: #FFFFFF;
   border-radius: var(--radius-soft);
   transition: all 0.3s ease;
   min-height: 48px;
   padding: 0 14px;
 }
-.input-dark::placeholder { color: rgba(226, 232, 240, 0.35); }
+.input-dark::placeholder { 
+  color: rgba(177, 179, 179, 0.45); 
+}
 .input-dark:focus {
   outline: none;
-  border-color: var(--rose-neon);
-  box-shadow: 0 0 15px rgba(255, 42, 84, 0.3);
-  background-color: rgba(225, 29, 72, 0.05);
+  border-color: var(--carmesi-geometrico);
+  box-shadow: 0 0 14px rgba(238, 51, 78, 0.4);
+  background-color: rgba(200, 16, 46, 0.08);
 }
 
+/* ====================================================================
+   TOKENS: BOTONES DE ACCIÓN (Primary & Secondary & Switchers)
+   ==================================================================== */
 .btn-primary {
-  background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%);
+  background: linear-gradient(135deg, var(--rojo-nucleo) 0%, var(--sombra-carmesi) 100%);
   color: #FFFFFF;
-  font-family: 'Bruno Ace', sans-serif;
+  font-family: var(--font-secondary);
   border-radius: var(--radius-medium);
-  box-shadow: var(--shadow-glowRose);
+  box-shadow: 0 0 16px rgba(200, 16, 46, 0.45);
   transition: all 0.3s ease;
   min-height: 48px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(238, 51, 78, 0.4);
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #FF2A54 0%, #E11D48 100%);
+  background: linear-gradient(135deg, var(--carmesi-geometrico) 0%, var(--rojo-nucleo) 100%);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-glowRoseHover);
+  box-shadow: 0 0 26px rgba(238, 51, 78, 0.70);
 }
 .btn-primary:active {
   transform: translateY(0);
 }
 
-.rose-logo-container {
+.btn-secondary {
+  background: rgba(235, 235, 242, 0.05);
+  color: var(--gris-apoyo);
+  font-family: var(--font-secondary);
+  border: 1px solid rgba(177, 179, 179, 0.30);
+  border-radius: 12px;
+  min-height: 44px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  background: rgba(238, 51, 78, 0.12);
+  border-color: var(--carmesi-geometrico);
+  color: #FFFFFF;
+}
+
+/* ====================================================================
+   TOKENS: SLIDERS DE CONTROL DE IMAGEN (Logo Scale, Posición Y, Zoom)
+   ==================================================================== */
+input[type="range"].slider-rose,
+.slider-rose {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #1A1622;
+  border: 1px solid rgba(154, 0, 32, 0.60);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider-rose::-webkit-slider-thumb,
+.slider-rose::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #EE334E;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 0 12px rgba(238, 51, 78, 0.80);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"].slider-rose::-webkit-slider-thumb:hover,
+.slider-rose::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
+  box-shadow: 0 0 18px rgba(238, 51, 78, 1);
+}
+
+input[type="range"].slider-rose::-moz-range-thumb,
+.slider-rose::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #EE334E;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 0 12px rgba(238, 51, 78, 0.80);
+  cursor: pointer;
+}
+
+/* ====================================================================
+   TOKENS: ÁREA DE CREACIÓN DEL CELULAR (Smartphone Device Mockup)
+   ==================================================================== */
+.smartphone-mockup-frame {
+  width: 100%;
+  max-width: 390px;
+  min-height: 740px;
+  background: #0A0A0A;
+  border-radius: var(--radius-device);
+  padding: 10px;
+  border: 2px solid rgba(200, 16, 46, 0.35);
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.85), 0 0 30px rgba(200, 16, 46, 0.20);
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.smartphone-notch,
+.smartphone-dynamic-island {
+  width: 100px;
+  height: 24px;
+  background-color: #000000;
   border-radius: 20px;
-  padding: 4px;
-  background: linear-gradient(135deg, rgba(255, 42, 84, 0.6), rgba(76, 5, 25, 0.8));
-  box-shadow: 0 0 20px rgba(225, 29, 72, 0.4);
+  margin: 4px auto 8px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.smartphone-screen {
+  border-radius: 34px;
+  overflow: hidden;
+  background-color: #FFFFFF;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
 .rose-logo-img {
   width: 48px;
   height: 48px;
-  border-radius: 16px;
+  border-radius: 14px;
   object-fit: cover;
   display: block;
 }

@@ -1,0 +1,208 @@
+{
+  "$schema": "https://tokens.studio/schemas/token-set.json",
+  "name": "ROSE Card - Cyber vCard Engine Tokens",
+  "version": "1.3.0",
+  "description": "Design Tokens oficiales de ROSE Card con Paleta de 8 Colores, Tipografías Plaster / Rosetta Tech Sans, Botones, Sliders y Mockup de Smartphone.",
+  "global": {
+    "color": {
+      "paleta-principal": {
+        "rojo-nucleo": {
+          "value": "#C8102E",
+          "type": "color",
+          "description": "Rojo Núcleo Principal de la Marca. RGB(200, 16, 46). Uso: Botones primarios, branding corporativo, contornos destacados."
+        },
+        "carmesi-geometrico": {
+          "value": "#EE334E",
+          "type": "color",
+          "description": "Carmesí Geométrico. RGB(238, 51, 78). Uso: Focos neón, estados hover, títulos y resplandor de circuitos."
+        },
+        "gris-circuito": {
+          "value": "#B1B3B3",
+          "type": "color",
+          "description": "Gris Circuito. RGB(177, 179, 179). Uso: Textos secundarios, pistas de circuito, líneas divisorias e iconos."
+        },
+        "negro-profundo": {
+          "value": "#0A0A0A",
+          "type": "color",
+          "description": "Negro Profundo. RGB(10, 10, 10). Uso: Fondo principal inmersivo y paneles de contraste extremo."
+        }
+      },
+      "paleta-secundaria": {
+        "gris-apoyo": {
+          "value": "#EBEBF2",
+          "type": "color",
+          "description": "Gris de Apoyo. RGB(235, 235, 242). Uso: Superficies claras, fondos alternos y tipografía de alto contraste."
+        },
+        "azul-tecnologico": {
+          "value": "#4A7AFF",
+          "type": "color",
+          "description": "Azul Tecnológico (Subtle, cool accent). RGB(74, 122, 255). Uso: Badges tecnológicos, enlaces activos y acentos fríos."
+        },
+        "plata-metalizado": {
+          "value": "#D9DADC",
+          "type": "color",
+          "description": "Plata Metalizado (For highlights). RGB(217, 218, 220). Uso: Biseles, reflejos metálicos, bordes de cristal y brillos."
+        },
+        "sombra-carmesi": {
+          "value": "#9A0020",
+          "type": "color",
+          "description": "Sombra Carmesí. RGB(154, 0, 32). Uso: Sombras facetadas, gradientes oscuros y estados active/pressed."
+        }
+      },
+      "semantic": {
+        "background": {
+          "primary": { "value": "{color.paleta-principal.negro-profundo}", "type": "color" },
+          "panel": { "value": "#121114", "type": "color" },
+          "surface-light": { "value": "{color.paleta-secundaria.gris-apoyo}", "type": "color" }
+        },
+        "text": {
+          "primary": { "value": "#FFFFFF", "type": "color" },
+          "secondary": { "value": "{color.paleta-principal.gris-circuito}", "type": "color" },
+          "brand-neon": { "value": "{color.paleta-principal.carmesi-geometrico}", "type": "color" },
+          "brand-ruby": { "value": "{color.paleta-principal.rojo-nucleo}", "type": "color" },
+          "accent-blue": { "value": "{color.paleta-secundaria.azul-tecnologico}", "type": "color" }
+        },
+        "border": {
+          "subtle": { "value": "rgba(200, 16, 46, 0.30)", "type": "color" },
+          "highlight": { "value": "{color.paleta-secundaria.plata-metalizado}", "type": "color" },
+          "glow": { "value": "{color.paleta-principal.carmesi-geometrico}", "type": "color" }
+        }
+      }
+    },
+    "fontFamilies": {
+      "brand-primary": {
+        "value": "Plaster",
+        "type": "fontFamilies",
+        "description": "Tipografía Principal de Marca / Display (Plaster). Utilizada para el logotipo rose vcard, monogramas e isotipos de impacto."
+      },
+      "corporate-secondary": {
+        "value": "Rosetta Tech Sans",
+        "type": "fontFamilies",
+        "description": "Tipografía Secundaria de Marca (Rosetta Tech Sans / Space Grotesk). Fuente para comunicación corporativa, títulos h1-h3 y pasos del generador."
+      },
+      "body-ui": {
+        "value": "Inter",
+        "type": "fontFamilies",
+        "description": "Tipografía de Lectura, Formularios y UI de Interfaz."
+      }
+    },
+    "components": {
+      "buttons": {
+        "primary": {
+          "background": { "value": "linear-gradient(135deg, #C8102E 0%, #9A0020 100%)", "type": "gradient" },
+          "backgroundHover": { "value": "linear-gradient(135deg, #EE334E 0%, #C8102E 100%)", "type": "gradient" },
+          "text": { "value": "#FFFFFF", "type": "color" },
+          "fontFamily": { "value": "{fontFamilies.corporate-secondary}", "type": "fontFamilies" },
+          "fontWeight": { "value": "700", "type": "fontWeight" },
+          "height": { "value": "48px", "type": "sizing" },
+          "borderRadius": { "value": "14px", "type": "borderRadius" },
+          "border": { "value": "1px solid rgba(238, 51, 78, 0.40)", "type": "border" },
+          "boxShadow": { "value": "0 0 16px rgba(200, 16, 46, 0.45)", "type": "boxShadow" },
+          "boxShadowHover": { "value": "0 0 26px rgba(238, 51, 78, 0.70)", "type": "boxShadow" }
+        },
+        "secondary": {
+          "background": { "value": "rgba(235, 235, 242, 0.05)", "type": "color" },
+          "backgroundHover": { "value": "rgba(238, 51, 78, 0.12)", "type": "color" },
+          "text": { "value": "#EBEBF2", "type": "color" },
+          "border": { "value": "1px solid rgba(177, 179, 179, 0.30)", "type": "border" },
+          "borderHover": { "value": "1px solid #EE334E", "type": "border" },
+          "borderRadius": { "value": "12px", "type": "borderRadius" },
+          "height": { "value": "44px", "type": "sizing" }
+        },
+        "modeSwitch": {
+          "containerBackground": { "value": "#0F0B15", "type": "color" },
+          "containerBorder": { "value": "1px solid rgba(154, 0, 32, 0.40)", "type": "border" },
+          "activeBackground": { "value": "linear-gradient(135deg, #EE334E 0%, #C8102E 100%)", "type": "gradient" },
+          "activeShadow": { "value": "0 0 16px rgba(238, 51, 78, 0.60)", "type": "boxShadow" }
+        }
+      },
+      "sliders": {
+        "track": {
+          "height": { "value": "6px", "type": "sizing" },
+          "background": { "value": "#1A1622", "type": "color" },
+          "activeFill": { "value": "linear-gradient(90deg, #9A0020 0%, #EE334E 100%)", "type": "gradient" },
+          "borderRadius": { "value": "999px", "type": "borderRadius" },
+          "border": { "value": "1px solid rgba(154, 0, 32, 0.60)", "type": "border" }
+        },
+        "thumb": {
+          "width": { "value": "20px", "type": "sizing" },
+          "height": { "value": "20px", "type": "sizing" },
+          "background": { "value": "#EE334E", "type": "color" },
+          "border": { "value": "2.5px solid #FFFFFF", "type": "border" },
+          "borderRadius": { "value": "50%", "type": "borderRadius" },
+          "boxShadow": { "value": "0 0 12px rgba(238, 51, 78, 0.80)", "type": "boxShadow" }
+        },
+        "labels": {
+          "fontSize": { "value": "12px", "type": "fontSizes" },
+          "color": { "value": "#B1B3B3", "type": "color" },
+          "badgeBackground": { "value": "#0A0A0A", "type": "color" },
+          "badgeBorder": { "value": "1px solid rgba(238, 51, 78, 0.35)", "type": "border" }
+        }
+      },
+      "smartphoneCanvas": {
+        "deviceFrame": {
+          "maxWidth": { "value": "390px", "type": "sizing" },
+          "minHeight": { "value": "740px", "type": "sizing" },
+          "background": { "value": "#0A0A0A", "type": "color" },
+          "borderRadius": { "value": "44px", "type": "borderRadius" },
+          "padding": { "value": "10px", "type": "spacing" },
+          "border": { "value": "2px solid rgba(200, 16, 46, 0.35)", "type": "border" },
+          "boxShadow": { "value": "0 25px 65px rgba(0, 0, 0, 0.85), 0 0 30px rgba(200, 16, 46, 0.20)", "type": "boxShadow" }
+        },
+        "notch": {
+          "width": { "value": "100px", "type": "sizing" },
+          "height": { "value": "24px", "type": "sizing" },
+          "background": { "value": "#000000", "type": "color" },
+          "borderRadius": { "value": "20px", "type": "borderRadius" }
+        },
+        "screenViewport": {
+          "borderRadius": { "value": "34px", "type": "borderRadius" },
+          "background": { "value": "#FFFFFF", "type": "color" },
+          "overflow": { "value": "hidden", "type": "other" }
+        }
+      }
+    },
+    "boxShadow": {
+      "glow-rose": {
+        "value": {
+          "x": "0",
+          "y": "0",
+          "blur": "16",
+          "spread": "0",
+          "color": "rgba(200, 16, 46, 0.45)",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow"
+      },
+      "glow-rose-hover": {
+        "value": {
+          "x": "0",
+          "y": "0",
+          "blur": "26",
+          "spread": "0",
+          "color": "rgba(238, 51, 78, 0.70)",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow"
+      },
+      "glow-blue-tech": {
+        "value": {
+          "x": "0",
+          "y": "0",
+          "blur": "14",
+          "spread": "0",
+          "color": "rgba(74, 122, 255, 0.35)",
+          "type": "dropShadow"
+        },
+        "type": "boxShadow"
+      }
+    },
+    "borderRadius": {
+      "soft": { "value": "10px", "type": "borderRadius" },
+      "medium": { "value": "14px", "type": "borderRadius" },
+      "large": { "value": "18px", "type": "borderRadius" },
+      "device": { "value": "44px", "type": "borderRadius" },
+      "full": { "value": "9999px", "type": "borderRadius" }
+    }
+  }
+}

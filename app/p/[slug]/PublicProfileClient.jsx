@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { getTranslation } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
 
@@ -23,6 +24,17 @@ export function getSocialUrl(type, value) {
 }
 
 export default function PublicProfileClient({ profile = {} }) {
+  const [lang, setLang] = useState('es');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && navigator.language) {
+      if (navigator.language.toLowerCase().startsWith('en')) {
+        setLang('en');
+      }
+    }
+  }, []);
+
+  const t = (key) => getTranslation(lang, key);
   const {
     slug = '',
     nombre = '',
@@ -197,6 +209,7 @@ export default function PublicProfileClient({ profile = {} }) {
           boxShadow: `0 20px 50px rgba(0,0,0,0.6)`
         }}
       >
+<<<<<<< HEAD
         {/* CABECERA / PORTADA */}
         <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-black/60">
           {activeCover ? (
@@ -262,6 +275,107 @@ export default function PublicProfileClient({ profile = {} }) {
                   {nombre ? nombre.charAt(0).toUpperCase() : '★'}
                 </div>
               )}
+=======
+        {/* TEMA CLÁSICO */}
+        {isClassic && (
+          <div>
+            <div
+              className="h-36 w-full relative overflow-hidden flex items-center justify-center transition-colors"
+              style={{ backgroundColor: color_secundario }}
+            >
+              {activeCover ? (
+                <div className="w-full h-full overflow-hidden">
+                  <img
+                    src={activeCover}
+                    alt="Cover"
+                    className="w-full h-full object-cover"
+                    style={{
+                      objectPosition: `center ${cover_position_y}%`,
+                      transform: `scale(${cover_zoom / 100})`,
+                      transformOrigin: `center ${cover_position_y}%`
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+              )}
+            </div>
+
+            <div className="px-6 -mt-14 relative z-20 flex flex-col items-center text-center">
+              <div
+                className="flex items-center justify-center overflow-hidden transition-all bg-transparent border-0 shadow-none"
+                style={{
+                  width: `${logo_scale}px`,
+                  height: `${logo_scale}px`
+                }}
+              >
+                <img
+                  src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                  alt="Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              <div className="mt-4 w-full">
+                <h1 className="text-2xl font-bold leading-tight text-slate-800" style={{ fontFamily: currentFontPrimary }}>
+                  {nombre} {apellido}
+                </h1>
+                <div className="h-1.5 w-16 my-2.5 mx-auto rounded-full" style={{ backgroundColor: color_secundario }}></div>
+                <p className="text-base font-bold" style={{ color: color_primario }}>{puesto}</p>
+                {empresa && (
+                  <div
+                    className="inline-block px-3 py-1 mt-2 rounded-full text-xs font-bold tracking-wider uppercase border"
+                    style={{
+                      backgroundColor: `${color_secundario}15`,
+                      borderColor: `${color_secundario}50`,
+                      color: color_secundario
+                    }}
+                  >
+                    {empresa}
+                  </div>
+                )}
+              </div>
+
+              {nota && (
+                <p className="text-xs mt-4 p-3 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-4 w-full" style={{ borderColor: color_cta }}>
+                  "{nota}"
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TEMA MODERNO CYBER DARK */}
+        {isModern && (
+          <div className="p-6 flex flex-col items-center text-center">
+            {activeCover && (
+              <div className="w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/10 relative">
+                <img
+                  src={activeCover}
+                  alt="Cover"
+                  className="w-full h-full object-cover"
+                  style={{
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
+                  }}
+                />
+              </div>
+            )}
+
+            <div
+              className="flex items-center justify-center overflow-hidden my-3 bg-transparent border-0 shadow-none transition-all"
+              style={{
+                width: `${logo_scale}px`,
+                height: `${logo_scale}px`
+              }}
+            >
+              <img
+                src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                alt="Logo"
+                className="w-full h-full object-contain"
+              />
+>>>>>>> 575e9a4de75df8502c40977aff20c0870c00833d
             </div>
           </div>
 
@@ -297,6 +411,7 @@ export default function PublicProfileClient({ profile = {} }) {
           {/* BIO / NOTA */}
           {nota && (
             <div
+<<<<<<< HEAD
               className="p-3.5 rounded-2xl text-xs leading-relaxed border backdrop-blur-md"
               style={{
                 backgroundColor: `${color_secundario}08`,
@@ -364,6 +479,19 @@ export default function PublicProfileClient({ profile = {} }) {
                   ))}
                 </div>
               )}
+=======
+              className="flex items-center justify-center my-3 bg-transparent border-0 shadow-none transition-all"
+              style={{
+                width: `${logo_scale}px`,
+                height: `${logo_scale}px`
+              }}
+            >
+              <img
+                src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                alt="Logo"
+                className="w-full h-full object-contain"
+              />
+>>>>>>> 575e9a4de75df8502c40977aff20c0870c00833d
             </div>
           )}
 
@@ -622,6 +750,162 @@ export default function PublicProfileClient({ profile = {} }) {
           </div>
         )}
 
+<<<<<<< HEAD
+=======
+        {/* BOTONES DE CONTACTO */}
+        <div className="px-6 space-y-2.5 mt-2 flex-1">
+          {telefono && (
+            <a
+              href={`tel:${telefono}`}
+              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
+              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+            >
+              <span className="text-lg" style={{ color: color_secundario }}>📞</span>
+              <span className="truncate">{telefono}</span>
+            </a>
+          )}
+
+          {whatsapp && (
+            <a
+              href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
+              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+            >
+              <span className="text-lg" style={{ color: color_secundario }}>💬</span>
+              <span className="truncate">WhatsApp: {whatsapp}</span>
+            </a>
+          )}
+
+          {correo && (
+            <a
+              href={`mailto:${correo}`}
+              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
+              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+            >
+              <span className="text-lg" style={{ color: color_secundario }}>✉️</span>
+              <span className="truncate">{correo}</span>
+            </a>
+          )}
+
+          {url && (
+            <a
+              href={url.startsWith('http') ? url : `https://${url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
+              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+            >
+              <span className="text-lg" style={{ color: color_secundario }}>🌐</span>
+              <span className="truncate">{url.replace(/^https?:\/\//, '')}</span>
+            </a>
+          )}
+
+          {fbUrl && (
+            <a
+              href={fbUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
+              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+            >
+              <span className="text-lg" style={{ color: color_secundario }}>📘</span>
+              <span className="truncate font-mono">facebook.com/{facebook.replace(/^@+/, '')}</span>
+            </a>
+          )}
+
+          {igUrl && (
+            <a
+              href={igUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
+              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+            >
+              <span className="text-lg" style={{ color: color_secundario }}>📸</span>
+              <span className="truncate font-mono">instagram.com/{instagram.replace(/^@+/, '')}</span>
+            </a>
+          )}
+
+          {inUrl && (
+            <a
+              href={inUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
+              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+            >
+              <span className="text-lg" style={{ color: color_secundario }}>💼</span>
+              <span className="truncate font-mono">linkedin.com/in/{linkedin.replace(/^@+/, '')}</span>
+            </a>
+          )}
+
+          {effectiveMapsUrl && (
+            <a
+              href={effectiveMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-bold border transition-all hover:scale-[1.01]"
+              style={{ backgroundColor: `${color_secundario}15`, borderColor: color_secundario, color: color_secundario }}
+            >
+              <span>📍</span> {locationLabel}
+            </a>
+          )}
+
+          {video_youtube_url && (
+            <a
+              href={video_youtube_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-bold text-white bg-red-600 shadow-lg transition-all hover:scale-[1.01]"
+            >
+              <span>▶</span> Ver Video de Presentación
+            </a>
+          )}
+        </div>
+
+        {/* BADGE DE CONVERSIÓN VIRAL TSOLUTIONS IPIDD (MARKETING 2.0) & SELECTOR DE IDIOMA */}
+        <div className="px-6 pt-6 pb-2 text-center flex flex-col items-center gap-3">
+          <a
+            href="https://tsolutionsipidd.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-mono text-[#FF6500] hover:text-white bg-black/40 hover:bg-black/60 border border-[#FF6500]/60 hover:border-[#FF6500] transition-all group"
+            style={{ boxShadow: '0 0 8px #FF650044, 0 0 16px #FF650022' }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 0 12px #FF6500aa, 0 0 28px #FF650055, 0 0 48px #FF650022'}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = '0 0 8px #FF650044, 0 0 16px #FF650022'}
+          >
+            <span className="text-[#FF6500] group-hover:scale-110 transition-transform drop-shadow-[0_0_6px_#FF6500]">⚡</span>
+            <span>{t('card_powered')}</span>
+            <span className="text-[#FF6500]/60 group-hover:text-[#FF6500]">↗</span>
+          </a>
+
+          {/* Selector de Idioma en Tarjeta Pública */}
+          <button
+            type="button"
+            onClick={() => setLang(l => (l === 'es' ? 'en' : 'es'))}
+            className="px-3 py-1 rounded-full text-[10px] font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 flex items-center gap-1"
+          >
+            <span>🌐</span>
+            <span>{lang === 'es' ? 'English 🇺🇸' : 'Español 🇲🇽'}</span>
+          </button>
+        </div>
+
+        {/* BOTÓN FLOTANTE */}
+        <div className="absolute bottom-4 left-4 right-4 z-20">
+          <button
+            onClick={downloadVCF}
+            className="w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-wider text-black shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.99]"
+            style={{
+              backgroundColor: color_cta,
+              fontFamily: currentFontPrimary
+            }}
+          >
+            <span>💾</span> {lang === 'es' ? 'Guardar Contacto en Mi Celular' : 'Save Contact to My Phone'}
+          </button>
+        </div>
+>>>>>>> 575e9a4de75df8502c40977aff20c0870c00833d
       </div>
     </div>
   );

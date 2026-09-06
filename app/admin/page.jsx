@@ -299,20 +299,18 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen bg-[#060509] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-[#0F0B15] border border-rose-600/40 p-8 rounded-3xl shadow-[0_0_60px_rgba(225,29,72,0.3)] space-y-6 animate-scaleIn backdrop-blur-xl">
           
-          {/* Logo y Cabecera */}
-          <div className="text-center space-y-3">
-            <div className="inline-flex rose-logo-container mb-1 shadow-2xl">
-              <img
-                src={brandConfig.assets.logo || "/brand/logo.png"}
-                alt={brandConfig.brandName}
-                className="w-16 h-16 rounded-2xl object-cover"
-              />
+          {/* Logo y Cabecera con Emblema Cyber Rose */}
+          <div className="text-center space-y-3 flex flex-col items-center">
+            <div className="rose-logo-container w-14 h-14 rounded-2xl shadow-[0_0_25px_rgba(200,16,46,0.5)] border border-[#EE334E]/60">
+              <img src={brandConfig.assets.logo || "/brand/logo.png"} alt="Rose Emblem" className="w-9 h-9 object-contain drop-shadow-[0_0_10px_rgba(238,51,78,0.8)]" />
             </div>
-            <h1 className="text-2xl font-bruno text-white tracking-wide">
-              {brandConfig.brandHeading.prefix} <span className="text-[#FF2A54] drop-shadow-[0_0_12px_rgba(255,42,84,0.6)]">{brandConfig.brandHeading.highlight}</span> ADMIN
-            </h1>
-            <p className="text-xs text-gray-400">Panel Centralizado de Control de Identidades Digitales</p>
-            <div className="mt-2 inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400">
+            <div>
+              <h1 className="text-2xl font-bruno text-white">
+                {brandConfig.brandHeading.prefix} <span className="text-[#EE334E] drop-shadow-[0_0_12px_rgba(238,51,78,0.6)]">{brandConfig.brandHeading.highlight}</span> ADMIN
+              </h1>
+              <p className="text-xs text-gray-400 mt-1">Panel Centralizado de Control de Identidades Digitales</p>
+            </div>
+            <div className="mt-1 inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400">
               {brandConfig.adminAuth.allowedDomains === '*' ? '🔒 Panel Administrativo Seguro' : `🔒 Exclusivo para ${brandConfig.adminAuth.allowedDomains}`}
             </div>
           </div>
@@ -428,16 +426,12 @@ export default function AdminDashboardPage() {
       {/* HEADER DEL PANEL */}
       <header className="max-w-[1920px] mx-auto w-full mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-rose-900/30">
         <div className="flex items-center gap-3.5">
-          <div className="rose-logo-container shrink-0">
-            <img
-              src={brandConfig.assets.logo || "/brand/logo.png"}
-              alt={brandConfig.brandName}
-              className="rose-logo-img shadow-lg"
-            />
+          <div className="rose-logo-container w-11 h-11 rounded-xl shadow-[0_0_16px_rgba(200,16,46,0.45)] border border-[#EE334E]/50 shrink-0 flex items-center justify-center">
+            <img src={brandConfig.assets.logo || "/brand/logo.png"} alt="Rose Emblem" className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(238,51,78,0.7)]" />
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide flex items-center gap-2">
-              {brandConfig.brandHeading.prefix} <span className="text-[#FF2A54] drop-shadow-[0_0_12px_rgba(255,42,84,0.6)]">{brandConfig.brandHeading.highlight}</span> ADMIN ENGINE
+              {brandConfig.brandHeading.prefix} <span className="text-[#EE334E] drop-shadow-[0_0_12px_rgba(238,51,78,0.6)]">{brandConfig.brandHeading.highlight}</span> ADMIN ENGINE
             </h1>
             <p className="text-xs text-gray-400">Centro de Control y Gestión de Identidades Digitales NFC</p>
           </div>
@@ -446,7 +440,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-3 self-end md:self-auto">
           <div className="text-right hidden sm:block">
             <p className="text-xs font-bold text-white">{currentUser.name || currentUser.email}</p>
-            <p className="text-[10px] font-mono text-[#00E5FF]">{currentUser.email}</p>
+            <p className="text-[10px] font-mono text-[#FF2A54]">{currentUser.email}</p>
           </div>
           
           <a
@@ -468,33 +462,33 @@ export default function AdminDashboardPage() {
       {/* METRICS ROW */}
       <section className="max-w-[1920px] mx-auto w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-bruno text-gray-400 uppercase">Total Perfiles</p>
-          <p className="text-2xl font-bruno font-bold text-[#F97316] mt-1">{metrics.total_profiles}</p>
+          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Total Perfiles</p>
+          <p className="text-2xl font-rosetta font-bold text-[#C8102E] mt-1">{metrics.total_profiles}</p>
         </div>
 
         <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-bruno text-gray-400 uppercase">Empresas</p>
-          <p className="text-2xl font-bruno font-bold text-[#00E5FF] mt-1">{metrics.total_companies}</p>
+          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Empresas</p>
+          <p className="text-2xl font-rosetta font-bold text-[#00E5FF] mt-1">{metrics.total_companies}</p>
         </div>
 
         <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-bruno text-gray-400 uppercase">Vistas Totales</p>
-          <p className="text-2xl font-bruno font-bold text-green-400 mt-1">{metrics.total_views}</p>
+          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Vistas Totales</p>
+          <p className="text-2xl font-rosetta font-bold text-green-400 mt-1">{metrics.total_views}</p>
         </div>
 
         <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-bruno text-gray-400 uppercase">Validados</p>
-          <p className="text-2xl font-bruno font-bold text-emerald-400 mt-1">{metrics.validated_count}</p>
+          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Validados</p>
+          <p className="text-2xl font-rosetta font-bold text-emerald-400 mt-1">{metrics.validated_count}</p>
         </div>
 
         <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-bruno text-gray-400 uppercase">Pendientes</p>
-          <p className="text-2xl font-bruno font-bold text-yellow-400 mt-1">{metrics.pending_count}</p>
+          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Pendientes</p>
+          <p className="text-2xl font-rosetta font-bold text-yellow-400 mt-1">{metrics.pending_count}</p>
         </div>
 
         <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-bruno text-gray-400 uppercase">Activos</p>
-          <p className="text-2xl font-bruno font-bold text-purple-400 mt-1">{metrics.active_count}</p>
+          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Activos</p>
+          <p className="text-2xl font-rosetta font-bold text-purple-400 mt-1">{metrics.active_count}</p>
         </div>
       </section>
 
@@ -510,7 +504,7 @@ export default function AdminDashboardPage() {
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder="Buscar por Empresa, Nombre, Correo, Teléfono, Slug o Etiquetas..."
-              className="w-full bg-[#06060c] border border-gray-800 pl-10 pr-4 py-2.5 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#F97316] transition-colors"
+              className="w-full bg-[#06060c] border border-gray-800 pl-10 pr-4 py-2.5 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#C8102E] transition-colors"
             />
             {searchQuery && (
               <button
@@ -524,11 +518,11 @@ export default function AdminDashboardPage() {
 
           {/* Filtro por Estado */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-bruno text-gray-400">Estado:</span>
+            <span className="text-xs font-rosetta text-gray-400">Estado:</span>
             <select
               value={selectedStatus}
               onChange={(e) => handleStatusFilter(e.target.value)}
-              className="bg-[#06060c] border border-gray-800 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-[#F97316]"
+              className="bg-[#06060c] border border-gray-800 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-[#C8102E]"
             >
               <option value="all">Todos los Estados</option>
               <option value="active">Activo</option>
@@ -543,14 +537,14 @@ export default function AdminDashboardPage() {
         {/* CHIPS DE ETIQUETAS (TAGS) DISPONIBLES */}
         {availableTags.length > 0 && (
           <div className="pt-3 border-t border-gray-800/60 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-bruno text-gray-400 flex items-center gap-1">
+            <span className="text-[11px] font-rosetta text-gray-400 flex items-center gap-1">
               <span>🏷️</span> Etiquetas:
             </span>
             <button
               onClick={() => handleTagFilter('')}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
                 selectedTag === ''
-                  ? 'bg-[#F97316] text-black font-extrabold shadow-[0_0_10px_rgba(249,115,22,0.3)]'
+                  ? 'bg-[#C8102E] text-white font-extrabold shadow-[0_0_10px_rgba(200,16,46,0.3)]'
                   : 'bg-black/40 text-gray-400 hover:text-white border border-gray-800'
               }`}
             >
@@ -577,13 +571,13 @@ export default function AdminDashboardPage() {
       <section className="max-w-[1920px] mx-auto w-full flex-1">
         {loadingProfiles ? (
           <div className="p-12 text-center text-gray-400">
-            <div className="w-8 h-8 border-3 border-[#F97316] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p className="text-xs font-bruno">Cargando base de datos de Google Cloud SQL...</p>
+            <div className="w-8 h-8 border-3 border-[#C8102E] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-xs font-rosetta">Cargando base de datos de Google Cloud SQL...</p>
           </div>
         ) : profiles.length === 0 ? (
           <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-12 text-center text-gray-400">
             <p className="text-4xl mb-3">📇</p>
-            <h3 className="text-lg font-bruno text-white">No se encontraron perfiles con estos criterios</h3>
+            <h3 className="text-lg font-rosetta text-white">No se encontraron perfiles con estos criterios</h3>
             <p className="text-xs mt-1 text-gray-500">Prueba ajustando el término de búsqueda o seleccionando otra etiqueta.</p>
           </div>
         ) : (
@@ -595,12 +589,12 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={p.id}
-                  className="bg-[#090914] border border-gray-800 hover:border-[#F97316]/50 rounded-2xl p-5 transition-all shadow-lg hover:shadow-[0_0_25px_rgba(249,115,22,0.12)] space-y-4"
+                  className="bg-[#090914] border border-gray-800 hover:border-[#C8102E]/50 rounded-2xl p-5 transition-all shadow-lg hover:shadow-[0_0_25px_rgba(200,16,46,0.12)] space-y-4"
                 >
                   {/* FILA 1: NOMBRE DE LA EMPRESA (PROMINENTE) & ESTADO & MODO */}
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-black border border-[#F97316]/40 flex items-center justify-center text-base shrink-0 overflow-hidden shadow-inner">
+                      <div className="w-9 h-9 rounded-xl bg-black border border-[#C8102E]/40 flex items-center justify-center text-base shrink-0 overflow-hidden shadow-inner">
                         {p.logo_img ? (
                           <img src={p.logo_img} alt="Logo" className="w-full h-full object-contain p-1" />
                         ) : (
@@ -610,15 +604,15 @@ export default function AdminDashboardPage() {
                       <div>
                         {/* FILA 1: EMPRESA */}
                         <div className="flex items-center gap-2">
-                          <h2 className="text-base font-bruno text-white font-bold tracking-wide">
+                          <h2 className="text-base font-rosetta text-white font-bold tracking-wide">
                             {p.empresa || 'EMPRESA INDEPENDIENTE'}
                           </h2>
                           {p.mode === 'review' ? (
-                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bruno bg-yellow-500/10 border border-yellow-500/30 text-yellow-400">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-rosetta bg-yellow-500/10 border border-yellow-500/30 text-yellow-400">
                               ⭐ Review Mode
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bruno bg-orange-500/10 border border-orange-500/30 text-orange-400">
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-rosetta bg-[#C8102E]/10 border border-[#C8102E]/30 text-[#EE334E]">
                               📇 vCard 3.0
                             </span>
                           )}
@@ -631,21 +625,21 @@ export default function AdminDashboardPage() {
 
                     {/* SELECTOR RÁPIDO DE ESTADO (VALIDACIÓN EN 1 TOQUE) */}
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-gray-400 font-bruno">Estado:</span>
+                      <span className="text-[11px] text-gray-400 font-rosetta">Estado:</span>
                       <select
                         value={p.status || 'active'}
                         onChange={(e) => handleQuickStatusChange(p.id, e.target.value)}
-                        className={`text-xs font-bruno px-3 py-1.5 rounded-xl border font-bold cursor-pointer transition-colors ${
+                        className={`text-xs font-rosetta px-3 py-1.5 rounded-xl border font-bold cursor-pointer transition-colors ${
                           p.status === 'validated'
                             ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
                             : p.status === 'pending'
                             ? 'bg-yellow-950/60 border-yellow-500/40 text-yellow-300'
                             : p.status === 'archived'
                             ? 'bg-gray-800 border-gray-700 text-gray-400'
-                            : 'bg-orange-950/60 border-orange-500/40 text-orange-300'
+                            : 'bg-[#C8102E]/20 border-[#C8102E]/50 text-[#EE334E]'
                         }`}
                       >
-                        <option value="active" className="bg-[#090914] text-orange-400">● Activo</option>
+                        <option value="active" className="bg-[#090914] text-[#EE334E]">● Activo</option>
                         <option value="validated" className="bg-[#090914] text-emerald-400">✓ Validado</option>
                         <option value="pending" className="bg-[#090914] text-yellow-400">⏳ Pendiente</option>
                         <option value="archived" className="bg-[#090914] text-gray-400">🛑 Archivado</option>
@@ -665,13 +659,13 @@ export default function AdminDashboardPage() {
 
                     {/* Contacto Directo */}
                     <div>
-                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bruno">Contacto</p>
+                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-rosetta">Contacto</p>
                       <div className="mt-0.5 space-y-0.5 text-[11px] font-mono">
                         {p.telefono && (
-                          <p className="text-gray-300">📞 <a href={`tel:${p.telefono}`} className="hover:text-[#F97316]">{p.telefono}</a></p>
+                          <p className="text-gray-300">📞 <a href={`tel:${p.telefono}`} className="hover:text-[#C8102E]">{p.telefono}</a></p>
                         )}
                         {p.correo && (
-                          <p className="text-gray-300 truncate">✉️ <a href={`mailto:${p.correo}`} className="hover:text-[#F97316]">{p.correo}</a></p>
+                          <p className="text-gray-300 truncate">✉️ <a href={`mailto:${p.correo}`} className="hover:text-[#C8102E]">{p.correo}</a></p>
                         )}
                         {p.whatsapp && (
                           <p className="text-green-400">💬 <a href={`https://wa.me/${p.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="hover:underline">WA: {p.whatsapp}</a></p>
@@ -681,12 +675,12 @@ export default function AdminDashboardPage() {
 
                     {/* Enlace Permanente y Telemetría */}
                     <div>
-                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bruno">Enlace & Telemetría</p>
+                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-rosetta">Enlace & Telemetría</p>
                       <div className="mt-0.5 flex items-center gap-1.5">
                         <span className="font-mono text-xs text-[#00E5FF] truncate select-all">{p.slug}</span>
                         <button
                           onClick={() => { navigator.clipboard.writeText(fullUrl); alert('¡Enlace copiado!'); }}
-                          className="px-2 py-0.5 bg-white/10 hover:bg-white/20 text-[10px] font-bruno rounded text-white"
+                          className="px-2 py-0.5 bg-white/10 hover:bg-white/20 text-[10px] font-rosetta rounded text-white"
                           title="Copiar URL"
                         >
                           Copiar
@@ -699,7 +693,7 @@ export default function AdminDashboardPage() {
 
                     {/* Etiquetas (Tags) */}
                     <div>
-                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bruno">Etiquetas / Tags</p>
+                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-rosetta">Etiquetas / Tags</p>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {tagsArray.length > 0 ? (
                           tagsArray.map(t => (
@@ -722,7 +716,7 @@ export default function AdminDashboardPage() {
                         href={fullUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-[#12121c] hover:bg-white/10 text-white rounded-lg text-xs font-bruno border border-gray-800 flex items-center gap-1.5 transition-colors"
+                        className="px-3 py-1.5 bg-[#12121c] hover:bg-white/10 text-white rounded-lg text-xs font-rosetta border border-gray-800 flex items-center gap-1.5 transition-colors"
                       >
                         <span>🔗</span> Ver en Vivo
                       </a>
@@ -730,7 +724,7 @@ export default function AdminDashboardPage() {
                       <button
                         onClick={() => downloadProfileZip(p)}
                         disabled={isZippingId === p.id}
-                        className="px-3 py-1.5 bg-[#F97316]/10 hover:bg-[#F97316] text-[#F97316] hover:text-black font-bold rounded-lg text-xs font-bruno border border-[#F97316]/30 transition-all flex items-center gap-1.5"
+                        className="px-3 py-1.5 bg-[#C8102E]/10 hover:bg-[#C8102E] text-[#EE334E] hover:text-white font-bold rounded-lg text-xs font-rosetta border border-[#C8102E]/30 transition-all flex items-center gap-1.5"
                       >
                         {isZippingId === p.id ? (
                           <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -742,7 +736,7 @@ export default function AdminDashboardPage() {
 
                       <button
                         onClick={() => setEmailModalProfile(p)}
-                        className="px-3 py-1.5 bg-[#00E5FF]/10 hover:bg-[#00E5FF] text-[#00E5FF] hover:text-black font-bold rounded-lg text-xs font-bruno border border-[#00E5FF]/30 transition-all flex items-center gap-1.5"
+                        className="px-3 py-1.5 bg-[#00E5FF]/10 hover:bg-[#00E5FF] text-[#00E5FF] hover:text-black font-bold rounded-lg text-xs font-rosetta border border-[#00E5FF]/30 transition-all flex items-center gap-1.5"
                       >
                         <span>✉️</span> Carta de Entrega
                       </button>
@@ -751,14 +745,14 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setEditingProfile({ ...p })}
-                        className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-lg text-xs font-bruno transition-colors flex items-center gap-1.5"
+                        className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-lg text-xs font-rosetta transition-colors flex items-center gap-1.5"
                       >
                         <span>✏️</span> Editar Completo
                       </button>
 
                       <button
                         onClick={() => setDeleteModalProfile(p)}
-                        className="px-3 py-1.5 bg-red-950/40 hover:bg-red-900 text-red-300 font-bold rounded-lg text-xs font-bruno border border-red-900/50 transition-colors flex items-center gap-1"
+                        className="px-3 py-1.5 bg-red-950/40 hover:bg-red-900 text-red-300 font-bold rounded-lg text-xs font-rosetta border border-red-900/50 transition-colors flex items-center gap-1"
                       >
                         <span>🗑️</span> Borrar
                       </button>
@@ -775,14 +769,14 @@ export default function AdminDashboardPage() {
       {/* MODAL DE EDICIÓN INTEGRAL (TODOS LOS CAMPOS DE CREACIÓN DE LA PLATAFORMA) */}
       {editingProfile && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-[#F97316]/50 w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-[0_0_50px_rgba(249,115,22,0.3)] flex flex-col overflow-hidden animate-scaleIn">
+          <div className="bg-[#0c0c16] border border-[#C8102E]/50 w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-[0_0_50px_rgba(200,16,46,0.3)] flex flex-col overflow-hidden animate-scaleIn">
             
             {/* Header Modal Edición */}
             <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-2 text-[#F97316]">
+              <div className="flex items-center gap-2 text-[#C8102E]">
                 <span className="text-xl">✏️</span>
                 <div>
-                  <h3 className="font-bruno text-sm font-bold text-white">
+                  <h3 className="font-rosetta text-sm font-bold text-white">
                     Editando Perfil: {editingProfile.empresa || 'Empresa'} • {editingProfile.nombre} {editingProfile.apellido}
                   </h3>
                   <p className="text-[10px] text-gray-400 font-mono">Slug: /p/{editingProfile.slug}</p>
@@ -801,7 +795,7 @@ export default function AdminDashboardPage() {
               
               {/* SECCIÓN 1: DATOS PERSONALES & EMPRESA */}
               <div className="space-y-3 bg-[#080810] p-4 rounded-xl border border-gray-800">
-                <h4 className="font-bruno text-[#F97316] text-xs uppercase flex items-center gap-1.5">
+                <h4 className="font-rosetta text-[#C8102E] text-xs uppercase flex items-center gap-1.5">
                   <span>🏢</span> Datos Principales & Empresa
                 </h4>
                 
@@ -1056,17 +1050,17 @@ export default function AdminDashboardPage() {
                 {/* 3 Colores del Cliente */}
                 <div className="grid grid-cols-3 gap-3 pt-1">
                   <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1">Color 1 (Primario)</label>
+                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Color 1 (Primario)</label>
                     <div className="flex items-center gap-1.5">
                       <input
                         type="color"
-                        value={editingProfile.color_primario || '#F97316'}
+                        value={editingProfile.color_primario || '#C8102E'}
                         onChange={(e) => setEditingProfile({ ...editingProfile, color_primario: e.target.value })}
                         className="w-7 h-7 rounded border-0 bg-transparent cursor-pointer"
                       />
                       <input
                         type="text"
-                        value={editingProfile.color_primario || '#F97316'}
+                        value={editingProfile.color_primario || '#C8102E'}
                         onChange={(e) => setEditingProfile({ ...editingProfile, color_primario: e.target.value })}
                         className="input-dark w-full font-mono text-[11px] uppercase h-7 px-1.5"
                       />
@@ -1074,7 +1068,7 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1">Color 2 (Secundario)</label>
+                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Color 2 (Secundario)</label>
                     <div className="flex items-center gap-1.5">
                       <input
                         type="color"
@@ -1092,17 +1086,17 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1">Color 3 (CTA)</label>
+                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Color 3 (CTA)</label>
                     <div className="flex items-center gap-1.5">
                       <input
                         type="color"
-                        value={editingProfile.color_cta || '#F97316'}
+                        value={editingProfile.color_cta || '#C8102E'}
                         onChange={(e) => setEditingProfile({ ...editingProfile, color_cta: e.target.value })}
                         className="w-7 h-7 rounded border-0 bg-transparent cursor-pointer"
                       />
                       <input
                         type="text"
-                        value={editingProfile.color_cta || '#F97316'}
+                        value={editingProfile.color_cta || '#C8102E'}
                         onChange={(e) => setEditingProfile({ ...editingProfile, color_cta: e.target.value })}
                         className="input-dark w-full font-mono text-[11px] uppercase h-7 px-1.5"
                       />
@@ -1113,38 +1107,38 @@ export default function AdminDashboardPage() {
                 {/* Sliders de Logo y Portada */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1">Escala Logo: {editingProfile.logo_scale || 100}px</label>
+                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Escala Logo: {editingProfile.logo_scale || 100}px</label>
                     <input
                       type="range"
                       min="50"
                       max="160"
                       value={editingProfile.logo_scale || 100}
                       onChange={(e) => setEditingProfile({ ...editingProfile, logo_scale: parseInt(e.target.value) })}
-                      className="w-full accent-[#F97316]"
+                      className="w-full slider-rose"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1">Posición Banner Y: {editingProfile.cover_position_y || 50}%</label>
+                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Posición Banner Y: {editingProfile.cover_position_y || 50}%</label>
                     <input
                       type="range"
                       min="0"
                       max="100"
                       value={editingProfile.cover_position_y || 50}
                       onChange={(e) => setEditingProfile({ ...editingProfile, cover_position_y: parseInt(e.target.value) })}
-                      className="w-full accent-[#F97316]"
+                      className="w-full slider-rose"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1">Zoom Banner: {editingProfile.cover_zoom || 100}%</label>
+                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Zoom Banner: {editingProfile.cover_zoom || 100}%</label>
                     <input
                       type="range"
                       min="100"
                       max="250"
                       value={editingProfile.cover_zoom || 100}
                       onChange={(e) => setEditingProfile({ ...editingProfile, cover_zoom: parseInt(e.target.value) })}
-                      className="w-full accent-[#F97316]"
+                      className="w-full slider-rose"
                     />
                   </div>
                 </div>
@@ -1152,12 +1146,12 @@ export default function AdminDashboardPage() {
 
               {/* SECCIÓN 5: ETIQUETAS & CONTROL ADMINISTRATIVO */}
               <div className="space-y-3 bg-[#080810] p-4 rounded-xl border border-gray-800">
-                <h4 className="font-bruno text-yellow-400 text-xs uppercase flex items-center gap-1.5">
+                <h4 className="font-rosetta text-yellow-400 text-xs uppercase flex items-center gap-1.5">
                   <span>🏷️</span> Etiquetas & Estado Administrativo
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">
+                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1 uppercase">
                       Etiquetas / Tags (Separadas por comas)
                     </label>
                     <input
@@ -1171,13 +1165,13 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Estado del Perfil</label>
+                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1 uppercase">Estado del Perfil</label>
                     <select
                       value={editingProfile.status || 'active'}
                       onChange={(e) => setEditingProfile({ ...editingProfile, status: e.target.value })}
-                      className="input-dark w-full font-bruno font-bold"
+                      className="input-dark w-full font-rosetta font-bold"
                     >
-                      <option value="active" className="bg-[#090914] text-orange-400">● Activo</option>
+                      <option value="active" className="bg-[#090914] text-[#EE334E]">● Activo</option>
                       <option value="validated" className="bg-[#090914] text-emerald-400">✓ Validado</option>
                       <option value="pending" className="bg-[#090914] text-yellow-400">⏳ Pendiente</option>
                       <option value="archived" className="bg-[#090914] text-gray-400">🛑 Archivado</option>
@@ -1191,18 +1185,18 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setEditingProfile(null)}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-bruno rounded-xl text-xs"
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-rosetta rounded-xl text-xs"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={editSaving}
-                  className="px-6 py-2 bg-[#F97316] text-black font-bruno font-bold rounded-xl text-xs hover:bg-orange-400 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(249,115,22,0.3)]"
+                  className="px-6 py-2 bg-[#C8102E] text-white font-rosetta font-bold rounded-xl text-xs hover:bg-[#EE334E] transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(200,16,46,0.3)]"
                 >
                   {editSaving ? (
                     <>
-                      <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       <span>GUARDANDO...</span>
                     </>
                   ) : (
@@ -1225,7 +1219,7 @@ export default function AdminDashboardPage() {
             <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2 text-[#00E5FF]">
                 <span>✉️</span>
-                <h3 className="font-bruno text-sm font-bold text-white">
+                <h3 className="font-rosetta text-sm font-bold text-white">
                   Carta Oficial de Entrega: {emailModalProfile.empresa}
                 </h3>
               </div>
@@ -1258,7 +1252,7 @@ export default function AdminDashboardPage() {
                   navigator.clipboard.writeText(generateEmailText(emailModalProfile).body);
                   alert('¡Carta de entrega copiada al portapapeles!');
                 }}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bruno rounded-xl transition-colors flex items-center gap-1.5"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-rosetta rounded-xl transition-colors flex items-center gap-1.5"
               >
                 <span>📋</span> Copiar al Portapapeles
               </button>
@@ -1270,7 +1264,7 @@ export default function AdminDashboardPage() {
                   window.location.href = `mailto:${encodeURIComponent(emailModalProfile.correo || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                   setEmailModalProfile(null);
                 }}
-                className="px-4 py-2 bg-[#00E5FF] text-black text-xs font-bruno font-bold rounded-xl hover:bg-cyan-300 transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,229,255,0.3)]"
+                className="px-4 py-2 bg-[#00E5FF] text-black text-xs font-rosetta font-bold rounded-xl hover:bg-cyan-300 transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,229,255,0.3)]"
               >
                 <span>✉️</span> Abrir en Cliente de Correo
               </button>
@@ -1287,14 +1281,14 @@ export default function AdminDashboardPage() {
             <div className="flex items-center gap-3 text-red-400">
               <span className="text-3xl">⚠️</span>
               <div>
-                <h3 className="font-bruno text-sm font-bold text-white">¿Eliminar Perfil Permanentemente?</h3>
+                <h3 className="font-rosetta text-sm font-bold text-white">¿Eliminar Perfil Permanentemente?</h3>
                 <p className="text-xs text-gray-400">Esta acción no se puede deshacer.</p>
               </div>
             </div>
 
             <div className="p-3 bg-black/60 border border-gray-800 rounded-xl text-xs space-y-1">
               <p className="text-white font-bold">{deleteModalProfile.nombre} {deleteModalProfile.apellido}</p>
-              <p className="text-[#F97316] font-mono text-[11px]">{deleteModalProfile.empresa}</p>
+              <p className="text-[#C8102E] font-mono text-[11px]">{deleteModalProfile.empresa}</p>
               <p className="text-gray-500 font-mono text-[10px]">Slug: /p/{deleteModalProfile.slug}</p>
             </div>
 
@@ -1302,14 +1296,14 @@ export default function AdminDashboardPage() {
               <button
                 type="button"
                 onClick={() => setDeleteModalProfile(null)}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-bruno rounded-xl text-xs"
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-rosetta rounded-xl text-xs"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleDeleteConfirm}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bruno font-bold rounded-xl text-xs transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)]"
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-rosetta font-bold rounded-xl text-xs transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)]"
               >
                 Sí, Eliminar de Cloud SQL
               </button>

@@ -2,7 +2,7 @@
  * BRAND CONFIGURATION - MARCA BLANCA
  * 
  * Configuración centralizada de marca, paleta de colores y recursos visuales
- * inspirados en la Rosa Geométrica Cyber / Neo-Rose.
+ * inspirados en la Rosa Geométrica Cyber / Neo-Rose y la Guía Oficial de Tipografía.
  */
 
 const brandConfig = {
@@ -14,6 +14,16 @@ const brandConfig = {
     prefix: 'ROSE',
     highlight: 'CARD',
     suffix: 'ENGINE'
+  },
+
+  // Tipografía Oficial de Marca (Design Tokens)
+  typography: {
+    primary: 'Plaster',                  // Tipografía Principal Display / Logotipo oficial
+    secondary: 'Rosetta Tech Sans',      // Tipografía de Comunicación Corporativa y Titulares
+    body: 'Inter',                       // Tipografía de Lectura y Formularios UI
+    displayFont: 'Plaster, sans-serif',
+    corporateFont: 'Rosetta Tech Sans, Space Grotesk, Inter, sans-serif',
+    bodyFont: 'Inter, sans-serif'
   },
 
   // Empresa y Enlaces
@@ -29,18 +39,30 @@ const brandConfig = {
     appleIcon: '/apple-icon.png'
   },
 
-  // Paleta de Colores Extraída Directamente del Logotipo
+  // Configuración de Paleta de Colores Oficial (Figma Design Tokens)
   theme: {
-    primaryColor: '#E11D48',     // Rojo Rubí / Rose Principal
-    primaryHover: '#BE123C',     // Carmesí Intenso
-    primaryNeon: '#FF2A54',      // Rosa Neón / Resplandor de circuitos
-    primaryGlow: 'rgba(225, 29, 72, 0.45)',
-    deepWine: '#4C0519',         // Vino oscuro de sombra
-    secondaryColor: '#E2E8F0',   // Plata cromada / Nodos de circuito
-    accentCyan: '#00F0FF',       // Cian cibernético secundario
-    darkBg: '#07060A',           // Negro obsidiana de fondo
-    cardDarkBg: '#120E17',       // Fondo de panel con tinte amatista/vino
-    borderRose: 'rgba(225, 29, 72, 0.35)' // Borde con brillo sutil
+    // Paleta Principal
+    rojoNucleo: '#C8102E',       // Rojo Núcleo (RGB: 200, 16, 46)
+    carmesiGeometrico: '#EE334E',// Carmesí Geométrico (RGB: 238, 51, 78)
+    grisCircuito: '#B1B3B3',     // Gris Circuito (RGB: 177, 179, 179)
+    negroProfundo: '#0A0A0A',    // Negro Profundo (RGB: 10, 10, 10)
+
+    // Paleta Secundaria
+    grisApoyo: '#EBEBF2',        // Gris de Apoyo (RGB: 235, 235, 242)
+    azulTecnologico: '#4A7AFF',  // Azul Tecnológico - Cool Accent (RGB: 74, 122, 255)
+    plataMetalizado: '#D9DADC',  // Plata Metalizado - Highlights (RGB: 217, 218, 220)
+    sombraCarmesi: '#9A0020',    // Sombra Carmesí (RGB: 154, 0, 32)
+
+    // Mapeos de Interfaz
+    primaryColor: '#C8102E',
+    primaryNeon: '#EE334E',
+    primaryHover: '#9A0020',
+    primaryGlow: 'rgba(238, 51, 78, 0.45)',
+    secondaryColor: '#4A7AFF',
+    accentCyan: '#4A7AFF',
+    darkBg: '#0A0A0A',
+    cardDarkBg: '#121114',
+    borderRose: 'rgba(200, 16, 46, 0.30)'
   },
 
   // Seguridad y Control de Acceso del Panel Administrativo
