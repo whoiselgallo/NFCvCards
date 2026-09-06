@@ -181,9 +181,9 @@ export default function VCardEngineDashboard() {
   const [design, setDesign] = useState({
     fontPrimary: 'Inter',       // Tipografía Primaria: Nombre & Botón Guardar Contacto
     fontSecondary: 'Inter',     // Tipografía Secundaria: Puesto, Empresa y Contenido
-    colorPrimario: '#C8102E',   // Color 1 del Cliente (Rojo Núcleo #C8102E)
+    colorPrimario: '#ff0003',   // Color 1 del Cliente (Rojo Núcleo #ff0003)
     colorSecundario: '#00E5FF', // Color 2 del Cliente (Franjas / Badges / Íconos)
-    colorCTA: '#C8102E',        // Color 3 del Cliente (Botón Guardar Contacto)
+    colorCTA: '#ff0003',        // Color 3 del Cliente (Botón Guardar Contacto)
     theme: 'modern',
     logoScale: 100,
     coverPositionY: 50,         // Slider 1: Deslizar Arriba / Abajo (0% a 100%)
@@ -655,7 +655,7 @@ export default function VCardEngineDashboard() {
               onClick={() => setMode('vcard')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
                 mode === 'vcard'
-                  ? 'bg-gradient-to-r from-[#EE334E] to-[#C8102E] text-white font-extrabold shadow-[0_0_16px_rgba(238,51,78,0.6)]'
+                  ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(238,51,78,0.6)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -665,7 +665,7 @@ export default function VCardEngineDashboard() {
               onClick={() => setMode('review')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
                 mode === 'review'
-                  ? 'bg-gradient-to-r from-[#EE334E] to-[#C8102E] text-white font-extrabold shadow-[0_0_16px_rgba(238,51,78,0.6)]'
+                  ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(238,51,78,0.6)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -715,7 +715,7 @@ export default function VCardEngineDashboard() {
             
             {mode === 'review' ? (
               /* MODO GOOGLE REVIEWS */
-              <div className="bg-[#12121c] border border-[#C8102E]/30 rounded-xl p-5 space-y-4">
+              <div className="bg-[#12121c] border border-[#ff0003]/30 rounded-xl p-5 space-y-4">
                 <div className="flex items-center gap-2 text-[#EE334E]">
                   <span className="text-2xl">⭐</span>
                   <div>
@@ -731,7 +731,7 @@ export default function VCardEngineDashboard() {
 
                 <div>
                   <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Enlace de Reseñas de Google o Búsqueda Automática</label>
-                  <input type="url" name="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="input-dark w-full border-[#C8102E]/40" placeholder="https://g.page/r/tu-negocio/review o déjalo vacío para búsqueda automática" />
+                  <input type="url" name="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="input-dark w-full border-[#ff0003]/40" placeholder="https://g.page/r/tu-negocio/review o déjalo vacío para búsqueda automática" />
                   <p className="text-[10px] text-gray-500 mt-1">Si lo dejas vacío, se generará automáticamente con el nombre de tu empresa y ciudad.</p>
                 </div>
               </div>
@@ -744,7 +744,7 @@ export default function VCardEngineDashboard() {
                 <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#C8102E] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">1</span>
+                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">1</span>
                       <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Activos Visuales & Encuadre</h3>
                     </div>
                     <span className="text-[10px] font-mono text-gray-400 uppercase">Logo PNG & Banner</span>
@@ -758,7 +758,7 @@ export default function VCardEngineDashboard() {
                         type="file"
                         accept="image/png, image/jpeg, image/jpg, image/webp"
                         onChange={handleLogoUpload}
-                        className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#C8102E] file:text-white hover:file:bg-[#EE334E] transition-colors cursor-pointer"
+                        className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#ff0003] file:text-white hover:file:bg-[#EE334E] transition-colors cursor-pointer"
                       />
                       <p className="text-[10px] text-gray-400 mt-1">🎨 PNG sin fondo para adaptarse a los auras luminosas.</p>
                     </div>
@@ -770,7 +770,7 @@ export default function VCardEngineDashboard() {
                         type="file"
                         accept="image/png, image/jpeg, image/jpg, image/webp"
                         onChange={handleCoverUpload}
-                        className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#C8102E] file:text-white hover:file:bg-[#EE334E] transition-colors cursor-pointer"
+                        className="w-full text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#ff0003] file:text-white hover:file:bg-[#EE334E] transition-colors cursor-pointer"
                       />
                       <p className="text-[10px] text-gray-400 mt-1">📸 Fotografía panorámica de oficina o gráfico publicitario.</p>
                     </div>
