@@ -42,7 +42,7 @@ const brandConfig = {
   // Configuración de Paleta de Colores Oficial (Figma Design Tokens)
   theme: {
     // Paleta Principal
-    rojoNucleo: '#C8102E',       // Rojo Núcleo (RGB: 200, 16, 46)
+    rojoNucleo: '#ff0003',       // Rojo Núcleo (RGB: 255, 0, 3)
     carmesiGeometrico: '#EE334E',// Carmesí Geométrico (RGB: 238, 51, 78)
     grisCircuito: '#B1B3B3',     // Gris Circuito (RGB: 177, 179, 179)
     negroProfundo: '#0A0A0A',    // Negro Profundo (RGB: 10, 10, 10)
@@ -54,15 +54,15 @@ const brandConfig = {
     sombraCarmesi: '#9A0020',    // Sombra Carmesí (RGB: 154, 0, 32)
 
     // Mapeos de Interfaz
-    primaryColor: '#C8102E',
+    primaryColor: '#ff0003',
     primaryNeon: '#EE334E',
     primaryHover: '#9A0020',
-    primaryGlow: 'rgba(238, 51, 78, 0.45)',
+    primaryGlow: 'rgba(255, 0, 3, 0.45)',
     secondaryColor: '#4A7AFF',
     accentCyan: '#4A7AFF',
     darkBg: '#0A0A0A',
     cardDarkBg: '#121114',
-    borderRose: 'rgba(200, 16, 46, 0.30)'
+    borderRose: 'rgba(255, 0, 3, 0.30)'
   },
 
   // Seguridad y Control de Acceso del Panel Administrativo

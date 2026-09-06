@@ -7,9 +7,9 @@
     "color": {
       "paleta-principal": {
         "rojo-nucleo": {
-          "value": "#C8102E",
+          "value": "#ff0003",
           "type": "color",
-          "description": "Rojo Núcleo Principal de la Marca. RGB(200, 16, 46). Uso: Botones primarios, branding corporativo, contornos destacados."
+          "description": "Rojo Núcleo Principal de la Marca. RGB(255, 0, 3). Uso: Botones primarios, branding corporativo, contornos destacados."
         },
         "carmesi-geometrico": {
           "value": "#EE334E",
@@ -63,7 +63,7 @@
           "accent-blue": { "value": "{color.paleta-secundaria.azul-tecnologico}", "type": "color" }
         },
         "border": {
-          "subtle": { "value": "rgba(200, 16, 46, 0.30)", "type": "color" },
+          "subtle": { "value": "rgba(255, 0, 3, 0.30)", "type": "color" },
           "highlight": { "value": "{color.paleta-secundaria.plata-metalizado}", "type": "color" },
           "glow": { "value": "{color.paleta-principal.carmesi-geometrico}", "type": "color" }
         }
@@ -89,15 +89,15 @@
     "components": {
       "buttons": {
         "primary": {
-          "background": { "value": "linear-gradient(135deg, #C8102E 0%, #9A0020 100%)", "type": "gradient" },
-          "backgroundHover": { "value": "linear-gradient(135deg, #EE334E 0%, #C8102E 100%)", "type": "gradient" },
+          "background": { "value": "linear-gradient(135deg, #ff0003 0%, #9A0020 100%)", "type": "gradient" },
+          "backgroundHover": { "value": "linear-gradient(135deg, #EE334E 0%, #ff0003 100%)", "type": "gradient" },
           "text": { "value": "#FFFFFF", "type": "color" },
           "fontFamily": { "value": "{fontFamilies.corporate-secondary}", "type": "fontFamilies" },
           "fontWeight": { "value": "700", "type": "fontWeight" },
           "height": { "value": "48px", "type": "sizing" },
           "borderRadius": { "value": "14px", "type": "borderRadius" },
           "border": { "value": "1px solid rgba(238, 51, 78, 0.40)", "type": "border" },
-          "boxShadow": { "value": "0 0 16px rgba(200, 16, 46, 0.45)", "type": "boxShadow" },
+          "boxShadow": { "value": "0 0 16px rgba(255, 0, 3, 0.45)", "type": "boxShadow" },
           "boxShadowHover": { "value": "0 0 26px rgba(238, 51, 78, 0.70)", "type": "boxShadow" }
         },
         "secondary": {
@@ -112,7 +112,7 @@
         "modeSwitch": {
           "containerBackground": { "value": "#0F0B15", "type": "color" },
           "containerBorder": { "value": "1px solid rgba(154, 0, 32, 0.40)", "type": "border" },
-          "activeBackground": { "value": "linear-gradient(135deg, #EE334E 0%, #C8102E 100%)", "type": "gradient" },
+          "activeBackground": { "value": "linear-gradient(135deg, #EE334E 0%, #ff0003 100%)", "type": "gradient" },
           "activeShadow": { "value": "0 0 16px rgba(238, 51, 78, 0.60)", "type": "boxShadow" }
         }
       },
@@ -146,8 +146,8 @@
           "background": { "value": "#0A0A0A", "type": "color" },
           "borderRadius": { "value": "44px", "type": "borderRadius" },
           "padding": { "value": "10px", "type": "spacing" },
-          "border": { "value": "2px solid rgba(200, 16, 46, 0.35)", "type": "border" },
-          "boxShadow": { "value": "0 25px 65px rgba(0, 0, 0, 0.85), 0 0 30px rgba(200, 16, 46, 0.20)", "type": "boxShadow" }
+          "border": { "value": "2px solid rgba(255, 0, 3, 0.35)", "type": "border" },
+          "boxShadow": { "value": "0 25px 65px rgba(0, 0, 0, 0.85), 0 0 30px rgba(255, 0, 3, 0.20)", "type": "boxShadow" }
         },
         "notch": {
           "width": { "value": "100px", "type": "sizing" },
@@ -169,7 +169,7 @@
           "y": "0",
           "blur": "16",
           "spread": "0",
-          "color": "rgba(200, 16, 46, 0.45)",
+          "color": "rgba(255, 0, 3, 0.45)",
           "type": "dropShadow"
         },
         "type": "boxShadow"
