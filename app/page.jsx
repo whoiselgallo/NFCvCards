@@ -23,7 +23,9 @@ const WORDS = [
   "ganancia", 
   "visualización",
   "conexión",
-  "oportunidad"
+  "oportunidad", 
+  "venta",
+  "cliente"
 ];
 
 export default function LandingPage() {
@@ -32,7 +34,7 @@ export default function LandingPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setWordIndex((prev) => (prev + 1) % WORDS.length);
-    }, 2500);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -104,24 +106,23 @@ export default function LandingPage() {
             <span>El Futuro del Networking Corporativo</span>
           </motion.div>
           
-          <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight" style={{ fontFamily: 'Plaster, sans-serif', fontWeight: 400 }}>
-            Transforma tu primer{" "}
-            <span className="inline-block relative w-[250px] md:w-[320px] text-[#EE334E] text-left">
+          <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight text-center" style={{ fontFamily: 'Plaster, sans-serif', fontWeight: 400 }}>
+            Transforma tu primer
+            <div className="block w-full h-[80px] md:h-[120px] relative my-4 text-[#EE334E] text-6xl md:text-8xl flex items-center justify-center">
               <AnimatePresence mode="popLayout">
                 <motion.span
                   key={wordIndex}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 40 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -30 }}
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
-                  className="absolute left-0"
+                  exit={{ opacity: 0, y: -40 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  className="absolute"
                 >
                   {WORDS[wordIndex]}
                 </motion.span>
               </AnimatePresence>
-              <span className="invisible">visualización</span>
-            </span>
-            <br className="hidden md:block" /> en una <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EE334E] to-[#ff6b81]" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}>Máquina de Ventas</span>
+            </div>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EE334E] to-[#ff6b81]" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}>Máquina de Ventas</span>
           </motion.h1>
           
           <motion.p variants={fadeIn} className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed backdrop-blur-sm bg-black/20 p-4 rounded-2xl">
