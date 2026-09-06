@@ -1012,9 +1012,16 @@ export default function AdminDashboardPage() {
                       onChange={(e) => setEditingProfile({ ...editingProfile, theme: e.target.value })}
                       className="input-dark w-full"
                     >
-                      <option value="modern" className="bg-[#090914]">Cyber Modern / Dark</option>
-                      <option value="classic" className="bg-[#090914]">Clásico Corporativo</option>
-                      <option value="minimal" className="bg-[#090914]">Minimalista Ejecutivo</option>
+                      <option value="classic" className="bg-[#090914]">1. Clásico Corporativo (Formal)</option>
+                      <option value="modern" className="bg-[#090914]">2. Cyber Modern Dark (Tecnología)</option>
+                      <option value="minimal" className="bg-[#090914]">3. Minimalista Ejecutivo (Clean)</option>
+                      <option value="glassmorphism" className="bg-[#090914]">4. Glassmorphism Frost (Vanguardia)</option>
+                      <option value="monolith" className="bg-[#090914]">5. Monolito Luxury VIP (High-End)</option>
+                      <option value="neobrutalism" className="bg-[#090914]">6. Neo-Brutalism Pop (Impacto)</option>
+                      <option value="split_hero" className="bg-[#090914]">7. Hero Asimétrico (Dinámico)</option>
+                      <option value="bento_grid" className="bg-[#090914]">8. Bento Grid Tech (Modular)</option>
+                      <option value="cyber_matrix" className="bg-[#090914]">9. Cyber Neon Matrix (Sci-Fi HUD)</option>
+                      <option value="editorial_swiss" className="bg-[#090914]">10. Suizo Editorial Clean (Modernist)</option>
                     </select>
                   </div>
 

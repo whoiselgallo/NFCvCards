@@ -18,6 +18,69 @@ export function getSocialUrl(type, value) {
   return trimmed;
 }
 
+const THEME_CONFIGS = {
+  classic: {
+    bgOuter: '#f1f5f9',
+    bgColor: '#ffffff',
+    textColor: '#0f172a',
+    subTextColor: '#475569'
+  },
+  modern: {
+    bgOuter: '#04040A',
+    bgColor: '#090912',
+    textColor: '#f8fafc',
+    subTextColor: '#94a3b8'
+  },
+  minimal: {
+    bgOuter: '#f1f5f9',
+    bgColor: '#fafafa',
+    textColor: '#0f172a',
+    subTextColor: '#475569'
+  },
+  glassmorphism: {
+    bgOuter: '#040711',
+    bgColor: '#0b0f19',
+    textColor: '#f1f5f9',
+    subTextColor: '#94a3b8'
+  },
+  monolith: {
+    bgOuter: '#000000',
+    bgColor: '#0d0d0d',
+    textColor: '#f5f5f5',
+    subTextColor: '#a3a3a3'
+  },
+  neobrutalism: {
+    bgOuter: '#e5e2da',
+    bgColor: '#fffdfa',
+    textColor: '#000000',
+    subTextColor: '#262626'
+  },
+  split_hero: {
+    bgOuter: '#05070c',
+    bgColor: '#0a0e17',
+    textColor: '#ffffff',
+    subTextColor: '#94a3b8'
+  },
+  bento_grid: {
+    bgOuter: '#08080b',
+    bgColor: '#0f0f14',
+    textColor: '#f8fafc',
+    subTextColor: '#a1a1aa'
+  },
+  cyber_matrix: {
+    bgOuter: '#020204',
+    bgColor: '#050508',
+    textColor: '#f8fafc',
+    subTextColor: '#71717a'
+  },
+  editorial_swiss: {
+    bgOuter: '#f4f4f5',
+    bgColor: '#ffffff',
+    textColor: '#09090b',
+    subTextColor: '#71717a'
+  }
+};
+
 export default function PublicProfileClient({ profile = {} }) {
   const [lang, setLang] = useState('es');
 
@@ -147,28 +210,23 @@ export default function PublicProfileClient({ profile = {} }) {
     URL.revokeObjectURL(blobUrl);
   };
 
-  const isModern = theme === 'modern';
-  const isClassic = theme === 'classic';
-  const isMinimal = theme === 'minimal';
-
-  const bgColor = isModern ? '#090912' : isClassic ? '#ffffff' : '#fafafa';
-  const textColor = isModern ? '#f8fafc' : '#0f172a';
+  const themeConfig = THEME_CONFIGS[theme] || THEME_CONFIGS.modern;
 
   return (
     <div
       className="min-h-screen flex justify-center items-center p-0 sm:p-4 transition-colors"
-      style={{ backgroundColor: isModern ? '#04040A' : '#f1f5f9' }}
+      style={{ backgroundColor: themeConfig.bgOuter }}
     >
       <div
         className="w-full max-w-md min-h-screen sm:min-h-[720px] sm:rounded-[36px] shadow-2xl overflow-hidden relative pb-32 select-none transition-all flex flex-col"
         style={{
-          backgroundColor: bgColor,
+          backgroundColor: themeConfig.bgColor,
           fontFamily: currentFontSecondary,
-          color: textColor
+          color: themeConfig.textColor
         }}
       >
-        {/* TEMA CLÁSICO */}
-        {isClassic && (
+        {/* 1. TEMA CLÁSICO CORPORATIVO */}
+        {theme === 'classic' && (
           <div>
             <div
               className="h-36 w-full relative overflow-hidden flex items-center justify-center transition-colors"
@@ -228,7 +286,7 @@ export default function PublicProfileClient({ profile = {} }) {
               </div>
 
               {nota && (
-                <p className="text-xs mt-4 p-3 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-4 w-full" style={{ borderColor: color_cta }}>
+                <p className="text-xs mt-4 p-3 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-4 w-full text-slate-700" style={{ borderColor: color_cta }}>
                   "{nota}"
                 </p>
               )}
@@ -236,8 +294,8 @@ export default function PublicProfileClient({ profile = {} }) {
           </div>
         )}
 
-        {/* TEMA MODERNO CYBER DARK */}
-        {isModern && (
+        {/* 2. TEMA MODERNO CYBER DARK */}
+        {theme === 'modern' && (
           <div className="p-6 flex flex-col items-center text-center">
             {activeCover && (
               <div className="w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/10 relative">
@@ -268,7 +326,7 @@ export default function PublicProfileClient({ profile = {} }) {
               />
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight mt-2" style={{ fontFamily: currentFontPrimary }}>
+            <h1 className="text-2xl font-bold tracking-tight mt-2 text-white" style={{ fontFamily: currentFontPrimary }}>
               {nombre} {apellido}
             </h1>
             <div className="h-1.5 w-16 my-2 mx-auto rounded-full" style={{ backgroundColor: color_secundario }}></div>
@@ -288,15 +346,15 @@ export default function PublicProfileClient({ profile = {} }) {
             )}
 
             {nota && (
-              <p className="text-xs mt-4 opacity-80 leading-relaxed px-2 italic">
+              <p className="text-xs mt-4 opacity-80 leading-relaxed px-2 italic text-gray-300">
                 "{nota}"
               </p>
             )}
           </div>
         )}
 
-        {/* TEMA MINIMALISTA EJECUTIVO */}
-        {isMinimal && (
+        {/* 3. TEMA MINIMALISTA EJECUTIVO */}
+        {theme === 'minimal' && (
           <div className="p-8 flex flex-col items-center text-center">
             {activeCover && (
               <div className="w-full h-32 overflow-hidden mb-5 border-b border-gray-200 relative rounded-lg">
@@ -335,20 +393,494 @@ export default function PublicProfileClient({ profile = {} }) {
             {empresa && <p className="text-xs font-semibold mt-1 text-gray-500">{empresa}</p>}
 
             {nota && (
-              <p className="text-xs mt-4 opacity-75 leading-relaxed italic max-w-[90%]">
+              <p className="text-xs mt-4 opacity-75 leading-relaxed italic max-w-[90%] text-slate-700">
                 "{nota}"
               </p>
             )}
           </div>
         )}
 
-        {/* BOTONES DE CONTACTO */}
+        {/* 4. TEMA GLASSMORPHISM FROST */}
+        {theme === 'glassmorphism' && (
+          <div className="p-6 flex flex-col items-center relative">
+            <div className="absolute top-6 -left-10 w-44 h-44 rounded-full bg-[#C8102E]/25 blur-3xl pointer-events-none"></div>
+            <div className="absolute top-24 -right-10 w-44 h-44 rounded-full bg-[#00E5FF]/20 blur-3xl pointer-events-none"></div>
+
+            {activeCover && (
+              <div className="w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/20 relative shadow-lg">
+                <img
+                  src={activeCover}
+                  alt="Cover"
+                  className="w-full h-full object-cover"
+                  style={{
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              </div>
+            )}
+
+            <div className="w-full backdrop-blur-xl bg-white/[0.06] border border-white/15 rounded-3xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col items-center text-center">
+              <div
+                className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+                style={{
+                  width: `${logo_scale}px`,
+                  height: `${logo_scale}px`
+                }}
+              >
+                <img
+                  src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                  alt="Logo"
+                  className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                />
+              </div>
+
+              <h1 className="text-2xl font-bold tracking-tight mt-2 text-white" style={{ fontFamily: currentFontPrimary }}>
+                {nombre} {apellido}
+              </h1>
+
+              <div
+                className="h-1 w-16 my-2.5 rounded-full backdrop-blur-md"
+                style={{ backgroundColor: color_secundario, boxShadow: `0 0 10px ${color_secundario}` }}
+              ></div>
+
+              <p className="text-sm font-semibold tracking-wide" style={{ color: color_primario }}>{puesto}</p>
+
+              {empresa && (
+                <div className="inline-block px-3 py-1 mt-2 rounded-full text-[11px] uppercase font-mono tracking-widest backdrop-blur-md bg-white/10 border border-white/20 text-gray-200">
+                  ✨ {empresa}
+                </div>
+              )}
+
+              {nota && (
+                <p className="text-xs mt-3 text-gray-300 italic leading-relaxed backdrop-blur-sm bg-black/20 p-3 rounded-2xl border border-white/10 w-full">
+                  "{nota}"
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 5. TEMA MONOLITO LUXURY VIP */}
+        {theme === 'monolith' && (
+          <div className="p-6 flex flex-col items-center text-center bg-[#0d0d0d] relative">
+            <div
+              className="w-full h-1 rounded-full mb-4 shadow-[0_0_15px_rgba(200,16,46,0.5)]"
+              style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, ${color_secundario}, transparent)` }}
+            ></div>
+
+            {activeCover && (
+              <div className="w-full h-32 rounded-xl overflow-hidden mb-4 border border-white/10 relative shadow-2xl">
+                <img
+                  src={activeCover}
+                  alt="Cover"
+                  className="w-full h-full object-cover transition-all filter contrast-110"
+                  style={{
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent to-black/30"></div>
+              </div>
+            )}
+
+            <div
+              className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+              style={{
+                width: `${logo_scale}px`,
+                height: `${logo_scale}px`
+              }}
+            >
+              <img
+                src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                alt="Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 justify-center text-[10px] uppercase font-mono tracking-widest text-amber-300/80 mb-1">
+              <span>◆</span>
+              <span>VIP EXECUTIVE</span>
+              <span>◆</span>
+            </div>
+
+            <h1 className="text-2xl font-extrabold uppercase tracking-wider text-white" style={{ fontFamily: currentFontPrimary }}>
+              {nombre} {apellido}
+            </h1>
+
+            <p className="text-xs font-mono uppercase tracking-widest mt-1 font-bold" style={{ color: color_primario }}>
+              {puesto}
+            </p>
+
+            {empresa && (
+              <div
+                className="inline-block px-4 py-1 mt-2.5 rounded-lg text-xs font-mono uppercase tracking-widest font-bold border"
+                style={{
+                  borderColor: `${color_secundario}60`,
+                  backgroundColor: `${color_secundario}10`,
+                  color: color_secundario
+                }}
+              >
+                {empresa}
+              </div>
+            )}
+
+            {nota && (
+              <div className="mt-4 p-3.5 rounded-xl bg-black/60 border border-white/10 text-xs italic text-gray-300 leading-relaxed w-full">
+                "{nota}"
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 6. TEMA NEO-BRUTALISM POP */}
+        {theme === 'neobrutalism' && (
+          <div className="p-6 flex flex-col items-center text-center bg-[#fffdfa] text-black">
+            {activeCover && (
+              <div className="w-full h-32 rounded-xl overflow-hidden mb-4 border-3 border-black shadow-[4px_4px_0px_#000000] relative bg-white">
+                <img
+                  src={activeCover}
+                  alt="Cover"
+                  className="w-full h-full object-cover transition-all"
+                  style={{
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
+                  }}
+                />
+              </div>
+            )}
+
+            <div
+              className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+              style={{
+                width: `${logo_scale}px`,
+                height: `${logo_scale}px`
+              }}
+            >
+              <img
+                src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                alt="Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            <div className="bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-4 rounded-2xl w-full mt-1">
+              <h1 className="text-2xl font-black tracking-tight text-black uppercase" style={{ fontFamily: currentFontPrimary }}>
+                {nombre} {apellido}
+              </h1>
+
+              <div className="h-1 w-full bg-black my-2.5"></div>
+
+              <p className="text-xs font-extrabold uppercase font-mono" style={{ color: color_primario }}>
+                {puesto}
+              </p>
+
+              {empresa && (
+                <div
+                  className="inline-block px-3 py-1 mt-2 rounded-md text-xs font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_#000000]"
+                  style={{ backgroundColor: color_secundario, color: '#000000' }}
+                >
+                  {empresa}
+                </div>
+              )}
+            </div>
+
+            {nota && (
+              <div className="mt-4 p-3 rounded-xl bg-yellow-200/90 border-2 border-black shadow-[3px_3px_0px_#000000] text-xs font-bold italic text-black leading-relaxed w-full">
+                "{nota}"
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 7. TEMA HERO ASIMÉTRICO */}
+        {theme === 'split_hero' && (
+          <div className="p-6 flex flex-col bg-[#0a0e17] text-white">
+            {activeCover ? (
+              <div
+                className="w-full h-36 overflow-hidden rounded-2xl mb-4 relative border border-white/10"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)' }}
+              >
+                <img
+                  src={activeCover}
+                  alt="Cover"
+                  className="w-full h-full object-cover transition-all"
+                  style={{
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
+                  }}
+                />
+              </div>
+            ) : (
+              <div
+                className="w-full h-16 rounded-2xl mb-3"
+                style={{
+                  background: `linear-gradient(135deg, ${color_primario}, ${color_secundario})`,
+                  clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 100%)'
+                }}
+              ></div>
+            )}
+
+            <div className="flex items-start justify-between gap-3 mt-1">
+              <div className="flex-1 text-left">
+                <h1 className="text-2xl font-extrabold leading-tight text-white tracking-tight" style={{ fontFamily: currentFontPrimary }}>
+                  {nombre} <span className="block text-gray-300">{apellido}</span>
+                </h1>
+                <p className="text-sm font-bold mt-1" style={{ color: color_primario }}>
+                  {puesto}
+                </p>
+                {empresa && (
+                  <div
+                    className="inline-block px-3 py-0.5 mt-2 rounded-md text-[11px] font-mono uppercase font-bold border"
+                    style={{
+                      backgroundColor: `${color_secundario}15`,
+                      borderColor: `${color_secundario}50`,
+                      color: color_secundario
+                    }}
+                  >
+                    {empresa}
+                  </div>
+                )}
+              </div>
+
+              <div
+                className="flex items-center justify-center overflow-hidden shrink-0 bg-transparent border-0 shadow-none transition-all"
+                style={{
+                  width: `${Math.min(logo_scale, 100)}px`,
+                  height: `${Math.min(logo_scale, 100)}px`
+                }}
+              >
+                <img
+                  src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                  alt="Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+
+            {nota && (
+              <div
+                className="mt-4 p-3 rounded-xl bg-white/[0.04] border-l-3 text-xs italic text-gray-300 leading-relaxed text-left"
+                style={{ borderColor: color_cta }}
+              >
+                "{nota}"
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 8. TEMA BENTO GRID TECH */}
+        {theme === 'bento_grid' && (
+          <div className="p-5 flex flex-col gap-3.5 bg-[#0f0f14] text-white">
+            <div className="bg-white/[0.05] border border-white/10 rounded-3xl p-5 flex flex-col items-center text-center relative overflow-hidden shadow-lg">
+              {activeCover && (
+                <div className="w-full h-28 rounded-2xl overflow-hidden mb-3.5 relative border border-white/10">
+                  <img
+                    src={activeCover}
+                    alt="Cover"
+                    className="w-full h-full object-cover"
+                    style={{
+                      objectPosition: `center ${cover_position_y}%`,
+                      transform: `scale(${cover_zoom / 100})`,
+                      transformOrigin: `center ${cover_position_y}%`
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f14]/80 to-transparent"></div>
+                </div>
+              )}
+
+              <div
+                className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+                style={{
+                  width: `${logo_scale}px`,
+                  height: `${logo_scale}px`
+                }}
+              >
+                <img
+                  src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                  alt="Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              <h1 className="text-2xl font-bold text-white mt-1" style={{ fontFamily: currentFontPrimary }}>
+                {nombre} {apellido}
+              </h1>
+
+              <p className="text-sm font-semibold mt-0.5" style={{ color: color_primario }}>{puesto}</p>
+
+              {empresa && (
+                <span
+                  className="inline-block px-3.5 py-1 mt-2.5 rounded-full text-xs font-mono uppercase font-bold border"
+                  style={{
+                    backgroundColor: `${color_secundario}15`,
+                    borderColor: `${color_secundario}40`,
+                    color: color_secundario
+                  }}
+                >
+                  {empresa}
+                </span>
+              )}
+            </div>
+
+            {nota && (
+              <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3.5 text-xs italic text-gray-300 text-center leading-relaxed">
+                "{nota}"
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 9. TEMA CYBER NEON MATRIX */}
+        {theme === 'cyber_matrix' && (
+          <div className="p-6 flex flex-col items-center text-center bg-[#050508] text-white relative font-mono">
+            <div className="w-full flex justify-between text-[11px] text-cyan-400/80 mb-3 border-b border-cyan-500/20 pb-1.5 font-mono">
+              <span>[SYS_PROFILE]</span>
+              <span className="text-emerald-400">● LIVE HUD</span>
+            </div>
+
+            {activeCover && (
+              <div className="w-full h-32 rounded-lg overflow-hidden mb-4 border border-cyan-500/30 relative shadow-[0_0_15px_rgba(0,255,255,0.15)]">
+                <img
+                  src={activeCover}
+                  alt="Cover"
+                  className="w-full h-full object-cover transition-all"
+                  style={{
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050508] to-transparent opacity-80"></div>
+              </div>
+            )}
+
+            <div className="relative my-2">
+              <div
+                className="flex items-center justify-center overflow-hidden bg-transparent border-0 shadow-none transition-all"
+                style={{
+                  width: `${logo_scale}px`,
+                  height: `${logo_scale}px`
+                }}
+              >
+                <img
+                  src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                  alt="Logo"
+                  className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(200,16,46,0.6)]"
+                />
+              </div>
+              <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
+              <span className="absolute -bottom-1 -right-1 text-[10px] text-cyan-400">+</span>
+            </div>
+
+            <h1 className="text-2xl font-bold tracking-widest text-cyan-100 uppercase mt-2" style={{ fontFamily: currentFontPrimary }}>
+              {nombre} {apellido}
+            </h1>
+
+            <div className="flex items-center gap-1.5 my-2">
+              <span className="w-2 h-2 rounded-full bg-[#EE334E] animate-ping"></span>
+              <p className="text-xs uppercase tracking-wider font-bold" style={{ color: color_primario }}>
+                // {puesto}
+              </p>
+            </div>
+
+            {empresa && (
+              <div className="px-3 py-1 mt-1 rounded text-xs uppercase tracking-widest font-bold border border-cyan-500/40 bg-cyan-950/30 text-cyan-300">
+                ID: {empresa}
+              </div>
+            )}
+
+            {nota && (
+              <div className="mt-4 p-3 rounded bg-black/80 border-l-2 border-r-2 border-cyan-500/40 text-xs text-cyan-200/80 leading-relaxed text-left w-full">
+                &gt; {nota}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 10. TEMA SUIZO EDITORIAL CLEAN */}
+        {theme === 'editorial_swiss' && (
+          <div className="p-7 flex flex-col items-center text-center bg-white text-zinc-900">
+            {activeCover && (
+              <div className="w-full h-32 overflow-hidden mb-4 border-b border-zinc-200 relative">
+                <img
+                  src={activeCover}
+                  alt="Cover"
+                  className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all"
+                  style={{
+                    objectPosition: `center ${cover_position_y}%`,
+                    transform: `scale(${cover_zoom / 100})`,
+                    transformOrigin: `center ${cover_position_y}%`
+                  }}
+                />
+              </div>
+            )}
+
+            <div
+              className="flex items-center justify-center my-3 bg-transparent border-0 shadow-none transition-all"
+              style={{
+                width: `${logo_scale}px`,
+                height: `${logo_scale}px`
+              }}
+            >
+              <img
+                src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                alt="Logo"
+                className="w-full h-full object-contain filter contrast-125"
+              />
+            </div>
+
+            <div className="w-full border-t border-b border-zinc-900/20 py-3 my-2">
+              <h1 className="text-3xl font-black tracking-tighter uppercase text-zinc-900" style={{ fontFamily: currentFontPrimary }}>
+                {nombre} {apellido}
+              </h1>
+              <p className="text-xs uppercase tracking-widest font-bold mt-1" style={{ color: color_primario }}>
+                {puesto}
+              </p>
+            </div>
+
+            {empresa && (
+              <p className="text-xs font-mono uppercase tracking-widest text-zinc-500 font-bold mt-1">
+                — {empresa} —
+              </p>
+            )}
+
+            {nota && (
+              <p className="text-xs mt-4 text-zinc-600 font-serif italic border-l-2 border-zinc-900 pl-3 text-left w-full leading-relaxed">
+                "{nota}"
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* BOTONES DE CONTACTO DINÁMICOS POR TEMA */}
         <div className="px-6 space-y-2.5 mt-2 flex-1">
           {telefono && (
             <a
               href={`tel:${telefono}`}
-              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
-              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+              className={`flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01] ${
+                theme === 'neobrutalism'
+                  ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000] font-bold'
+                  : theme === 'glassmorphism'
+                  ? 'backdrop-blur-md bg-white/[0.05] border border-white/15 text-white shadow-sm hover:bg-white/10'
+                  : theme === 'cyber_matrix'
+                  ? 'border border-cyan-500/30 bg-black/60 text-cyan-200 font-mono shadow-[0_0_10px_rgba(0,255,255,0.05)]'
+                  : theme === 'monolith'
+                  ? 'border border-white/10 bg-black/50 text-white hover:border-white/20'
+                  : theme === 'editorial_swiss'
+                  ? 'border border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-400 font-medium'
+                  : ''
+              }`}
+              style={
+                theme !== 'neobrutalism' && theme !== 'glassmorphism' && theme !== 'cyber_matrix' && theme !== 'monolith' && theme !== 'editorial_swiss'
+                  ? { backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }
+                  : {}
+              }
             >
               <span className="text-lg" style={{ color: color_secundario }}>📞</span>
               <span className="truncate">{telefono}</span>
@@ -360,8 +892,24 @@ export default function PublicProfileClient({ profile = {} }) {
               href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
-              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+              className={`flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01] ${
+                theme === 'neobrutalism'
+                  ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000] font-bold'
+                  : theme === 'glassmorphism'
+                  ? 'backdrop-blur-md bg-white/[0.05] border border-white/15 text-white shadow-sm hover:bg-white/10'
+                  : theme === 'cyber_matrix'
+                  ? 'border border-cyan-500/30 bg-black/60 text-cyan-200 font-mono shadow-[0_0_10px_rgba(0,255,255,0.05)]'
+                  : theme === 'monolith'
+                  ? 'border border-white/10 bg-black/50 text-white hover:border-white/20'
+                  : theme === 'editorial_swiss'
+                  ? 'border border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-400 font-medium'
+                  : ''
+              }`}
+              style={
+                theme !== 'neobrutalism' && theme !== 'glassmorphism' && theme !== 'cyber_matrix' && theme !== 'monolith' && theme !== 'editorial_swiss'
+                  ? { backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }
+                  : {}
+              }
             >
               <span className="text-lg" style={{ color: color_secundario }}>💬</span>
               <span className="truncate">WhatsApp: {whatsapp}</span>
@@ -371,8 +919,24 @@ export default function PublicProfileClient({ profile = {} }) {
           {correo && (
             <a
               href={`mailto:${correo}`}
-              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
-              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+              className={`flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01] ${
+                theme === 'neobrutalism'
+                  ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000] font-bold'
+                  : theme === 'glassmorphism'
+                  ? 'backdrop-blur-md bg-white/[0.05] border border-white/15 text-white shadow-sm hover:bg-white/10'
+                  : theme === 'cyber_matrix'
+                  ? 'border border-cyan-500/30 bg-black/60 text-cyan-200 font-mono shadow-[0_0_10px_rgba(0,255,255,0.05)]'
+                  : theme === 'monolith'
+                  ? 'border border-white/10 bg-black/50 text-white hover:border-white/20'
+                  : theme === 'editorial_swiss'
+                  ? 'border border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-400 font-medium'
+                  : ''
+              }`}
+              style={
+                theme !== 'neobrutalism' && theme !== 'glassmorphism' && theme !== 'cyber_matrix' && theme !== 'monolith' && theme !== 'editorial_swiss'
+                  ? { backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }
+                  : {}
+              }
             >
               <span className="text-lg" style={{ color: color_secundario }}>✉️</span>
               <span className="truncate">{correo}</span>
@@ -384,8 +948,24 @@ export default function PublicProfileClient({ profile = {} }) {
               href={url.startsWith('http') ? url : `https://${url}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
-              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+              className={`flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01] ${
+                theme === 'neobrutalism'
+                  ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000] font-bold'
+                  : theme === 'glassmorphism'
+                  ? 'backdrop-blur-md bg-white/[0.05] border border-white/15 text-white shadow-sm hover:bg-white/10'
+                  : theme === 'cyber_matrix'
+                  ? 'border border-cyan-500/30 bg-black/60 text-cyan-200 font-mono shadow-[0_0_10px_rgba(0,255,255,0.05)]'
+                  : theme === 'monolith'
+                  ? 'border border-white/10 bg-black/50 text-white hover:border-white/20'
+                  : theme === 'editorial_swiss'
+                  ? 'border border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-400 font-medium'
+                  : ''
+              }`}
+              style={
+                theme !== 'neobrutalism' && theme !== 'glassmorphism' && theme !== 'cyber_matrix' && theme !== 'monolith' && theme !== 'editorial_swiss'
+                  ? { backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }
+                  : {}
+              }
             >
               <span className="text-lg" style={{ color: color_secundario }}>🌐</span>
               <span className="truncate">{url.replace(/^https?:\/\//, '')}</span>
@@ -397,8 +977,24 @@ export default function PublicProfileClient({ profile = {} }) {
               href={fbUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
-              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+              className={`flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01] ${
+                theme === 'neobrutalism'
+                  ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000] font-bold'
+                  : theme === 'glassmorphism'
+                  ? 'backdrop-blur-md bg-white/[0.05] border border-white/15 text-white shadow-sm hover:bg-white/10'
+                  : theme === 'cyber_matrix'
+                  ? 'border border-cyan-500/30 bg-black/60 text-cyan-200 font-mono shadow-[0_0_10px_rgba(0,255,255,0.05)]'
+                  : theme === 'monolith'
+                  ? 'border border-white/10 bg-black/50 text-white hover:border-white/20'
+                  : theme === 'editorial_swiss'
+                  ? 'border border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-400 font-medium'
+                  : ''
+              }`}
+              style={
+                theme !== 'neobrutalism' && theme !== 'glassmorphism' && theme !== 'cyber_matrix' && theme !== 'monolith' && theme !== 'editorial_swiss'
+                  ? { backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }
+                  : {}
+              }
             >
               <span className="text-lg" style={{ color: color_secundario }}>📘</span>
               <span className="truncate font-mono">facebook.com/{facebook.replace(/^@+/, '')}</span>
@@ -410,8 +1006,24 @@ export default function PublicProfileClient({ profile = {} }) {
               href={igUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
-              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+              className={`flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01] ${
+                theme === 'neobrutalism'
+                  ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000] font-bold'
+                  : theme === 'glassmorphism'
+                  ? 'backdrop-blur-md bg-white/[0.05] border border-white/15 text-white shadow-sm hover:bg-white/10'
+                  : theme === 'cyber_matrix'
+                  ? 'border border-cyan-500/30 bg-black/60 text-cyan-200 font-mono shadow-[0_0_10px_rgba(0,255,255,0.05)]'
+                  : theme === 'monolith'
+                  ? 'border border-white/10 bg-black/50 text-white hover:border-white/20'
+                  : theme === 'editorial_swiss'
+                  ? 'border border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-400 font-medium'
+                  : ''
+              }`}
+              style={
+                theme !== 'neobrutalism' && theme !== 'glassmorphism' && theme !== 'cyber_matrix' && theme !== 'monolith' && theme !== 'editorial_swiss'
+                  ? { backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }
+                  : {}
+              }
             >
               <span className="text-lg" style={{ color: color_secundario }}>📸</span>
               <span className="truncate font-mono">instagram.com/{instagram.replace(/^@+/, '')}</span>
@@ -423,8 +1035,24 @@ export default function PublicProfileClient({ profile = {} }) {
               href={inUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01]"
-              style={{ backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }}
+              className={`flex items-center gap-3.5 p-3 rounded-xl text-sm font-medium border transition-all hover:scale-[1.01] ${
+                theme === 'neobrutalism'
+                  ? 'border-2 border-black bg-white text-black shadow-[2px_2px_0px_#000000] font-bold'
+                  : theme === 'glassmorphism'
+                  ? 'backdrop-blur-md bg-white/[0.05] border border-white/15 text-white shadow-sm hover:bg-white/10'
+                  : theme === 'cyber_matrix'
+                  ? 'border border-cyan-500/30 bg-black/60 text-cyan-200 font-mono shadow-[0_0_10px_rgba(0,255,255,0.05)]'
+                  : theme === 'monolith'
+                  ? 'border border-white/10 bg-black/50 text-white hover:border-white/20'
+                  : theme === 'editorial_swiss'
+                  ? 'border border-zinc-200 bg-zinc-50 text-zinc-900 hover:border-zinc-400 font-medium'
+                  : ''
+              }`}
+              style={
+                theme !== 'neobrutalism' && theme !== 'glassmorphism' && theme !== 'cyber_matrix' && theme !== 'monolith' && theme !== 'editorial_swiss'
+                  ? { backgroundColor: `${color_secundario}08`, borderColor: `${color_secundario}30` }
+                  : {}
+              }
             >
               <span className="text-lg" style={{ color: color_secundario }}>💼</span>
               <span className="truncate font-mono">linkedin.com/in/{linkedin.replace(/^@+/, '')}</span>
@@ -483,7 +1111,17 @@ export default function PublicProfileClient({ profile = {} }) {
         <div className="absolute bottom-4 left-4 right-4 z-20">
           <button
             onClick={downloadVCF}
-            className="w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-wider text-black shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.99]"
+            className={`w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-wider text-white shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.99] ${
+              theme === 'neobrutalism'
+                ? 'border-2.5 border-black shadow-[4px_4px_0px_#000] font-black'
+                : theme === 'glassmorphism'
+                ? 'backdrop-blur-xl border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
+                : theme === 'cyber_matrix'
+                ? 'border border-cyan-400 font-mono shadow-[0_0_15px_rgba(0,255,255,0.4)]'
+                : theme === 'monolith'
+                ? 'border border-white/20 shadow-2xl font-bold'
+                : ''
+            }`}
             style={{
               backgroundColor: color_cta,
               fontFamily: currentFontPrimary

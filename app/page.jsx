@@ -7,11 +7,12 @@ import brandConfig from '../brand.config';
 import { generateDeliveryInstructions } from '../lib/brand';
 import { getTranslation } from '../lib/i18n';
 
-// Temas Estructurales de la Tarjeta del Cliente
+// Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
 const THEMES = {
   classic: {
     id: 'classic',
     name: 'Clásico Corporativo',
+    badge: 'Formal',
     desc: 'Cabecera vibrante, logotipo centrado y pastillas de contacto',
     bgColor: '#ffffff',
     textColor: '#1e293b',
@@ -19,7 +20,8 @@ const THEMES = {
   },
   modern: {
     id: 'modern',
-    name: 'Cyber Modern / Dark',
+    name: 'Cyber Modern Dark',
+    badge: 'Tecnología',
     desc: 'Lienzo oscuro con acentos luminosos y doble glow',
     bgColor: '#090912',
     textColor: '#f8fafc',
@@ -28,10 +30,74 @@ const THEMES = {
   minimal: {
     id: 'minimal',
     name: 'Minimalista Ejecutivo',
+    badge: 'Clean',
     desc: 'Estilo editorial geométrico centrado y alto contraste',
     bgColor: '#fafafa',
     textColor: '#0f172a',
     subTextColor: '#475569'
+  },
+  glassmorphism: {
+    id: 'glassmorphism',
+    name: 'Glassmorphism Frost',
+    badge: 'Vanguardia',
+    desc: 'Efecto cristal esmerilado, reflejos translúcidos y glow suave',
+    bgColor: '#0b0f19',
+    textColor: '#f1f5f9',
+    subTextColor: '#94a3b8'
+  },
+  monolith: {
+    id: 'monolith',
+    name: 'Monolito Luxury VIP',
+    badge: 'High-End',
+    desc: 'Obsidiana profunda, destellos metalizados y lujo refinado',
+    bgColor: '#0d0d0d',
+    textColor: '#f5f5f5',
+    subTextColor: '#a3a3a3'
+  },
+  neobrutalism: {
+    id: 'neobrutalism',
+    name: 'Neo-Brutalism Pop',
+    badge: 'Impacto',
+    desc: 'Bordes gruesos 3px, sombras rígidas y alto impacto visual',
+    bgColor: '#fffdfa',
+    textColor: '#000000',
+    subTextColor: '#262626'
+  },
+  split_hero: {
+    id: 'split_hero',
+    name: 'Hero Asimétrico',
+    badge: 'Dinámico',
+    desc: 'Cabecera diagonal, disposición dinámica y corte moderno',
+    bgColor: '#0a0e17',
+    textColor: '#ffffff',
+    subTextColor: '#94a3b8'
+  },
+  bento_grid: {
+    id: 'bento_grid',
+    name: 'Bento Grid Tech',
+    badge: 'Modular',
+    desc: 'Mosaico modular estilo Apple con micro-cards interactivas',
+    bgColor: '#0f0f14',
+    textColor: '#f8fafc',
+    subTextColor: '#a1a1aa'
+  },
+  cyber_matrix: {
+    id: 'cyber_matrix',
+    name: 'Cyber Neon Matrix',
+    badge: 'Sci-Fi HUD',
+    desc: 'Terminal cibernética con HUD brackets y halo reactivo',
+    bgColor: '#050508',
+    textColor: '#f8fafc',
+    subTextColor: '#71717a'
+  },
+  editorial_swiss: {
+    id: 'editorial_swiss',
+    name: 'Suizo Editorial Clean',
+    badge: 'Modernist',
+    desc: 'Diseño internacional suizo, líneas finas y blanco puro',
+    bgColor: '#ffffff',
+    textColor: '#09090b',
+    subTextColor: '#71717a'
   }
 };
 
@@ -1000,23 +1066,44 @@ export default function VCardEngineDashboard() {
                     <span className="text-[10px] font-mono text-gray-400 uppercase">Estilo Visual</span>
                   </div>
 
-                  {/* SELECTOR DE TEMAS ESTRUCTURALES */}
+                  {/* SELECTOR DE TEMAS ESTRUCTURALES (10 TEMAS PROFESIONALES) */}
                   <div>
-                    <label className="block text-xs text-gray-300 mb-2 uppercase tracking-wide">Tema Estructural</label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-xs text-gray-300 uppercase tracking-wide font-bold">Tema Estructural & Layout</label>
+                      <span className="text-[10px] font-mono text-[#EE334E] font-bold">10 Diseños Disponibles</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                       {Object.values(THEMES).map(th => (
                         <button
                           key={th.id}
                           type="button"
                           onClick={() => setDesign(prev => ({ ...prev, theme: th.id }))}
-                          className={`p-2.5 rounded-xl border text-left transition-all ${
+                          className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between relative group ${
                             design.theme === th.id
-                              ? 'bg-[#C8102E]/15 border-[#EE334E] shadow-[0_0_12px_rgba(200,16,46,0.4)]'
-                              : 'bg-black/30 border-gray-800 hover:border-gray-700'
+                              ? 'bg-[#C8102E]/15 border-[#EE334E] shadow-[0_0_15px_rgba(200,16,46,0.35)] scale-[1.02]'
+                              : 'bg-black/40 border-gray-800/90 hover:border-gray-700 hover:bg-black/60'
                           }`}
                         >
-                          <p className={`text-xs font-rosetta font-bold ${design.theme === th.id ? 'text-[#EE334E]' : 'text-white'}`}>{th.name}</p>
-                          <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{th.desc}</p>
+                          <div>
+                            <div className="flex items-center justify-between gap-1 mb-1.5">
+                              <span
+                                className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full font-bold border ${
+                                  design.theme === th.id
+                                    ? 'bg-[#C8102E] text-white border-[#EE334E]'
+                                    : 'bg-white/5 text-gray-400 border-white/10'
+                                }`}
+                              >
+                                {th.badge || 'Tema'}
+                              </span>
+                              {design.theme === th.id && (
+                                <span className="w-2 h-2 rounded-full bg-[#EE334E] animate-pulse"></span>
+                              )}
+                            </div>
+                            <p className={`text-xs font-rosetta font-bold leading-snug ${design.theme === th.id ? 'text-[#EE334E]' : 'text-white'}`}>
+                              {th.name}
+                            </p>
+                          </div>
+                          <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed line-clamp-2">{th.desc}</p>
                         </button>
                       ))}
                     </div>
@@ -1446,7 +1533,7 @@ export default function VCardEngineDashboard() {
               ) : (
                 /* MODO VCARD SEGÚN EL TEMA */
                 <>
-                  {/* TEMA CLÁSICO CORPORATIVO (LOGO CENTRADO Y VISIBILIDAD TOTAL) */}
+                  {/* 1. TEMA CLÁSICO CORPORATIVO */}
                   {design.theme === 'classic' && (
                     <div>
                       {/* Portada / Banner */}
@@ -1531,7 +1618,7 @@ export default function VCardEngineDashboard() {
                     </div>
                   )}
 
-                  {/* TEMA MODERNO (CYBER DARK) */}
+                  {/* 2. TEMA MODERNO (CYBER DARK) */}
                   {design.theme === 'modern' && (
                     <div className="p-5 flex flex-col items-center text-center">
                       {coverPhoto && (
@@ -1565,7 +1652,7 @@ export default function VCardEngineDashboard() {
                       </div>
 
                       <h2
-                        className="text-xl font-bold tracking-tight mt-2"
+                        className="text-xl font-bold tracking-tight mt-2 text-white"
                         style={{ fontFamily: currentFontPrimary }}
                       >
                         {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
@@ -1597,14 +1684,14 @@ export default function VCardEngineDashboard() {
                       )}
 
                       {formData.nota && (
-                        <p className="text-xs mt-3 opacity-80 leading-relaxed px-2 italic">
+                        <p className="text-xs mt-3 opacity-80 leading-relaxed px-2 italic text-gray-300">
                           "{formData.nota}"
                         </p>
                       )}
                     </div>
                   )}
 
-                  {/* TEMA MINIMALISTA EJECUTIVO (CUADRO GEOMÉTRICO CENTRADO) */}
+                  {/* 3. TEMA MINIMALISTA EJECUTIVO */}
                   {design.theme === 'minimal' && (
                     <div className="p-6 flex flex-col items-center text-center">
                       {coverPhoto && (
@@ -1647,29 +1734,535 @@ export default function VCardEngineDashboard() {
                       {/* Línea de Color Secundario del Cliente Centrada */}
                       <div className="w-12 h-1 my-2 mx-auto rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
                       
-                      <p className="text-xs font-bold tracking-wider uppercase font-bruno" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+                      <p className="text-xs font-bold tracking-wider uppercase font-rosetta" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                       
                       {formData.empresa && (
                         <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
                       )}
 
                       {formData.nota && (
-                        <p className="text-xs mt-3 opacity-75 leading-relaxed italic max-w-[90%]">
+                        <p className="text-xs mt-3 opacity-75 leading-relaxed italic max-w-[90%] text-slate-600">
                           "{formData.nota}"
                         </p>
                       )}
                     </div>
                   )}
 
-                  {/* PASTILLAS DE CONTACTO & REDES SOCIALES */}
+                  {/* 4. TEMA GLASSMORPHISM FROST */}
+                  {design.theme === 'glassmorphism' && (
+                    <div className="p-5 flex flex-col items-center text-center relative overflow-hidden">
+                      <div
+                        className="absolute -top-10 -left-10 w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-30"
+                        style={{ backgroundColor: design.colorPrimario }}
+                      ></div>
+                      <div
+                        className="absolute top-1/2 -right-10 w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-30"
+                        style={{ backgroundColor: design.colorSecundario }}
+                      ></div>
+
+                      {coverPhoto && (
+                        <div className="w-full h-24 rounded-3xl overflow-hidden mb-3 border border-white/15 backdrop-blur-md shadow-lg relative">
+                          <img
+                            src={coverPhoto}
+                            alt="Cover"
+                            className="w-full h-full object-cover transition-all"
+                            style={{
+                              objectPosition: `center ${design.coverPositionY}%`,
+                              transform: `scale(${design.coverZoom / 100})`,
+                              transformOrigin: `center ${design.coverPositionY}%`
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        </div>
+                      )}
+
+                      <div className="w-full backdrop-blur-xl bg-white/[0.06] border border-white/15 rounded-3xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col items-center text-center">
+                        <div
+                          className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
+                          style={{
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
+                          }}
+                        >
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                          />
+                        </div>
+
+                        <h2
+                          className="text-xl font-bold tracking-tight mt-1 text-white"
+                          style={{ fontFamily: currentFontPrimary }}
+                        >
+                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                        </h2>
+
+                        <div
+                          className="h-1 w-12 my-2 rounded-full backdrop-blur-md"
+                          style={{ backgroundColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}` }}
+                        ></div>
+
+                        <p className="text-sm font-semibold tracking-wide" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+
+                        {formData.empresa && (
+                          <div className="inline-block px-3 py-0.5 mt-2 rounded-full text-[10px] uppercase font-mono tracking-widest backdrop-blur-md bg-white/10 border border-white/20 text-gray-200">
+                            ✨ {formData.empresa}
+                          </div>
+                        )}
+
+                        {formData.nota && (
+                          <p className="text-xs mt-3 text-gray-300 italic leading-relaxed backdrop-blur-sm bg-black/20 p-2.5 rounded-2xl border border-white/10 w-full">
+                            "{formData.nota}"
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 5. TEMA MONOLITO LUXURY VIP */}
+                  {design.theme === 'monolith' && (
+                    <div className="p-5 flex flex-col items-center text-center bg-[#0d0d0d] relative">
+                      <div
+                        className="w-full h-1 rounded-full mb-3 shadow-[0_0_15px_rgba(200,16,46,0.5)]"
+                        style={{ background: `linear-gradient(90deg, transparent, ${design.colorPrimario}, ${design.colorSecundario}, transparent)` }}
+                      ></div>
+
+                      {coverPhoto && (
+                        <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border border-white/10 relative shadow-2xl">
+                          <img
+                            src={coverPhoto}
+                            alt="Cover"
+                            className="w-full h-full object-cover transition-all filter contrast-110"
+                            style={{
+                              objectPosition: `center ${design.coverPositionY}%`,
+                              transform: `scale(${design.coverZoom / 100})`,
+                              transformOrigin: `center ${design.coverPositionY}%`
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent to-black/30"></div>
+                        </div>
+                      )}
+
+                      <div
+                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+                        style={{
+                          width: `${design.logoScale}px`,
+                          height: `${design.logoScale}px`
+                        }}
+                      >
+                        <img
+                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                          alt="Logo"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2 justify-center text-[10px] uppercase font-mono tracking-widest text-amber-300/80 mb-1">
+                        <span>◆</span>
+                        <span>VIP EXECUTIVE</span>
+                        <span>◆</span>
+                      </div>
+
+                      <h2
+                        className="text-xl font-extrabold uppercase tracking-wider text-white"
+                        style={{ fontFamily: currentFontPrimary }}
+                      >
+                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                      </h2>
+
+                      <p className="text-xs font-mono uppercase tracking-widest mt-1 font-bold" style={{ color: design.colorPrimario }}>
+                        {formData.puesto || 'Puesto / Cargo'}
+                      </p>
+
+                      {formData.empresa && (
+                        <div
+                          className="inline-block px-4 py-1 mt-2 rounded-lg text-[10px] font-mono uppercase tracking-widest font-bold border"
+                          style={{
+                            borderColor: `${design.colorSecundario}60`,
+                            backgroundColor: `${design.colorSecundario}10`,
+                            color: design.colorSecundario
+                          }}
+                        >
+                          {formData.empresa}
+                        </div>
+                      )}
+
+                      {formData.nota && (
+                        <div className="mt-3 p-3 rounded-xl bg-black/60 border border-white/10 text-xs italic text-gray-300 leading-relaxed w-full">
+                          "{formData.nota}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 6. TEMA NEO-BRUTALISM POP */}
+                  {design.theme === 'neobrutalism' && (
+                    <div className="p-5 flex flex-col items-center text-center bg-[#fffdfa] text-black">
+                      {coverPhoto && (
+                        <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border-3 border-black shadow-[4px_4px_0px_#000000] relative bg-white">
+                          <img
+                            src={coverPhoto}
+                            alt="Cover"
+                            className="w-full h-full object-cover transition-all"
+                            style={{
+                              objectPosition: `center ${design.coverPositionY}%`,
+                              transform: `scale(${design.coverZoom / 100})`,
+                              transformOrigin: `center ${design.coverPositionY}%`
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      <div
+                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+                        style={{
+                          width: `${design.logoScale}px`,
+                          height: `${design.logoScale}px`
+                        }}
+                      >
+                        <img
+                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                          alt="Logo"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+
+                      <div className="bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-3 rounded-2xl w-full mt-1">
+                        <h2
+                          className="text-xl font-black tracking-tight text-black uppercase"
+                          style={{ fontFamily: currentFontPrimary }}
+                        >
+                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                        </h2>
+
+                        <div className="h-1 w-full bg-black my-2"></div>
+
+                        <p className="text-xs font-extrabold uppercase font-mono" style={{ color: design.colorPrimario }}>
+                          {formData.puesto || 'Puesto / Cargo'}
+                        </p>
+
+                        {formData.empresa && (
+                          <div
+                            className="inline-block px-3 py-0.5 mt-2 rounded-md text-[11px] font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_#000000]"
+                            style={{ backgroundColor: design.colorSecundario, color: '#000000' }}
+                          >
+                            {formData.empresa}
+                          </div>
+                        )}
+                      </div>
+
+                      {formData.nota && (
+                        <div className="mt-3 p-2.5 rounded-xl bg-yellow-200/90 border-2 border-black shadow-[3px_3px_0px_#000000] text-xs font-bold italic text-black leading-relaxed w-full">
+                          "{formData.nota}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 7. TEMA HERO ASIMÉTRICO */}
+                  {design.theme === 'split_hero' && (
+                    <div className="p-5 flex flex-col bg-[#0a0e17] text-white">
+                      {coverPhoto ? (
+                        <div
+                          className="w-full h-28 overflow-hidden rounded-2xl mb-3 relative border border-white/10"
+                          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)' }}
+                        >
+                          <img
+                            src={coverPhoto}
+                            alt="Cover"
+                            className="w-full h-full object-cover transition-all"
+                            style={{
+                              objectPosition: `center ${design.coverPositionY}%`,
+                              transform: `scale(${design.coverZoom / 100})`,
+                              transformOrigin: `center ${design.coverPositionY}%`
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="w-full h-14 rounded-2xl mb-2"
+                          style={{
+                            background: `linear-gradient(135deg, ${design.colorPrimario}, ${design.colorSecundario})`,
+                            clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 100%)'
+                          }}
+                        ></div>
+                      )}
+
+                      <div className="flex items-start justify-between gap-3 mt-1">
+                        <div className="flex-1 text-left">
+                          <h2
+                            className="text-xl font-extrabold leading-tight text-white tracking-tight"
+                            style={{ fontFamily: currentFontPrimary }}
+                          >
+                            {formData.nombre || 'Nombre'} <span className="block text-gray-300">{formData.apellido || 'Apellido'}</span>
+                          </h2>
+                          <p className="text-xs font-bold mt-1" style={{ color: design.colorPrimario }}>
+                            {formData.puesto || 'Puesto / Cargo'}
+                          </p>
+                          {formData.empresa && (
+                            <div
+                              className="inline-block px-2.5 py-0.5 mt-1.5 rounded-md text-[10px] font-mono uppercase font-bold border"
+                              style={{
+                                backgroundColor: `${design.colorSecundario}15`,
+                                borderColor: `${design.colorSecundario}50`,
+                                color: design.colorSecundario
+                              }}
+                            >
+                              {formData.empresa}
+                            </div>
+                          )}
+                        </div>
+
+                        <div
+                          className="flex items-center justify-center overflow-hidden shrink-0 bg-transparent border-0 shadow-none transition-all"
+                          style={{
+                            width: `${Math.min(design.logoScale, 90)}px`,
+                            height: `${Math.min(design.logoScale, 90)}px`
+                          }}
+                        >
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      </div>
+
+                      {formData.nota && (
+                        <div
+                          className="mt-3 p-2.5 rounded-xl bg-white/[0.04] border-l-3 text-xs italic text-gray-300 leading-relaxed text-left"
+                          style={{ borderColor: design.colorCTA }}
+                        >
+                          "{formData.nota}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 8. TEMA BENTO GRID TECH */}
+                  {design.theme === 'bento_grid' && (
+                    <div className="p-4 flex flex-col gap-3 bg-[#0f0f14] text-white">
+                      <div className="bg-white/[0.05] border border-white/10 rounded-3xl p-4 flex flex-col items-center text-center relative overflow-hidden shadow-lg">
+                        {coverPhoto && (
+                          <div className="w-full h-20 rounded-2xl overflow-hidden mb-3 relative border border-white/10">
+                            <img
+                              src={coverPhoto}
+                              alt="Cover"
+                              className="w-full h-full object-cover"
+                              style={{
+                                objectPosition: `center ${design.coverPositionY}%`,
+                                transform: `scale(${design.coverZoom / 100})`,
+                                transformOrigin: `center ${design.coverPositionY}%`
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f14]/80 to-transparent"></div>
+                          </div>
+                        )}
+
+                        <div
+                          className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
+                          style={{
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
+                          }}
+                        >
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+
+                        <h2
+                          className="text-lg font-bold text-white mt-1"
+                          style={{ fontFamily: currentFontPrimary }}
+                        >
+                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                        </h2>
+
+                        <p className="text-xs font-semibold" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+
+                        {formData.empresa && (
+                          <span
+                            className="inline-block px-3 py-0.5 mt-2 rounded-full text-[10px] font-mono uppercase font-bold border"
+                            style={{
+                              backgroundColor: `${design.colorSecundario}15`,
+                              borderColor: `${design.colorSecundario}40`,
+                              color: design.colorSecundario
+                            }}
+                          >
+                            {formData.empresa}
+                          </span>
+                        )}
+                      </div>
+
+                      {formData.nota && (
+                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3 text-xs italic text-gray-300 text-center leading-relaxed">
+                          "{formData.nota}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 9. TEMA CYBER NEON MATRIX */}
+                  {design.theme === 'cyber_matrix' && (
+                    <div className="p-5 flex flex-col items-center text-center bg-[#050508] text-white relative font-mono">
+                      <div className="w-full flex justify-between text-[10px] text-cyan-400/80 mb-2 border-b border-cyan-500/20 pb-1 font-mono">
+                        <span>[SYS_PROFILE]</span>
+                        <span className="text-emerald-400">● LIVE HUD</span>
+                      </div>
+
+                      {coverPhoto && (
+                        <div className="w-full h-24 rounded-lg overflow-hidden mb-3 border border-cyan-500/30 relative shadow-[0_0_15px_rgba(0,255,255,0.15)]">
+                          <img
+                            src={coverPhoto}
+                            alt="Cover"
+                            className="w-full h-full object-cover transition-all"
+                            style={{
+                              objectPosition: `center ${design.coverPositionY}%`,
+                              transform: `scale(${design.coverZoom / 100})`,
+                              transformOrigin: `center ${design.coverPositionY}%`
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#050508] to-transparent opacity-80"></div>
+                        </div>
+                      )}
+
+                      <div className="relative my-2">
+                        <div
+                          className="flex items-center justify-center overflow-hidden bg-transparent border-0 shadow-none transition-all"
+                          style={{
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
+                          }}
+                        >
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(200,16,46,0.6)]"
+                          />
+                        </div>
+                        <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
+                        <span className="absolute -bottom-1 -right-1 text-[10px] text-cyan-400">+</span>
+                      </div>
+
+                      <h2
+                        className="text-xl font-bold tracking-widest text-cyan-100 uppercase mt-1"
+                        style={{ fontFamily: currentFontPrimary }}
+                      >
+                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                      </h2>
+
+                      <div className="flex items-center gap-1.5 my-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#EE334E] animate-ping"></span>
+                        <p className="text-xs uppercase tracking-wider font-bold" style={{ color: design.colorPrimario }}>
+                          // {formData.puesto || 'Puesto / Cargo'}
+                        </p>
+                      </div>
+
+                      {formData.empresa && (
+                        <div
+                          className="px-3 py-0.5 mt-1 rounded text-[10px] uppercase tracking-widest font-bold border border-cyan-500/40 bg-cyan-950/30 text-cyan-300"
+                        >
+                          ID: {formData.empresa}
+                        </div>
+                      )}
+
+                      {formData.nota && (
+                        <div className="mt-3 p-2.5 rounded bg-black/80 border-l-2 border-r-2 border-cyan-500/40 text-[11px] text-cyan-200/80 leading-relaxed text-left w-full">
+                          &gt; {formData.nota}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 10. TEMA SUIZO EDITORIAL CLEAN */}
+                  {design.theme === 'editorial_swiss' && (
+                    <div className="p-6 flex flex-col items-center text-center bg-white text-zinc-900">
+                      {coverPhoto && (
+                        <div className="w-full h-24 overflow-hidden mb-3 border-b border-zinc-200 relative">
+                          <img
+                            src={coverPhoto}
+                            alt="Cover"
+                            className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all"
+                            style={{
+                              objectPosition: `center ${design.coverPositionY}%`,
+                              transform: `scale(${design.coverZoom / 100})`,
+                              transformOrigin: `center ${design.coverPositionY}%`
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      <div
+                        className="flex items-center justify-center my-2 bg-transparent border-0 shadow-none transition-all"
+                        style={{
+                          width: `${design.logoScale}px`,
+                          height: `${design.logoScale}px`
+                        }}
+                      >
+                        <img
+                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                          alt="Logo"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+
+                      <div className="w-full h-[1px] bg-zinc-200 my-2"></div>
+
+                      <h2
+                        className="text-2xl font-light tracking-tighter text-zinc-950 uppercase"
+                        style={{ fontFamily: currentFontPrimary }}
+                      >
+                        {formData.nombre || 'Nombre'} <span className="font-bold">{formData.apellido || 'Apellido'}</span>
+                      </h2>
+
+                      <p className="text-xs font-medium tracking-wider uppercase text-zinc-500 mt-1" style={{ color: design.colorPrimario }}>
+                        {formData.puesto || 'Puesto / Cargo'}
+                      </p>
+
+                      {formData.empresa && (
+                        <p className="text-xs font-semibold text-zinc-800 tracking-wide mt-1" style={{ color: design.colorSecundario }}>
+                          {formData.empresa}
+                        </p>
+                      )}
+
+                      <div className="w-full h-[1px] bg-zinc-200 my-2"></div>
+
+                      {formData.nota && (
+                        <p className="text-xs text-zinc-600 leading-relaxed italic px-2">
+                          "{formData.nota}"
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* PASTILLAS DE CONTACTO & REDES SOCIALES ADAPTABLES AL TEMA */}
                   <div className="px-5 space-y-2 mt-3">
                     {formData.telefono && (
                       <div
-                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
-                        style={{
-                          backgroundColor: `${design.colorSecundario}08`,
-                          borderColor: `${design.colorSecundario}25`
-                        }}
+                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
+                          design.theme === 'neobrutalism'
+                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                            : design.theme === 'glassmorphism'
+                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                            : design.theme === 'cyber_matrix'
+                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                            : design.theme === 'monolith'
+                            ? 'bg-[#141414] border-white/15 text-white'
+                            : design.theme === 'editorial_swiss'
+                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                            : ''
+                        }`}
+                        style={
+                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                            ? {
+                                backgroundColor: `${design.colorSecundario}08`,
+                                borderColor: `${design.colorSecundario}25`
+                              }
+                            : {}
+                        }
                       >
                         <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                         <span className="truncate">{formData.telefono}</span>
@@ -1677,11 +2270,27 @@ export default function VCardEngineDashboard() {
                     )}
                     {formData.correo && (
                       <div
-                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
-                        style={{
-                          backgroundColor: `${design.colorSecundario}08`,
-                          borderColor: `${design.colorSecundario}25`
-                        }}
+                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
+                          design.theme === 'neobrutalism'
+                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                            : design.theme === 'glassmorphism'
+                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                            : design.theme === 'cyber_matrix'
+                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                            : design.theme === 'monolith'
+                            ? 'bg-[#141414] border-white/15 text-white'
+                            : design.theme === 'editorial_swiss'
+                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                            : ''
+                        }`}
+                        style={
+                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                            ? {
+                                backgroundColor: `${design.colorSecundario}08`,
+                                borderColor: `${design.colorSecundario}25`
+                              }
+                            : {}
+                        }
                       >
                         <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         <span className="truncate">{formData.correo}</span>
@@ -1689,11 +2298,27 @@ export default function VCardEngineDashboard() {
                     )}
                     {formData.url && (
                       <div
-                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
-                        style={{
-                          backgroundColor: `${design.colorSecundario}08`,
-                          borderColor: `${design.colorSecundario}25`
-                        }}
+                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
+                          design.theme === 'neobrutalism'
+                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                            : design.theme === 'glassmorphism'
+                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                            : design.theme === 'cyber_matrix'
+                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                            : design.theme === 'monolith'
+                            ? 'bg-[#141414] border-white/15 text-white'
+                            : design.theme === 'editorial_swiss'
+                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                            : ''
+                        }`}
+                        style={
+                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                            ? {
+                                backgroundColor: `${design.colorSecundario}08`,
+                                borderColor: `${design.colorSecundario}25`
+                              }
+                            : {}
+                        }
                       >
                         <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
                         <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
@@ -1703,11 +2328,27 @@ export default function VCardEngineDashboard() {
                     {/* REDES SOCIALES EN EL CELULAR */}
                     {formData.facebook && (
                       <div
-                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
-                        style={{
-                          backgroundColor: `${design.colorSecundario}08`,
-                          borderColor: `${design.colorSecundario}25`
-                        }}
+                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
+                          design.theme === 'neobrutalism'
+                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                            : design.theme === 'glassmorphism'
+                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                            : design.theme === 'cyber_matrix'
+                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
+                            : design.theme === 'monolith'
+                            ? 'bg-[#141414] border-white/15 text-white'
+                            : design.theme === 'editorial_swiss'
+                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                            : ''
+                        }`}
+                        style={
+                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                            ? {
+                                backgroundColor: `${design.colorSecundario}08`,
+                                borderColor: `${design.colorSecundario}25`
+                              }
+                            : {}
+                        }
                       >
                         <span className="text-xs font-bold text-blue-500">📘</span>
                         <span className="truncate font-mono">facebook.com/{formData.facebook.replace(/^@+/, '')}</span>
@@ -1716,11 +2357,27 @@ export default function VCardEngineDashboard() {
 
                     {formData.instagram && (
                       <div
-                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
-                        style={{
-                          backgroundColor: `${design.colorSecundario}08`,
-                          borderColor: `${design.colorSecundario}25`
-                        }}
+                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
+                          design.theme === 'neobrutalism'
+                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                            : design.theme === 'glassmorphism'
+                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                            : design.theme === 'cyber_matrix'
+                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
+                            : design.theme === 'monolith'
+                            ? 'bg-[#141414] border-white/15 text-white'
+                            : design.theme === 'editorial_swiss'
+                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                            : ''
+                        }`}
+                        style={
+                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                            ? {
+                                backgroundColor: `${design.colorSecundario}08`,
+                                borderColor: `${design.colorSecundario}25`
+                              }
+                            : {}
+                        }
                       >
                         <span className="text-xs font-bold text-pink-500">📸</span>
                         <span className="truncate font-mono">instagram.com/{formData.instagram.replace(/^@+/, '')}</span>
@@ -1729,11 +2386,27 @@ export default function VCardEngineDashboard() {
 
                     {formData.linkedin && (
                       <div
-                        className="flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all"
-                        style={{
-                          backgroundColor: `${design.colorSecundario}08`,
-                          borderColor: `${design.colorSecundario}25`
-                        }}
+                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
+                          design.theme === 'neobrutalism'
+                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                            : design.theme === 'glassmorphism'
+                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                            : design.theme === 'cyber_matrix'
+                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
+                            : design.theme === 'monolith'
+                            ? 'bg-[#141414] border-white/15 text-white'
+                            : design.theme === 'editorial_swiss'
+                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                            : ''
+                        }`}
+                        style={
+                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                            ? {
+                                backgroundColor: `${design.colorSecundario}08`,
+                                borderColor: `${design.colorSecundario}25`
+                              }
+                            : {}
+                        }
                       >
                         <span className="text-xs font-bold text-blue-400">💼</span>
                         <span className="truncate font-mono">linkedin.com/in/{formData.linkedin.replace(/^@+/, '')}</span>
@@ -1770,13 +2443,24 @@ export default function VCardEngineDashboard() {
               <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20">
                 <button
                   onClick={downloadVCF}
-                  className="w-full py-3 rounded-xl text-center font-bold text-xs uppercase tracking-wider text-black shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110"
+                  className={`w-full py-3 rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all hover:brightness-110 flex items-center justify-center gap-2 ${
+                    design.theme === 'neobrutalism'
+                      ? 'border-2.5 border-black shadow-[4px_4px_0px_#000] text-white font-black'
+                      : design.theme === 'glassmorphism'
+                      ? 'backdrop-blur-xl border border-white/30 text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
+                      : design.theme === 'cyber_matrix'
+                      ? 'border border-cyan-400 text-white font-mono shadow-[0_0_15px_rgba(0,255,255,0.4)]'
+                      : design.theme === 'monolith'
+                      ? 'border border-white/20 text-white shadow-2xl font-bold'
+                      : 'text-white shadow-xl'
+                  }`}
                   style={{
                     backgroundColor: design.colorCTA,
                     fontFamily: currentFontPrimary
                   }}
                 >
-                  <span>💾</span> Guardar Contacto (.vcf)
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                  <span>{t('preview_save_btn')}</span>
                 </button>
               </div>
             )}
