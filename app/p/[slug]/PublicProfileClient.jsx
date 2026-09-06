@@ -54,9 +54,9 @@ export default function PublicProfileClient({ profile = {} }) {
     font_family = 'Inter',
     font_primary = '',
     font_secondary = '',
-    color_primario = '#F97316',
+    color_primario = '#C8102E',
     color_secundario = '#00E5FF',
-    color_cta = '#F97316',
+    color_cta = '#C8102E',
     logo_scale = 100,
     cover_position_y = 50,
     cover_zoom = 100,
@@ -194,18 +194,17 @@ export default function PublicProfileClient({ profile = {} }) {
 
             <div className="px-6 -mt-14 relative z-20 flex flex-col items-center text-center">
               <div
-                className="rounded-2xl shadow-xl bg-white p-2.5 border-4 border-white flex items-center justify-center overflow-hidden transition-all"
+                className="flex items-center justify-center overflow-hidden transition-all bg-transparent border-0 shadow-none"
                 style={{
                   width: `${logo_scale}px`,
-                  height: `${logo_scale}px`,
-                  boxShadow: '0 12px 28px rgba(0,0,0,0.18)'
+                  height: `${logo_scale}px`
                 }}
               >
-                {activeLogo ? (
-                  <img src={activeLogo} alt="Logo" className="w-full h-full object-contain p-1" />
-                ) : (
-                  <span className="text-xs font-bold text-gray-400 uppercase">LOGO</span>
-                )}
+                <img
+                  src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                  alt="Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
 
               <div className="mt-4 w-full">
@@ -256,19 +255,17 @@ export default function PublicProfileClient({ profile = {} }) {
             )}
 
             <div
-              className="rounded-full shadow-2xl bg-[#090912] p-3 flex items-center justify-center overflow-hidden my-3 border-2 transition-all"
+              className="flex items-center justify-center overflow-hidden my-3 bg-transparent border-0 shadow-none transition-all"
               style={{
                 width: `${logo_scale}px`,
-                height: `${logo_scale}px`,
-                borderColor: color_primario,
-                boxShadow: `0 0 20px ${color_primario}60`
+                height: `${logo_scale}px`
               }}
             >
-              {activeLogo ? (
-                <img src={activeLogo} alt="Logo" className="w-full h-full object-contain" style={{ padding: '2px' }} />
-              ) : (
-                <span className="text-xs font-bold text-gray-400">LOGO</span>
-              )}
+              <img
+                src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                alt="Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
 
             <h1 className="text-2xl font-bold tracking-tight mt-2" style={{ fontFamily: currentFontPrimary }}>
@@ -317,19 +314,17 @@ export default function PublicProfileClient({ profile = {} }) {
             )}
 
             <div
-              className="bg-white p-3 flex items-center justify-center my-3 border-2 transition-all rounded-xl"
+              className="flex items-center justify-center my-3 bg-transparent border-0 shadow-none transition-all"
               style={{
                 width: `${logo_scale}px`,
-                height: `${logo_scale}px`,
-                borderColor: color_primario,
-                boxShadow: `0 0 16px ${color_primario}35`
+                height: `${logo_scale}px`
               }}
             >
-              {activeLogo ? (
-                <img src={activeLogo} alt="Logo" className="w-full h-full object-contain p-1" />
-              ) : (
-                <span className="text-xs font-mono font-bold tracking-widest uppercase" style={{ color: color_primario }}>LOGO</span>
-              )}
+              <img
+                src={activeLogo || brandConfig.assets?.logo || '/brand/logo.png'}
+                alt="Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
 
             <h1 className="text-3xl font-light tracking-tight text-slate-900" style={{ fontFamily: currentFontPrimary }}>
@@ -466,11 +461,11 @@ export default function PublicProfileClient({ profile = {} }) {
             href="https://tsolutionsipidd.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-mono text-gray-400 hover:text-white bg-black/40 hover:bg-black/80 border border-white/10 hover:border-[#F97316]/50 transition-all group"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-mono text-gray-400 hover:text-white bg-black/40 hover:bg-black/80 border border-white/10 hover:border-[#C8102E]/50 transition-all group"
           >
-            <span className="text-[#F97316] group-hover:scale-110 transition-transform">⚡</span>
+            <span className="text-[#C8102E] group-hover:scale-110 transition-transform">⚡</span>
             <span>{t('card_powered')}</span>
-            <span className="text-gray-500 group-hover:text-[#F97316]">↗</span>
+            <span className="text-gray-500 group-hover:text-[#C8102E]">↗</span>
           </a>
 
           {/* Selector de Idioma en Tarjeta Pública */}
