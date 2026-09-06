@@ -633,7 +633,7 @@ export default function VCardEngineDashboard() {
       {/* HEADER DE LA PLATAFORMA */}
       <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-rose-900/30">
         <div className="flex items-center gap-3.5">
-          <div className="rose-logo-container w-11 h-11 rounded-xl shadow-[0_0_16px_rgba(200,16,46,0.45)] border border-[#EE334E]/50 shrink-0 flex items-center justify-center">
+          <div className="rose-logo-container w-11 h-11 rounded-xl shadow-[0_0_16px_rgba(255,0,3,0.45)] border border-[#EE334E]/50 shrink-0 flex items-center justify-center">
             <img
               src={brandConfig.assets.logo || "/brand/logo.png"}
               alt={brandConfig.brandName}
@@ -655,7 +655,7 @@ export default function VCardEngineDashboard() {
               onClick={() => setMode('vcard')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
                 mode === 'vcard'
-                  ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(238,51,78,0.6)]'
+                  ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(255,0,3,0.6)]'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -799,7 +799,7 @@ export default function VCardEngineDashboard() {
 
                   {/* CONTROLES DE ENCUADRE DE BANNER */}
                   {coverPhoto && (
-                    <div className="pt-3 border-t border-gray-800 space-y-3.5 bg-[#121114] p-4 rounded-xl border border-[#EE334E]/40 shadow-[0_0_15px_rgba(200,16,46,0.15)] animate-fadeIn">
+                    <div className="pt-3 border-t border-gray-800 space-y-3.5 bg-[#121114] p-4 rounded-xl border border-[#EE334E]/40 shadow-[0_0_15px_rgba(255,0,3,0.15)] animate-fadeIn">
                       <div className="flex justify-between items-center text-xs font-rosetta text-[#EE334E]">
                         <span className="flex items-center gap-1.5 font-bold">
                           <span>🖼️</span> Ajuste de Encuadre del Banner
@@ -856,7 +856,7 @@ export default function VCardEngineDashboard() {
                 <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#C8102E] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">2</span>
+                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">2</span>
                       <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Información & Redes Sociales</h3>
                     </div>
                     <span className="text-[10px] font-mono text-gray-400 uppercase">Datos de Contacto</span>
@@ -1060,7 +1060,7 @@ export default function VCardEngineDashboard() {
                 <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#C8102E] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">3</span>
+                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">3</span>
                       <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Branding, Tipografías & Colores</h3>
                     </div>
                     <span className="text-[10px] font-mono text-gray-400 uppercase">Estilo Visual</span>
@@ -1080,7 +1080,7 @@ export default function VCardEngineDashboard() {
                           onClick={() => setDesign(prev => ({ ...prev, theme: th.id }))}
                           className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between relative group ${
                             design.theme === th.id
-                              ? 'bg-[#C8102E]/15 border-[#EE334E] shadow-[0_0_15px_rgba(200,16,46,0.35)] scale-[1.02]'
+                              ? 'bg-[#ff0003]/15 border-[#EE334E] shadow-[0_0_15px_rgba(255,0,3,0.35)] scale-[1.02]'
                               : 'bg-black/40 border-gray-800/90 hover:border-gray-700 hover:bg-black/60'
                           }`}
                         >
@@ -1089,7 +1089,7 @@ export default function VCardEngineDashboard() {
                               <span
                                 className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full font-bold border ${
                                   design.theme === th.id
-                                    ? 'bg-[#C8102E] text-white border-[#EE334E]'
+                                    ? 'bg-[#ff0003] text-white border-[#EE334E]'
                                     : 'bg-white/5 text-gray-400 border-white/10'
                                 }`}
                               >
@@ -1174,10 +1174,10 @@ export default function VCardEngineDashboard() {
                 {/* ========================================================= */}
                 {/* PASO 4: DESPLIEGUE EN GOOGLE CLOUD SQL                    */}
                 {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-[#C8102E]/40 rounded-2xl p-5 space-y-4 shadow-[0_0_30px_rgba(200,16,46,0.15)]">
+                <div className="bg-[#0c0c16] border border-[#ff0003]/40 rounded-2xl p-5 space-y-4 shadow-[0_0_30px_rgba(255,0,3,0.15)]">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#C8102E] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">4</span>
+                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">4</span>
                       <div>
                         <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Despliegue en la Nube</h3>
                         <p className="text-[10px] text-gray-400">Alojamiento de alta velocidad en Google Cloud SQL</p>
@@ -1259,7 +1259,7 @@ export default function VCardEngineDashboard() {
                 <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-5 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#C8102E] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">5</span>
+                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">5</span>
                       <div>
                         <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Entregables & Telemetría NFC</h3>
                         <p className="text-[10px] text-gray-400">Paquete 1-Click o Módulos Individuales Desglosados</p>
@@ -1284,10 +1284,10 @@ export default function VCardEngineDashboard() {
                   </div>
 
                   {/* PRESENTACIÓN COMERCIAL: PAQUETE COMPLETO ALL-IN-ONE ($199 MXN) */}
-                  <div className="bg-gradient-to-r from-[#180c0f] via-[#240d12] to-[#180c0f] p-5 rounded-2xl border-2 border-[#C8102E] shadow-[0_0_30px_rgba(200,16,46,0.25)] space-y-3">
+                  <div className="bg-gradient-to-r from-[#180c0f] via-[#240d12] to-[#180c0f] p-5 rounded-2xl border-2 border-[#ff0003] shadow-[0_0_30px_rgba(255,0,3,0.25)] space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
-                        <span className="text-[10px] font-mono uppercase bg-[#C8102E] text-white px-2.5 py-0.5 rounded font-extrabold tracking-wider">🔥 OFERTA RECOMENDADA (45% OFF)</span>
+                        <span className="text-[10px] font-mono uppercase bg-[#ff0003] text-white px-2.5 py-0.5 rounded font-extrabold tracking-wider">🔥 OFERTA RECOMENDADA (45% OFF)</span>
                         <h4 className="text-base font-rosetta text-white font-bold mt-1.5">PAQUETE COMPLETO ALL-IN-ONE</h4>
                         <p className="text-xs text-gray-300">Incluye los 4 Entregables Completos + Despliegue Cloud en archivo .ZIP</p>
                       </div>
@@ -1824,7 +1824,7 @@ export default function VCardEngineDashboard() {
                   {design.theme === 'monolith' && (
                     <div className="p-5 flex flex-col items-center text-center bg-[#0d0d0d] relative">
                       <div
-                        className="w-full h-1 rounded-full mb-3 shadow-[0_0_15px_rgba(200,16,46,0.5)]"
+                        className="w-full h-1 rounded-full mb-3 shadow-[0_0_15px_rgba(255,0,3,0.5)]"
                         style={{ background: `linear-gradient(90deg, transparent, ${design.colorPrimario}, ${design.colorSecundario}, transparent)` }}
                       ></div>
 
@@ -2140,7 +2140,7 @@ export default function VCardEngineDashboard() {
                           <img
                             src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
                             alt="Logo"
-                            className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(200,16,46,0.6)]"
+                            className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,0,3,0.6)]"
                           />
                         </div>
                         <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
@@ -2473,11 +2473,11 @@ export default function VCardEngineDashboard() {
       {/* SECCIÓN MARKETING 2.0: ECOSISTEMA DE SOLUCIONES TSOLUTIONS IPIDD (CONVERSIÓN & UPSELL) */}
       <section className="mt-16 max-w-[1920px] mx-auto w-full border-t border-gray-800/80 pt-12 pb-8 space-y-10">
         <div className="text-center max-w-3xl mx-auto space-y-2">
-          <div className="inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-[#C8102E]/10 border border-[#C8102E]/30 text-[#EE334E]">
+          <div className="inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-[#ff0003]/10 border border-[#ff0003]/30 text-[#EE334E]">
             ⚡ Soluciones Tecnológicas de Alto Impacto
           </div>
           <h2 className="text-2xl md:text-3xl font-rosetta text-white">
-            MÁS ALLÁ DE LA VCARD: ECOSISTEMA <span className="text-[#C8102E]">TSOLUTIONS IPIDD</span>
+            MÁS ALLÁ DE LA VCARD: ECOSISTEMA <span className="text-[#ff0003]">TSOLUTIONS IPIDD</span>
           </h2>
           <p className="text-xs text-gray-400">
             Diseñamos, desarrollamos e implementamos plataformas digitales, software a la medida y automatización inteligente para empresas líderes.
@@ -2487,8 +2487,8 @@ export default function VCardEngineDashboard() {
         {/* GRILLA DE 4 PILARES COMERCIALES */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Pilar 1: Software a Medida */}
-          <div className="bg-[#090914] border border-gray-800 hover:border-[#C8102E]/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(200,16,46,0.15)]">
-            <div className="w-12 h-12 rounded-xl bg-[#C8102E]/10 border border-[#C8102E]/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+          <div className="bg-[#090914] border border-gray-800 hover:border-[#ff0003]/50 p-6 rounded-2xl space-y-3 transition-all group shadow-lg hover:shadow-[0_0_25px_rgba(255,0,3,0.15)]">
+            <div className="w-12 h-12 rounded-xl bg-[#ff0003]/10 border border-[#ff0003]/30 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
               💻
             </div>
             <h3 className="font-rosetta text-sm text-white font-bold">Software & Apps a la Medida</h3>
@@ -2532,7 +2532,7 @@ export default function VCardEngineDashboard() {
         </div>
 
         {/* BANNER CTA DE CAPTACIÓN HIGH-TICKET */}
-        <div className="bg-gradient-to-r from-[#0c0c16] via-[#1a050a] to-[#0c0c16] border border-[#C8102E]/40 p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_40px_rgba(200,16,46,0.15)]">
+        <div className="bg-gradient-to-r from-[#0c0c16] via-[#1a050a] to-[#0c0c16] border border-[#ff0003]/40 p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_40px_rgba(255,0,3,0.15)]">
           <div className="space-y-1.5 text-center md:text-left">
             <h3 className="text-lg md:text-xl font-rosetta text-white font-bold">
               ¿Quieres digitalizar o automatizar los procesos de tu empresa?
@@ -2545,7 +2545,7 @@ export default function VCardEngineDashboard() {
             href="https://wa.me/526860000000?text=Hola%20TSOLUTIONS%20IPIDD,%20me%20gustaria%20agendar%20un%20diagnostico%20tecnologico%20para%20mi%20empresa"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-3.5 bg-[#C8102E] hover:bg-[#EE334E] text-white font-rosetta font-bold text-xs rounded-xl transition-all shrink-0 shadow-[0_0_20px_rgba(200,16,46,0.35)] flex items-center gap-2"
+            className="px-6 py-3.5 bg-[#ff0003] hover:bg-[#EE334E] text-white font-rosetta font-bold text-xs rounded-xl transition-all shrink-0 shadow-[0_0_20px_rgba(255,0,3,0.35)] flex items-center gap-2"
           >
             <span>📅</span> Solicitar Diagnóstico Gratuito
           </a>
@@ -2559,7 +2559,7 @@ export default function VCardEngineDashboard() {
             <span>Transformación Digital & Soluciones Estratégicas</span>
           </div>
           <div className="flex items-center gap-4 font-mono text-[11px]">
-            <a href="https://tsolutionsipidd.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#C8102E]">
+            <a href="https://tsolutionsipidd.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#ff0003]">
               tsolutionsipidd.com ↗
             </a>
             <a href="/admin" className="hover:text-[#00E5FF]">
@@ -2572,11 +2572,11 @@ export default function VCardEngineDashboard() {
       {/* MODAL DE LA CARTA OFICIAL DE ENTREGA DE TSOLUTIONS IPIDD */}
       {showEmailModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-[#C8102E]/50 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-[0_0_40px_rgba(200,16,46,0.25)] flex flex-col overflow-hidden animate-scaleIn">
+          <div className="bg-[#0c0c16] border border-[#ff0003]/50 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-[0_0_40px_rgba(255,0,3,0.25)] flex flex-col overflow-hidden animate-scaleIn">
             
             {/* Header Modal */}
             <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-[#C8102E]">
+              <div className="flex items-center gap-2 text-[#ff0003]">
                 <span>📜</span>
                 <h3 className="font-rosetta text-sm font-bold text-white">Carta Oficial de Entrega de Entregables</h3>
               </div>
@@ -2591,8 +2591,8 @@ export default function VCardEngineDashboard() {
             {/* Contenido Carta */}
             <div className="p-6 overflow-y-auto space-y-4 font-sans text-xs text-gray-300 leading-relaxed">
               <div className="p-3 bg-black/50 border border-gray-800 rounded-lg">
-                <p className="text-[11px] text-gray-400 font-mono"><span className="text-[#C8102E] font-bold">Para:</span> {formData.correo || 'correo@cliente.com'}</p>
-                <p className="text-[11px] text-gray-400 font-mono mt-0.5"><span className="text-[#C8102E] font-bold">Asunto:</span> {generateDeliveryEmailContent().subject}</p>
+                <p className="text-[11px] text-gray-400 font-mono"><span className="text-[#ff0003] font-bold">Para:</span> {formData.correo || 'correo@cliente.com'}</p>
+                <p className="text-[11px] text-gray-400 font-mono mt-0.5"><span className="text-[#ff0003] font-bold">Asunto:</span> {generateDeliveryEmailContent().subject}</p>
               </div>
 
               <textarea
@@ -2622,7 +2622,7 @@ export default function VCardEngineDashboard() {
                   sendDeliveryEmail();
                   setShowEmailModal(false);
                 }}
-                className="px-4 py-2 bg-[#C8102E] text-white text-xs font-rosetta font-bold rounded-lg hover:bg-[#EE334E] transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(200,16,46,0.3)]"
+                className="px-4 py-2 bg-[#ff0003] text-white text-xs font-rosetta font-bold rounded-lg hover:bg-[#EE334E] transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(255,0,3,0.3)]"
               >
                 <span>✉️</span> Abrir en Cliente de Correo
               </button>
@@ -2635,11 +2635,11 @@ export default function VCardEngineDashboard() {
       {/* MODAL DE PASARELA DE PAGO: TSOLUTIONS SECURE PAY GATEWAY */}
       {showCheckoutModal && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border-2 border-[#C8102E] w-full max-w-lg rounded-3xl shadow-[0_0_50px_rgba(200,16,46,0.35)] overflow-hidden animate-scaleIn flex flex-col">
+          <div className="bg-[#0c0c16] border-2 border-[#ff0003] w-full max-w-lg rounded-3xl shadow-[0_0_50px_rgba(255,0,3,0.35)] overflow-hidden animate-scaleIn flex flex-col">
             
             {/* Header Pasarela */}
             <div className="p-5 bg-[#12121c] border-b border-gray-800 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-[#C8102E]">
+              <div className="flex items-center gap-2 text-[#ff0003]">
                 <span className="text-lg">🔒</span>
                 <div>
                   <h3 className="font-rosetta text-sm font-bold text-white">TSOLUTIONS SECURE PAY</h3>
@@ -2658,12 +2658,12 @@ export default function VCardEngineDashboard() {
             <div className="p-6 space-y-5 overflow-y-auto max-h-[75vh]">
               <div className="bg-black/60 p-4 rounded-2xl border border-gray-800 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-mono text-[#C8102E] uppercase font-bold">{t('pay_concept')}</span>
+                  <span className="text-[10px] font-mono text-[#ff0003] uppercase font-bold">{t('pay_concept')}</span>
                   <p className="text-xs font-rosetta text-white font-bold mt-0.5">{selectedProduct.name}</p>
                   <p className="text-[10px] text-gray-400 mt-1">Entrega y desbloqueo digital instantáneo</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="text-2xl font-rosetta text-[#C8102E] font-extrabold">${selectedProduct.price}</span>
+                  <span className="text-2xl font-rosetta text-[#ff0003] font-extrabold">${selectedProduct.price}</span>
                   <span className="text-xs font-rosetta text-gray-400 block font-mono">MXN</span>
                 </div>
               </div>
@@ -2733,7 +2733,7 @@ export default function VCardEngineDashboard() {
                       onClick={() => setPaymentMethod(m.id)}
                       className={`p-3 rounded-xl border text-left text-xs font-mono transition-all flex items-center gap-2 ${
                         paymentMethod === m.id
-                          ? 'bg-[#C8102E]/15 border-[#C8102E] text-[#EE334E] font-bold shadow-[0_0_10px_rgba(200,16,46,0.2)]'
+                          ? 'bg-[#ff0003]/15 border-[#ff0003] text-[#EE334E] font-bold shadow-[0_0_10px_rgba(255,0,3,0.2)]'
                           : 'bg-black/30 border-gray-800 text-gray-400 hover:border-gray-700'
                       }`}
                     >
@@ -2771,9 +2771,9 @@ export default function VCardEngineDashboard() {
               {/* Formulario Simulado SPEI / MercadoPago / PayPal */}
               {paymentMethod === 'spei' && (
                 <div className="p-4 bg-black/40 rounded-xl border border-gray-800 space-y-1 text-xs font-mono">
-                  <p className="text-gray-300"><span className="text-[#C8102E] font-bold">Banco:</span> STP / BBVA</p>
-                  <p className="text-gray-300"><span className="text-[#C8102E] font-bold">CLABE:</span> 6461 8011 2233 4455 66</p>
-                  <p className="text-gray-300"><span className="text-[#C8102E] font-bold">Beneficiario:</span> TSOLUTIONS IPIDD</p>
+                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">Banco:</span> STP / BBVA</p>
+                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">CLABE:</span> 6461 8011 2233 4455 66</p>
+                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">Beneficiario:</span> TSOLUTIONS IPIDD</p>
                 </div>
               )}
 
@@ -2796,7 +2796,7 @@ export default function VCardEngineDashboard() {
                 type="button"
                 onClick={handleProcessPayment}
                 disabled={isProcessingPayment}
-                className="w-full py-4 bg-gradient-to-r from-[#C8102E] to-[#EE334E] hover:brightness-110 text-white font-rosetta font-extrabold text-xs sm:text-sm rounded-2xl shadow-[0_0_25px_rgba(200,16,46,0.4)] transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-gradient-to-r from-[#ff0003] to-[#EE334E] hover:brightness-110 text-white font-rosetta font-extrabold text-xs sm:text-sm rounded-2xl shadow-[0_0_25px_rgba(255,0,3,0.4)] transition-all flex items-center justify-center gap-2"
               >
                 {isProcessingPayment ? (
                   <>

@@ -301,7 +301,7 @@ export default function AdminDashboardPage() {
           
           {/* Logo y Cabecera con Emblema Cyber Rose */}
           <div className="text-center space-y-3 flex flex-col items-center">
-            <div className="rose-logo-container w-14 h-14 rounded-2xl shadow-[0_0_25px_rgba(200,16,46,0.5)] border border-[#EE334E]/60">
+            <div className="rose-logo-container w-14 h-14 rounded-2xl shadow-[0_0_25px_rgba(255,0,3,0.5)] border border-[#EE334E]/60">
               <img src={brandConfig.assets.logo || "/brand/logo.png"} alt="Rose Emblem" className="w-9 h-9 object-contain drop-shadow-[0_0_10px_rgba(238,51,78,0.8)]" />
             </div>
             <div>
@@ -426,7 +426,7 @@ export default function AdminDashboardPage() {
       {/* HEADER DEL PANEL */}
       <header className="max-w-[1920px] mx-auto w-full mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-rose-900/30">
         <div className="flex items-center gap-3.5">
-          <div className="rose-logo-container w-11 h-11 rounded-xl shadow-[0_0_16px_rgba(200,16,46,0.45)] border border-[#EE334E]/50 shrink-0 flex items-center justify-center">
+          <div className="rose-logo-container w-11 h-11 rounded-xl shadow-[0_0_16px_rgba(255,0,3,0.45)] border border-[#EE334E]/50 shrink-0 flex items-center justify-center">
             <img src={brandConfig.assets.logo || "/brand/logo.png"} alt="Rose Emblem" className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(238,51,78,0.7)]" />
           </div>
           <div>
