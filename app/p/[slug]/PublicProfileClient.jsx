@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { getTranslation } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
+import { Facebook, Instagram, Linkedin } from 'lucide-react';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
 export function getSocialUrl(type, value) {
@@ -615,54 +616,77 @@ export default function PublicProfileClient({ profile = {} }) {
           )}
 
           {/* REDES SOCIALES */}
+          {/* REDES SOCIALES (ICONOS AVANZADOS) */}
           {!layout.hideSocial && (fbUrl || igUrl || inUrl) && (
-            <div className="space-y-2.5">
+            <div className={`space-y-3 mt-4 flex flex-col ${layout.infoAlignment === 'left' ? 'items-start' : layout.infoAlignment === 'right' ? 'items-end' : 'items-center'}`}>
               {layout.customLabels?.social && (
-                <h3 className="text-[11px] font-bruno uppercase tracking-wider pl-1 mt-2" style={{ color: color_primario }}>
+                <h3 className="text-[11px] font-bruno uppercase tracking-wider pl-1" style={{ color: color_primario }}>
                   {layout.customLabels.social}
                 </h3>
               )}
-              {fbUrl && (
-                <a
-                  href={fbUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackEvent('social_click')}
-                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-                >
-                  <span className="text-base text-blue-500">📘</span>
-                  <span className="truncate font-mono">facebook.com/{facebook.replace(/^@+/, '')}</span>
-                </a>
-              )}
-
-              {igUrl && (
-                <a
-                  href={igUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackEvent('social_click')}
-                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-                >
-                  <span className="text-base text-pink-500">📸</span>
-                  <span className="truncate font-mono">instagram.com/{instagram.replace(/^@+/, '')}</span>
-                </a>
-              )}
-
-              {inUrl && (
-                <a
-                  href={inUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackEvent('social_click')}
-                  className="flex items-center gap-3.5 p-3 rounded-xl text-xs font-medium border transition-all hover:scale-[1.01]"
-                  style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
-                >
-                  <span className="text-base text-sky-400">💼</span>
-                  <span className="truncate font-mono">linkedin.com/in/{linkedin.replace(/^@+/, '')}</span>
-                </a>
-              )}
+              
+              <div className="flex items-center gap-3">
+                {fbUrl && (
+                  <a
+                    href={fbUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('social_click')}
+                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
+                      layout.socialIconShape === 'square' ? 'rounded-md' : 
+                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
+                    style={
+                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                      { backgroundColor: '#1877F215', borderColor: '#1877F230', color: '#1877F2' }
+                    }
+                  >
+                    <Facebook className="w-5 h-5" />
+                  </a>
+                )}
+                {igUrl && (
+                  <a
+                    href={igUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('social_click')}
+                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
+                      layout.socialIconShape === 'square' ? 'rounded-md' : 
+                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
+                    style={
+                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                      { backgroundColor: '#E4405F15', borderColor: '#E4405F30', color: '#E4405F' }
+                    }
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                )}
+                {inUrl && (
+                  <a
+                    href={inUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('social_click')}
+                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
+                      layout.socialIconShape === 'square' ? 'rounded-md' : 
+                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
+                    style={
+                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                      { backgroundColor: '#0A66C215', borderColor: '#0A66C230', color: '#0A66C2' }
+                    }
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                )}
+              </div>
             </div>
           )}
 
@@ -830,3 +854,4 @@ export default function PublicProfileClient({ profile = {} }) {
     </div>
   );
 }
+

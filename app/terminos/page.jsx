@@ -25,63 +25,55 @@ export default function TerminosPage() {
           <p className="text-slate-400">Última actualización: Septiembre 2026</p>
         </header>
 
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">1. Aceptación de los Términos</h2>
+                <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-white text-[#EE334E]">1. Política de Propiedad Intelectual</h2>
           <p>
-            Al acceder, registrarse y utilizar los servicios de <strong>Rose VCards</strong> (en adelante, "la Plataforma"), usted acepta estar sujeto a estos Términos y Condiciones. Si no está de acuerdo con alguna parte de estos términos, no podrá acceder al servicio.
+            El código fuente, bases de datos, algoritmos, y arquitectura de servidor (alojados en Google Cloud) son propiedad intelectual exclusiva de <strong>TSolutions</strong> y <strong>Rose VCards</strong>. 
+            El pago de cualquier suscripción, incluyendo el paquete Elite (Marca Blanca), no transfiere la propiedad ni los derechos de autor de la plataforma subyacente, sino que otorga una <strong>Licencia de Uso y Comercialización</strong>.
           </p>
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">2. Descripción del Servicio</h2>
-          <p>
-            Rose VCards provee un software como servicio (SaaS) que permite la creación, gestión y distribución de perfiles de identidad digital, operados mediante tecnología NFC y códigos QR. Los niveles de suscripción varían en funcionalidades (Estudiante, Profesional, Empresa, Elite Plus), incluyendo el acceso al Editor Libre y módulos estadísticos.
-          </p>
+          <h2 className="text-2xl font-bold text-white">2. Contrato de Servicios por Paquete</h2>
+          <div className="space-y-4 pl-4 border-l-2 border-white/10">
+            <div>
+              <h3 className="font-bold text-white">Paquete Estudiante (Gratuito)</h3>
+              <p className="text-sm text-slate-400">Licencia personal, intransferible. Requiere validación de correo .edu. TSolutions se reserva el derecho de auditar y dar de baja cuentas inactivas tras 6 meses.</p>
+            </div>
+            <div>
+              <h3 className="font-bold text-white">Paquetes Profesional y Empresa</h3>
+              <p className="text-sm text-slate-400">Licencia comercial. Incluye acceso a plantillas limitadas según el plan. SLA de soporte: 48 horas laborables. Alojamiento incluido en los servidores compartidos de Rose VCards.</p>
+            </div>
+          </div>
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">3. Cuentas y Seguridad</h2>
+          <h2 className="text-2xl font-bold text-white text-[#EE334E]">3. Contrato de Licencia "Marca Blanca" (Elite Plus)</h2>
+          <p className="mb-2">El licenciatario (agencias, startups o empresas) acepta los siguientes términos ineludibles al descargar y operar la plataforma Marca Blanca:</p>
           <ul className="list-disc pl-6 space-y-2 text-slate-400">
-            <li>Usted es responsable de salvaguardar la contraseña que utiliza para acceder al servicio y para cualquier actividad o acción bajo su contraseña.</li>
-            <li>Nos reservamos el derecho de suspender o cancelar su cuenta si la información proporcionada resulta ser inexacta, falsa o viola nuestras políticas de uso.</li>
-            <li>El uso de cuentas con correos educativos (.edu) está sujeto a verificación constante.</li>
+            <li><strong>Creación Ilimitada:</strong> El licenciatario tiene la facultad de vender y crear perfiles de tarjetas digitales sin límite de cantidad para sus propios clientes.</li>
+            <li><strong>Personalización de Identidad:</strong> Se permite alterar el código frontend (interfaz, logos, nombre) proporcionado en el paquete instalador para alinearlo con su marca.</li>
+            <li><strong>Infraestructura Obligatoria (Google Cloud):</strong> Para garantizar la estabilidad tecnológica y cumplir la promesa de valor, el licenciatario <strong>está forzado a utilizar la infraestructura central de TSolutions</strong>.</li>
+            <li><strong>Cuota Mensual por Tarjeta:</strong> El licenciatario deberá pagar a TSolutions una mensualidad por concepto de "mantenimiento y almacenamiento en servidores" <strong>por cada tarjeta generada</strong>. El impago de estas cuotas resultará en la desactivación remota de los perfiles.</li>
           </ul>
         </section>
 
         <section className="space-y-4">
           <h2 className="text-2xl font-bold text-white">4. Suscripciones y Pagos (Stripe)</h2>
           <p>
-            Los pagos de las suscripciones (Pro, Empresa, Elite Plus) se procesan de manera segura a través de <strong>Stripe</strong>.
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-slate-400">
-            <li><strong>Renovación Automática:</strong> Las suscripciones se facturan por adelantado en un ciclo recurrente (anual o mensual) según el paquete elegido. Su suscripción se renovará automáticamente a menos que la cancele antes de la fecha de renovación.</li>
-            <li><strong>Mantenimiento Elite Plus:</strong> El paquete Elite Plus consta de un pago de activación inicial ($1299) y una iguala de mantenimiento mensual ($299) que comienza a facturarse a partir del segundo mes.</li>
-          </ul>
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">5. Cancelaciones y Reembolsos</h2>
-          <p>
-            Usted puede cancelar su suscripción en cualquier momento desde su panel de usuario. La cancelación entrará en vigor al final del ciclo de facturación actual. Debido a la naturaleza del servicio digital y los costos de infraestructura, <strong>no se emiten reembolsos por meses parciales o pagos ya procesados</strong>, salvo que la ley local exija lo contrario.
+            Los pagos se procesan mediante Stripe. La cancelación de la suscripción base o de las cuotas de mantenimiento (Elite) detendrá el servicio inmediatamente al final del ciclo de facturación actual. <strong>No se emiten reembolsos por meses parciales</strong>.
           </p>
         </section>
 
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">6. Propiedad Intelectual y Marca Blanca</h2>
+                <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-white">5. Limitación de Responsabilidad</h2>
           <p>
-            El código fuente, diseño, bases de datos y algoritmos de la plataforma son propiedad exclusiva de Rose VCards. En el caso del paquete <strong>Elite Plus</strong>, el usuario recibe acceso total de uso y personalización del layout en modelo "Marca Blanca", pero esto no transfiere la propiedad intelectual del software subyacente.
-          </p>
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">7. Limitación de Responsabilidad</h2>
-          <p>
-            Rose VCards no será responsable por ninguna pérdida de ganancias, ingresos, datos o daños indirectos resultantes del uso o la imposibilidad de usar nuestro servicio. Nuestra responsabilidad total frente a cualquier reclamo estará limitada al monto pagado por usted durante los últimos 12 meses.
+            TSolutions y Rose VCards no serán responsables por interrupciones del servicio, pérdida de datos o pérdidas comerciales derivadas del mal uso de la plataforma o caídas extremas en Google Cloud. Nuestra responsabilidad técnica se limita a la restauración del servicio bajo los SLAs establecidos.
           </p>
         </section>
 
         <div className="pt-8 mt-8 border-t border-white/10 text-sm text-slate-500 text-center">
-          Si tiene alguna duda sobre estos Términos, por favor contáctenos a soporte@rosecard.io.
+          Si tiene alguna duda sobre estos contratos, contacte a <strong>legal@tsolutions.com</strong>
         </div>
       </main>
     </div>

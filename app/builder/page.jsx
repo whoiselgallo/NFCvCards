@@ -222,6 +222,7 @@ export default function VCardEngineDashboard() {
     // NUEVO MÓDULO DE DISEÑO LIBRE
     hideBanner: false,          // Toggle para quitar el banner/portada
     logoPosition: 'center',     // center, left, right, hidden
+    socialIconStyle: 'default', socialIconShape: 'circle', socialIconStyle: 'default', socialIconShape: 'circle', infoAlignment: 'center',
     hideBio: false,             // Toggle contenedor Nota/Bio
     hideContact: false,         // Toggle contenedor Canales de Contacto Directo
     hideSocial: false,          // Toggle contenedor Redes Sociales
@@ -946,7 +947,43 @@ export default function VCardEngineDashboard() {
                       </div>
                     </div>
 
-                    {/* Visibilidad de Contenedores de Información */}
+                                          {/* Personalización de Botones Sociales y Alineación */}
+                      <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3 mt-4">
+                        <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Botones Sociales y Alineación</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          
+                          <div>
+                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Alineación de Info</label>
+                            <select name="infoAlignment" value={design.infoAlignment || 'center'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                              <option value="left">Izquierda</option>
+                              <option value="center">Centro</option>
+                              <option value="right">Derecha</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Forma de Iconos</label>
+                            <select name="socialIconShape" value={design.socialIconShape || 'circle'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                              <option value="circle">Redondo (Círculo)</option>
+                              <option value="rounded">Bordes Suaves</option>
+                              <option value="square">Cuadrado</option>
+                              <option value="none">Sin Fondo (Solo Icono)</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Estilo de Iconos</label>
+                            <select name="socialIconStyle" value={design.socialIconStyle || 'default'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                              <option value="default">Color Original App</option>
+                              <option value="monochrome">Monocromático</option>
+                              <option value="glow">Neón / Brillo</option>
+                            </select>
+                          </div>
+
+                        </div>
+                      </div>
+
+                      {/* Visibilidad de Contenedores de Información */}
                     <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3 mt-2">
                       <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Ocultar Contenedores de Información</h5>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
