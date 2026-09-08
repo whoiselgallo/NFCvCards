@@ -430,7 +430,7 @@ export default function LandingPage() {
               <button onClick={() => handleCheckout('meetme')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
                 Obtener Meet Me
               </button>
-                <PayPalButton planId="P-2PW08512L5046373DNKQI2EY" />
+                <PayPalButton planId="P-1VJ73284XP012835MNKQJDLI" />
             </motion.div>
 
             {/* 3. PROFESIONAL */}
