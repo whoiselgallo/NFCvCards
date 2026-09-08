@@ -47,8 +47,23 @@ export default function TerminosPage() {
           </div>
         </section>
 
+                <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-white text-[#EE334E]">3. Política de Revisiones y Actualización de Datos</h2>
+          <p>
+            Para garantizar la integridad y seguridad de la información alojada, las modificaciones a los datos de las tarjetas (actualización de puesto, teléfonos, correos, etc.) están sujetas a la siguiente política de revisión y ajuste por evento:
+          </p>
+          <ul className="list-disc pl-6 space-y-2 text-slate-400">
+            <li><strong>Estudiante (Gratuito):</strong> Limitado a 2 revisiones y ajustes de datos gratuitos por año.</li>
+            <li><strong>Meet Me (Conóceme):</strong> Ajustes y modificaciones ilimitadas con un costo de $15 USD por evento de revisión.</li>
+            <li><strong>Profesional:</strong> Ajustes y modificaciones ilimitadas con un costo de $12 USD por evento de revisión.</li>
+            <li><strong>Empresa (Business):</strong> Ajustes y modificaciones ilimitadas con un costo de $10 USD por evento de revisión.</li>
+            <li><strong>Elite Business:</strong> Ajustes y modificaciones ilimitadas con un costo de $8 USD por evento de revisión.</li>
+            <li><strong>Business Agent (Marca Blanca):</strong> Revisiones y ajustes independientes; el agente administra su propia base de datos de usuarios (orquestada bajo la infraestructura de TSolutions) y define sus propias políticas de revisión para sus clientes finales.</li>
+          </ul>
+        </section>
+
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white text-[#EE334E]">3. Contrato de Licencia "Marca Blanca" (Elite Plus)</h2>
+          <h2 className="text-2xl font-bold text-white">4. Contrato de Licencia "Marca Blanca" (Elite Plus)</h2>
           <p className="mb-2">El licenciatario (agencias, startups o empresas) acepta los siguientes términos ineludibles al descargar y operar la plataforma Marca Blanca:</p>
           <ul className="list-disc pl-6 space-y-2 text-slate-400">
             <li><strong>Creación Ilimitada:</strong> El licenciatario tiene la facultad de vender y crear perfiles de tarjetas digitales sin límite de cantidad para sus propios clientes.</li>
@@ -59,14 +74,14 @@ export default function TerminosPage() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">4. Suscripciones y Pagos (Stripe)</h2>
+          <h2 className="text-2xl font-bold text-white">5. Suscripciones y Pagos (Stripe)</h2>
           <p>
             Los pagos se procesan mediante Stripe. La cancelación de la suscripción base o de las cuotas de mantenimiento (Elite) detendrá el servicio inmediatamente al final del ciclo de facturación actual. <strong>No se emiten reembolsos por meses parciales</strong>.
           </p>
         </section>
 
                 <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">5. Limitación de Responsabilidad</h2>
+          <h2 className="text-2xl font-bold text-white">6. Limitación de Responsabilidad</h2>
           <p>
             TSolutions y Rose VCards no serán responsables por interrupciones del servicio, pérdida de datos o pérdidas comerciales derivadas del mal uso de la plataforma o caídas extremas en Google Cloud. Nuestra responsabilidad técnica se limita a la restauración del servicio bajo los SLAs establecidos.
           </p>
