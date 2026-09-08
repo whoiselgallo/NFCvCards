@@ -32,7 +32,7 @@ export async function POST(request) {
         telefono, whatsapp, correo, url, linkedin, instagram, facebook,
         calle, ciudad, estado, cp, pais, nota, google_maps_url, video_youtube_url,
         theme, font_family, font_primary, font_secondary, color_primario, color_secundario, color_cta,
-        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo, custom_layout, calendly_url, paypal_url, bank_details, pdf_url
+        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo, custom_layout, calendly_url, google_calendar_url, icloud_calendar_url, paypal_url, bank_details, pdf_url
       ) VALUES (
         $1, $2, $3, $4, $5, $6,
         $7, $8, $9, $10, $11, $12, $13,
@@ -90,6 +90,8 @@ export async function POST(request) {
       coverPhoto,
       JSON.stringify(customLayout),
       formData.calendlyUrl || '',
+      formData.googleCalendarUrl || '',
+      formData.icloudCalendarUrl || '',
       formData.paypalUrl || '',
       formData.bankDetails || '',
       formData.pdfUrl || ''

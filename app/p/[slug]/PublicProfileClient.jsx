@@ -58,6 +58,8 @@ export default function PublicProfileClient({ profile = {} }) {
     google_maps_url = '',
     video_youtube_url = '',
     calendly_url = '',
+    google_calendar_url = '',
+    icloud_calendar_url = '',
     paypal_url = '',
     bank_details = '',
     pdf_url = '',
@@ -738,7 +740,7 @@ export default function PublicProfileClient({ profile = {} }) {
           </div>
 
                     {/* PRODUCTIVIDAD Y CONVERSIÓN */}
-          {(calendly_url || paypal_url || bank_details || pdf_url) && (
+          {(calendly_url || google_calendar_url || icloud_calendar_url || paypal_url || bank_details || pdf_url) && (
             <div className="pt-2 space-y-2.5">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5" style={{ fontFamily: font_secondary }}>
                 <span>⚡</span> Productividad y Negocio
@@ -746,7 +748,17 @@ export default function PublicProfileClient({ profile = {} }) {
               <div className="grid grid-cols-1 gap-2.5">
                 {calendly_url && (
                   <a href={calendly_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: ${color_primario}15, borderColor: color_primario, color: color_primario }}>
-                    <Calendar className="w-4 h-4" /> Agendar Reunión
+                    <Calendar className="w-4 h-4" /> Agendar Reunión (Calendly)
+                  </a>
+                )}
+                {google_calendar_url && (
+                  <a href={google_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: #4285F415, borderColor: '#4285F4', color: '#4285F4' }}>
+                    <Calendar className="w-4 h-4" /> Google Calendar
+                  </a>
+                )}
+                {icloud_calendar_url && (
+                  <a href={icloud_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: #FFFFFF15, borderColor: '#FFFFFF', color: '#FFFFFF' }}>
+                    <Calendar className="w-4 h-4" /> Apple Calendar
                   </a>
                 )}
                 {paypal_url && (
@@ -853,18 +865,33 @@ export default function PublicProfileClient({ profile = {} }) {
 
         </div>
 
-        {/* BOTÓN FLOTANTE PARA GUARDAR CONTACTO EN LA AGENDA DEL MÓVIL */}
-        <div className="fixed bottom-3 left-0 right-0 max-w-[430px] mx-auto px-4 z-30">
+                {/* BOTONES DE DESCARGA: CONTACTO & WALLET */}
+        <div className="fixed bottom-3 left-0 right-0 max-w-[430px] mx-auto px-4 z-30 space-y-2">
           <button
             onClick={downloadVCF}
             className="w-full py-4 rounded-2xl font-bruno font-bold text-xs uppercase tracking-wider text-white shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.99] border border-white/20"
             style={{
-              background: `linear-gradient(135deg, ${color_cta} 0%, #BE123C 100%)`,
-              boxShadow: `0 8px 30px ${color_cta}60`
+              background: linear-gradient(135deg,  0%, #BE123C 100%),
+              boxShadow:   8px 30px 60
             }}
           >
             <span className="text-base">💾</span> Guardar Contacto en Mi Celular
           </button>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button 
+              onClick={() => alert('Para agregar a Apple Wallet, necesitas configurar tu Certificado de Desarrollador Apple (P12) en el panel administrativo de TSolutions.')}
+              className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg"
+            >
+               Apple Wallet
+            </button>
+            <button 
+              onClick={() => alert('Para agregar a Google Wallet, necesitas configurar tu Service Account de Google Cloud en el panel administrativo de TSolutions.')}
+              className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg"
+            >
+              Google Wallet
+            </button>
+          </div>
         </div>
 
         {/* MODAL LIGHTBOX DE FOTOTECA */}

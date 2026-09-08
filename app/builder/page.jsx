@@ -206,6 +206,8 @@ export default function VCardEngineDashboard() {
     googleMapsUrl: '',
     videoYoutubeUrl: '',
     calendlyUrl: '',
+    googleCalendarUrl: '',
+    icloudCalendarUrl: '',
     paypalUrl: '',
     bankDetails: '',
     pdfUrl: ''
@@ -1250,8 +1252,16 @@ export default function VCardEngineDashboard() {
 
                     <div className="grid grid-cols-1 gap-4">
                       <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Calendly / Calendar)</label>
+                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Calendly)</label>
                         <input type="url" name="calendlyUrl" value={formData.calendlyUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://calendly.com/tu-usuario" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Google Calendar)</label>
+                        <input type="url" name="googleCalendarUrl" value={formData.googleCalendarUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://calendar.google.com/..." />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Apple / iCloud Calendar)</label>
+                        <input type="url" name="icloudCalendarUrl" value={formData.icloudCalendarUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://www.icloud.com/..." />
                       </div>
                       <div>
                         <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Botón de Pago (PayPal / Stripe)</label>
