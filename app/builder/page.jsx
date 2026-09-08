@@ -2905,187 +2905,22 @@ Beneficiario: TSolutions" />
       {/* MODAL DE PASARELA DE PAGO: TSOLUTIONS SECURE PAY GATEWAY */}
       {showCheckoutModal && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border-2 border-[#ff0003] w-full max-w-lg rounded-3xl shadow-[0_0_50px_rgba(255,0,3,0.35)] overflow-hidden animate-scaleIn flex flex-col">
-            
-            {/* Header Pasarela */}
-            <div className="p-5 bg-[#12121c] border-b border-gray-800 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-[#ff0003]">
-                <span className="text-lg">🔒</span>
-                <div>
-                  <h3 className="font-rosetta text-sm font-bold text-white">TSOLUTIONS SECURE PAY</h3>
-                  <p className="text-[10px] text-gray-400 font-mono">Pasarela de Pago Cifrada SSL 256-bit</p>
-                </div>
-              </div>
+          <div className="bg-[#0c0c16] border border-rose-600/30 w-full max-w-sm rounded-3xl p-6 text-center shadow-[0_0_30px_rgba(255,0,3,0.15)] animate-scaleIn">
+            <div className="w-16 h-16 bg-rose-600/10 border border-rose-600/20 text-[#ff0003] flex items-center justify-center rounded-full mx-auto mb-4 text-2xl">
+              <Lock className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2 font-bruno">Módulo Bloqueado</h3>
+            <p className="text-sm text-gray-400 mb-6 font-mono">
+              Esta función no está incluida en tu paquete actual. Los bloqueos visuales protegen las características exclusivas de los paquetes superiores.
+            </p>
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowCheckoutModal(false)}
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center text-sm font-bold"
+                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all"
               >
-                ✕
+                Cerrar
               </button>
             </div>
-
-            {/* Resumen del Pedido */}
-            <div className="p-6 space-y-5 overflow-y-auto max-h-[75vh]">
-              <div className="bg-black/60 p-4 rounded-2xl border border-gray-800 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-mono text-[#ff0003] uppercase font-bold">{t('pay_concept')}</span>
-                  <p className="text-xs font-rosetta text-white font-bold mt-0.5">{selectedProduct.name}</p>
-                  <p className="text-[10px] text-gray-400 mt-1">Entrega y desbloqueo digital instantáneo</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-2xl font-rosetta text-[#ff0003] font-extrabold">${selectedProduct.price}</span>
-                  <span className="text-xs font-rosetta text-gray-400 block font-mono">MXN</span>
-                </div>
-              </div>
-
-              {/* Selector de Destino para Envío de Tarjeta Física */}
-              <div className="space-y-2 bg-[#0a0a14] p-3.5 rounded-2xl border border-gray-800">
-                <label className="block text-[11px] font-rosetta text-gray-300 uppercase">
-                  📦 Destino para Entrega de Tarjeta Física NFC:
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShippingLocation('mexicali')}
-                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
-                      shippingLocation === 'mexicali'
-                        ? 'bg-green-500/15 border-green-500 text-green-300 font-bold'
-                        : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
-                  >
-                    <span className="font-bold">🚚 Mexicali, B.C.</span>
-                    <span className="text-[10px] text-green-400">100% GRATIS ($0)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setShippingLocation('mexico_dhl')}
-                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
-                      shippingLocation === 'mexico_dhl'
-                        ? 'bg-blue-500/15 border-blue-500 text-blue-300 font-bold'
-                        : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
-                  >
-                    <span className="font-bold">✈️ México (DHL/UPS)</span>
-                    <span className="text-[10px] text-gray-300">Guía Express</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setShippingLocation('world_ups')}
-                    className={`p-2.5 rounded-xl border text-left text-[11px] font-mono transition-all flex flex-col justify-between ${
-                      shippingLocation === 'world_ups'
-                        ? 'bg-purple-500/15 border-purple-500 text-purple-300 font-bold'
-                        : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
-                  >
-                    <span className="font-bold">🌍 Internacional</span>
-                    <span className="text-[10px] text-gray-300">UPS / DHL Express</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Selector de Método de Pago */}
-              <div className="space-y-2">
-                <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wide">
-                  {t('pay_method_label')}
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {[
-                    { id: 'card', label: t('pay_card') },
-                    { id: 'mercadopago', label: t('pay_mp') },
-                    { id: 'spei', label: t('pay_spei') },
-                    { id: 'paypal', label: t('pay_paypal') }
-                  ].map(m => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setPaymentMethod(m.id)}
-                      className={`p-3 rounded-xl border text-left text-xs font-mono transition-all flex items-center gap-2 ${
-                        paymentMethod === m.id
-                          ? 'bg-[#ff0003]/15 border-[#ff0003] text-[#EE334E] font-bold shadow-[0_0_10px_rgba(255,0,3,0.2)]'
-                          : 'bg-black/30 border-gray-800 text-gray-400 hover:border-gray-700'
-                      }`}
-                    >
-                      <span>{m.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Formulario Dinámico de Tarjeta */}
-              {paymentMethod === 'card' && (
-                <div className="space-y-3 bg-black/40 p-4 rounded-xl border border-gray-800">
-                  <div>
-                    <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">Número de Tarjeta</label>
-                    <input
-                      type="text"
-                      placeholder="4000 1234 5678 9010"
-                      className="input-dark w-full text-xs font-mono"
-                      defaultValue="4242 •••• •••• 4242"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">Vencimiento</label>
-                      <input type="text" placeholder="MM/AA" className="input-dark w-full text-xs font-mono" defaultValue="12/28" />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] text-gray-400 uppercase font-mono mb-1">CVV</label>
-                      <input type="password" placeholder="CVV" className="input-dark w-full text-xs font-mono" defaultValue="123" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Formulario Simulado SPEI / MercadoPago / PayPal */}
-              {paymentMethod === 'spei' && (
-                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 space-y-1 text-xs font-mono">
-                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">Banco:</span> STP / BBVA</p>
-                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">CLABE:</span> 6461 8011 2233 4455 66</p>
-                  <p className="text-gray-300"><span className="text-[#ff0003] font-bold">Beneficiario:</span> TSOLUTIONS IPIDD</p>
-                </div>
-              )}
-
-              {paymentMethod === 'mercadopago' && (
-                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 text-xs text-blue-400 font-mono flex items-center gap-2">
-                  <span>🔵</span>
-                  <span>Serás redirigido al Checkout Seguro de Mercado Pago con acreditación instantánea.</span>
-                </div>
-              )}
-
-              {paymentMethod === 'paypal' && (
-                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 text-xs text-yellow-400 font-mono flex items-center gap-2">
-                  <span>🅿️</span>
-                  <span>Pago internacional protegido por la Garantía al Comprador de PayPal.</span>
-                </div>
-              )}
-
-              {/* Botón de Procesamiento de Pago */}
-              <button
-                type="button"
-                onClick={handleProcessPayment}
-                disabled={isProcessingPayment}
-                className="w-full py-4 bg-gradient-to-r from-[#ff0003] to-[#EE334E] hover:brightness-110 text-white font-rosetta font-extrabold text-xs sm:text-sm rounded-2xl shadow-[0_0_25px_rgba(255,0,3,0.4)] transition-all flex items-center justify-center gap-2"
-              >
-                {isProcessingPayment ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>{t('pay_processing')}</span>
-                  </>
-                ) : (
-                  <>
-                    <span>🔒</span>
-                    <span>{t('pay_btn')} (${selectedProduct.price} MXN)</span>
-                  </>
-                )}
-              </button>
-
-              <div className="flex items-center justify-center gap-4 text-[10px] text-gray-500 font-mono text-center">
-                <span>{t('pay_secure_badge')}</span>
-              </div>
-            </div>
-
           </div>
         </div>
       )}
