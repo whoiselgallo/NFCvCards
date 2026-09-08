@@ -73,15 +73,32 @@ export default function TerminosPage() {
           </ul>
         </section>
 
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">5. Suscripciones y Pagos (Stripe)</h2>
+                <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-white">5. Suscripciones, Pagos e Infraestructura</h2>
           <p>
-            Los pagos se procesan mediante Stripe. La cancelación de la suscripción base o de las cuotas de mantenimiento (Elite) detendrá el servicio inmediatamente al final del ciclo de facturación actual. <strong>No se emiten reembolsos por meses parciales</strong>.
+            El cobro anual de las suscripciones está destinado exclusivamente al costo de la infraestructura de servidores (Google Cloud) donde se almacena su información. Este pago garantiza una disponibilidad total y asegura una <strong>carga ultra-rápida de su tarjeta</strong> al entrar en contacto con el chip NFC o escanear el código QR. Garantizamos que el tiempo de respuesta será inmediato y la carga de su perfil nunca fallará.
+          </p>
+          <p>
+            Los pagos se procesan mediante Stripe. La cancelación de la suscripción base detendrá el servicio inmediatamente al final del ciclo de facturación actual. <strong>No se emiten reembolsos por meses parciales</strong>.
+          </p>
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-white text-[#EE334E]">6. Hardware y Entregables Físicos</h2>
+          <p>
+            Como parte de nuestro compromiso de networking híbrido, <strong>todos nuestros paquetes incluyen los siguientes entregables físicos</strong> sin costo base:
+          </p>
+          <ul className="list-disc pl-6 space-y-2 text-slate-400">
+            <li>Una (1) Tarjeta Física Inteligente de PVC con tecnología NFC.</li>
+            <li>Un (1) Sticker / Chip NFC para adherir al reverso del dispositivo móvil.</li>
+          </ul>
+          <p>
+            <em>Nota sobre el diseño:</em> Estos dispositivos físicos se entregan por defecto con la marca y logotipos de Rose VCards. <strong>Si el cliente desea un chip o tarjeta física 100% personalizados</strong> con su propio logotipo o diseño corporativo, este servicio de manufactura está disponible por un costo adicional.
           </p>
         </section>
 
                 <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">6. Limitación de Responsabilidad</h2>
+          <h2 className="text-2xl font-bold text-white">7. Limitación de Responsabilidad</h2>
           <p>
             TSolutions y Rose VCards no serán responsables por interrupciones del servicio, pérdida de datos o pérdidas comerciales derivadas del mal uso de la plataforma o caídas extremas en Google Cloud. Nuestra responsabilidad técnica se limita a la restauración del servicio bajo los SLAs establecidos.
           </p>
