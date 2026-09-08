@@ -16,16 +16,11 @@ import {
 } from 'lucide-react';
 
 const WORDS = [
-  "contacto", 
-  "experiencia", 
-  "transferencia", 
-  "sorpresa", 
-  "ganancia", 
-  "visualización",
-  "conexión",
-  "oportunidad", 
-  "venta",
-  "cliente"
+  "Cierre de alto Impacto", 
+  "Socio Estratégico", 
+  "Alianza Inmediata", 
+  "Cliente Calificado", 
+  "Experiencia interactiva"
 ];
 
 export default function LandingPage() {
@@ -126,8 +121,8 @@ export default function LandingPage() {
           </motion.div>
           
           <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight text-center" style={{ fontFamily: 'Plaster, sans-serif', fontWeight: 400 }}>
-            Transforma tu primer
-            <div className="block w-full h-[80px] md:h-[120px] relative my-4 text-[#EE334E] text-[11vw] sm:text-6xl md:text-8xl flex items-center justify-center">
+            Convierte ese primer contacto en un...
+            <div className="block w-full h-[80px] md:h-[120px] relative my-4 text-[#EE334E] text-[10vw] sm:text-5xl md:text-7xl flex items-center justify-center">
               <AnimatePresence mode="popLayout">
                 <motion.span
                   key={wordIndex}
@@ -136,12 +131,12 @@ export default function LandingPage() {
                   exit={{ opacity: 0, y: -40 }}
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                   className="absolute"
+                  style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}
                 >
                   {WORDS[wordIndex]}
                 </motion.span>
               </AnimatePresence>
             </div>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#EE334E] to-[#ff6b81]" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}>Máquina de Ventas</span>
           </motion.h1>
           
           <motion.p variants={fadeIn} className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed backdrop-blur-sm bg-black/20 p-4 rounded-2xl">
