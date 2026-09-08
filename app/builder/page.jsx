@@ -188,13 +188,7 @@ export default function VCardEngineDashboard() {
     }
   }, [status, router]);
 
-  if (status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center bg-[#05050D] text-white">Cargando editor...</div>;
-  }
 
-  if (!session) {
-    return null;
-  }
 
   // Determinar el plan del usuario
   const userPlan = session?.user?.plan_id || 'free';
@@ -712,6 +706,14 @@ export default function VCardEngineDashboard() {
       setIsSaving(false);
     }
   };
+
+  if (status === 'loading') {
+    return <div className="min-h-screen flex items-center justify-center bg-[#05050D] text-white">Cargando editor...</div>;
+  }
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#060509] text-[#F8FAFC]">
