@@ -122,10 +122,10 @@ export default function LoginPage() {
 
           <div className="mt-6 grid grid-cols-2 gap-4">
             <button onClick={() => signIn('google')} className="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white text-sm font-semibold transition-colors">
-              <Chrome className="w-5 h-5 text-slate-300" /> Google
+              <Globe className="w-5 h-5 text-slate-300" /> Google
             </button>
             <button className="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white text-sm font-semibold transition-colors">
-              <Github className="w-5 h-5 text-slate-300" /> Github
+              <Globe className="w-5 h-5 text-slate-300" /> Github
             </button>
           </div>
         </div>

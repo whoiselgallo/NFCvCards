@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { getTranslation } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
-import { Facebook, Instagram, Linkedin, Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
+import { MessageCircle, Camera, Briefcase, Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
 export function getSocialUrl(type, value) {
@@ -81,7 +81,6 @@ export default function PublicProfileClient({ profile = {} }) {
     custom_fields = [],
     custom_layout = {},
     portfolio = [],
-    google_calendar_url = '',
     gallery = [],
     marketing_carousel = [],
     customer_reviews = []
@@ -649,7 +648,7 @@ export default function PublicProfileClient({ profile = {} }) {
                       { backgroundColor: '#1877F215', borderColor: '#1877F230', color: '#1877F2' }
                     }
                   >
-                    <Facebook className="w-5 h-5" />
+                    <MessageCircle className="w-5 h-5" />
                   </a>
                 )}
                 {igUrl && (
@@ -669,7 +668,7 @@ export default function PublicProfileClient({ profile = {} }) {
                       { backgroundColor: '#E4405F15', borderColor: '#E4405F30', color: '#E4405F' }
                     }
                   >
-                    <Instagram className="w-5 h-5" />
+                    <Camera className="w-5 h-5" />
                   </a>
                 )}
                 {inUrl && (
@@ -689,7 +688,7 @@ export default function PublicProfileClient({ profile = {} }) {
                       { backgroundColor: '#0A66C215', borderColor: '#0A66C230', color: '#0A66C2' }
                     }
                   >
-                    <Linkedin className="w-5 h-5" />
+                    <Briefcase className="w-5 h-5" />
                   </a>
                 )}
               </div>
@@ -871,8 +870,8 @@ export default function PublicProfileClient({ profile = {} }) {
             onClick={downloadVCF}
             className="w-full py-4 rounded-2xl font-bruno font-bold text-xs uppercase tracking-wider text-white shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.99] border border-white/20"
             style={{
-              background: linear-gradient(135deg,  0%, #BE123C 100%),
-              boxShadow:   8px 30px 60
+              background: `linear-gradient(135deg, ${color_cta} 0%, #BE123C 100%)`,
+              boxShadow: `0 8px 30px ${color_cta}60`
             }}
           >
             <span className="text-base">💾</span> Guardar Contacto en Mi Celular
