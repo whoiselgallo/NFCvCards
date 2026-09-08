@@ -457,7 +457,7 @@ export default function LandingPage() {
               <button onClick={() => handleCheckout('pro')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
                 Contratar Pro
               </button>
-                <PayPalButton planId="P-1VJ73284XP012835MNKQJDLI" />
+                <PayPalButton planId="P-9KP25231PY224692PNKQJG6Q" />
             </motion.div>
 
             {/* 4. EMPRESA */}
@@ -550,7 +550,7 @@ export default function LandingPage() {
               <button onClick={() => handleCheckout('marcablanca')} className="w-full text-center w-full py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white/10 transition-colors">
                 Contratar Marca Blanca
                 </button>
-                <PayPalButton planId="P-9KP25231PY224692PNKQJG6Q" />
+                <PayPalButton planId="PENDING_MARCA_BLANCA" />
             </motion.div>
           </div>
           </motion.div>
