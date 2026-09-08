@@ -204,7 +204,11 @@ export default function VCardEngineDashboard() {
     pais: '',
     nota: '',
     googleMapsUrl: '',
-    videoYoutubeUrl: ''
+    videoYoutubeUrl: '',
+    calendlyUrl: '',
+    paypalUrl: '',
+    bankDetails: '',
+    pdfUrl: ''
   });
 
   // Configuración de la Tarjeta del Cliente (100% Independiente de la Plataforma)
@@ -1232,8 +1236,42 @@ export default function VCardEngineDashboard() {
                   </div>
                 </div>
 
-                {/* ========================================================= */}
-                {/* PASO 3: BRANDING, TIPOGRAFÍAS & COLORES                   */}
+                                  {/* ========================================================= */}
+                  {/* PASO 2.5: PRODUCTIVIDAD Y CONVERSIÓN                        */}
+                  {/* ========================================================= */}
+                  <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                    <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">★</span>
+                        <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Productividad & Conversión</h3>
+                      </div>
+                      <span className="text-[10px] font-mono text-gray-400 uppercase">Ventas y PDF</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Calendly / Calendar)</label>
+                        <input type="url" name="calendlyUrl" value={formData.calendlyUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://calendly.com/tu-usuario" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Botón de Pago (PayPal / Stripe)</label>
+                        <input type="url" name="paypalUrl" value={formData.paypalUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://paypal.me/tu-usuario" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Datos Bancarios para Transferencia</label>
+                        <textarea name="bankDetails" value={formData.bankDetails} onChange={handleInputChange} className="input-dark w-full resize-none h-20" placeholder="Banco: XXXX
+CLABE: 0123...
+Beneficiario: TSolutions" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Documento PDF (CV, Catálogo)</label>
+                        <input type="url" name="pdfUrl" value={formData.pdfUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://mi-sitio.com/catalogo.pdf" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ========================================================= */}
+                  {/* PASO 3: BRANDING, TIPOGRAFÍAS & COLORES                   */}
                 {/* ========================================================= */}
                 <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">

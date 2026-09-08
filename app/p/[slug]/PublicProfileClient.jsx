@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { getTranslation } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
-import { Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
 export function getSocialUrl(type, value) {
@@ -57,6 +57,10 @@ export default function PublicProfileClient({ profile = {} }) {
     nota = '',
     google_maps_url = '',
     video_youtube_url = '',
+    calendly_url = '',
+    paypal_url = '',
+    bank_details = '',
+    pdf_url = '',
     theme = 'modern',
     font_family = 'Inter',
     font_primary = '',
@@ -732,6 +736,38 @@ export default function PublicProfileClient({ profile = {} }) {
               </a>
             )}
           </div>
+
+                    {/* PRODUCTIVIDAD Y CONVERSIÓN */}
+          {(calendly_url || paypal_url || bank_details || pdf_url) && (
+            <div className="pt-2 space-y-2.5">
+              <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5" style={{ fontFamily: font_secondary }}>
+                <span>⚡</span> Productividad y Negocio
+              </h3>
+              <div className="grid grid-cols-1 gap-2.5">
+                {calendly_url && (
+                  <a href={calendly_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: ${color_primario}15, borderColor: color_primario, color: color_primario }}>
+                    <Calendar className="w-4 h-4" /> Agendar Reunión
+                  </a>
+                )}
+                {paypal_url && (
+                  <a href={paypal_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: #10b98115, borderColor: '#10b981', color: '#10b981' }}>
+                    <CreditCard className="w-4 h-4" /> Realizar Pago
+                  </a>
+                )}
+                {pdf_url && (
+                  <a href={pdf_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: #8b5cf615, borderColor: '#8b5cf6', color: '#8b5cf6' }}>
+                    <FileDown className="w-4 h-4" /> Descargar Documento
+                  </a>
+                )}
+                {bank_details && (
+                  <div className="w-full p-4 rounded-xl border border-gray-700 bg-black/40 text-xs text-gray-300">
+                    <div className="flex items-center gap-2 mb-2 font-bold text-white"><Wallet className="w-4 h-4" /> Datos Bancarios / Transferencia</div>
+                    <pre className="whitespace-pre-wrap font-mono text-[11px] text-gray-400">{bank_details}</pre>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* PORTAFOLIO DE TRABAJOS (MÓDULO ELITE) */}
           {safePortfolio.length > 0 && (
