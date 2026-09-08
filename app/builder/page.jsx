@@ -161,9 +161,26 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function VCardEngineDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
+
+  
+  const handleFreePass = async () => {
+    try {
+      const res = await fetch('/api/hack/meet-me');
+      const data = await res.json();
+      if(data.success) {
+        await update(); 
+        alert('¡Pase Libre Activado! Ya tienes los beneficios del plan Meet Me.');
+        window.location.reload();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch(err) {
+      alert('Error activando pase libre');
+    }
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -718,6 +735,16 @@ export default function VCardEngineDashboard() {
         </div>
 
         {/* CONTROLES DE CABECERA: SELECTOR DE MODO, IDIOMA & ENLACE ADMIN */}
+
+          {!isPremium && userPlan !== 'meet_me' && (
+            <button 
+              onClick={handleFreePass}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all active:scale-95"
+            >
+              🎁 Usar Pase Libre Meet Me
+            </button>
+          )}
+
         <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
           <div className="flex bg-[#0F0B15] p-1 rounded-xl border border-rose-900/40 shadow-inner">
             <button
