@@ -747,27 +747,27 @@ export default function PublicProfileClient({ profile = {} }) {
               </h3>
               <div className="grid grid-cols-1 gap-2.5">
                 {calendly_url && (
-                  <a href={calendly_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: ${color_primario}15, borderColor: color_primario, color: color_primario }}>
+                  <a href={calendly_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: ` ${color_primario}15 `, borderColor: color_primario, color: color_primario }}>
                     <Calendar className="w-4 h-4" /> Agendar Reunión (Calendly)
                   </a>
                 )}
                 {google_calendar_url && (
-                  <a href={google_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: #4285F415, borderColor: '#4285F4', color: '#4285F4' }}>
+                  <a href={google_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#4285F415", borderColor: '#4285F4', color: '#4285F4' }}>
                     <Calendar className="w-4 h-4" /> Google Calendar
                   </a>
                 )}
                 {icloud_calendar_url && (
-                  <a href={icloud_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: #FFFFFF15, borderColor: '#FFFFFF', color: '#FFFFFF' }}>
+                  <a href={icloud_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#FFFFFF15", borderColor: '#FFFFFF', color: '#FFFFFF' }}>
                     <Calendar className="w-4 h-4" /> Apple Calendar
                   </a>
                 )}
                 {paypal_url && (
-                  <a href={paypal_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: #10b98115, borderColor: '#10b981', color: '#10b981' }}>
+                  <a href={paypal_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#10b98115", borderColor: '#10b981', color: '#10b981' }}>
                     <CreditCard className="w-4 h-4" /> Realizar Pago
                   </a>
                 )}
                 {pdf_url && (
-                  <a href={pdf_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: #8b5cf615, borderColor: '#8b5cf6', color: '#8b5cf6' }}>
+                  <a href={pdf_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#8b5cf615", borderColor: '#8b5cf6', color: '#8b5cf6' }}>
                     <FileDown className="w-4 h-4" /> Descargar Documento
                   </a>
                 )}

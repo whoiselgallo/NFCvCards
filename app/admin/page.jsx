@@ -3,11 +3,9 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, Users, CreditCard, Ticket, MessageSquare, 
-  Activity, Truck, AlertCircle, CheckCircle2, Search, Bell,
-  BarChart3, Settings, LogOut, PackageOpen, Star
+  Activity, Truck, Search, Bell, Settings, LogOut, PackageOpen, Star
 } from 'lucide-react';
 
-// Mock Data for initial visual setup
 const KPIS = [
   { label: 'MRR (Ingreso Mensual)', value: '$12,450', trend: '+14%', isGood: true, icon: CreditCard, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
   { label: 'Usuarios Activos', value: '1,248', trend: '+5%', isGood: true, icon: Users, color: 'text-blue-400', bg: 'bg-blue-400/10' },
@@ -53,22 +51,22 @@ export default function AdminDashboard() {
         </div>
         
         <nav className="flex-1 p-4 space-y-1">
-          <button onClick={() => setActiveTab('overview')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'overview' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+          <button onClick={() => setActiveTab('overview')} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ' + (activeTab === 'overview' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
             <LayoutDashboard className="w-4 h-4" /> Resumen Global
           </button>
-          <button onClick={() => setActiveTab('subscriptions')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'subscriptions' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+          <button onClick={() => setActiveTab('subscriptions')} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ' + (activeTab === 'subscriptions' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
             <CreditCard className="w-4 h-4" /> Pagos y Suscripciones
           </button>
-          <button onClick={() => setActiveTab('hardware')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'hardware' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+          <button onClick={() => setActiveTab('hardware')} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ' + (activeTab === 'hardware' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
             <Truck className="w-4 h-4" /> Envíos Hardware
           </button>
-          <button onClick={() => setActiveTab('tickets')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'tickets' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+          <button onClick={() => setActiveTab('tickets')} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ' + (activeTab === 'tickets' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
             <Ticket className="w-4 h-4" /> Tickets de Soporte
           </button>
-          <button onClick={() => setActiveTab('feedback')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'feedback' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+          <button onClick={() => setActiveTab('feedback')} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ' + (activeTab === 'feedback' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
             <MessageSquare className="w-4 h-4" /> Evaluaciones y Quejas
           </button>
-          <button onClick={() => setActiveTab('logs')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'logs' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+          <button onClick={() => setActiveTab('logs')} className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ' + (activeTab === 'logs' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
             <Activity className="w-4 h-4" /> Registro de Actividad
           </button>
         </nav>
@@ -109,10 +107,10 @@ export default function AdminDashboard() {
             {KPIS.map((kpi, i) => (
               <div key={i} className="bg-[#0a0a10] border border-white/5 rounded-2xl p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <div className={w-10 h-10 rounded-xl flex items-center justify-center  + kpi.bg}>
-                    <kpi.icon className={w-5 h-5  + kpi.color} />
+                  <div className={'w-10 h-10 rounded-xl flex items-center justify-center ' + kpi.bg}>
+                    <kpi.icon className={'w-5 h-5 ' + kpi.color} />
                   </div>
-                  <span className={	ext-xs font-bold px-2 py-1 rounded-full  + (kpi.isGood ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400')}>
+                  <span className={'text-xs font-bold px-2 py-1 rounded-full ' + (kpi.isGood ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400')}>
                     {kpi.trend}
                   </span>
                 </div>
@@ -180,7 +178,7 @@ export default function AdminDashboard() {
                         <td className="py-4 text-white font-medium">{t.user}</td>
                         <td className="py-4 text-slate-300">{t.issue}</td>
                         <td className="py-4">
-                          <span className={px-2 py-1 rounded-md text-[10px] font-bold uppercase  + (t.priority === 'High' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500')}>{t.priority}</span>
+                          <span className={'px-2 py-1 rounded-md text-[10px] font-bold uppercase ' + (t.priority === 'High' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500')}>{t.priority}</span>
                         </td>
                         <td className="py-4">
                           <span className="px-2 py-1 rounded-md text-[10px] font-bold uppercase bg-blue-500/10 text-blue-500">{t.status}</span>
@@ -210,7 +208,7 @@ export default function AdminDashboard() {
                       <p className="text-xs text-slate-400">{s.plan} • {s.amount}</p>
                     </div>
                     <div className="text-right">
-                      <span className={	ext-xs font-bold px-2 py-1 rounded-md uppercase  + (s.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400')}>{s.status}</span>
+                      <span className={'text-xs font-bold px-2 py-1 rounded-md uppercase ' + (s.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400')}>{s.status}</span>
                       <p className="text-[10px] text-slate-500 mt-1">{s.date}</p>
                     </div>
                   </div>
@@ -228,12 +226,12 @@ export default function AdminDashboard() {
                   <div key={r.id} className="p-4 rounded-xl bg-black/40 border border-white/5">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2">
-                        <span className={	ext-[10px] px-2 py-0.5 rounded-full font-bold uppercase  + (r.type === 'Queja' ? 'bg-rose-500/20 text-rose-400' : r.type === 'Sugerencia' ? 'bg-blue-500/20 text-blue-400' : 'bg-emerald-500/20 text-emerald-400')}>{r.type}</span>
+                        <span className={'text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ' + (r.type === 'Queja' ? 'bg-rose-500/20 text-rose-400' : r.type === 'Sugerencia' ? 'bg-blue-500/20 text-blue-400' : 'bg-emerald-500/20 text-emerald-400')}>{r.type}</span>
                         <h4 className="text-xs font-bold text-white">{r.user}</h4>
                       </div>
                       <div className="flex gap-0.5">
                         {[1,2,3,4,5].map(star => (
-                          <Star key={star} className={w-3 h-3  + (star <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-700')} />
+                          <Star key={star} className={'w-3 h-3 ' + (star <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-700')} />
                         ))}
                       </div>
                     </div>

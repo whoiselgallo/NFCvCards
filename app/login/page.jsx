@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Nfc, Mail, Lock, ArrowRight, Github, Chrome } from 'lucide-react';
+import { Nfc, Mail, Lock, ArrowRight, Globe } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
