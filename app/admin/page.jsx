@@ -1,1324 +1,251 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import JSZip from 'jszip';
-import { QRCodeSVG } from 'qrcode.react';
-import brandConfig from '../../brand.config';
-import { generateDeliveryInstructions } from '../../lib/brand';
+import React, { useState } from 'react';
+import { 
+  LayoutDashboard, Users, CreditCard, Ticket, MessageSquare, 
+  Activity, Truck, AlertCircle, CheckCircle2, Search, Bell,
+  BarChart3, Settings, LogOut, PackageOpen, Star
+} from 'lucide-react';
 
-const POPULAR_FONTS = [
-  { label: 'Inter (Moderna y Limpia)', value: 'Inter' },
-  { label: 'Bruno Ace SC (Branding Tecnológico)', value: 'Bruno Ace SC' },
-  { label: 'Space Grotesk (Futurista)', value: 'Space Grotesk' },
-  { label: 'Playfair Display (Elegante & Editorial)', value: 'Playfair Display' },
-  { label: 'Montserrat (Geométrica)', value: 'Montserrat' },
-  { label: 'Poppins (Amigable y Redonda)', value: 'Poppins' },
-  { label: 'Bebas Neue (Impacto & Mayúsculas)', value: 'Bebas Neue' },
-  { label: 'Outfit (Vanguardista)', value: 'Outfit' },
-  { label: 'Cinzel (Lujo / Clásica)', value: 'Cinzel' },
-  { label: 'Oswald (Condensada / Firme)', value: 'Oswald' },
-  { label: 'Syne (Alta Moda / Diseño)', value: 'Syne' },
-  { label: 'Roboto (Estándar Android)', value: 'Roboto' }
+// Mock Data for initial visual setup
+const KPIS = [
+  { label: 'MRR (Ingreso Mensual)', value: '$12,450', trend: '+14%', isGood: true, icon: CreditCard, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+  { label: 'Usuarios Activos', value: '1,248', trend: '+5%', isGood: true, icon: Users, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+  { label: 'Tickets Pendientes', value: '14', trend: '-2', isGood: true, icon: Ticket, color: 'text-rose-400', bg: 'bg-rose-400/10' },
+  { label: 'Hardware Pendiente', value: '38', trend: '+12', isGood: false, icon: Truck, color: 'text-amber-400', bg: 'bg-amber-400/10' },
 ];
 
-export default function AdminDashboardPage() {
-  // Estado de Autenticación
-  const [authLoading, setAuthLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
-  const [authForm, setAuthForm] = useState({ email: '', password: '', name: '' });
-  const [authError, setAuthError] = useState('');
-  const [authSubmitting, setAuthSubmitting] = useState(false);
+const SUBSCRIPTIONS = [
+  { id: 1, user: 'Agencia XYZ', plan: 'Marca Blanca', status: 'Active', amount: '$299/mo', date: '2023-10-15' },
+  { id: 2, user: 'Dr. Roberto M.', plan: 'Meet Me', status: 'Active', amount: '$49/yr', date: '2023-10-14' },
+  { id: 3, user: 'Tech Solutions Corp', plan: 'Elite Business', status: 'Canceled', amount: '$599/yr', date: '2023-10-12' },
+  { id: 4, user: 'Maria G. Freelance', plan: 'Profesional', status: 'Active', amount: '$199/yr', date: '2023-10-10' },
+];
 
-  // Datos del Dashboard
-  const [profiles, setProfiles] = useState([]);
-  const [metrics, setMetrics] = useState({
-    total_profiles: 0,
-    total_views: 0,
-    total_companies: 0,
-    validated_count: 0,
-    pending_count: 0,
-    active_count: 0
-  });
-  const [availableTags, setAvailableTags] = useState([]);
-  const [loadingProfiles, setLoadingProfiles] = useState(false);
+const TICKETS = [
+  { id: 'TCK-102', user: 'Agencia XYZ', issue: 'Configuración DNS Dominio', priority: 'High', status: 'Open' },
+  { id: 'TCK-103', user: 'Juan Pérez', issue: 'Problema al escanear sticker', priority: 'Medium', status: 'In Progress' },
+  { id: 'TCK-104', user: 'Tech Solutions', issue: 'Solicitud de reembolso', priority: 'High', status: 'Open' },
+];
 
-  // Filtros y Búsqueda
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTag, setSelectedTag] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('all');
+const REVIEWS = [
+  { id: 1, user: 'Ana Lopez', rating: 5, type: 'Reseña', text: 'El hardware de Bamboo es increíble, mis clientes lo aman.' },
+  { id: 2, user: 'Carlos D.', rating: 2, type: 'Queja', text: 'El envío de mi sticker tardó 2 semanas en llegar.' },
+  { id: 3, user: 'Agencia Digital', rating: 4, type: 'Sugerencia', text: 'Sería genial tener integración con HubSpot.' },
+];
 
-  // Modales
-  const [editingProfile, setEditingProfile] = useState(null);
-  const [editSaving, setEditSaving] = useState(false);
-  const [emailModalProfile, setEmailModalProfile] = useState(null);
-  const [deleteModalProfile, setDeleteModalProfile] = useState(null);
-  const [isZippingId, setIsZippingId] = useState(null);
+export default function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState('overview');
 
-  // Comprobar sesión activa al cargar
-  useEffect(() => {
-    checkSession();
-  }, []);
-
-  const checkSession = async () => {
-    try {
-      setAuthLoading(true);
-      const res = await fetch('/api/admin/auth/me');
-      const data = await res.json();
-      if (data.authenticated && data.user) {
-        setCurrentUser(data.user);
-        loadProfiles();
-      } else {
-        setCurrentUser(null);
-      }
-    } catch (err) {
-      setCurrentUser(null);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleAuthSubmit = async (e) => {
-    e.preventDefault();
-    setAuthError('');
-    setAuthSubmitting(true);
-
-    try {
-      const endpoint = authMode === 'register' ? '/api/admin/auth/register' : '/api/admin/auth/login';
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(authForm)
-      });
-
-      const data = await res.json();
-      if (!data.success) {
-        setAuthError(data.error || 'Error al procesar la solicitud');
-        setAuthSubmitting(false);
-        return;
-      }
-
-      setCurrentUser(data.user);
-      setAuthForm({ email: '', password: '', name: '' });
-      loadProfiles();
-    } catch (err) {
-      setAuthError('Error de conexión con el servidor: ' + err.message);
-    } finally {
-      setAuthSubmitting(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/admin/auth/logout', { method: 'POST' });
-      setCurrentUser(null);
-      setProfiles([]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Cargar Perfiles con Filtros
-  const loadProfiles = async (query = searchQuery, tag = selectedTag, status = selectedStatus) => {
-    setLoadingProfiles(true);
-    try {
-      const params = new URLSearchParams();
-      if (query) params.append('q', query);
-      if (tag) params.append('tag', tag);
-      if (status && status !== 'all') params.append('status', status);
-
-      const res = await fetch(`/api/admin/profiles?${params.toString()}`);
-      const data = await res.json();
-      if (data.success) {
-        setProfiles(data.profiles || []);
-        if (data.metrics) setMetrics(data.metrics);
-        if (data.availableTags) setAvailableTags(data.availableTags);
-      }
-    } catch (err) {
-      console.error('Error al cargar perfiles:', err);
-    } finally {
-      setLoadingProfiles(false);
-    }
-  };
-
-  // Actualizar filtros reactivamente
-  const handleSearchChange = (e) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    loadProfiles(val, selectedTag, selectedStatus);
-  };
-
-  const handleTagFilter = (tag) => {
-    const nextTag = selectedTag === tag ? '' : tag;
-    setSelectedTag(nextTag);
-    loadProfiles(searchQuery, nextTag, selectedStatus);
-  };
-
-  const handleStatusFilter = (status) => {
-    setSelectedStatus(status);
-    loadProfiles(searchQuery, selectedTag, status);
-  };
-
-  // Cambio rápido de Estado / Validación
-  const handleQuickStatusChange = async (profileId, newStatus) => {
-    try {
-      const res = await fetch(`/api/admin/profiles/${profileId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setProfiles(prev => prev.map(p => p.id === profileId ? { ...p, status: newStatus } : p));
-        // actualizar métricas locales
-        loadProfiles();
-      }
-    } catch (err) {
-      alert('Error al actualizar estado: ' + err.message);
-    }
-  };
-
-  // Guardar Cambios en Edición Completa
-  const handleSaveEdit = async (e) => {
-    e.preventDefault();
-    if (!editingProfile) return;
-    setEditSaving(true);
-
-    try {
-      const res = await fetch(`/api/admin/profiles/${editingProfile.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingProfile)
-      });
-      const data = await res.json();
-      if (data.success) {
-        setProfiles(prev => prev.map(p => p.id === editingProfile.id ? data.profile : p));
-        setEditingProfile(null);
-        alert('✅ Perfil actualizado exitosamente en Google Cloud SQL');
-      } else {
-        alert('Error al guardar: ' + (data.error || 'No se pudo actualizar'));
-      }
-    } catch (err) {
-      alert('Error de conexión: ' + err.message);
-    } finally {
-      setEditSaving(false);
-    }
-  };
-
-  // Eliminar Perfil
-  const handleDeleteConfirm = async () => {
-    if (!deleteModalProfile) return;
-    try {
-      const res = await fetch(`/api/admin/profiles/${deleteModalProfile.id}`, {
-        method: 'DELETE'
-      });
-      const data = await res.json();
-      if (data.success) {
-        setProfiles(prev => prev.filter(p => p.id !== deleteModalProfile.id));
-        setDeleteModalProfile(null);
-        loadProfiles();
-      } else {
-        alert('Error al eliminar: ' + (data.error || 'No se pudo eliminar'));
-      }
-    } catch (err) {
-      alert('Error al eliminar: ' + err.message);
-    }
-  };
-
-  // Generador de Carta Oficial de Entrega para el modal de reenvío
-  const generateEmailText = (p) => {
-    const subject = brandConfig.delivery.emailSubject(p.empresa);
-    const body = generateDeliveryInstructions({
-      nombre: p.nombre,
-      apellido: p.apellido,
-      empresa: p.empresa,
-      slug: p.slug,
-      originUrl: typeof window !== 'undefined' ? window.location.origin : (brandConfig.website || 'https://rosecard.io')
-    });
-
-    return { subject, body };
-  };
-
-  // Descarga rápida de ZIP por perfil desde la fila del usuario
-  const downloadProfileZip = async (p) => {
-    setIsZippingId(p.id);
-    try {
-      const zip = new JSZip();
-      const titular = `${p.nombre || 'Contacto'}_${p.apellido || 'Card'}`.trim();
-      const { body: instrucciones } = generateEmailText(p);
-
-      // 1. vCard
-      let vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\n`;
-      vcard += `N:${p.apellido || ''};${p.nombre || ''};;;\r\n`;
-      vcard += `FN:${(p.nombre + ' ' + p.apellido).trim()}\r\n`;
-      if (p.empresa) vcard += `ORG:${p.empresa}\r\n`;
-      if (p.puesto) vcard += `TITLE:${p.puesto}\r\n`;
-      if (p.telefono) vcard += `TEL;TYPE=CELL,VOICE:${p.telefono}\r\n`;
-      if (p.whatsapp) vcard += `TEL;TYPE=CELL,VOICE,WA:${p.whatsapp}\r\n`;
-      if (p.correo) vcard += `EMAIL;TYPE=WORK,INTERNET:${p.correo}\r\n`;
-      if (p.url) vcard += `URL;TYPE=WORK:${p.url}\r\n`;
-      if (p.calle || p.ciudad || p.estado || p.cp || p.pais) {
-        vcard += `ADR;TYPE=WORK:;;${p.calle || ''};${p.ciudad || ''};${p.estado || ''};${p.cp || ''};${p.pais || ''}\r\n`;
-      }
-      if (p.google_maps_url) vcard += `NOTE:Google Maps: ${p.google_maps_url}\\n${p.nota || ''}\r\n`;
-      else if (p.nota) vcard += `NOTE:${p.nota}\r\n`;
-      vcard += `END:VCARD`;
-
-      zip.file(`${titular}_Contacto.vcf`, vcard);
-      zip.file(brandConfig.delivery.instructionsFilename(titular), instrucciones);
-
-      const content = await zip.generateAsync({ type: 'blob' });
-      const url = URL.createObjectURL(content);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Paquete_${titular}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      alert('Error al descargar .zip: ' + err.message);
-    } finally {
-      setIsZippingId(null);
-    }
-  };
-
-  // Si está cargando verificación de sesión
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#04040A] flex flex-col items-center justify-center text-white">
-        <div className="w-10 h-10 border-4 border-[#E11D48] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="font-bruno text-sm text-gray-400">Verificando Credenciales de Acceso...</p>
-      </div>
-    );
-  }
-
-  // PANTALLA DE ACCESO SI NO ESTÁ AUTENTICADO
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen bg-[#060509] flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#0F0B15] border border-rose-600/40 p-8 rounded-3xl shadow-[0_0_60px_rgba(225,29,72,0.3)] space-y-6 animate-scaleIn backdrop-blur-xl">
-          
-          {/* Logo y Cabecera con Emblema Cyber Rose */}
-          <div className="text-center space-y-3 flex flex-col items-center">
-            <div className="rose-logo-container w-14 h-14 rounded-2xl shadow-[0_0_25px_rgba(255,0,3,0.5)] border border-[#EE334E]/60">
-              <img src={brandConfig.assets.logo || "/brand/logo.png"} alt="Rose Emblem" className="w-9 h-9 object-contain drop-shadow-[0_0_10px_rgba(238,51,78,0.8)]" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bruno text-white">
-                {brandConfig.brandHeading.prefix} <span className="text-[#EE334E] drop-shadow-[0_0_12px_rgba(238,51,78,0.6)]">{brandConfig.brandHeading.highlight}</span> ADMIN
-              </h1>
-              <p className="text-xs text-gray-400 mt-1">Panel Centralizado de Control de Identidades Digitales</p>
-            </div>
-            <div className="mt-1 inline-block px-3 py-1 rounded-full text-[11px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400">
-              {brandConfig.adminAuth.allowedDomains === '*' ? '🔒 Panel Administrativo Seguro' : `🔒 Exclusivo para ${brandConfig.adminAuth.allowedDomains}`}
-            </div>
-          </div>
-
-          {/* Formulario de Login / Registro */}
-          <form onSubmit={handleAuthSubmit} className="space-y-4">
-            {authError && (
-              <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs flex items-start gap-2">
-                <span className="text-sm">⚠️</span>
-                <span>{authError}</span>
-              </div>
-            )}
-
-            {authMode === 'register' && (
-              <div>
-                <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase">Nombre del Administrador</label>
-                <input
-                  type="text"
-                  required
-                  value={authForm.name}
-                  onChange={(e) => setAuthForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Ej. Administrador"
-                  className="input-dark w-full"
-                />
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase">Correo Electrónico</label>
-              <input
-                type="email"
-                required
-                value={authForm.email}
-                onChange={(e) => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="admin@tudominio.com"
-                className="input-dark w-full font-mono text-xs"
-              />
-              <p className="text-[10px] text-gray-500 mt-1">
-                {brandConfig.adminAuth.allowedDomains === '*' ? 'Introduce tu correo autorizado' : `Debe terminar en: ${brandConfig.adminAuth.allowedDomains}`}
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bruno text-gray-300 mb-1 uppercase">Contraseña</label>
-              <input
-                type="password"
-                required
-                value={authForm.password}
-                onChange={(e) => setAuthForm(prev => ({ ...prev, password: e.target.value }))}
-                placeholder="••••••••"
-                className="input-dark w-full"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={authSubmitting}
-              className="w-full py-3.5 rounded-xl text-xs font-bruno font-bold uppercase tracking-wider bg-[#E11D48] text-white hover:bg-rose-700 transition-all shadow-[0_0_20px_rgba(225,29,72,0.35)] flex items-center justify-center gap-2"
-            >
-              {authSubmitting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>VERIFICANDO ACCESO...</span>
-                </>
-              ) : (
-                <span>{authMode === 'login' ? 'INICIAR SESIÓN' : 'REGISTRARME COMO ADMINISTRADOR'}</span>
-              )}
-            </button>
-          </form>
-
-          {/* Toggle Login / Registro */}
-          <div className="text-center pt-2 border-t border-gray-800">
-            {authMode === 'login' ? (
-              <p className="text-xs text-gray-400">
-                ¿Es tu primera vez?{' '}
-                <button
-                  type="button"
-                  onClick={() => { setAuthMode('register'); setAuthError(''); }}
-                  className="text-[#E11D48] hover:underline font-bold"
-                >
-                  Registrar mi cuenta
-                </button>
-              </p>
-            ) : (
-              <p className="text-xs text-gray-400">
-                ¿Ya tienes cuenta?{' '}
-                <button
-                  type="button"
-                  onClick={() => { setAuthMode('login'); setAuthError(''); }}
-                  className="text-[#E11D48] hover:underline font-bold"
-                >
-                  Iniciar sesión
-                </button>
-              </p>
-            )}
-          </div>
-
-          <div className="text-center">
-            <a href="/" className="text-[11px] text-gray-500 hover:text-gray-300">
-              ← Volver al Generador Público
-            </a>
-          </div>
-
-        </div>
-      </div>
-    );
-  }
-
-  // DASHBOARD PRINCIPAL ADMINISTRATIVO
   return (
-    <div className="min-h-screen bg-[#060509] text-[#F8FAFC] p-4 md:p-8 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#030308] text-slate-300 flex font-sans">
       
-      {/* HEADER DEL PANEL */}
-      <header className="max-w-[1920px] mx-auto w-full mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-rose-900/30">
-        <div className="flex items-center gap-3.5">
-          <div className="rose-logo-container w-11 h-11 rounded-xl shadow-[0_0_16px_rgba(255,0,3,0.45)] border border-[#EE334E]/50 shrink-0 flex items-center justify-center">
-            <img src={brandConfig.assets.logo || "/brand/logo.png"} alt="Rose Emblem" className="w-7 h-7 object-contain drop-shadow-[0_0_8px_rgba(238,51,78,0.7)]" />
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-[#0a0a10] border-r border-white/5 flex flex-col hidden md:flex">
+        <div className="p-6 border-b border-white/5">
+          <div className="flex items-center gap-2 text-white font-bold text-xl tracking-tight">
+            <div className="w-8 h-8 bg-[#EE334E] rounded-lg flex items-center justify-center">
+              <Activity className="w-5 h-5 text-white" />
+            </div>
+            TSolutions
           </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bruno text-white tracking-wide flex items-center gap-2">
-              {brandConfig.brandHeading.prefix} <span className="text-[#EE334E] drop-shadow-[0_0_12px_rgba(238,51,78,0.6)]">{brandConfig.brandHeading.highlight}</span> ADMIN ENGINE
-            </h1>
-            <p className="text-xs text-gray-400">Centro de Control y Gestión de Identidades Digitales NFC</p>
-          </div>
+          <p className="text-xs text-slate-500 mt-1 font-mono">Mission Control</p>
         </div>
+        
+        <nav className="flex-1 p-4 space-y-1">
+          <button onClick={() => setActiveTab('overview')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'overview' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+            <LayoutDashboard className="w-4 h-4" /> Resumen Global
+          </button>
+          <button onClick={() => setActiveTab('subscriptions')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'subscriptions' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+            <CreditCard className="w-4 h-4" /> Pagos y Suscripciones
+          </button>
+          <button onClick={() => setActiveTab('hardware')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'hardware' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+            <Truck className="w-4 h-4" /> Envíos Hardware
+          </button>
+          <button onClick={() => setActiveTab('tickets')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'tickets' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+            <Ticket className="w-4 h-4" /> Tickets de Soporte
+          </button>
+          <button onClick={() => setActiveTab('feedback')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'feedback' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+            <MessageSquare className="w-4 h-4" /> Evaluaciones y Quejas
+          </button>
+          <button onClick={() => setActiveTab('logs')} className={w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors  + (activeTab === 'logs' ? 'bg-[#EE334E]/10 text-[#EE334E]' : 'hover:bg-white/5 text-slate-400')}>
+            <Activity className="w-4 h-4" /> Registro de Actividad
+          </button>
+        </nav>
 
-        <div className="flex items-center gap-3 self-end md:self-auto">
-          <div className="text-right hidden sm:block">
-            <p className="text-xs font-bold text-white">{currentUser.name || currentUser.email}</p>
-            <p className="text-[10px] font-mono text-[#FF2A54]">{currentUser.email}</p>
-          </div>
-          
-          <a
-            href="/"
-            className="px-3.5 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-300 border border-gray-800 transition-colors flex items-center gap-1.5"
-          >
-            <span>➕</span> Nuevo Perfil
-          </a>
-
-          <button
-            onClick={handleLogout}
-            className="px-3.5 py-2 rounded-xl text-xs font-bruno bg-red-950/30 hover:bg-red-900/40 text-red-400 border border-red-900/50 transition-colors flex items-center gap-1.5"
-          >
-            <span>🚪</span> Salir
+        <div className="p-4 border-t border-white/5">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-white/5 text-slate-400 transition-colors">
+            <Settings className="w-4 h-4" /> Configuración
+          </button>
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-red-500/10 text-red-400 transition-colors mt-1">
+            <LogOut className="w-4 h-4" /> Cerrar Sesión
           </button>
         </div>
-      </header>
+      </aside>
 
-      {/* METRICS ROW */}
-      <section className="max-w-[1920px] mx-auto w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-        <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Total Perfiles</p>
-          <p className="text-2xl font-rosetta font-bold text-[#ff0003] mt-1">{metrics.total_profiles}</p>
-        </div>
-
-        <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Empresas</p>
-          <p className="text-2xl font-rosetta font-bold text-[#00E5FF] mt-1">{metrics.total_companies}</p>
-        </div>
-
-        <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Vistas Totales</p>
-          <p className="text-2xl font-rosetta font-bold text-green-400 mt-1">{metrics.total_views}</p>
-        </div>
-
-        <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Validados</p>
-          <p className="text-2xl font-rosetta font-bold text-emerald-400 mt-1">{metrics.validated_count}</p>
-        </div>
-
-        <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Pendientes</p>
-          <p className="text-2xl font-rosetta font-bold text-yellow-400 mt-1">{metrics.pending_count}</p>
-        </div>
-
-        <div className="bg-[#0c0c16] border border-gray-800 p-4 rounded-2xl">
-          <p className="text-[11px] font-rosetta text-gray-400 uppercase">Activos</p>
-          <p className="text-2xl font-rosetta font-bold text-purple-400 mt-1">{metrics.active_count}</p>
-        </div>
-      </section>
-
-      {/* BARRA DE HERRAMIENTAS: BÚSQUEDA UNIVERSAL + FILTRO POR ETIQUETAS + ESTADO */}
-      <section className="max-w-[1920px] mx-auto w-full bg-[#0c0c16] border border-gray-800 p-5 rounded-2xl mb-6 space-y-4 shadow-xl">
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
-          
-          {/* Buscador Universal en Tiempo Real */}
-          <div className="relative flex-1">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              placeholder="Buscar por Empresa, Nombre, Correo, Teléfono, Slug o Etiquetas..."
-              className="w-full bg-[#06060c] border border-gray-800 pl-10 pr-4 py-2.5 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#ff0003] transition-colors"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => { setSearchQuery(''); loadProfiles('', selectedTag, selectedStatus); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* Filtro por Estado */}
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-rosetta text-gray-400">Estado:</span>
-            <select
-              value={selectedStatus}
-              onChange={(e) => handleStatusFilter(e.target.value)}
-              className="bg-[#06060c] border border-gray-800 text-xs text-white px-3 py-2 rounded-xl focus:outline-none focus:border-[#ff0003]"
-            >
-              <option value="all">Todos los Estados</option>
-              <option value="active">Activo</option>
-              <option value="validated">Validado</option>
-              <option value="pending">Pendiente</option>
-              <option value="archived">Archivado</option>
-            </select>
-          </div>
-
-        </div>
-
-        {/* CHIPS DE ETIQUETAS (TAGS) DISPONIBLES */}
-        {availableTags.length > 0 && (
-          <div className="pt-3 border-t border-gray-800/60 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-rosetta text-gray-400 flex items-center gap-1">
-              <span>🏷️</span> Etiquetas:
-            </span>
-            <button
-              onClick={() => handleTagFilter('')}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
-                selectedTag === ''
-                  ? 'bg-[#ff0003] text-white font-extrabold shadow-[0_0_10px_rgba(255,0,3,0.3)]'
-                  : 'bg-black/40 text-gray-400 hover:text-white border border-gray-800'
-              }`}
-            >
-              Todas
+      {/* MAIN CONTENT */}
+      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        {/* TOPBAR */}
+        <header className="h-20 border-b border-white/5 bg-[#0a0a10]/50 backdrop-blur-md flex items-center justify-between px-8 shrink-0">
+          <h1 className="text-2xl font-bold text-white tracking-tight">Centro de Mando</h1>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input type="text" placeholder="Buscar cliente, ticket, folio..." className="bg-black/50 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-[#EE334E] text-white w-64" />
+            </div>
+            <button className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative hover:bg-white/10 transition-colors">
+              <Bell className="w-4 h-4 text-slate-300" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
             </button>
-            {availableTags.map(tag => (
-              <button
-                key={tag}
-                onClick={() => handleTagFilter(tag)}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
-                  selectedTag === tag
-                    ? 'bg-[#00E5FF] text-black font-extrabold shadow-[0_0_10px_rgba(0,229,255,0.4)]'
-                    : 'bg-[#12121c] text-gray-300 hover:text-white border border-gray-800 hover:border-gray-700'
-                }`}
-              >
-                #{tag}
-              </button>
+          </div>
+        </header>
+
+        {/* SCROLLABLE CONTENT */}
+        <div className="flex-1 overflow-y-auto p-8">
+          
+          {/* KPI GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {KPIS.map((kpi, i) => (
+              <div key={i} className="bg-[#0a0a10] border border-white/5 rounded-2xl p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className={w-10 h-10 rounded-xl flex items-center justify-center  + kpi.bg}>
+                    <kpi.icon className={w-5 h-5  + kpi.color} />
+                  </div>
+                  <span className={	ext-xs font-bold px-2 py-1 rounded-full  + (kpi.isGood ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400')}>
+                    {kpi.trend}
+                  </span>
+                </div>
+                <h3 className="text-3xl font-bold text-white mb-1">{kpi.value}</h3>
+                <p className="text-sm text-slate-500">{kpi.label}</p>
+              </div>
             ))}
           </div>
-        )}
-      </section>
 
-      {/* DISPLAY PRINCIPAL DE PERFILES (FILA 1: NOMBRE DE LA EMPRESA) */}
-      <section className="max-w-[1920px] mx-auto w-full flex-1">
-        {loadingProfiles ? (
-          <div className="p-12 text-center text-gray-400">
-            <div className="w-8 h-8 border-3 border-[#ff0003] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p className="text-xs font-rosetta">Cargando base de datos de Google Cloud SQL...</p>
-          </div>
-        ) : profiles.length === 0 ? (
-          <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-12 text-center text-gray-400">
-            <p className="text-4xl mb-3">📇</p>
-            <h3 className="text-lg font-rosetta text-white">No se encontraron perfiles con estos criterios</h3>
-            <p className="text-xs mt-1 text-gray-500">Prueba ajustando el término de búsqueda o seleccionando otra etiqueta.</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {profiles.map((p) => {
-              const fullUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${p.slug}`;
-              const tagsArray = p.tags ? p.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
-
-              return (
-                <div
-                  key={p.id}
-                  className="bg-[#090914] border border-gray-800 hover:border-[#ff0003]/50 rounded-2xl p-5 transition-all shadow-lg hover:shadow-[0_0_25px_rgba(255,0,3,0.12)] space-y-4"
-                >
-                  {/* FILA 1: NOMBRE DE LA EMPRESA (PROMINENTE) & ESTADO & MODO */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-800/80 pb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-black border border-[#ff0003]/40 flex items-center justify-center text-base shrink-0 overflow-hidden shadow-inner">
-                        {p.logo_img ? (
-                          <img src={p.logo_img} alt="Logo" className="w-full h-full object-contain p-1" />
-                        ) : (
-                          <span>🏢</span>
-                        )}
-                      </div>
-                      <div>
-                        {/* FILA 1: EMPRESA */}
-                        <div className="flex items-center gap-2">
-                          <h2 className="text-base font-rosetta text-white font-bold tracking-wide">
-                            {p.empresa || 'EMPRESA INDEPENDIENTE'}
-                          </h2>
-                          {p.mode === 'review' ? (
-                            <span className="px-2 py-0.5 rounded-full text-[9px] font-rosetta bg-yellow-500/10 border border-yellow-500/30 text-yellow-400">
-                              ⭐ Review Mode
-                            </span>
-                          ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[9px] font-rosetta bg-[#ff0003]/10 border border-[#ff0003]/30 text-[#EE334E]">
-                              📇 vCard 3.0
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[10px] text-gray-500 font-mono">
-                          ID: #{p.id} • Creado: {new Date(p.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* SELECTOR RÁPIDO DE ESTADO (VALIDACIÓN EN 1 TOQUE) */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-gray-400 font-rosetta">Estado:</span>
-                      <select
-                        value={p.status || 'active'}
-                        onChange={(e) => handleQuickStatusChange(p.id, e.target.value)}
-                        className={`text-xs font-rosetta px-3 py-1.5 rounded-xl border font-bold cursor-pointer transition-colors ${
-                          p.status === 'validated'
-                            ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
-                            : p.status === 'pending'
-                            ? 'bg-yellow-950/60 border-yellow-500/40 text-yellow-300'
-                            : p.status === 'archived'
-                            ? 'bg-gray-800 border-gray-700 text-gray-400'
-                            : 'bg-[#ff0003]/20 border-[#ff0003]/50 text-[#EE334E]'
-                        }`}
-                      >
-                        <option value="active" className="bg-[#090914] text-[#EE334E]">● Activo</option>
-                        <option value="validated" className="bg-[#090914] text-emerald-400">✓ Validado</option>
-                        <option value="pending" className="bg-[#090914] text-yellow-400">⏳ Pendiente</option>
-                        <option value="archived" className="bg-[#090914] text-gray-400">🛑 Archivado</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* FILA 2: DATOS DEL TITULAR, PUESTO Y CONTACTO */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 text-xs">
-                    
-                    {/* Titular y Puesto */}
-                    <div>
-                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bruno">Titular & Cargo</p>
-                      <p className="font-bold text-white text-sm mt-0.5">{p.nombre} {p.apellido || ''}</p>
-                      <p className="text-gray-300 text-xs">{p.puesto || 'Sin puesto asignado'}</p>
-                    </div>
-
-                    {/* Contacto Directo */}
-                    <div>
-                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-rosetta">Contacto</p>
-                      <div className="mt-0.5 space-y-0.5 text-[11px] font-mono">
-                        {p.telefono && (
-                          <p className="text-gray-300">📞 <a href={`tel:${p.telefono}`} className="hover:text-[#ff0003]">{p.telefono}</a></p>
-                        )}
-                        {p.correo && (
-                          <p className="text-gray-300 truncate">✉️ <a href={`mailto:${p.correo}`} className="hover:text-[#ff0003]">{p.correo}</a></p>
-                        )}
-                        {p.whatsapp && (
-                          <p className="text-green-400">💬 <a href={`https://wa.me/${p.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="hover:underline">WA: {p.whatsapp}</a></p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Enlace Permanente y Telemetría */}
-                    <div>
-                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-rosetta">Enlace & Telemetría</p>
-                      <div className="mt-0.5 flex items-center gap-1.5">
-                        <span className="font-mono text-xs text-[#00E5FF] truncate select-all">{p.slug}</span>
-                        <button
-                          onClick={() => { navigator.clipboard.writeText(fullUrl); alert('¡Enlace copiado!'); }}
-                          className="px-2 py-0.5 bg-white/10 hover:bg-white/20 text-[10px] font-rosetta rounded text-white"
-                          title="Copiar URL"
-                        >
-                          Copiar
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-gray-400 mt-1">
-                        👁️ Vistas: <span className="font-bold text-white">{p.views_count || 0}</span>
-                      </p>
-                    </div>
-
-                    {/* Etiquetas (Tags) */}
-                    <div>
-                      <p className="text-gray-400 text-[10px] uppercase tracking-wider font-rosetta">Etiquetas / Tags</p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {tagsArray.length > 0 ? (
-                          tagsArray.map(t => (
-                            <span key={t} className="px-2 py-0.5 bg-[#12121c] border border-gray-800 text-[10px] rounded-md font-mono text-gray-300">
-                              #{t}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-[10px] text-gray-500 italic">Sin etiquetas</span>
-                        )}
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* BARRA DE ACCIONES DE LA TARJETA */}
-                  <div className="pt-3 border-t border-gray-800/80 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <a
-                        href={fullUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-[#12121c] hover:bg-white/10 text-white rounded-lg text-xs font-rosetta border border-gray-800 flex items-center gap-1.5 transition-colors"
-                      >
-                        <span>🔗</span> Ver en Vivo
-                      </a>
-
-                      <button
-                        onClick={() => downloadProfileZip(p)}
-                        disabled={isZippingId === p.id}
-                        className="px-3 py-1.5 bg-[#ff0003]/10 hover:bg-[#ff0003] text-[#EE334E] hover:text-white font-bold rounded-lg text-xs font-rosetta border border-[#ff0003]/30 transition-all flex items-center gap-1.5"
-                      >
-                        {isZippingId === p.id ? (
-                          <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                        ) : (
-                          <span>📦</span>
-                        )}
-                        <span>Descargar .ZIP</span>
-                      </button>
-
-                      <button
-                        onClick={() => setEmailModalProfile(p)}
-                        className="px-3 py-1.5 bg-[#00E5FF]/10 hover:bg-[#00E5FF] text-[#00E5FF] hover:text-black font-bold rounded-lg text-xs font-rosetta border border-[#00E5FF]/30 transition-all flex items-center gap-1.5"
-                      >
-                        <span>✉️</span> Carta de Entrega
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setEditingProfile({ ...p })}
-                        className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-lg text-xs font-rosetta transition-colors flex items-center gap-1.5"
-                      >
-                        <span>✏️</span> Editar Completo
-                      </button>
-
-                      <button
-                        onClick={() => setDeleteModalProfile(p)}
-                        className="px-3 py-1.5 bg-red-950/40 hover:bg-red-900 text-red-300 font-bold rounded-lg text-xs font-rosetta border border-red-900/50 transition-colors flex items-center gap-1"
-                      >
-                        <span>🗑️</span> Borrar
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* MODAL DE EDICIÓN INTEGRAL (TODOS LOS CAMPOS DE CREACIÓN DE LA PLATAFORMA) */}
-      {editingProfile && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-[#ff0003]/50 w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-[0_0_50px_rgba(255,0,3,0.3)] flex flex-col overflow-hidden animate-scaleIn">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             
-            {/* Header Modal Edición */}
-            <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-2 text-[#ff0003]">
-                <span className="text-xl">✏️</span>
+            {/* DISTRIBUCIÓN DE PAQUETES */}
+            <div className="bg-[#0a0a10] border border-white/5 rounded-2xl p-6 lg:col-span-1">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><PackageOpen className="w-5 h-5 text-[#EE334E]" /> Clientes por Paquete</h3>
+              <div className="space-y-4">
                 <div>
-                  <h3 className="font-rosetta text-sm font-bold text-white">
-                    Editando Perfil: {editingProfile.empresa || 'Empresa'} • {editingProfile.nombre} {editingProfile.apellido}
-                  </h3>
-                  <p className="text-[10px] text-gray-400 font-mono">Slug: /p/{editingProfile.slug}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setEditingProfile(null)}
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center text-sm font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Formulario con TODOS los campos disponibles */}
-            <form onSubmit={handleSaveEdit} className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
-              
-              {/* SECCIÓN 1: DATOS PERSONALES & EMPRESA */}
-              <div className="space-y-3 bg-[#080810] p-4 rounded-xl border border-gray-800">
-                <h4 className="font-rosetta text-[#ff0003] text-xs uppercase flex items-center gap-1.5">
-                  <span>🏢</span> Datos Principales & Empresa
-                </h4>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Empresa (Fila 1)</label>
-                    <input
-                      type="text"
-                      value={editingProfile.empresa || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, empresa: e.target.value })}
-                      className="input-dark w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Puesto / Cargo</label>
-                    <input
-                      type="text"
-                      value={editingProfile.puesto || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, puesto: e.target.value })}
-                      className="input-dark w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Nombre</label>
-                    <input
-                      type="text"
-                      value={editingProfile.nombre || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, nombre: e.target.value })}
-                      className="input-dark w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Apellido</label>
-                    <input
-                      type="text"
-                      value={editingProfile.apellido || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, apellido: e.target.value })}
-                      className="input-dark w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Teléfono</label>
-                    <input
-                      type="tel"
-                      value={editingProfile.telefono || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, telefono: e.target.value })}
-                      className="input-dark w-full font-mono text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">WhatsApp</label>
-                    <input
-                      type="tel"
-                      value={editingProfile.whatsapp || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, whatsapp: e.target.value })}
-                      className="input-dark w-full font-mono text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Correo</label>
-                    <input
-                      type="email"
-                      value={editingProfile.correo || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, correo: e.target.value })}
-                      className="input-dark w-full font-mono text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Sitio Web</label>
-                  <input
-                    type="url"
-                    value={editingProfile.url || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, url: e.target.value })}
-                    className="input-dark w-full font-mono text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Bio / Nota / Propuesta de Valor</label>
-                  <textarea
-                    value={editingProfile.nota || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, nota: e.target.value })}
-                    className="input-dark w-full h-16 py-2"
-                  />
-                </div>
-              </div>
-
-              {/* SECCIÓN 2: REDES SOCIALES & MULTIMEDIA */}
-              <div className="space-y-3 bg-[#080810] p-4 rounded-xl border border-gray-800">
-                <h4 className="font-bruno text-[#00E5FF] text-xs uppercase flex items-center gap-1.5">
-                  <span>🌐</span> Redes Sociales & Video
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Facebook</label>
-                    <input
-                      type="text"
-                      value={editingProfile.facebook || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, facebook: e.target.value })}
-                      className="input-dark w-full font-mono text-xs"
-                      placeholder="usuario o url"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Instagram</label>
-                    <input
-                      type="text"
-                      value={editingProfile.instagram || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, instagram: e.target.value })}
-                      className="input-dark w-full font-mono text-xs"
-                      placeholder="usuario o url"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">LinkedIn</label>
-                    <input
-                      type="text"
-                      value={editingProfile.linkedin || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, linkedin: e.target.value })}
-                      className="input-dark w-full font-mono text-xs"
-                      placeholder="perfil o url"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Video YouTube</label>
-                  <input
-                    type="url"
-                    value={editingProfile.video_youtube_url || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, video_youtube_url: e.target.value })}
-                    className="input-dark w-full font-mono text-xs"
-                    placeholder="https://youtu.be/..."
-                  />
-                </div>
-              </div>
-
-              {/* SECCIÓN 3: DIRECCIÓN & MAPS */}
-              <div className="space-y-3 bg-[#080810] p-4 rounded-xl border border-gray-800">
-                <h4 className="font-bruno text-green-400 text-xs uppercase flex items-center gap-1.5">
-                  <span>📍</span> Ubicación & Google Maps
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    value={editingProfile.calle || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, calle: e.target.value })}
-                    placeholder="Calle y Número, Colonia"
-                    className="input-dark w-full"
-                  />
-                  <input
-                    type="text"
-                    value={editingProfile.ciudad || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, ciudad: e.target.value })}
-                    placeholder="Ciudad"
-                    className="input-dark w-full"
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <input
-                    type="text"
-                    value={editingProfile.estado || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, estado: e.target.value })}
-                    placeholder="Estado"
-                    className="input-dark w-full"
-                  />
-                  <input
-                    type="text"
-                    value={editingProfile.cp || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, cp: e.target.value })}
-                    placeholder="CP"
-                    className="input-dark w-full"
-                  />
-                  <input
-                    type="text"
-                    value={editingProfile.pais || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, pais: e.target.value })}
-                    placeholder="País"
-                    className="input-dark w-full"
-                  />
+                  <div className="flex justify-between text-sm mb-1"><span className="text-slate-300">Estudiante (Gratis)</span><span className="text-white font-bold">540</span></div>
+                  <div className="w-full bg-white/5 rounded-full h-2"><div className="bg-slate-500 h-2 rounded-full" style={{width: '45%'}}></div></div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">URL Personalizado de Google Maps (Opcional)</label>
-                  <input
-                    type="url"
-                    value={editingProfile.google_maps_url || ''}
-                    onChange={(e) => setEditingProfile({ ...editingProfile, google_maps_url: e.target.value })}
-                    className="input-dark w-full font-mono text-xs"
-                    placeholder="Dejar vacío para vincular automáticamente por empresa/ciudad"
-                  />
+                  <div className="flex justify-between text-sm mb-1"><span className="text-slate-300">Meet Me</span><span className="text-white font-bold">320</span></div>
+                  <div className="w-full bg-white/5 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full" style={{width: '30%'}}></div></div>
                 </div>
-              </div>
-
-              {/* SECCIÓN 4: BRANDING, TIPOGRAFÍAS, TEMAS Y ENCUADRES */}
-              <div className="space-y-3 bg-[#080810] p-4 rounded-xl border border-gray-800">
-                <h4 className="font-bruno text-purple-400 text-xs uppercase flex items-center gap-1.5">
-                  <span>🎨</span> Branding, Tipografías & Tema
-                </h4>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Tema */}
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Tema Estructural</label>
-                    <select
-                      value={editingProfile.theme || 'modern'}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, theme: e.target.value })}
-                      className="input-dark w-full"
-                    >
-                      <option value="classic" className="bg-[#090914]">1. Clásico Corporativo (Formal)</option>
-                      <option value="modern" className="bg-[#090914]">2. Cyber Modern Dark (Tecnología)</option>
-                      <option value="minimal" className="bg-[#090914]">3. Minimalista Ejecutivo (Clean)</option>
-                      <option value="glassmorphism" className="bg-[#090914]">4. Glassmorphism Frost (Vanguardia)</option>
-                      <option value="monolith" className="bg-[#090914]">5. Monolito Luxury VIP (High-End)</option>
-                      <option value="neobrutalism" className="bg-[#090914]">6. Neo-Brutalism Pop (Impacto)</option>
-                      <option value="split_hero" className="bg-[#090914]">7. Hero Asimétrico (Dinámico)</option>
-                      <option value="bento_grid" className="bg-[#090914]">8. Bento Grid Tech (Modular)</option>
-                      <option value="cyber_matrix" className="bg-[#090914]">9. Cyber Neon Matrix (Sci-Fi HUD)</option>
-                      <option value="editorial_swiss" className="bg-[#090914]">10. Suizo Editorial Clean (Modernist)</option>
-                    </select>
-                  </div>
-
-                  {/* Tipografía Primaria */}
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Tipografía Primaria (Nombre & CTA)</label>
-                    <select
-                      value={editingProfile.font_primary || editingProfile.font_family || 'Inter'}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, font_primary: e.target.value })}
-                      className="input-dark w-full"
-                    >
-                      {POPULAR_FONTS.map(f => (
-                        <option key={f.value} value={f.value} className="bg-[#090914]">{f.label}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Tipografía Secundaria */}
-                  <div>
-                    <label className="block text-[10px] font-bruno text-gray-400 mb-1 uppercase">Tipografía Secundaria (Cuerpo)</label>
-                    <select
-                      value={editingProfile.font_secondary || editingProfile.font_family || 'Inter'}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, font_secondary: e.target.value })}
-                      className="input-dark w-full"
-                    >
-                      {POPULAR_FONTS.map(f => (
-                        <option key={f.value} value={f.value} className="bg-[#090914]">{f.label}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1"><span className="text-slate-300">Profesional</span><span className="text-white font-bold">215</span></div>
+                  <div className="w-full bg-white/5 rounded-full h-2"><div className="bg-amber-500 h-2 rounded-full" style={{width: '20%'}}></div></div>
                 </div>
-
-                {/* 3 Colores del Cliente */}
-                <div className="grid grid-cols-3 gap-3 pt-1">
-                  <div>
-                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Color 1 (Primario)</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="color"
-                        value={editingProfile.color_primario || '#ff0003'}
-                        onChange={(e) => setEditingProfile({ ...editingProfile, color_primario: e.target.value })}
-                        className="w-7 h-7 rounded border-0 bg-transparent cursor-pointer"
-                      />
-                      <input
-                        type="text"
-                        value={editingProfile.color_primario || '#ff0003'}
-                        onChange={(e) => setEditingProfile({ ...editingProfile, color_primario: e.target.value })}
-                        className="input-dark w-full font-mono text-[11px] uppercase h-7 px-1.5"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Color 2 (Secundario)</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="color"
-                        value={editingProfile.color_secundario || '#00E5FF'}
-                        onChange={(e) => setEditingProfile({ ...editingProfile, color_secundario: e.target.value })}
-                        className="w-7 h-7 rounded border-0 bg-transparent cursor-pointer"
-                      />
-                      <input
-                        type="text"
-                        value={editingProfile.color_secundario || '#00E5FF'}
-                        onChange={(e) => setEditingProfile({ ...editingProfile, color_secundario: e.target.value })}
-                        className="input-dark w-full font-mono text-[11px] uppercase h-7 px-1.5"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Color 3 (CTA)</label>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="color"
-                        value={editingProfile.color_cta || '#ff0003'}
-                        onChange={(e) => setEditingProfile({ ...editingProfile, color_cta: e.target.value })}
-                        className="w-7 h-7 rounded border-0 bg-transparent cursor-pointer"
-                      />
-                      <input
-                        type="text"
-                        value={editingProfile.color_cta || '#ff0003'}
-                        onChange={(e) => setEditingProfile({ ...editingProfile, color_cta: e.target.value })}
-                        className="input-dark w-full font-mono text-[11px] uppercase h-7 px-1.5"
-                      />
-                    </div>
-                  </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1"><span className="text-slate-300">Empresa</span><span className="text-white font-bold">142</span></div>
+                  <div className="w-full bg-white/5 rounded-full h-2"><div className="bg-orange-500 h-2 rounded-full" style={{width: '15%'}}></div></div>
                 </div>
-
-                {/* Sliders de Logo y Portada */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                  <div>
-                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Escala Logo: {editingProfile.logo_scale || 100}px</label>
-                    <input
-                      type="range"
-                      min="50"
-                      max="160"
-                      value={editingProfile.logo_scale || 100}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, logo_scale: parseInt(e.target.value) })}
-                      className="w-full slider-rose"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Posición Banner Y: {editingProfile.cover_position_y || 50}%</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={editingProfile.cover_position_y || 50}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, cover_position_y: parseInt(e.target.value) })}
-                      className="w-full slider-rose"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1">Zoom Banner: {editingProfile.cover_zoom || 100}%</label>
-                    <input
-                      type="range"
-                      min="100"
-                      max="250"
-                      value={editingProfile.cover_zoom || 100}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, cover_zoom: parseInt(e.target.value) })}
-                      className="w-full slider-rose"
-                    />
-                  </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1"><span className="text-slate-300">Elite Business</span><span className="text-white font-bold">22</span></div>
+                  <div className="w-full bg-white/5 rounded-full h-2"><div className="bg-purple-500 h-2 rounded-full" style={{width: '5%'}}></div></div>
                 </div>
-              </div>
-
-              {/* SECCIÓN 5: ETIQUETAS & CONTROL ADMINISTRATIVO */}
-              <div className="space-y-3 bg-[#080810] p-4 rounded-xl border border-gray-800">
-                <h4 className="font-rosetta text-yellow-400 text-xs uppercase flex items-center gap-1.5">
-                  <span>🏷️</span> Etiquetas & Estado Administrativo
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1 uppercase">
-                      Etiquetas / Tags (Separadas por comas)
-                    </label>
-                    <input
-                      type="text"
-                      value={editingProfile.tags || ''}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, tags: e.target.value })}
-                      placeholder="VIP, Directivo, Ventas, Mexicali"
-                      className="input-dark w-full font-mono text-xs"
-                    />
-                    <p className="text-[10px] text-gray-500 mt-1">Facilitará encontrar este perfil entre miles de registros.</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-rosetta text-gray-400 mb-1 uppercase">Estado del Perfil</label>
-                    <select
-                      value={editingProfile.status || 'active'}
-                      onChange={(e) => setEditingProfile({ ...editingProfile, status: e.target.value })}
-                      className="input-dark w-full font-rosetta font-bold"
-                    >
-                      <option value="active" className="bg-[#090914] text-[#EE334E]">● Activo</option>
-                      <option value="validated" className="bg-[#090914] text-emerald-400">✓ Validado</option>
-                      <option value="pending" className="bg-[#090914] text-yellow-400">⏳ Pendiente</option>
-                      <option value="archived" className="bg-[#090914] text-gray-400">🛑 Archivado</option>
-                    </select>
-                  </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1"><span className="text-slate-300">Marca Blanca (Agencias)</span><span className="text-white font-bold">9</span></div>
+                  <div className="w-full bg-white/5 rounded-full h-2"><div className="bg-[#EE334E] h-2 rounded-full" style={{width: '3%'}}></div></div>
                 </div>
-              </div>
-
-              {/* Footer Modal Edición */}
-              <div className="pt-4 border-t border-gray-800 flex justify-end gap-3 sticky bottom-0 bg-[#0c0c16] py-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingProfile(null)}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-rosetta rounded-xl text-xs"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={editSaving}
-                  className="px-6 py-2 bg-[#ff0003] text-white font-rosetta font-bold rounded-xl text-xs hover:bg-[#EE334E] transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(255,0,3,0.3)]"
-                >
-                  {editSaving ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>GUARDANDO...</span>
-                    </>
-                  ) : (
-                    <span>💾 GUARDAR CAMBIOS EN CLOUD SQL</span>
-                  )}
-                </button>
-              </div>
-
-            </form>
-
-          </div>
-        </div>
-      )}
-
-      {/* MODAL PARA REENVIAR / VER CARTA OFICIAL DE ENTREGA */}
-      {emailModalProfile && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-[#00E5FF]/50 w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-[0_0_40px_rgba(0,229,255,0.25)] flex flex-col overflow-hidden animate-scaleIn">
-            
-            <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-2 text-[#00E5FF]">
-                <span>✉️</span>
-                <h3 className="font-rosetta text-sm font-bold text-white">
-                  Carta Oficial de Entrega: {emailModalProfile.empresa}
-                </h3>
-              </div>
-              <button
-                onClick={() => setEmailModalProfile(null)}
-                className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center text-sm font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-6 overflow-y-auto space-y-4 text-xs text-gray-300 font-sans leading-relaxed">
-              <div className="p-3 bg-black/60 border border-gray-800 rounded-xl font-mono text-[11px] space-y-1">
-                <p><span className="text-[#00E5FF] font-bold">Destinatario:</span> {emailModalProfile.correo || 'correo@cliente.com'}</p>
-                <p><span className="text-[#00E5FF] font-bold">Asunto:</span> {generateEmailText(emailModalProfile).subject}</p>
-              </div>
-
-              <textarea
-                readOnly
-                value={generateEmailText(emailModalProfile).body}
-                rows={15}
-                className="w-full bg-[#06060c] border border-gray-800 p-4 rounded-xl text-xs font-mono text-gray-200 focus:outline-none select-all"
-              />
-            </div>
-
-            <div className="p-4 bg-[#12121c] border-t border-gray-800 flex justify-end gap-3 items-center">
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(generateEmailText(emailModalProfile).body);
-                  alert('¡Carta de entrega copiada al portapapeles!');
-                }}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-rosetta rounded-xl transition-colors flex items-center gap-1.5"
-              >
-                <span>📋</span> Copiar al Portapapeles
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const { subject, body } = generateEmailText(emailModalProfile);
-                  window.location.href = `mailto:${encodeURIComponent(emailModalProfile.correo || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                  setEmailModalProfile(null);
-                }}
-                className="px-4 py-2 bg-[#00E5FF] text-black text-xs font-rosetta font-bold rounded-xl hover:bg-cyan-300 transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,229,255,0.3)]"
-              >
-                <span>✉️</span> Abrir en Cliente de Correo
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* MODAL DE CONFIRMACIÓN DE BORRADO */}
-      {deleteModalProfile && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-red-500/50 w-full max-w-md p-6 rounded-3xl shadow-[0_0_40px_rgba(239,68,68,0.3)] space-y-4 animate-scaleIn">
-            <div className="flex items-center gap-3 text-red-400">
-              <span className="text-3xl">⚠️</span>
-              <div>
-                <h3 className="font-rosetta text-sm font-bold text-white">¿Eliminar Perfil Permanentemente?</h3>
-                <p className="text-xs text-gray-400">Esta acción no se puede deshacer.</p>
               </div>
             </div>
 
-            <div className="p-3 bg-black/60 border border-gray-800 rounded-xl text-xs space-y-1">
-              <p className="text-white font-bold">{deleteModalProfile.nombre} {deleteModalProfile.apellido}</p>
-              <p className="text-[#ff0003] font-mono text-[11px]">{deleteModalProfile.empresa}</p>
-              <p className="text-gray-500 font-mono text-[10px]">Slug: /p/{deleteModalProfile.slug}</p>
-            </div>
-
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setDeleteModalProfile(null)}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-rosetta rounded-xl text-xs"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-rosetta font-bold rounded-xl text-xs transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)]"
-              >
-                Sí, Eliminar de Cloud SQL
-              </button>
+            {/* TICKETS DE SOPORTE Y SEGUIMIENTO */}
+            <div className="bg-[#0a0a10] border border-white/5 rounded-2xl p-6 lg:col-span-2">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2"><Ticket className="w-5 h-5 text-[#EE334E]" /> Seguimiento de Tickets</h3>
+                <button className="text-xs text-[#EE334E] hover:underline">Ver todos</button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/5 text-xs text-slate-500 uppercase tracking-wider">
+                      <th className="pb-3 font-medium">ID</th>
+                      <th className="pb-3 font-medium">Cliente</th>
+                      <th className="pb-3 font-medium">Problema</th>
+                      <th className="pb-3 font-medium">Prioridad</th>
+                      <th className="pb-3 font-medium">Estado</th>
+                      <th className="pb-3 font-medium text-right">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {TICKETS.map((t) => (
+                      <tr key={t.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors">
+                        <td className="py-4 font-mono text-slate-400">{t.id}</td>
+                        <td className="py-4 text-white font-medium">{t.user}</td>
+                        <td className="py-4 text-slate-300">{t.issue}</td>
+                        <td className="py-4">
+                          <span className={px-2 py-1 rounded-md text-[10px] font-bold uppercase  + (t.priority === 'High' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500')}>{t.priority}</span>
+                        </td>
+                        <td className="py-4">
+                          <span className="px-2 py-1 rounded-md text-[10px] font-bold uppercase bg-blue-500/10 text-blue-500">{t.status}</span>
+                        </td>
+                        <td className="py-4 text-right">
+                          <button className="text-slate-400 hover:text-white transition-colors">Gestionar</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
-      )}
 
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* FLUJO DE SUSCRIPCIONES (STRIPE) */}
+            <div className="bg-[#0a0a10] border border-white/5 rounded-2xl p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2"><CreditCard className="w-5 h-5 text-[#EE334E]" /> Suscripciones y Cancelaciones</h3>
+              </div>
+              <div className="space-y-4">
+                {SUBSCRIPTIONS.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between p-4 rounded-xl bg-black/40 border border-white/5">
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{s.user}</h4>
+                      <p className="text-xs text-slate-400">{s.plan} • {s.amount}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className={	ext-xs font-bold px-2 py-1 rounded-md uppercase  + (s.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400')}>{s.status}</span>
+                      <p className="text-[10px] text-slate-500 mt-1">{s.date}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* EVALUACIONES Y QUEJAS */}
+            <div className="bg-[#0a0a10] border border-white/5 rounded-2xl p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2"><MessageSquare className="w-5 h-5 text-[#EE334E]" /> Evaluaciones y Quejas</h3>
+              </div>
+              <div className="space-y-4">
+                {REVIEWS.map((r) => (
+                  <div key={r.id} className="p-4 rounded-xl bg-black/40 border border-white/5">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={	ext-[10px] px-2 py-0.5 rounded-full font-bold uppercase  + (r.type === 'Queja' ? 'bg-rose-500/20 text-rose-400' : r.type === 'Sugerencia' ? 'bg-blue-500/20 text-blue-400' : 'bg-emerald-500/20 text-emerald-400')}>{r.type}</span>
+                        <h4 className="text-xs font-bold text-white">{r.user}</h4>
+                      </div>
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(star => (
+                          <Star key={star} className={w-3 h-3  + (star <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-700')} />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-300 italic">"{r.text}"</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
     </div>
   );
 }
