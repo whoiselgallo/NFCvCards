@@ -19,7 +19,17 @@ export async function POST(request) {
     let lineItems = [];
     let mode = 'subscription';
 
-    if (planId === 'pro') {
+    if (planId === 'meetme') {
+      lineItems = [{
+        price_data: {
+          currency: 'mxn',
+          product_data: { name: 'Plan Meet Me (NFC Básica)' },
+          unit_amount: 5900, // $59.00
+          recurring: { interval: 'year' }
+        },
+        quantity: 1,
+      }];
+    } else if (planId === 'pro') {
       lineItems = [{
         price_data: {
           currency: 'mxn',
@@ -41,26 +51,39 @@ export async function POST(request) {
       }];
     } else if (planId === 'elite') {
       // Elite: $1299 (anual) y $299/mes a partir del 2º mes
-      // Truco: Cobramos $1299 hoy (one-time) y creamos una suscripción de $299 mensual con 30 días de prueba
       lineItems = [
         {
           price_data: {
             currency: 'mxn',
             product_data: { name: 'Activación Plan Elite (Pago Anual)' },
-            unit_amount: 129900, // One-time fee cobrado hoy
+            unit_amount: 129900, // One-time fee
           },
           quantity: 1,
         },
         {
           price_data: {
             currency: 'mxn',
-            product_data: { name: 'Mantenimiento Mensual (Iguala)' },
+            product_data: { name: 'Mantenimiento Mensual Elite' },
             unit_amount: 29900,
-            recurring: { interval: 'month' } // Recurrente
+            recurring: { interval: 'month' }
           },
           quantity: 1,
         }
       ];
+    } else if (planId === 'marcablanca') {
+      // Marca Blanca: $1499 Setup + mantenimiento. 
+      // Por simplicidad en Stripe, cobramos el Setup inicial y un mantenimiento anual o mensual
+      lineItems = [
+        {
+          price_data: {
+            currency: 'mxn',
+            product_data: { name: 'Setup Marca Blanca Agencias (Pago Único)' },
+            unit_amount: 149900, // One-time fee 1,499.00
+          },
+          quantity: 1,
+        }
+      ];
+      mode = 'payment'; // Es pago único de Setup
     } else {
       return NextResponse.json({ error: 'Plan inválido' }, { status: 400 });
     }
@@ -72,19 +95,23 @@ export async function POST(request) {
     const sessionParams = {
       payment_method_types: ['card'],
       line_items: lineItems,
-      mode: 'subscription',
-      customer_email: userEmail,
+      mode: mode,
       metadata: {
         plan_id: planId,
-        user_id: userId
+        user_id: userId || 'guest'
       },
       success_url: `${originUrl}/builder?payment=success&plan=${planId}`,
       cancel_url: `${originUrl}/#pricing`,
     };
 
+    // Solo agregar customer_email si es un correo válido (evitar error de string vacío en Stripe)
+    if (userEmail && userEmail.includes('@')) {
+      sessionParams.customer_email = userEmail;
+    }
+
     if (planId === 'elite') {
       sessionParams.subscription_data = {
-        trial_period_days: 30 // El primer pago de 299 se cobra en 30 días. El de 1299 (one-time) se cobra hoy.
+        trial_period_days: 30
       };
     }
 

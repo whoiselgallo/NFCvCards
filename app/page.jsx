@@ -31,7 +31,7 @@ export default function LandingPage() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId, userEmail: '' }) // Si está logueado, pasar email
+        body: JSON.stringify({ planId }) // Si está logueado, pasar email
       });
       const data = await res.json();
       if (data.url) {
@@ -474,7 +474,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <button onClick={() => handleCheckout('elite')} className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
-                Contactar Ventas
+                  Contratar Elite
               </button>
             </motion.div>
 
@@ -502,9 +502,9 @@ export default function LandingPage() {
                   *Mantenimiento Infraestructura GCP mensual.
                 </li>
               </ul>
-              <Link href="/terminos" className="block text-center w-full py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white/10 transition-colors">
-                Ver Detalles
-              </Link>
+              <button onClick={() => handleCheckout('marcablanca')} className="w-full text-center w-full py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white/10 transition-colors">
+                Contratar Marca Blanca
+                </button>
             </motion.div>
           </div>
           </motion.div>
