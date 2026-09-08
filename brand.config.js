@@ -33,10 +33,10 @@ const brandConfig = {
   
   // Archivos de Medios y Favicons (Logotipo Oficial Neo-Rose)
   assets: {
-    logo: '/brand/logo.png',
-    icon: '/icon.png',
-    favicon: '/favicon.png',
-    appleIcon: '/apple-icon.png'
+    logo: '/roselogo_120x120.png',
+    icon: '/roselogo_120x120.png',
+    favicon: '/roselogo_120x120.png',
+    appleIcon: '/roselogo_120x120.png'
   },
 
   // Configuración de Paleta de Colores Oficial (Figma Design Tokens)
