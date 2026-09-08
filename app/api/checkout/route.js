@@ -22,9 +22,9 @@ export async function POST(request) {
     if (planId === 'meetme') {
       lineItems = [{
         price_data: {
-          currency: 'mxn',
+          currency: 'usd',
           product_data: { name: 'Plan Meet Me (NFC Básica)' },
-          unit_amount: 5900, // $59.00
+          unit_amount: 4900, // $59.00
           recurring: { interval: 'year' }
         },
         quantity: 1,
@@ -32,7 +32,7 @@ export async function POST(request) {
     } else if (planId === 'pro') {
       lineItems = [{
         price_data: {
-          currency: 'mxn',
+          currency: 'usd',
           product_data: { name: 'Plan Profesional (1 Año)' },
           unit_amount: 19900, // 199.00
           recurring: { interval: 'year' }
@@ -42,7 +42,7 @@ export async function POST(request) {
     } else if (planId === 'business') {
       lineItems = [{
         price_data: {
-          currency: 'mxn',
+          currency: 'usd',
           product_data: { name: 'Plan Empresa Business (1 Año)' },
           unit_amount: 24900,
           recurring: { interval: 'year' }
@@ -54,15 +54,15 @@ export async function POST(request) {
       lineItems = [
         {
           price_data: {
-            currency: 'mxn',
+            currency: 'usd',
             product_data: { name: 'Activación Plan Elite (Pago Anual)' },
-            unit_amount: 129900, // One-time fee
+            unit_amount: 59900, // One-time fee
           },
           quantity: 1,
         },
         {
           price_data: {
-            currency: 'mxn',
+            currency: 'usd',
             product_data: { name: 'Mantenimiento Mensual Elite' },
             unit_amount: 29900,
             recurring: { interval: 'month' }
@@ -76,7 +76,7 @@ export async function POST(request) {
       lineItems = [
         {
           price_data: {
-            currency: 'mxn',
+            currency: 'usd',
             product_data: { name: 'Setup Marca Blanca Agencias (Pago Único)' },
             unit_amount: 149900, // One-time fee 1,499.00
           },

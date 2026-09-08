@@ -366,7 +366,7 @@ export default function LandingPage() {
             <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-[#EE334E]/50 transition-colors group">
               <h3 className="text-xl font-bold text-white mb-2">Meet Me</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">$49</span>
+                <span className="text-4xl font-extrabold text-white">$49</span><span className="text-slate-400 ml-1 text-sm">USD</span>
                 <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
@@ -389,13 +389,17 @@ export default function LandingPage() {
               <button onClick={() => handleCheckout('meetme')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
                 Obtener Meet Me
               </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
 
             {/* 3. PROFESIONAL */}
             <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-[#EE334E]/50 transition-colors group">
               <h3 className="text-xl font-bold text-white mb-2">Profesional</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">$199</span>
+                <span className="text-4xl font-extrabold text-white">$199</span><span className="text-slate-400 ml-1 text-sm">USD</span>
                 <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
@@ -415,6 +419,10 @@ export default function LandingPage() {
               <button onClick={() => handleCheckout('pro')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
                 Contratar Pro
               </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
 
             {/* 4. EMPRESA */}
@@ -424,7 +432,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Empresa</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">$249</span>
+                <span className="text-4xl font-extrabold text-white">$249</span><span className="text-slate-400 ml-1 text-sm">USD</span>
                 <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
@@ -447,13 +455,17 @@ export default function LandingPage() {
               <button onClick={() => handleCheckout('business')} className="w-full py-3 rounded-xl bg-[#EE334E] text-white font-bold hover:bg-[#ff0003] transition-colors shadow-lg">
                 Contratar Empresa
               </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
 
             {/* 5. ELITE BUSINESS */}
             <motion.div variants={fadeIn} className="bg-gradient-to-b from-[#1a1525] to-[#0a0a10] border border-purple-500/30 rounded-3xl p-8 flex flex-col hover:border-purple-500/60 transition-colors group">
               <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-[#EE334E] mb-2">Elite Business</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">$599</span>
+                <span className="text-4xl font-extrabold text-white">$599</span><span className="text-slate-400 ml-1 text-sm">USD</span>
                 <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
@@ -476,13 +488,17 @@ export default function LandingPage() {
               <button onClick={() => handleCheckout('elite')} className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
                   Contratar Elite
               </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
 
             {/* 6. MARCA BLANCA */}
             <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-white/30 transition-colors group">
               <h3 className="text-xl font-bold text-white mb-2">Marca Blanca</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">$1,499</span>
+                <span className="text-4xl font-extrabold text-white">$1,499</span><span className="text-slate-400 ml-1 text-sm">USD</span>
                 <span className="text-slate-400 ml-1">Setup</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
@@ -505,6 +521,10 @@ export default function LandingPage() {
               <button onClick={() => handleCheckout('marcablanca')} className="w-full text-center w-full py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white/10 transition-colors">
                 Contratar Marca Blanca
                 </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
           </div>
           </motion.div>
