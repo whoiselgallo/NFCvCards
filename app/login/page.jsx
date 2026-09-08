@@ -31,7 +31,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             <button 
               type="button" 
-              onClick={() => signIn('google', { callbackUrl: '/builder' })} 
+              onClick={() => signIn('google', { callbackUrl: '/dashboard' })} 
               className="w-full relative overflow-hidden group flex items-center justify-center gap-3 py-4 bg-black/40 hover:bg-[#ff0003]/10 border border-white/10 hover:border-[#ff0003]/50 rounded-xl transition-all duration-300 shadow-[0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_0_20px_rgba(255,0,3,0.3)]"
             >
               <style jsx>{`

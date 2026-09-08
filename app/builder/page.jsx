@@ -191,9 +191,26 @@ export default function VCardEngineDashboard() {
 
 
   // Determinar el plan del usuario
+  
   const userPlan = session?.user?.plan_id || 'free';
-  const isPremium = userPlan === 'business' || userPlan === 'elite';
-  const isPro = userPlan === 'pro' || isPremium;
+  
+  const getTier = (plan) => {
+    switch(plan) {
+      case 'student':
+      case 'meetme': return 1;
+      case 'pro': return 2;
+      case 'business': return 3;
+      case 'elite':
+      case 'marcablanca': return 4;
+      default: return 0;
+    }
+  };
+  
+  const tier = getTier(userPlan);
+  const isPremium = tier >= 3;
+  const isPro = tier >= 2;
+  const isBasic = tier >= 1;
+
 
   // Datos del Formulario - LIMPIOS POR DEFECTO
   const [formData, setFormData] = useState({
@@ -1329,7 +1346,7 @@ Beneficiario: TSolutions" />
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                       {Object.values(THEMES).map((th, index) => {
-                        const isLocked = (!isPro && index >= 2) || (!isPremium && index >= 5);
+                        const isLocked = tier < 1 && index >= 2; // Tier 1+ has all themes unlocked
                         
                         return (
                           <button
@@ -1588,7 +1605,7 @@ Beneficiario: TSolutions" />
                       ) : (
                         <>
                           <span>{isPaid || unlockedItems.bundle ? '📦' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.bundle ? 'DESCARGAR PAQUETE COMPLETO (.ZIP)' : 'COMPRAR PAQUETE COMPLETO ($199 MXN)'}</span>
+                          <span>'DESCARGAR PAQUETE COMPLETO (.ZIP)'</span>
                         </>
                       )}
                     </button>
@@ -1628,7 +1645,7 @@ Beneficiario: TSolutions" />
                           className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
                         >
                           <span>{isPaid || unlockedItems.qr || unlockedItems.bundle ? '⬇' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.qr || unlockedItems.bundle ? 'Descargar QR (.PNG)' : 'Comprar QR ($69 MXN)'}</span>
+                          <span>'Descargar QR (.PNG)'</span>
                         </button>
                       </div>
 
@@ -1655,7 +1672,7 @@ Beneficiario: TSolutions" />
                           className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
                         >
                           <span>{isPaid || unlockedItems.vcf || unlockedItems.bundle ? '💾' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.vcf || unlockedItems.bundle ? 'Descargar .VCF' : 'Comprar .VCF ($69 MXN)'}</span>
+                          <span>'Descargar .VCF'</span>
                         </button>
                       </div>
 
