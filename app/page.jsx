@@ -127,7 +127,7 @@ export default function LandingPage() {
           
           <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight text-center" style={{ fontFamily: 'Plaster, sans-serif', fontWeight: 400 }}>
             Transforma tu primer
-            <div className="block w-full h-[80px] md:h-[120px] relative my-4 text-[#EE334E] text-6xl md:text-8xl flex items-center justify-center">
+            <div className="block w-full h-[80px] md:h-[120px] relative my-4 text-[#EE334E] text-[11vw] sm:text-6xl md:text-8xl flex items-center justify-center">
               <AnimatePresence mode="popLayout">
                 <motion.span
                   key={wordIndex}
@@ -334,12 +334,15 @@ export default function LandingPage() {
           viewport={{ once: true, margin: "-50px" }}
           variants={staggerContainer}
         >
-          <motion.div variants={fadeIn} className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Planes y Paquetes</h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">Elige el paquete que mejor se adapte al volumen de tu equipo o tu modelo de agencia. Todos incluyen soporte de clase mundial.</p>
-          </motion.div>
+                      <motion.div variants={fadeIn} className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Planes y Paquetes</h2>
+              <p className="text-slate-400 max-w-2xl mx-auto mb-4">Elige el paquete que mejor se adapte al volumen de tu equipo o tu modelo de agencia.</p>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg text-sm font-semibold">
+                <ShieldCheck className="w-4 h-4" /> Sin letras chiquitas. Sin cargos ocultos. Transparencia total garantizada.
+              </div>
+            </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {/* 1. ESTUDIANTE */}
             <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-slate-500 transition-colors group">
@@ -348,20 +351,52 @@ export default function LandingPage() {
                 <span className="text-4xl font-extrabold text-white">Gratis</span>
               </div>
               <p className="text-xs text-[#EE334E] font-semibold mb-6 pb-6 border-b border-white/10">
-                *Requiere correo educativo (.edu) activo de cualquier parte del mundo.
+                *Requiere correo educativo (.edu) activo.
               </p>
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Tarjeta digital básica
+                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> 1 Tarjeta digital básica
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Uso estrictamente académico
+                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> 2 Temas básicos
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-slate-500 shrink-0" /> Tarjeta física desde $15 USD
                 </li>
               </ul>
               <Link href="/login" className="block text-center w-full py-3 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors">Solicitar Acceso</Link>
             </motion.div>
 
-            {/* 2. PROFESIONAL */}
+            {/* 2. MEET ME */}
+            <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-[#EE334E]/50 transition-colors group">
+              <h3 className="text-xl font-bold text-white mb-2">Meet Me</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-extrabold text-white">$49</span>
+                <span className="text-slate-400 ml-1">/año</span>
+              </div>
+              <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
+                Tarjeta súper premium para el usuario individual.
+              </p>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> 1 Tarjeta Premium
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>Todos los Temas</strong> desbloqueados
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Tarjeta física y sticker gratis
+                </li>
+                <li className="flex items-start gap-3 text-xs text-slate-400">
+                  *Ajustes de datos: $15 USD por revisión.
+                </li>
+              </ul>
+              <button onClick={() => handleCheckout('meetme')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
+                Obtener Meet Me
+              </button>
+            </motion.div>
+
+            {/* 3. PROFESIONAL */}
             <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-[#EE334E]/50 transition-colors group">
               <h3 className="text-xl font-bold text-white mb-2">Profesional</h3>
               <div className="mb-6">
@@ -369,26 +404,26 @@ export default function LandingPage() {
                 <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
-                Ideal para freelancers, consultores y pequeños equipos.
+                Ideal para freelancers y pequeños equipos.
               </p>
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>15 Tarjetas</strong> de presentación
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
                   <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>5 Temas</strong> abiertos
                 </li>
-                <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Hasta <strong>15 Tarjetas</strong> de presentación
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Soporte estándar
+                <li className="flex items-start gap-3 text-xs text-slate-400">
+                  *Ajustes de datos: $12 USD por revisión.
                 </li>
               </ul>
-              <button onClick={() => handleCheckout('pro')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] group-hover:text-white transition-all">
+              <button onClick={() => handleCheckout('pro')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
                 Contratar Pro
               </button>
             </motion.div>
 
-            {/* 3. EMPRESA */}
-            <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-[#EE334E]/50 rounded-3xl p-8 flex flex-col relative shadow-[0_0_30px_rgba(238,51,78,0.15)] transform md:-translate-y-4">
+            {/* 4. EMPRESA */}
+            <motion.div variants={fadeIn} className="bg-gradient-to-b from-[#1a1114] to-[#0a0a10] border border-[#EE334E]/30 rounded-3xl p-8 flex flex-col hover:border-[#EE334E]/60 transition-colors group relative">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#EE334E] text-white text-xs font-bold px-4 py-1 rounded-full">
                 MÁS POPULAR
               </div>
@@ -398,20 +433,20 @@ export default function LandingPage() {
                 <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
-                Para corporativos en crecimiento con equipos de ventas estructurados.
+                Corporativos con equipos estructurados.
               </p>
               <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>10 Temas</strong> estáticos
-                </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
                   <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>25 Tarjetas</strong> disponibles
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>Consulta de Datos</strong> en el Admin
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>10 Temas</strong> estáticos
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> Soporte Premium
+                  <CheckCircle2 className="w-5 h-5 text-[#EE334E] shrink-0" /> <strong>Consulta de Datos</strong> en el Admin
+                </li>
+                <li className="flex items-start gap-3 text-xs text-slate-400">
+                  *Ajustes de datos: $10 USD por revisión.
                 </li>
               </ul>
               <button onClick={() => handleCheckout('business')} className="w-full py-3 rounded-xl bg-[#EE334E] text-white font-bold hover:bg-[#ff0003] transition-colors shadow-lg">
@@ -419,29 +454,28 @@ export default function LandingPage() {
               </button>
             </motion.div>
 
-            {/* 4. ELITE BUSINESS PLUS */}
+            {/* 5. ELITE BUSINESS */}
             <motion.div variants={fadeIn} className="bg-gradient-to-b from-[#1a1525] to-[#0a0a10] border border-purple-500/30 rounded-3xl p-8 flex flex-col hover:border-purple-500/60 transition-colors group">
-              <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-[#EE334E] mb-2">Elite Plus</h3>
+              <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-[#EE334E] mb-2">Elite Business</h3>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-white">$1,299</span>
-                <span className="text-slate-400 ml-1">/1er año</span>
-                <p className="text-xs text-purple-400 mt-2 font-semibold">+ iguala de $299/mes a partir del 2º mes</p>
+                <span className="text-4xl font-extrabold text-white">$599</span>
+                <span className="text-slate-400 ml-1">/año</span>
               </div>
               <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
-                Control absoluto, expansión sin límites y máxima personalización.
+                Expansión sin límites y máxima personalización.
               </p>
               <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> <strong>Todo lo anterior</strong>
-                </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
                   <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> <strong>50 Tarjetas</strong> libres
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> <strong>Acceso Total</strong> al Panel
+                  <CheckCircle2 className="w-5 h-5 text-purple-400 shrink-0" /> <strong>Acceso Total</strong> al Panel Admin
                 </li>
                 <li className="flex items-start gap-3 text-sm text-slate-300">
-                  <Layers className="w-5 h-5 text-purple-400 shrink-0" /> Editor Libre <strong>(Módulo de Diseño)</strong>
+                  <Layers className="w-5 h-5 text-purple-400 shrink-0" /> Editor Libre (Desbloqueo de Layout)
+                </li>
+                <li className="flex items-start gap-3 text-xs text-slate-400">
+                  *Ajustes de datos: $8 USD por revisión.
                 </li>
               </ul>
               <button onClick={() => handleCheckout('elite')} className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
@@ -449,11 +483,67 @@ export default function LandingPage() {
               </button>
             </motion.div>
 
+            {/* 6. MARCA BLANCA */}
+            <motion.div variants={fadeIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl p-8 flex flex-col hover:border-white/30 transition-colors group">
+              <h3 className="text-xl font-bold text-white mb-2">Marca Blanca</h3>
+              <div className="mb-6">
+                <span className="text-4xl font-extrabold text-white">$1,499</span>
+                <span className="text-slate-400 ml-1">Setup</span>
+              </div>
+              <p className="text-xs text-slate-400 mb-6 pb-6 border-b border-white/10">
+                Para Agencias. Tu propia plataforma y dominio.
+              </p>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-white shrink-0" /> Creación de Tarjetas Ilimitada
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-white shrink-0" /> Identidad y Dominio Propio
+                </li>
+                <li className="flex items-start gap-3 text-sm text-slate-300">
+                  <CheckCircle2 className="w-5 h-5 text-white shrink-0" /> Código Fuente Descargable
+                </li>
+                <li className="flex items-start gap-3 text-xs text-slate-400">
+                  *Mantenimiento Infraestructura GCP mensual.
+                </li>
+              </ul>
+              <Link href="/terminos" className="block text-center w-full py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white/10 transition-colors">
+                Ver Detalles
+              </Link>
+            </motion.div>
           </div>
-        </motion.div>
-      </section>
+          </motion.div>
+        </section>
 
-      {/* FOOTER */}
+              {/* FAQ SECTION */}
+        <section className="py-24 bg-black/60 border-t border-white/5 relative z-10">
+          <div className="max-w-4xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Preguntas Frecuentes</h2>
+              <p className="text-slate-400">Todo lo que necesitas saber, con total transparencia.</p>
+            </div>
+            <div className="space-y-4">
+              
+              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-2">¿Cómo funciona la descarga en Smart Watch?</h3>
+                <p className="text-slate-400 text-sm">Tu tarjeta digital genera automáticamente un Código QR dinámico de alto contraste optimizado para pantallas pequeñas. Puedes descargar este QR a la galería de tu Apple Watch, Wear OS o cualquier Smart Watch, permitiendo que compartas tu perfil girando la muñeca, sin necesidad de sacar tu teléfono.</p>
+              </div>
+
+              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-2">¿Existen cuotas o letras chiquitas ocultas?</h3>
+                <p className="text-slate-400 text-sm">Absolutamente no. La transparencia es nuestro estandarte. El costo anual que pagas cubre estrictamente el mantenimiento de tus datos en servidores de Google Cloud, garantizando cargas ultrarrápidas y que tu tarjeta jamás se caerá. Si deseas actualizar tus datos (cambiar tu número, correo, etc.), se aplica un costo de revisión transparente y predecible detallado en nuestros <Link href="/terminos" className="text-[#EE334E] hover:underline">Términos y Condiciones</Link>.</p>
+              </div>
+
+              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-2">¿Qué obtengo físicamente al comprar un paquete?</h3>
+                <p className="text-slate-400 text-sm">Todos los paquetes de pago incluyen gratis una (1) Tarjeta Física Inteligente de PVC y un (1) Sticker NFC para el celular con nuestra identidad visual. Si prefieres un diseño con tu propio logotipo corporativo, puedes solicitar la manufactura personalizada en PVC Blanco, Negro o Bamboo por  USD adicionales.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* FOOTER */}
       <footer className="py-12 border-t border-white/5 bg-[#030308] text-center relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-center gap-2 mb-6">
