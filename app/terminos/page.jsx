@@ -83,17 +83,31 @@ export default function TerminosPage() {
           </p>
         </section>
 
-        <section className="space-y-4">
+                <section className="space-y-4">
           <h2 className="text-2xl font-bold text-white text-[#EE334E]">6. Hardware y Entregables Físicos</h2>
           <p>
-            Como parte de nuestro compromiso de networking híbrido, <strong>todos nuestros paquetes incluyen los siguientes entregables físicos</strong> sin costo base:
+            Como parte de nuestro compromiso de networking híbrido, los paquetes de pago (a partir del plan "Meet Me") incluyen los siguientes entregables físicos <strong>sin costo base</strong>:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-slate-400">
             <li>Una (1) Tarjeta Física Inteligente de PVC con tecnología NFC.</li>
             <li>Un (1) Sticker / Chip NFC para adherir al reverso del dispositivo móvil.</li>
           </ul>
-          <p>
-            <em>Nota sobre el diseño:</em> Estos dispositivos físicos se entregan por defecto con la marca y logotipos de Rose VCards. <strong>Si el cliente desea un chip o tarjeta física 100% personalizados</strong> con su propio logotipo o diseño corporativo, este servicio de manufactura está disponible por un costo adicional.
+          
+          <h3 className="font-bold text-white mt-4">Excepción para Paquete Estudiante:</h3>
+          <p className="text-sm text-slate-400">
+            El paquete Estudiante (Gratuito) <strong>no incluye</strong> el hardware físico gratuito. Sin embargo, los estudiantes tienen acceso a un costo preferencial de <strong>$15 USD</strong> para adquirir su tarjeta base y sticker con la marca Rose VCards. Los estudiantes no son elegibles para el servicio de personalización visual; deben escalar como mínimo al plan "Meet Me" para habilitar esta opción.
+          </p>
+
+          <h3 className="font-bold text-white mt-4">Personalización y Materiales Premium:</h3>
+          <p className="text-sm text-slate-400">
+            Los dispositivos físicos gratuitos o base se entregan por defecto con la identidad visual de Rose VCards. Si el cliente desea un chip o tarjeta física 100% personalizados con su logotipo o diseño corporativo, el <strong>costo de personalización es de $35 USD</strong>. 
+            <br/><br/>
+            Las opciones de manufactura para hardware personalizado incluyen:
+            <ul className="list-disc pl-6 mt-2">
+              <li>PVC Blanco (Estándar para personalización)</li>
+              <li>PVC Negro Mate (Opción de Alto Contraste)</li>
+              <li>Bamboo Premium (Ecológico y Ejecutivo)</li>
+            </ul>
           </p>
         </section>
 
