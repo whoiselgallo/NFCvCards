@@ -1,127 +1,68 @@
 import React from 'react';
-import Link from 'next/link';
-import { ArrowLeft, FileText } from 'lucide-react';
+import brandConfig from '../../brand.config';
 
 export default function TerminosPage() {
   return (
-    <div className="min-h-screen bg-[#05050D] text-slate-300 font-sans selection:bg-[#EE334E] selection:text-white pb-20">
-      {/* Header Fijo Minimalista */}
-      <nav className="sticky top-0 z-50 bg-[#05050D]/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Volver al Inicio
-          </Link>
-          <div className="flex items-center gap-2 text-[#EE334E]">
-            <FileText className="w-5 h-5" />
-            <span className="font-bold text-white tracking-tight">Rose VCards</span>
-          </div>
+    <div className="min-h-screen bg-[#05050A] text-slate-300 py-16 px-6 sm:px-12 lg:px-24 font-sans">
+      <div className="max-w-4xl mx-auto bg-[#0A0A10] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+        {/* Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-rose-600/10 rounded-full blur-[80px] pointer-events-none" />
+        
+        <h1 className="text-3xl md:text-5xl font-bruno text-white mb-6 relative z-10">Términos y Condiciones de Uso</h1>
+        <p className="text-sm text-slate-500 mb-10 border-b border-white/10 pb-6 relative z-10">
+          Última actualización: {new Date().toLocaleDateString('es-MX')}
+        </p>
+
+        <div className="space-y-8 text-sm leading-relaxed relative z-10">
+          <section>
+            <h2 className="text-xl font-bold text-white mb-3 tracking-wide">1. Aceptación de los Términos</h2>
+            <p>
+              Al acceder, navegar o utilizar la plataforma <strong>{brandConfig.brandName}</strong> (propiedad de {brandConfig.companyName}), el usuario acepta estar legalmente vinculado por estos Términos y Condiciones. Si no está de acuerdo con alguno de los términos, deberá abstenerse de utilizar nuestros servicios de VCard y tecnología NFC.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-white mb-3 tracking-wide">2. Uso de la Tecnología NFC y VCards</h2>
+            <p>
+              Nuestra plataforma permite la creación, gestión y alojamiento de perfiles digitales (VCards) vinculados a tarjetas físicas NFC. El usuario es el único responsable de la veracidad y legalidad de la información introducida en su perfil digital. <strong>{brandConfig.brandName}</strong> se reserva el derecho de suspender perfiles que contengan contenido ilícito, fraudulento o que vulnere derechos de terceros.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-white mb-3 tracking-wide">3. Seguridad de Cuentas y Autenticación</h2>
+            <p>
+              La plataforma utiliza protocolos de autenticación seguros (incluyendo OAuth a través de Google). Usted es responsable de mantener la confidencialidad de sus credenciales. Toda actividad realizada bajo su cuenta será su responsabilidad. Contamos con cifrado SSL/TLS de extremo a extremo para garantizar que la transición de sus datos sea segura.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-white mb-3 tracking-wide">4. Pagos y Suscripciones</h2>
+            <p>
+              Los servicios premium o adquisición de tarjetas físicas se procesan a través de pasarelas de pago certificadas y robustas. <strong>No almacenamos los datos sensibles de sus tarjetas de crédito o débito</strong> en nuestros servidores. Todo proceso de cobro se rige por los términos de la pasarela de pago seleccionada por el usuario.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-white mb-3 tracking-wide">5. Limitación de Responsabilidad</h2>
+            <p>
+              <strong>{brandConfig.companyName}</strong> no será responsable por interrupciones del servicio derivadas de mantenimientos programados, fallas en los proveedores de nube (ej. Google Cloud, Vercel) o eventos de fuerza mayor. El usuario acepta utilizar la tecnología NFC bajo su propio riesgo, asumiendo que los dispositivos receptores (teléfonos de terceros) deben ser compatibles con lectura NFC o códigos QR.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-white mb-3 tracking-wide">6. Modificaciones a los Términos</h2>
+            <p>
+              Nos reservamos el derecho de modificar estos Términos y Condiciones en cualquier momento. Los cambios sustanciales serán notificados a través del correo electrónico registrado o mediante un aviso destacado en nuestra plataforma.
+            </p>
+          </section>
         </div>
-      </nav>
 
-      {/* Contenido Principal */}
-      <main className="max-w-3xl mx-auto px-6 mt-12 space-y-8">
-        <header className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">Términos y Condiciones</h1>
-          <p className="text-slate-400">Última actualización: Septiembre 2026</p>
-        </header>
-
-                <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white text-[#EE334E]">1. Política de Propiedad Intelectual</h2>
-          <p>
-            El código fuente, bases de datos, algoritmos, y arquitectura de servidor (alojados en Google Cloud) son propiedad intelectual exclusiva de <strong>TSolutions</strong> y <strong>Rose VCards</strong>. 
-            El pago de cualquier suscripción, incluyendo el paquete Elite (Marca Blanca), no transfiere la propiedad ni los derechos de autor de la plataforma subyacente, sino que otorga una <strong>Licencia de Uso y Comercialización</strong>.
+        <div className="mt-12 pt-8 border-t border-white/10 text-center">
+          <p className="text-slate-500 text-xs">
+            Si tiene dudas sobre estos términos, contacte a <a href={`mailto:${brandConfig.supportEmail}`} className="text-rose-500 hover:underline">{brandConfig.supportEmail}</a>
           </p>
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">2. Contrato de Servicios por Paquete</h2>
-          <div className="space-y-4 pl-4 border-l-2 border-white/10">
-            <div>
-              <h3 className="font-bold text-white">Paquete Estudiante (Gratuito)</h3>
-              <p className="text-sm text-slate-400">Licencia personal, intransferible. Requiere validación de correo .edu. TSolutions se reserva el derecho de auditar y dar de baja cuentas inactivas tras 6 meses.</p>
-            </div>
-            <div>
-              <h3 className="font-bold text-white">Paquetes Profesional y Empresa</h3>
-              <p className="text-sm text-slate-400">Licencia comercial. Incluye acceso a plantillas limitadas según el plan. SLA de soporte: 48 horas laborables. Alojamiento incluido en los servidores compartidos de Rose VCards.</p>
-            </div>
-          </div>
-        </section>
-
-                <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white text-[#EE334E]">3. Política de Revisiones y Actualización de Datos</h2>
-          <p>
-            Para garantizar la integridad y seguridad de la información alojada, las modificaciones a los datos de las tarjetas (actualización de puesto, teléfonos, correos, etc.) están sujetas a la siguiente política de revisión y ajuste por evento:
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-slate-400">
-            <li><strong>Estudiante (Gratuito):</strong> Limitado a 2 revisiones y ajustes de datos gratuitos por año.</li>
-            <li><strong>Meet Me (Conóceme):</strong> Ajustes y modificaciones ilimitadas con un costo de $15 USD por evento de revisión.</li>
-            <li><strong>Profesional:</strong> Ajustes y modificaciones ilimitadas con un costo de $12 USD por evento de revisión.</li>
-            <li><strong>Empresa (Business):</strong> Ajustes y modificaciones ilimitadas con un costo de $10 USD por evento de revisión.</li>
-            <li><strong>Elite Business:</strong> Ajustes y modificaciones ilimitadas con un costo de $8 USD por evento de revisión.</li>
-            <li><strong>Business Agent (Marca Blanca):</strong> Revisiones y ajustes independientes; el agente administra su propia base de datos de usuarios (orquestada bajo la infraestructura de TSolutions) y define sus propias políticas de revisión para sus clientes finales.</li>
-          </ul>
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">4. Contrato de Licencia "Marca Blanca" (Elite Plus)</h2>
-          <p className="mb-2">El licenciatario (agencias, startups o empresas) acepta los siguientes términos ineludibles al descargar y operar la plataforma Marca Blanca:</p>
-          <ul className="list-disc pl-6 space-y-2 text-slate-400">
-            <li><strong>Creación Ilimitada:</strong> El licenciatario tiene la facultad de vender y crear perfiles de tarjetas digitales sin límite de cantidad para sus propios clientes.</li>
-            <li><strong>Personalización de Identidad:</strong> Se permite alterar el código frontend (interfaz, logos, nombre) proporcionado en el paquete instalador para alinearlo con su marca.</li>
-            <li><strong>Infraestructura Obligatoria (Google Cloud):</strong> Para garantizar la estabilidad tecnológica y cumplir la promesa de valor, el licenciatario <strong>está forzado a utilizar la infraestructura central de TSolutions</strong>.</li>
-            <li><strong>Cuota Mensual por Tarjeta:</strong> El licenciatario deberá pagar a TSolutions una mensualidad por concepto de "mantenimiento y almacenamiento en servidores" <strong>por cada tarjeta generada</strong>. El impago de estas cuotas resultará en la desactivación remota de los perfiles.</li>
-          </ul>
-        </section>
-
-                <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">5. Suscripciones, Pagos e Infraestructura</h2>
-          <p>
-            El cobro anual de las suscripciones está destinado exclusivamente al costo de la infraestructura de servidores (Google Cloud) donde se almacena su información. Este pago garantiza una disponibilidad total y asegura una <strong>carga ultra-rápida de su tarjeta</strong> al entrar en contacto con el chip NFC o escanear el código QR. Garantizamos que el tiempo de respuesta será inmediato y la carga de su perfil nunca fallará.
-          </p>
-          <p>
-            Los pagos se procesan mediante Stripe. La cancelación de la suscripción base detendrá el servicio inmediatamente al final del ciclo de facturación actual. <strong>No se emiten reembolsos por meses parciales</strong>.
-          </p>
-        </section>
-
-                <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white text-[#EE334E]">6. Hardware y Entregables Físicos</h2>
-          <p>
-            Como parte de nuestro compromiso de networking híbrido, los paquetes de pago (a partir del plan "Meet Me") incluyen los siguientes entregables físicos <strong>sin costo base</strong>:
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-slate-400">
-            <li>Una (1) Tarjeta Física Inteligente de PVC con tecnología NFC.</li>
-            <li>Un (1) Sticker / Chip NFC para adherir al reverso del dispositivo móvil.</li>
-          </ul>
-          
-          <h3 className="font-bold text-white mt-4">Excepción para Paquete Estudiante:</h3>
-          <p className="text-sm text-slate-400">
-            El paquete Estudiante (Gratuito) <strong>no incluye</strong> el hardware físico gratuito. Sin embargo, los estudiantes tienen acceso a un costo preferencial de <strong>$15 USD</strong> para adquirir su tarjeta base y sticker con la marca Rose VCards. Los estudiantes no son elegibles para el servicio de personalización visual; deben escalar como mínimo al plan "Meet Me" para habilitar esta opción.
-          </p>
-
-          <h3 className="font-bold text-white mt-4">Personalización y Materiales Premium:</h3>
-          <p className="text-sm text-slate-400">
-            Los dispositivos físicos gratuitos o base se entregan por defecto con la identidad visual de Rose VCards. Si el cliente desea un chip o tarjeta física 100% personalizados con su logotipo o diseño corporativo, el <strong>costo de personalización es de $35 USD</strong>. 
-            <br/><br/>
-            Las opciones de manufactura para hardware personalizado incluyen:
-            <ul className="list-disc pl-6 mt-2">
-              <li>PVC Blanco (Estándar para personalización)</li>
-              <li>PVC Negro Mate (Opción de Alto Contraste)</li>
-              <li>Bamboo Premium (Ecológico y Ejecutivo)</li>
-            </ul>
-          </p>
-        </section>
-
-                <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-white">7. Limitación de Responsabilidad</h2>
-          <p>
-            TSolutions y Rose VCards no serán responsables por interrupciones del servicio, pérdida de datos o pérdidas comerciales derivadas del mal uso de la plataforma o caídas extremas en Google Cloud. Nuestra responsabilidad técnica se limita a la restauración del servicio bajo los SLAs establecidos.
-          </p>
-        </section>
-
-        <div className="pt-8 mt-8 border-t border-white/10 text-sm text-slate-500 text-center">
-          Si tiene alguna duda sobre estos contratos, contacte a <strong>legal@tsolutions.com</strong>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
