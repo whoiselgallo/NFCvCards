@@ -427,9 +427,7 @@ export default function LandingPage() {
                   *Ajustes de datos: $15 USD por revisión.
                 </li>
               </ul>
-              <button onClick={() => handleCheckout('meetme')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
-                Obtener Meet Me
-              </button>
+              
                 <PayPalButton planId="P-1VJ73284XP012835MNKQJDLI" />
             </motion.div>
 
@@ -454,9 +452,7 @@ export default function LandingPage() {
                   *Ajustes de datos: $12 USD por revisión.
                 </li>
               </ul>
-              <button onClick={() => handleCheckout('pro')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
-                Contratar Pro
-              </button>
+              
                 <PayPalButton planId="P-9KP25231PY224692PNKQJG6Q" />
             </motion.div>
 
@@ -487,9 +483,7 @@ export default function LandingPage() {
                   *Ajustes de datos: $10 USD por revisión.
                 </li>
               </ul>
-              <button onClick={() => handleCheckout('business')} className="w-full py-3 rounded-xl bg-[#EE334E] text-white font-bold hover:bg-[#ff0003] transition-colors shadow-lg">
-                Contratar Empresa
-              </button>
+              
                 <PayPalButton planId="P-2PW08512L5046373DNKQI2EY" />
             </motion.div>
 
@@ -517,9 +511,7 @@ export default function LandingPage() {
                   *Ajustes de datos: $8 USD por revisión.
                 </li>
               </ul>
-              <button onClick={() => handleCheckout('elite')} className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
-                  Contratar Elite
-              </button>
+              
                 <PayPalButton planId="P-73J83679GV554154TNKQJFMQ" />
             </motion.div>
 
@@ -547,9 +539,7 @@ export default function LandingPage() {
                   *Mantenimiento Infraestructura GCP mensual.
                 </li>
               </ul>
-              <button onClick={() => handleCheckout('marcablanca')} className="w-full text-center w-full py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white/10 transition-colors">
-                Contratar Marca Blanca
-                </button>
+              
                 <PayPalButton planId="P-64483344X0450694PNKQJQYI" />
             </motion.div>
           </div>
