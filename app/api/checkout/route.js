@@ -8,14 +8,14 @@ export async function POST(request) {
   try {
     if (!stripe) {
       return NextResponse.json(
-        { error: 'Stripe no está configurado (STRIPE_SECRET_KEY faltante).' },
+        { error: 'Stripe no est configurado (STRIPE_SECRET_KEY faltante).' },
         { status: 500 }
       );
     }
 
     const { planId, userEmail, userId } = await request.json();
     
-    // Configurar precios según el plan
+    // Configurar precios segn el plan
     let lineItems = [];
     let mode = 'subscription';
 
@@ -23,8 +23,8 @@ export async function POST(request) {
       lineItems = [{
         price_data: {
           currency: 'usd',
-          product_data: { name: 'Plan Meet Me (NFC Básica)' },
-          unit_amount: 4900, // $59.00
+          product_data: { name: 'Plan Meet Me (NFC Bsica)' },
+          unit_amount: 4900,
           recurring: { interval: 'year' }
         },
         quantity: 1,
@@ -33,8 +33,8 @@ export async function POST(request) {
       lineItems = [{
         price_data: {
           currency: 'usd',
-          product_data: { name: 'Plan Profesional (1 Año)' },
-          unit_amount: 19900, // 199.00
+          product_data: { name: 'Plan Profesional (1 Ao)' },
+          unit_amount: 19900,
           recurring: { interval: 'year' }
         },
         quantity: 1,
@@ -43,49 +43,49 @@ export async function POST(request) {
       lineItems = [{
         price_data: {
           currency: 'usd',
-          product_data: { name: 'Plan Empresa Business (1 Año)' },
+          product_data: { name: 'Plan Empresa Business (1 Ao)' },
           unit_amount: 24900,
           recurring: { interval: 'year' }
         },
         quantity: 1,
       }];
     } else if (planId === 'elite') {
-      // Elite: $1299 (anual) y $299/mes a partir del 2º mes
+      // Elite: $599 pago nico (sin mensualidad)
       lineItems = [
         {
           price_data: {
             currency: 'usd',
-            product_data: { name: 'Activación Plan Elite (Pago Anual)' },
-            unit_amount: 59900, // One-time fee
+            product_data: { name: 'Activacin Plan Elite Business' },
+            unit_amount: 59900, // 599.00
+          },
+          quantity: 1,
+        }
+      ];
+      mode = 'payment'; // Pago nico
+    } else if (planId === 'marcablanca') {
+      // Marca Blanca: $1499 Setup + mantenimiento $159/mes a partir del 2 mes
+      lineItems = [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'Setup Marca Blanca Agencias (Pago nico)' },
+            unit_amount: 149900, // 1,499.00
           },
           quantity: 1,
         },
         {
           price_data: {
             currency: 'usd',
-            product_data: { name: 'Mantenimiento Mensual Elite' },
-            unit_amount: 29900,
+            product_data: { name: 'Mantenimiento Mensual Infraestructura GCP' },
+            unit_amount: 15900, // 159.00
             recurring: { interval: 'month' }
           },
           quantity: 1,
         }
       ];
-    } else if (planId === 'marcablanca') {
-      // Marca Blanca: $1499 Setup + mantenimiento. 
-      // Por simplicidad en Stripe, cobramos el Setup inicial y un mantenimiento anual o mensual
-      lineItems = [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: { name: 'Setup Marca Blanca Agencias (Pago Único)' },
-            unit_amount: 149900, // One-time fee 1,499.00
-          },
-          quantity: 1,
-        }
-      ];
-      mode = 'payment'; // Es pago único de Setup
+      mode = 'subscription'; 
     } else {
-      return NextResponse.json({ error: 'Plan inválido' }, { status: 400 });
+      return NextResponse.json({ error: 'Plan invlido' }, { status: 400 });
     }
 
     const host = request.headers.get('host') || 'localhost:3000';
@@ -104,12 +104,12 @@ export async function POST(request) {
       cancel_url: `${originUrl}/#pricing`,
     };
 
-    // Solo agregar customer_email si es un correo válido (evitar error de string vacío en Stripe)
     if (userEmail && userEmail.includes('@')) {
       sessionParams.customer_email = userEmail;
     }
 
-    if (planId === 'elite') {
+    // 30 das gratis del mantenimiento mensual para Marca Blanca
+    if (planId === 'marcablanca') {
       sessionParams.subscription_data = {
         trial_period_days: 30
       };
