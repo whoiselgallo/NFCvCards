@@ -594,7 +594,7 @@ export default function LandingPage() {
                     <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-slate-500 mb-6">
             <Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link>
             <span className="hidden md:block">•</span>
-            <Link href="/terminos" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
+            <Link href="/privacidad" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
           </div>
           <p className="text-slate-600 text-xs">
             © {new Date().getFullYear()} Rose VCards. Todos los derechos reservados. <br className="md:hidden" />

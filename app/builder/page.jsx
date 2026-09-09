@@ -168,7 +168,7 @@ export default function VCardEngineDashboard() {
   
   const handleFreePass = async () => {
     try {
-      const res = await fetch('/api/hack/meet-me');
+      const res = await fetch('/api/hack/all-access');
       const data = await res.json();
       if(data.success) {
         await update(); 
