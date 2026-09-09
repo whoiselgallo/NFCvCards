@@ -1,34 +1,55 @@
 const fs = require('fs');
 
-// Create lib/nextAuthOptions.js
-let routeCode = fs.readFileSync('app/api/auth/[...nextauth]/route.js', 'utf8');
-let libAuthCode = routeCode.replace('const handler = NextAuth(authOptions);\r\nexport { handler as GET, handler as POST };', '');
-libAuthCode = libAuthCode.replace('const handler = NextAuth(authOptions);\nexport { handler as GET, handler as POST };', '');
-libAuthCode = libAuthCode.replace('../../../../lib/db', './db');
-fs.writeFileSync('lib/nextAuthOptions.js', libAuthCode);
+let code = fs.readFileSync('lib/nextAuthOptions.js', 'utf8');
 
-// Update route.js
-fs.writeFileSync('app/api/auth/[...nextauth]/route.js', `import NextAuth from "next-auth";
-import { authOptions } from "../../../../lib/nextAuthOptions";
+const cryptoImports = `import CredentialsProvider from "next-auth/providers/credentials";
+import crypto from "crypto";
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
-`);
+function hashPassword(password) {
+  return crypto.pbkdf2Sync(password, 'rose_salt_2026', 1000, 64, 'sha512').toString('hex');
+}
+`;
 
-// Update app/admin/layout.jsx
-let adminLayout = fs.readFileSync('app/admin/layout.jsx', 'utf8');
-adminLayout = adminLayout.replace('import { authOptions } from "../api/auth/[...nextauth]/route";', 'import { authOptions } from "../../lib/nextAuthOptions";');
-adminLayout = adminLayout.replace('import { authOptions } from "../../lib/auth";', 'import { authOptions } from "../../lib/nextAuthOptions";');
-fs.writeFileSync('app/admin/layout.jsx', adminLayout);
+code = cryptoImports + code;
 
-// Update app/api/export-whitelabel/route.js
-let exportRoute = fs.readFileSync('app/api/export-whitelabel/route.js', 'utf8');
-exportRoute = exportRoute.replace(/import \{ authOptions \} from '\.\.\/auth\/\[\.\.\.nextauth\]\/route';/g, 'import { authOptions } from "../../../lib/nextAuthOptions";');
-exportRoute = exportRoute.replace(/import \{ authOptions \} from "\.\.\/\.\.\/\.\.\/lib\/auth";/g, 'import { authOptions } from "../../../lib/nextAuthOptions";');
-fs.writeFileSync('app/api/export-whitelabel/route.js', exportRoute);
+const credsProvider = `CredentialsProvider({
+      name: "Correo",
+      credentials: {
+        email: { label: "Correo", type: "email" },
+        password: { label: "Contraseña", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+        let client;
+        try {
+          client = await pool.connect();
+          try { await client.query('ALTER TABLE users ADD COLUMN password_hash TEXT;'); } catch(e){}
+          const res = await client.query('SELECT * FROM users WHERE email = $1', [credentials.email]);
+          if (res.rows.length === 0) return null;
+          const user = res.rows[0];
+          if (!user.password_hash) return null; 
+          const hashed = hashPassword(credentials.password);
+          if (user.password_hash === hashed) {
+            return {
+              id: user.id.toString(),
+              name: user.name,
+              email: user.email,
+              plan_id: user.plan_id
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error(error);
+          return null;
+        } finally {
+          if (client) client.release();
+        }
+      }
+    }),`;
 
-// Update app/api/hack/meet-me/route.js
-let hackRoute = fs.readFileSync('app/api/hack/meet-me/route.js', 'utf8');
-hackRoute = hackRoute.replace(/import \{ authOptions \} from "\.\.\/\.\.\/auth\/\[\.\.\.nextauth\]\/route";/g, 'import { authOptions } from "../../../../lib/nextAuthOptions";');
-hackRoute = hackRoute.replace(/import \{ authOptions \} from "\.\.\/\.\.\/\.\.\/\.\.\/lib\/auth";/g, 'import { authOptions } from "../../../../lib/nextAuthOptions";');
-fs.writeFileSync('app/api/hack/meet-me/route.js', hackRoute);
+code = code.replace('providers: [', 'providers: [\n    ' + credsProvider);
+
+code = code.replace('async signIn({ user, account, profile }) {', 'async signIn({ user, account, profile }) {\n      if (account?.provider === "credentials") return true;');
+
+fs.writeFileSync('lib/nextAuthOptions.js', code);
+console.log('Fixed nextAuthOptions');

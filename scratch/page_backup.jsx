@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Script from 'next/script';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
@@ -23,44 +22,6 @@ const WORDS = [
   "Cliente Calificado", 
   "Experiencia interactiva"
 ];
-
-
-function PayPalButton({ planId }) {
-  const [isReady, setIsReady] = React.useState(false);
-  const containerId = 'paypal-container-' + planId;
-
-  React.useEffect(() => {
-    let interval;
-    const renderBtn = () => {
-      if (window.paypal && document.getElementById(containerId) && !document.getElementById(containerId).hasChildNodes()) {
-        window.paypal.Buttons({
-          style: { shape: 'pill', color: 'silver', layout: 'horizontal', label: 'subscribe' },
-          createSubscription: function(data, actions) {
-            return actions.subscription.create({ plan_id: planId });
-          },
-          onApprove: function(data, actions) {
-            alert('¡Suscripción exitosa! Redirigiendo...');
-            window.location.href = '/login?payment=success&plan=' + planId;
-          }
-        }).render('#' + containerId);
-      }
-    };
-
-    if (window.paypal) {
-      renderBtn();
-    } else {
-      interval = setInterval(() => {
-        if (window.paypal) {
-          clearInterval(interval);
-          renderBtn();
-        }
-      }, 500);
-    }
-    return () => clearInterval(interval);
-  }, [planId, containerId]);
-
-  return <div id={containerId} className="w-full mt-3 min-h-[45px] z-20 relative"></div>;
-}
 
 export default function LandingPage() {
   const handleCheckout = async (planId) => {
@@ -108,8 +69,6 @@ export default function LandingPage() {
   };
 
   return (
-    <>
-      <Script src="https://www.paypal.com/sdk/js?client-id=BAAVBTkbyfhfvSv-LwMOAjKhD4cWmr2himsyOcDfmT_oBblFqSZ5LdvTLDibQfmSi6mSrgCtYcA0YsoMoI&vault=true&intent=subscription" strategy="lazyOnload" />
     <div className="min-h-screen bg-[#05050D] text-slate-200 font-sans selection:bg-[#EE334E] selection:text-white overflow-x-hidden">
       
       {/* HEADER / NAVBAR */}
@@ -427,9 +386,13 @@ export default function LandingPage() {
                   *Ajustes de datos: $15 USD por revisión.
                 </li>
               </ul>
-              
-                <PayPalButton planId="P-1VJ73284XP012835MNKQJDLI" />
-                <button onClick={() => handleCheckout('meetme')} className="w-full py-3 mt-3 rounded-xl bg-[#635BFF]/10 text-white font-bold hover:bg-[#635BFF] transition-all border border-[#635BFF]/30 text-sm flex items-center justify-center gap-2">Pagar con Tarjeta / Apple Pay</button>
+              <button onClick={() => handleCheckout('meetme')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
+                Obtener Meet Me
+              </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
 
             {/* 3. PROFESIONAL */}
@@ -453,9 +416,13 @@ export default function LandingPage() {
                   *Ajustes de datos: $12 USD por revisión.
                 </li>
               </ul>
-              
-                <PayPalButton planId="P-9KP25231PY224692PNKQJG6Q" />
-                <button onClick={() => handleCheckout('pro')} className="w-full py-3 mt-3 rounded-xl bg-[#635BFF]/10 text-white font-bold hover:bg-[#635BFF] transition-all border border-[#635BFF]/30 text-sm flex items-center justify-center gap-2">Pagar con Tarjeta / Apple Pay</button>
+              <button onClick={() => handleCheckout('pro')} className="w-full py-3 rounded-xl bg-white/10 text-white font-bold group-hover:bg-[#EE334E] transition-all">
+                Contratar Pro
+              </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
 
             {/* 4. EMPRESA */}
@@ -485,9 +452,13 @@ export default function LandingPage() {
                   *Ajustes de datos: $10 USD por revisión.
                 </li>
               </ul>
-              
-                <PayPalButton planId="P-2PW08512L5046373DNKQI2EY" />
-                <button onClick={() => handleCheckout('business')} className="w-full py-3 mt-3 rounded-xl bg-[#635BFF]/10 text-white font-bold hover:bg-[#635BFF] transition-all border border-[#635BFF]/30 text-sm flex items-center justify-center gap-2">Pagar con Tarjeta / Apple Pay</button>
+              <button onClick={() => handleCheckout('business')} className="w-full py-3 rounded-xl bg-[#EE334E] text-white font-bold hover:bg-[#ff0003] transition-colors shadow-lg">
+                Contratar Empresa
+              </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
 
             {/* 5. ELITE BUSINESS */}
@@ -514,9 +485,13 @@ export default function LandingPage() {
                   *Ajustes de datos: $8 USD por revisión.
                 </li>
               </ul>
-              
-                <PayPalButton planId="P-73J83679GV554154TNKQJFMQ" />
-                <button onClick={() => handleCheckout('elite')} className="w-full py-3 mt-3 rounded-xl bg-[#635BFF]/10 text-white font-bold hover:bg-[#635BFF] transition-all border border-[#635BFF]/30 text-sm flex items-center justify-center gap-2">Pagar con Tarjeta / Apple Pay</button>
+              <button onClick={() => handleCheckout('elite')} className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-[#EE334E] text-white font-bold hover:opacity-90 transition-opacity">
+                  Contratar Elite
+              </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
 
             {/* 6. MARCA BLANCA */}
@@ -543,9 +518,13 @@ export default function LandingPage() {
                   *Mantenimiento Infraestructura GCP mensual.
                 </li>
               </ul>
-              
-                <PayPalButton planId="P-64483344X0450694PNKQJQYI" />
-                <button onClick={() => handleCheckout('marcablanca')} className="w-full py-3 mt-3 rounded-xl bg-[#635BFF]/10 text-white font-bold hover:bg-[#635BFF] transition-all border border-[#635BFF]/30 text-sm flex items-center justify-center gap-2">Pagar con Tarjeta / Apple Pay</button>
+              <button onClick={() => handleCheckout('marcablanca')} className="w-full text-center w-full py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white/10 transition-colors">
+                Contratar Marca Blanca
+                </button>
+                <a href="https://www.paypal.com/ncp/payment/ZU527K9TX56YL" target="_blank" rel="noopener noreferrer" className="w-full mt-3 py-3 flex items-center justify-center gap-2 rounded-xl bg-[#003087] text-white font-bold hover:bg-[#001C64] transition-colors shadow-lg">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+                  Pagar con PayPal
+                </a>
             </motion.div>
           </div>
           </motion.div>
@@ -589,7 +568,7 @@ export default function LandingPage() {
                     <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-slate-500 mb-6">
             <Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link>
             <span className="hidden md:block">•</span>
-            <Link href="/privacidad" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
+            <Link href="/terminos" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
           </div>
           <p className="text-slate-600 text-xs">
             © {new Date().getFullYear()} Rose VCards. Todos los derechos reservados. <br className="md:hidden" />
@@ -598,7 +577,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-    </>
-
   );
 }
