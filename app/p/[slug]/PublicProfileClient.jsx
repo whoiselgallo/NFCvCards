@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { getTranslation } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
@@ -934,15 +935,21 @@ export default function PublicProfileClient({ profile = {} }) {
         )}
 
 
-        {/* POWERED BY LINK */}
+        {/* ENLACE DE BIENVENIDA & CONVERSIÓN */}
         <div className="pt-12 pb-6 text-center">
-          <a href="https://tsolutionsipidd.com/nfc-vcards" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
+          <Link
+            href={`/bienvenida?from=${slug}&name=${encodeURIComponent((nombre + ' ' + apellido).trim() || empresa || 'Contacto')}`}
+            className="inline-flex flex-col items-center gap-1.5 opacity-70 hover:opacity-100 transition-all hover:scale-105"
+          >
             <span className="text-[10px] font-medium tracking-widest uppercase text-white/50">Tecnología por</span>
             <span className="text-sm font-bruno font-bold tracking-widest text-white flex items-center gap-1">
               TSolutions <span style={{ color: color_primario }}>ROSE</span>
             </span>
-            <span className="text-[9px] text-white/40 mt-1 bg-white/5 px-2 py-0.5 rounded-full border border-white/10 uppercase tracking-wider">Crea tu ROSE vCard Gratis</span>
-          </a>
+            <span className="text-[10px] font-bold text-[#00E5FF] mt-1 bg-white/5 hover:bg-[#00E5FF]/20 px-3.5 py-1 rounded-full border border-[#00E5FF]/30 uppercase tracking-wider shadow-[0_0_15px_rgba(0,229,255,0.2)] flex items-center gap-1.5">
+              <span>✨</span>
+              <span>Crea tu Tarjeta Digital Aquí</span>
+            </span>
+          </Link>
         </div>
 
         {/* MODAL DE EXPERIENCIA TRAS 10 USOS */}
