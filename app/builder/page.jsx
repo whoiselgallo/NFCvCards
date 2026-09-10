@@ -262,6 +262,7 @@ export default function VCardEngineDashboard() {
   const isPremium = tier >= 3;
   const isPro = tier >= 2;
   const isBasic = tier >= 1;
+  const [isFreeDesignOpen, setIsFreeDesignOpen] = useState(true);
 
 
   // Datos del Formulario - LIMPIOS POR DEFECTO
@@ -1139,118 +1140,136 @@ export default function VCardEngineDashboard() {
                     </div>
                   )}
 
-                  {/* NUEVO: MÓDULO DE DISEÑO LIBRE */}
+                  {/* MÓDULO DE EDICIÓN LIBRE (PLAN ELITE) */}
                   <div className="pt-4 border-t border-gray-800/80 space-y-4 relative">
-                    {!isPremium && (
-                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-xl border border-purple-500/30">
-                        <Lock className="w-8 h-8 text-purple-400 mb-2" />
-                        <span className="text-sm font-bold text-white">Exclusivo Plan Business / Elite</span>
-                        <p className="text-xs text-slate-400 text-center px-4 mt-1">Mejora tu plan para acceder al editor libre.</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#EE334E] text-base animate-pulse">✦</span>
+                        <div>
+                          <h4 className="text-xs font-rosetta text-white font-bold uppercase tracking-wider">
+                            Módulo de Edición Libre (Plan Elite)
+                          </h4>
+                          <span className="text-[10px] text-purple-400 font-mono">Personalización y reubicación activa para cualquier tema</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsFreeDesignOpen(!isFreeDesignOpen)}
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-mono uppercase tracking-wider font-bold border transition-all ${
+                          isFreeDesignOpen
+                            ? 'bg-purple-950/70 border-purple-500/60 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.3)]'
+                            : 'bg-black/50 border-gray-700 text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        {isFreeDesignOpen ? '▼ Módulo Abierto (Activo)' : '▶ Abrir Módulo'}
+                      </button>
+                    </div>
+
+                    {isFreeDesignOpen && (
+                      <div className="space-y-4 animate-fadeIn">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Ocultar / Mostrar Banner */}
+                          <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-800 bg-black/30 cursor-pointer hover:border-gray-600 transition-colors">
+                            <div className="relative flex items-center">
+                              <input type="checkbox" name="hideBanner" checked={design.hideBanner} onChange={handleDesignChange} className="sr-only peer" />
+                              <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#EE334E]"></div>
+                            </div>
+                            <span className="text-xs text-gray-300 font-semibold uppercase tracking-wider">Ocultar Banner / Portada</span>
+                          </label>
+
+                          {/* Posición del Logotipo */}
+                          <div className="space-y-1">
+                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Posición del Logotipo</label>
+                            <select name="logoPosition" value={design.logoPosition} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                              <option value="center">Centrado (Por Defecto)</option>
+                              <option value="left">Alineado a la Izquierda</option>
+                              <option value="right">Alineado a la Derecha</option>
+                              <option value="hidden">Ocultar Logotipo</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Personalización de Botones Sociales y Alineación */}
+                        <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3">
+                          <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Botones Sociales y Alineación de Contenido</h5>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Alineación de Info</label>
+                              <select name="infoAlignment" value={design.infoAlignment || 'center'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                                <option value="left">Izquierda</option>
+                                <option value="center">Centro</option>
+                                <option value="right">Derecha</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Forma de Iconos</label>
+                              <select name="socialIconShape" value={design.socialIconShape || 'circle'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                                <option value="circle">Redondo (Círculo)</option>
+                                <option value="rounded">Bordes Suaves</option>
+                                <option value="square">Cuadrado</option>
+                                <option value="none">Sin Fondo (Solo Icono)</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Estilo de Iconos</label>
+                              <select name="socialIconStyle" value={design.socialIconStyle || 'default'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                                <option value="default">Color Original App</option>
+                                <option value="monochrome">Monocromático</option>
+                                <option value="glow">Neón / Brillo</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Visibilidad de Contenedores de Información */}
+                        <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3">
+                          <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Ocultar Contenedores de Información</h5>
+                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideBio" checked={design.hideBio} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Nota / Bio</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideContact" checked={design.hideContact} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Datos de Contacto</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideSocial" checked={design.hideSocial} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Redes Sociales</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideMap" checked={design.hideMap} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Google Maps</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideVideo" checked={design.hideVideo} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Video</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Etiquetas Personalizadas */}
+                        <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3">
+                          <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Etiquetas Personalizadas</h5>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Nota / Bio</label>
+                              <input type="text" name="bio" value={design.customLabels?.bio || ''} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Nota / Bio / Valor" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Contacto</label>
+                              <input type="text" name="contact" value={design.customLabels?.contact || ''} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Canales de Contacto Directo" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Redes Sociales</label>
+                              <input type="text" name="social" value={design.customLabels?.social || ''} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Redes Sociales" />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
-                    <h4 className={"text-xs font-rosetta text-white font-bold uppercase tracking-wider flex items-center gap-2 " + (!isPremium ? 'opacity-50' : '')}>
-                      <span className="text-[#EE334E]">✦</span> Controles de Diseño Libre
-                    </h4>
-                    
-                    <div className={"grid grid-cols-1 sm:grid-cols-2 gap-4 " + (!isPremium ? 'opacity-30 pointer-events-none' : '')}>
-                      {/* Ocultar / Mostrar Banner */}
-                      <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-800 bg-black/30 cursor-pointer hover:border-gray-600 transition-colors">
-                        <div className="relative flex items-center">
-                          <input type="checkbox" name="hideBanner" checked={design.hideBanner} onChange={handleDesignChange} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#EE334E]"></div>
-                        </div>
-                        <span className="text-xs text-gray-300 font-semibold uppercase tracking-wider">Ocultar Banner / Portada</span>
-                      </label>
-
-                      {/* Posición del Logotipo */}
-                      <div className="space-y-1">
-                        <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Posición del Logotipo</label>
-                        <select name="logoPosition" value={design.logoPosition} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                          <option value="center">Centrado (Por Defecto)</option>
-                          <option value="left">Alineado a la Izquierda</option>
-                          <option value="right">Alineado a la Derecha</option>
-                          <option value="hidden">Ocultar Logotipo</option>
-                        </select>
-                      </div>
-                    </div>
-
-                                          {/* Personalización de Botones Sociales y Alineación */}
-                      <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3 mt-4">
-                        <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Botones Sociales y Alineación</h5>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          
-                          <div>
-                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Alineación de Info</label>
-                            <select name="infoAlignment" value={design.infoAlignment || 'center'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                              <option value="left">Izquierda</option>
-                              <option value="center">Centro</option>
-                              <option value="right">Derecha</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Forma de Iconos</label>
-                            <select name="socialIconShape" value={design.socialIconShape || 'circle'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                              <option value="circle">Redondo (Círculo)</option>
-                              <option value="rounded">Bordes Suaves</option>
-                              <option value="square">Cuadrado</option>
-                              <option value="none">Sin Fondo (Solo Icono)</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Estilo de Iconos</label>
-                            <select name="socialIconStyle" value={design.socialIconStyle || 'default'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                              <option value="default">Color Original App</option>
-                              <option value="monochrome">Monocromático</option>
-                              <option value="glow">Neón / Brillo</option>
-                            </select>
-                          </div>
-
-                        </div>
-                      </div>
-
-                      {/* Visibilidad de Contenedores de Información */}
-                    <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3 mt-2">
-                      <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Ocultar Contenedores de Información</h5>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideBio" checked={design.hideBio} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Nota / Bio</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideContact" checked={design.hideContact} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Datos de Contacto</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideSocial" checked={design.hideSocial} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Redes Sociales</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideMap" checked={design.hideMap} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Google Maps</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Etiquetas Personalizadas */}
-                    <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 mt-2 space-y-3">
-                      <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Etiquetas Personalizadas</h5>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Nota / Bio</label>
-                          <input type="text" name="bio" value={design.customLabels.bio} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Nota / Bio / Valor" />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Contacto</label>
-                          <input type="text" name="contact" value={design.customLabels.contact} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Canales de Contacto Directo" />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Redes Sociales</label>
-                          <input type="text" name="social" value={design.customLabels.social} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Redes Sociales" />
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                 </div>
@@ -1569,7 +1588,7 @@ Beneficiario: TSolutions" />
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                       {Object.values(THEMES).map((th, index) => {
-                        const isLocked = tier < 1 && index >= 2; // Tier 1+ has all themes unlocked
+                        const isLocked = !isFreeDesignOpen && tier < 1 && index >= 2;
                         
                         return (
                           <button
@@ -1577,7 +1596,7 @@ Beneficiario: TSolutions" />
                             type="button"
                             onClick={() => {
                               if (isLocked) {
-                                alert("Este diseño Premium requiere mejorar tu paquete.");
+                                alert("Este diseño Premium requiere mejorar tu paquete o activar el Módulo de Edición Libre.");
                                 return;
                               }
                               setDesign(prev => ({ ...prev, theme: th.id }));
@@ -1871,45 +1890,49 @@ Beneficiario: TSolutions" />
                   {design.theme === 'classic' && (
                     <div>
                       {/* Portada / Banner */}
-                      <div
-                        className="h-28 w-full relative overflow-hidden flex items-center justify-center transition-colors"
-                        style={{ backgroundColor: design.colorSecundario }}
-                      >
-                        {coverPhoto ? (
-                          <div className="w-full h-full overflow-hidden">
+                      {!design.hideBanner && (
+                        <div
+                          className="h-28 w-full relative overflow-hidden flex items-center justify-center transition-colors"
+                          style={{ backgroundColor: design.colorSecundario }}
+                        >
+                          {coverPhoto ? (
+                            <div className="w-full h-full overflow-hidden">
+                              <img
+                                src={coverPhoto}
+                                alt="Cover"
+                                className="w-full h-full object-cover transition-all"
+                                style={{
+                                  objectPosition: `center ${design.coverPositionY}%`,
+                                  transform: `scale(${design.coverZoom / 100})`,
+                                  transformOrigin: `center ${design.coverPositionY}%`
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Logo & Datos Adaptables */}
+                      <div className={`px-5 ${!design.hideBanner ? '-mt-12' : 'pt-6'} relative z-20 flex flex-col ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+                        {design.logoPosition !== 'hidden' && (
+                          <div
+                            className="flex items-center justify-center overflow-hidden transition-all bg-transparent border-0 shadow-none"
+                            style={{
+                              width: `${design.logoScale}px`,
+                              height: `${design.logoScale}px`
+                            }}
+                          >
                             <img
-                              src={coverPhoto}
-                              alt="Cover"
-                              className="w-full h-full object-cover transition-all"
-                              style={{
-                                objectPosition: `center ${design.coverPositionY}%`,
-                                transform: `scale(${design.coverZoom / 100})`,
-                                transformOrigin: `center ${design.coverPositionY}%`
-                              }}
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain"
                             />
                           </div>
-                        ) : (
-                          <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                         )}
-                      </div>
 
-                      {/* Logo Centrado con Visibilidad Total (z-20) */}
-                      <div className="px-5 -mt-12 relative z-20 flex flex-col items-center text-center">
-                        <div
-                          className="flex items-center justify-center overflow-hidden transition-all bg-transparent border-0 shadow-none"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-
-                        <div className="mt-3 w-full">
+                        <div className={`mt-3 w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
                           <h2
                             className="text-xl font-bold leading-tight text-slate-800"
                             style={{ fontFamily: currentFontPrimary }}
@@ -1917,9 +1940,9 @@ Beneficiario: TSolutions" />
                             {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
                           </h2>
                           
-                          {/* Franja de Acento (Color Secundario del Cliente) Centrada */}
+                          {/* Franja de Acento Centrada / Alineada */}
                           <div
-                            className="h-1.5 w-14 my-2.5 mx-auto rounded-full transition-all"
+                            className={`h-1.5 w-14 my-2.5 rounded-full transition-all ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`}
                             style={{
                               backgroundColor: design.colorSecundario,
                               boxShadow: `0 0 10px ${design.colorSecundario}60`
@@ -1928,7 +1951,7 @@ Beneficiario: TSolutions" />
                           
                           <p className="text-sm font-bold" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                           
-                          {/* Badge de Empresa en Color Secundario */}
+                          {/* Badge de Empresa */}
                           {formData.empresa && (
                             <div
                               className="inline-block px-3 py-0.5 mt-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase border transition-all"
@@ -1943,10 +1966,15 @@ Beneficiario: TSolutions" />
                           )}
                         </div>
 
-                        {formData.nota && (
-                          <p className="text-xs mt-3 p-2.5 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-3 w-full" style={{ borderColor: design.colorCTA }}>
-                            "{formData.nota}"
-                          </p>
+                        {!design.hideBio && formData.nota && (
+                          <div className="w-full mt-3">
+                            {design.customLabels?.bio && (
+                              <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                            )}
+                            <p className="text-xs p-2.5 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-3 w-full" style={{ borderColor: design.colorCTA }}>
+                              "{formData.nota}"
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1954,8 +1982,8 @@ Beneficiario: TSolutions" />
 
                   {/* 2. TEMA MODERNO (CYBER DARK) */}
                   {design.theme === 'modern' && (
-                    <div className="p-5 flex flex-col items-center text-center">
-                      {coverPhoto && (
+                    <div className={`p-5 flex flex-col ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-2xl overflow-hidden mb-3 border border-white/10 relative">
                           <img
                             src={coverPhoto}
@@ -1970,65 +1998,73 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      {/* Logo Centrado sin fondo ni accesorios */}
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <h2
-                        className="text-xl font-bold tracking-tight mt-2 text-white"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                      </h2>
-                      
-                      {/* Franja de Acento (Color Secundario del Cliente) Centrada */}
-                      <div
-                        className="h-1.5 w-14 my-2 mx-auto rounded-full transition-all"
-                        style={{
-                          backgroundColor: design.colorSecundario,
-                          boxShadow: `0 0 10px ${design.colorSecundario}80`
-                        }}
-                      ></div>
-                      
-                      <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                      
-                      {/* Badge de Empresa con Fondo y Borde Secundario */}
-                      {formData.empresa && (
+                      {/* Logo Adaptable */}
+                      {design.logoPosition !== 'hidden' && (
                         <div
-                          className="inline-block px-3 py-1 mt-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border transition-all"
+                          className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
                           style={{
-                            backgroundColor: `${design.colorSecundario}15`,
-                            borderColor: `${design.colorSecundario}60`,
-                            color: design.colorSecundario
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
                           }}
                         >
-                          {formData.empresa}
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
                         </div>
                       )}
 
-                      {formData.nota && (
-                        <p className="text-xs mt-3 opacity-80 leading-relaxed px-2 italic text-gray-300">
-                          "{formData.nota}"
-                        </p>
+                      <div className={`w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
+                        <h2
+                          className="text-xl font-bold tracking-tight mt-2 text-white"
+                          style={{ fontFamily: currentFontPrimary }}
+                        >
+                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                        </h2>
+                        
+                        {/* Franja de Acento */}
+                        <div
+                          className={`h-1.5 w-14 my-2 rounded-full transition-all ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`}
+                          style={{
+                            backgroundColor: design.colorSecundario,
+                            boxShadow: `0 0 10px ${design.colorSecundario}80`
+                          }}
+                        ></div>
+                        
+                        <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+                        
+                        {formData.empresa && (
+                          <div
+                            className="inline-block px-3 py-1 mt-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border transition-all"
+                            style={{
+                              backgroundColor: `${design.colorSecundario}15`,
+                              borderColor: `${design.colorSecundario}60`,
+                              color: design.colorSecundario
+                            }}
+                          >
+                            {formData.empresa}
+                          </div>
+                        )}
+                      </div>
+
+                      {!design.hideBio && formData.nota && (
+                        <div className="w-full mt-3">
+                          {design.customLabels?.bio && (
+                            <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                          )}
+                          <p className="text-xs opacity-80 leading-relaxed px-2 italic text-gray-300">
+                            "{formData.nota}"
+                          </p>
+                        </div>
                       )}
                     </div>
                   )}
 
                   {/* 3. TEMA MINIMALISTA EJECUTIVO */}
                   {design.theme === 'minimal' && (
-                    <div className="p-6 flex flex-col items-center text-center">
-                      {coverPhoto && (
+                    <div className={`p-6 flex flex-col ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-28 overflow-hidden mb-3 border-b border-gray-200 relative rounded-lg">
                           <img
                             src={coverPhoto}
@@ -2043,48 +2079,55 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      {/* Logo Centrado sin fondo ni accesorios */}
-                      <div
-                        className="flex items-center justify-center my-2.5 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <h2
-                        className="text-2xl font-light tracking-tight text-slate-900"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span>
-                      </h2>
-                      
-                      {/* Línea de Color Secundario del Cliente Centrada */}
-                      <div className="w-12 h-1 my-2 mx-auto rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
-                      
-                      <p className="text-xs font-bold tracking-wider uppercase font-rosetta" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                      
-                      {formData.empresa && (
-                        <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
+                      {design.logoPosition !== 'hidden' && (
+                        <div
+                          className="flex items-center justify-center my-2.5 bg-transparent border-0 shadow-none transition-all"
+                          style={{
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
+                          }}
+                        >
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
                       )}
 
-                      {formData.nota && (
-                        <p className="text-xs mt-3 opacity-75 leading-relaxed italic max-w-[90%] text-slate-600">
-                          "{formData.nota}"
-                        </p>
+                      <div className={`w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
+                        <h2
+                          className="text-2xl font-light tracking-tight text-slate-900"
+                          style={{ fontFamily: currentFontPrimary }}
+                        >
+                          {formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span>
+                        </h2>
+                        
+                        <div className={`w-12 h-1 my-2 rounded-full ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`} style={{ backgroundColor: design.colorSecundario }}></div>
+                        
+                        <p className="text-xs font-bold tracking-wider uppercase font-rosetta" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+                        
+                        {formData.empresa && (
+                          <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
+                        )}
+                      </div>
+
+                      {!design.hideBio && formData.nota && (
+                        <div className="w-full mt-3">
+                          {design.customLabels?.bio && (
+                            <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                          )}
+                          <p className="text-xs opacity-75 leading-relaxed italic max-w-[90%] text-slate-600">
+                            "{formData.nota}"
+                          </p>
+                        </div>
                       )}
                     </div>
                   )}
 
                   {/* 4. TEMA GLASSMORPHISM FROST */}
                   {design.theme === 'glassmorphism' && (
-                    <div className="p-5 flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="p-5 flex flex-col relative overflow-hidden">
                       <div
                         className="absolute -top-10 -left-10 w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-30"
                         style={{ backgroundColor: design.colorPrimario }}
@@ -2094,7 +2137,7 @@ Beneficiario: TSolutions" />
                         style={{ backgroundColor: design.colorSecundario }}
                       ></div>
 
-                      {coverPhoto && (
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-3xl overflow-hidden mb-3 border border-white/15 backdrop-blur-md shadow-lg relative">
                           <img
                             src={coverPhoto}
@@ -2110,45 +2153,54 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div className="w-full backdrop-blur-xl bg-white/[0.06] border border-white/15 rounded-3xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col items-center text-center">
-                        <div
-                          className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
-                          />
-                        </div>
-
-                        <h2
-                          className="text-xl font-bold tracking-tight mt-1 text-white"
-                          style={{ fontFamily: currentFontPrimary }}
-                        >
-                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                        </h2>
-
-                        <div
-                          className="h-1 w-12 my-2 rounded-full backdrop-blur-md"
-                          style={{ backgroundColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}` }}
-                        ></div>
-
-                        <p className="text-sm font-semibold tracking-wide" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-
-                        {formData.empresa && (
-                          <div className="inline-block px-3 py-0.5 mt-2 rounded-full text-[10px] uppercase font-mono tracking-widest backdrop-blur-md bg-white/10 border border-white/20 text-gray-200">
-                            ✨ {formData.empresa}
+                      <div className={`w-full backdrop-blur-xl bg-white/[0.06] border border-white/15 rounded-3xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+                        {design.logoPosition !== 'hidden' && (
+                          <div
+                            className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
+                            style={{
+                              width: `${design.logoScale}px`,
+                              height: `${design.logoScale}px`
+                            }}
+                          >
+                            <img
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                            />
                           </div>
                         )}
 
-                        {formData.nota && (
-                          <p className="text-xs mt-3 text-gray-300 italic leading-relaxed backdrop-blur-sm bg-black/20 p-2.5 rounded-2xl border border-white/10 w-full">
-                            "{formData.nota}"
-                          </p>
+                        <div className={`w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
+                          <h2
+                            className="text-xl font-bold tracking-tight mt-1 text-white"
+                            style={{ fontFamily: currentFontPrimary }}
+                          >
+                            {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                          </h2>
+
+                          <div
+                            className={`h-1 w-12 my-2 rounded-full backdrop-blur-md ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`}
+                            style={{ backgroundColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}` }}
+                          ></div>
+
+                          <p className="text-sm font-semibold tracking-wide" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+
+                          {formData.empresa && (
+                            <div className="inline-block px-3 py-0.5 mt-2 rounded-full text-[10px] uppercase font-mono tracking-widest backdrop-blur-md bg-white/10 border border-white/20 text-gray-200">
+                              ✨ {formData.empresa}
+                            </div>
+                          )}
+                        </div>
+
+                        {!design.hideBio && formData.nota && (
+                          <div className="w-full mt-3">
+                            {design.customLabels?.bio && (
+                              <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                            )}
+                            <p className="text-xs text-gray-300 italic leading-relaxed backdrop-blur-sm bg-black/20 p-2.5 rounded-2xl border border-white/10 w-full">
+                              "{formData.nota}"
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -2156,13 +2208,13 @@ Beneficiario: TSolutions" />
 
                   {/* 5. TEMA MONOLITO LUXURY VIP */}
                   {design.theme === 'monolith' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#0d0d0d] relative">
+                    <div className={`p-5 flex flex-col bg-[#0d0d0d] relative ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
                       <div
                         className="w-full h-1 rounded-full mb-3 shadow-[0_0_15px_rgba(255,0,3,0.5)]"
                         style={{ background: `linear-gradient(90deg, transparent, ${design.colorPrimario}, ${design.colorSecundario}, transparent)` }}
                       ></div>
 
-                      {coverPhoto && (
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border border-white/10 relative shadow-2xl">
                           <img
                             src={coverPhoto}
@@ -2178,53 +2230,62 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                      {design.logoPosition !== 'hidden' && (
+                        <div
+                          className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+                          style={{
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
+                          }}
+                        >
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
 
-                      <div className="flex items-center gap-2 justify-center text-[10px] uppercase font-mono tracking-widest text-amber-300/80 mb-1">
+                      <div className={`w-full flex items-center gap-2 ${design.infoAlignment === 'left' ? 'justify-start' : design.infoAlignment === 'right' ? 'justify-end' : 'justify-center'} text-[10px] uppercase font-mono tracking-widest text-amber-300/80 mb-1`}>
                         <span>◆</span>
                         <span>VIP EXECUTIVE</span>
                         <span>◆</span>
                       </div>
 
-                      <h2
-                        className="text-xl font-extrabold uppercase tracking-wider text-white"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                      </h2>
-
-                      <p className="text-xs font-mono uppercase tracking-widest mt-1 font-bold" style={{ color: design.colorPrimario }}>
-                        {formData.puesto || 'Puesto / Cargo'}
-                      </p>
-
-                      {formData.empresa && (
-                        <div
-                          className="inline-block px-4 py-1 mt-2 rounded-lg text-[10px] font-mono uppercase tracking-widest font-bold border"
-                          style={{
-                            borderColor: `${design.colorSecundario}60`,
-                            backgroundColor: `${design.colorSecundario}10`,
-                            color: design.colorSecundario
-                          }}
+                      <div className={`w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
+                        <h2
+                          className="text-xl font-extrabold uppercase tracking-wider text-white"
+                          style={{ fontFamily: currentFontPrimary }}
                         >
-                          {formData.empresa}
-                        </div>
-                      )}
+                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                        </h2>
 
-                      {formData.nota && (
-                        <div className="mt-3 p-3 rounded-xl bg-black/60 border border-white/10 text-xs italic text-gray-300 leading-relaxed w-full">
-                          "{formData.nota}"
+                        <p className="text-xs font-mono uppercase tracking-widest mt-1 font-bold" style={{ color: design.colorPrimario }}>
+                          {formData.puesto || 'Puesto / Cargo'}
+                        </p>
+
+                        {formData.empresa && (
+                          <div
+                            className="inline-block px-4 py-1 mt-2 rounded-lg text-[10px] font-mono uppercase tracking-widest font-bold border"
+                            style={{
+                              borderColor: `${design.colorSecundario}60`,
+                              backgroundColor: `${design.colorSecundario}10`,
+                              color: design.colorSecundario
+                            }}
+                          >
+                            {formData.empresa}
+                          </div>
+                        )}
+                      </div>
+
+                      {!design.hideBio && formData.nota && (
+                        <div className="w-full mt-3">
+                          {design.customLabels?.bio && (
+                            <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                          )}
+                          <div className="p-3 rounded-xl bg-black/60 border border-white/10 text-xs italic text-gray-300 leading-relaxed w-full">
+                            "{formData.nota}"
+                          </div>
                         </div>
                       )}
                     </div>
@@ -2232,8 +2293,10 @@ Beneficiario: TSolutions" />
 
                   {/* 6. TEMA NEO-BRUTALISM POP */}
                   {design.theme === 'neobrutalism' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#fffdfa] text-black">
-                      {coverPhoto && (
+                    <div className={`p-5 flex flex-col bg-[#fffdfa] text-black ${
+                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                    }`}>
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border-3 border-black shadow-[4px_4px_0px_#000000] relative bg-white">
                           <img
                             src={coverPhoto}
@@ -2248,21 +2311,29 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                      {design.logoPosition !== 'hidden' && (
+                        <div className={`w-full flex ${
+                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                        }`}>
+                          <div
+                            className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+                            style={{
+                              width: `${design.logoScale}px`,
+                              height: `${design.logoScale}px`
+                            }}
+                          >
+                            <img
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        </div>
+                      )}
 
-                      <div className="bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-3 rounded-2xl w-full mt-1">
+                      <div className={`bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-3 rounded-2xl w-full mt-1 ${
+                        design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'
+                      }`}>
                         <h2
                           className="text-xl font-black tracking-tight text-black uppercase"
                           style={{ fontFamily: currentFontPrimary }}
@@ -2286,8 +2357,13 @@ Beneficiario: TSolutions" />
                         )}
                       </div>
 
-                      {formData.nota && (
+                      {!design.hideBio && formData.nota && (
                         <div className="mt-3 p-2.5 rounded-xl bg-yellow-200/90 border-2 border-black shadow-[3px_3px_0px_#000000] text-xs font-bold italic text-black leading-relaxed w-full">
+                          {design.customLabels?.bio && (
+                            <span className="block not-italic text-[10px] uppercase font-black tracking-wider text-black/70 mb-1">
+                              {design.customLabels.bio}
+                            </span>
+                          )}
                           "{formData.nota}"
                         </div>
                       )}
@@ -2297,34 +2373,38 @@ Beneficiario: TSolutions" />
                   {/* 7. TEMA HERO ASIMÉTRICO */}
                   {design.theme === 'split_hero' && (
                     <div className="p-5 flex flex-col bg-[#0a0e17] text-white">
-                      {coverPhoto ? (
-                        <div
-                          className="w-full h-28 overflow-hidden rounded-2xl mb-3 relative border border-white/10"
-                          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)' }}
-                        >
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all"
+                      {!design.hideBanner && (
+                        coverPhoto ? (
+                          <div
+                            className="w-full h-28 overflow-hidden rounded-2xl mb-3 relative border border-white/10"
+                            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)' }}
+                          >
+                            <img
+                              src={coverPhoto}
+                              alt="Cover"
+                              className="w-full h-full object-cover transition-all"
+                              style={{
+                                objectPosition: `center ${design.coverPositionY}%`,
+                                transform: `scale(${design.coverZoom / 100})`,
+                                transformOrigin: `center ${design.coverPositionY}%`
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className="w-full h-14 rounded-2xl mb-2"
                             style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
+                              background: `linear-gradient(135deg, ${design.colorPrimario}, ${design.colorSecundario})`,
+                              clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 100%)'
                             }}
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className="w-full h-14 rounded-2xl mb-2"
-                          style={{
-                            background: `linear-gradient(135deg, ${design.colorPrimario}, ${design.colorSecundario})`,
-                            clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 100%)'
-                          }}
-                        ></div>
+                          ></div>
+                        )
                       )}
 
-                      <div className="flex items-start justify-between gap-3 mt-1">
-                        <div className="flex-1 text-left">
+                      <div className={`flex items-start justify-between gap-3 mt-1 ${
+                        design.infoAlignment === 'right' ? 'flex-row-reverse text-right' : design.infoAlignment === 'center' ? 'flex-col items-center text-center' : 'text-left'
+                      }`}>
+                        <div className={`flex-1 ${design.infoAlignment === 'right' ? 'text-right' : design.infoAlignment === 'center' ? 'text-center' : 'text-left'}`}>
                           <h2
                             className="text-xl font-extrabold leading-tight text-white tracking-tight"
                             style={{ fontFamily: currentFontPrimary }}
@@ -2348,26 +2428,33 @@ Beneficiario: TSolutions" />
                           )}
                         </div>
 
-                        <div
-                          className="flex items-center justify-center overflow-hidden shrink-0 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${Math.min(design.logoScale, 90)}px`,
-                            height: `${Math.min(design.logoScale, 90)}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
+                        {design.logoPosition !== 'hidden' && (
+                          <div
+                            className="flex items-center justify-center overflow-hidden shrink-0 bg-transparent border-0 shadow-none transition-all"
+                            style={{
+                              width: `${Math.min(design.logoScale, 90)}px`,
+                              height: `${Math.min(design.logoScale, 90)}px`
+                            }}
+                          >
+                            <img
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )}
                       </div>
 
-                      {formData.nota && (
+                      {!design.hideBio && formData.nota && (
                         <div
                           className="mt-3 p-2.5 rounded-xl bg-white/[0.04] border-l-3 text-xs italic text-gray-300 leading-relaxed text-left"
                           style={{ borderColor: design.colorCTA }}
                         >
+                          {design.customLabels?.bio && (
+                            <span className="block not-italic text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1">
+                              {design.customLabels.bio}
+                            </span>
+                          )}
                           "{formData.nota}"
                         </div>
                       )}
@@ -2377,8 +2464,10 @@ Beneficiario: TSolutions" />
                   {/* 8. TEMA BENTO GRID TECH */}
                   {design.theme === 'bento_grid' && (
                     <div className="p-4 flex flex-col gap-3 bg-[#0f0f14] text-white">
-                      <div className="bg-white/[0.05] border border-white/10 rounded-3xl p-4 flex flex-col items-center text-center relative overflow-hidden shadow-lg">
-                        {coverPhoto && (
+                      <div className={`bg-white/[0.05] border border-white/10 rounded-3xl p-4 flex flex-col relative overflow-hidden shadow-lg ${
+                        design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                      }`}>
+                        {!design.hideBanner && coverPhoto && (
                           <div className="w-full h-20 rounded-2xl overflow-hidden mb-3 relative border border-white/10">
                             <img
                               src={coverPhoto}
@@ -2394,19 +2483,25 @@ Beneficiario: TSolutions" />
                           </div>
                         )}
 
-                        <div
-                          className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
+                        {design.logoPosition !== 'hidden' && (
+                          <div className={`w-full flex ${
+                            design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                          }`}>
+                            <div
+                              className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
+                              style={{
+                                width: `${design.logoScale}px`,
+                                height: `${design.logoScale}px`
+                              }}
+                            >
+                              <img
+                                src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                                alt="Logo"
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          </div>
+                        )}
 
                         <h2
                           className="text-lg font-bold text-white mt-1"
@@ -2431,8 +2526,13 @@ Beneficiario: TSolutions" />
                         )}
                       </div>
 
-                      {formData.nota && (
+                      {!design.hideBio && formData.nota && (
                         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3 text-xs italic text-gray-300 text-center leading-relaxed">
+                          {design.customLabels?.bio && (
+                            <span className="block not-italic text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1">
+                              {design.customLabels.bio}
+                            </span>
+                          )}
                           "{formData.nota}"
                         </div>
                       )}
@@ -2441,13 +2541,15 @@ Beneficiario: TSolutions" />
 
                   {/* 9. TEMA CYBER NEON MATRIX */}
                   {design.theme === 'cyber_matrix' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#050508] text-white relative font-mono">
+                    <div className={`p-5 flex flex-col bg-[#050508] text-white relative font-mono ${
+                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                    }`}>
                       <div className="w-full flex justify-between text-[10px] text-cyan-400/80 mb-2 border-b border-cyan-500/20 pb-1 font-mono">
                         <span>[SYS_PROFILE]</span>
                         <span className="text-emerald-400">● LIVE HUD</span>
                       </div>
 
-                      {coverPhoto && (
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-lg overflow-hidden mb-3 border border-cyan-500/30 relative shadow-[0_0_15px_rgba(0,255,255,0.15)]">
                           <img
                             src={coverPhoto}
@@ -2463,23 +2565,29 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div className="relative my-2">
-                        <div
-                          className="flex items-center justify-center overflow-hidden bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,0,3,0.6)]"
-                          />
+                      {design.logoPosition !== 'hidden' && (
+                        <div className={`w-full flex ${
+                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                        }`}>
+                          <div className="relative my-2">
+                            <div
+                              className="flex items-center justify-center overflow-hidden bg-transparent border-0 shadow-none transition-all"
+                              style={{
+                                width: `${design.logoScale}px`,
+                                height: `${design.logoScale}px`
+                              }}
+                            >
+                              <img
+                                src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                                alt="Logo"
+                                className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,0,3,0.6)]"
+                              />
+                            </div>
+                            <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
+                            <span className="absolute -bottom-1 -right-1 text-[10px] text-cyan-400">+</span>
+                          </div>
                         </div>
-                        <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
-                        <span className="absolute -bottom-1 -right-1 text-[10px] text-cyan-400">+</span>
-                      </div>
+                      )}
 
                       <h2
                         className="text-xl font-bold tracking-widest text-cyan-100 uppercase mt-1"
@@ -2503,8 +2611,13 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      {formData.nota && (
+                      {!design.hideBio && formData.nota && (
                         <div className="mt-3 p-2.5 rounded bg-black/80 border-l-2 border-r-2 border-cyan-500/40 text-[11px] text-cyan-200/80 leading-relaxed text-left w-full">
+                          {design.customLabels?.bio && (
+                            <span className="block text-[9px] uppercase tracking-widest text-cyan-400 mb-0.5">
+                              // {design.customLabels.bio}
+                            </span>
+                          )}
                           &gt; {formData.nota}
                         </div>
                       )}
@@ -2513,8 +2626,10 @@ Beneficiario: TSolutions" />
 
                   {/* 10. TEMA SUIZO EDITORIAL CLEAN */}
                   {design.theme === 'editorial_swiss' && (
-                    <div className="p-6 flex flex-col items-center text-center bg-white text-zinc-900">
-                      {coverPhoto && (
+                    <div className={`p-6 flex flex-col bg-white text-zinc-900 ${
+                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                    }`}>
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 overflow-hidden mb-3 border-b border-zinc-200 relative">
                           <img
                             src={coverPhoto}
@@ -2529,19 +2644,25 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div
-                        className="flex items-center justify-center my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                      {design.logoPosition !== 'hidden' && (
+                        <div className={`w-full flex ${
+                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                        }`}>
+                          <div
+                            className="flex items-center justify-center my-2 bg-transparent border-0 shadow-none transition-all"
+                            style={{
+                              width: `${design.logoScale}px`,
+                              height: `${design.logoScale}px`
+                            }}
+                          >
+                            <img
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       <div className="w-full h-[1px] bg-zinc-200 my-2"></div>
 
@@ -2564,190 +2685,226 @@ Beneficiario: TSolutions" />
 
                       <div className="w-full h-[1px] bg-zinc-200 my-2"></div>
 
-                      {formData.nota && (
-                        <p className="text-xs text-zinc-600 leading-relaxed italic px-2">
+                      {!design.hideBio && formData.nota && (
+                        <div className="w-full text-xs text-zinc-600 leading-relaxed italic px-2">
+                          {design.customLabels?.bio && (
+                            <span className="block not-italic text-[10px] uppercase font-bold tracking-wider text-zinc-400 mb-0.5">
+                              {design.customLabels.bio}
+                            </span>
+                          )}
                           "{formData.nota}"
-                        </p>
+                        </div>
                       )}
                     </div>
                   )}
 
                   {/* PASTILLAS DE CONTACTO & REDES SOCIALES ADAPTABLES AL TEMA */}
                   <div className="px-5 space-y-2 mt-3">
-                    {formData.telefono && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                        <span className="truncate">{formData.telefono}</span>
-                      </div>
-                    )}
-                    {formData.correo && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                        <span className="truncate">{formData.correo}</span>
-                      </div>
-                    )}
-                    {formData.url && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                        <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
+                    {/* BLOQUE DE CONTACTO */}
+                    {!design.hideContact && (formData.telefono || formData.correo || formData.url) && (
+                      <div className="space-y-2">
+                        {design.customLabels?.contact && (
+                          <div className="text-[10px] uppercase font-bold tracking-wider opacity-60 px-1 text-left">
+                            {design.customLabels.contact}
+                          </div>
+                        )}
+                        {formData.telefono && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                            <span className="truncate">{formData.telefono}</span>
+                          </div>
+                        )}
+                        {formData.correo && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                            <span className="truncate">{formData.correo}</span>
+                          </div>
+                        )}
+                        {formData.url && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                            <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {/* REDES SOCIALES EN EL CELULAR */}
-                    {formData.facebook && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <span className="text-xs font-bold text-blue-500">📘</span>
-                        <span className="truncate font-mono">facebook.com/{formData.facebook.replace(/^@+/, '')}</span>
+                    {!design.hideSocial && (formData.facebook || formData.instagram || formData.linkedin) && (
+                      <div className="space-y-2 pt-1">
+                        {design.customLabels?.social && (
+                          <div className="text-[10px] uppercase font-bold tracking-wider opacity-60 px-1 text-left">
+                            {design.customLabels.social}
+                          </div>
+                        )}
+                        {formData.facebook && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <span className="text-xs font-bold text-blue-500">📘</span>
+                            <span className="truncate font-mono">facebook.com/{formData.facebook.replace(/^@+/, '')}</span>
+                          </div>
+                        )}
+
+                        {formData.instagram && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <span className="text-xs font-bold text-pink-500">📸</span>
+                            <span className="truncate font-mono">instagram.com/{formData.instagram.replace(/^@+/, '')}</span>
+                          </div>
+                        )}
+
+                        {formData.linkedin && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <span className="text-xs font-bold text-blue-400">💼</span>
+                            <span className="truncate font-mono">linkedin.com/in/{formData.linkedin.replace(/^@+/, '')}</span>
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    {formData.instagram && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <span className="text-xs font-bold text-pink-500">📸</span>
-                        <span className="truncate font-mono">instagram.com/{formData.instagram.replace(/^@+/, '')}</span>
-                      </div>
-                    )}
-
-                    {formData.linkedin && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <span className="text-xs font-bold text-blue-400">💼</span>
-                        <span className="truncate font-mono">linkedin.com/in/{formData.linkedin.replace(/^@+/, '')}</span>
-                      </div>
-                    )}
-
-                    {effectiveMapsUrl && (
+                    {!design.hideMap && effectiveMapsUrl && (
                       <a
                         href={effectiveMapsUrl}
                         target="_blank"
@@ -2762,7 +2919,7 @@ Beneficiario: TSolutions" />
                         <span>📍</span> {locationLabel}
                       </a>
                     )}
-                    {formData.videoYoutubeUrl && (
+                    {!design.hideVideo && formData.videoYoutubeUrl && (
                       <div className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-md">
                         <span>▶</span> Ver Video de Presentación
                       </div>

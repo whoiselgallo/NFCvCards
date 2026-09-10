@@ -32,13 +32,13 @@ export async function POST(request) {
         telefono, whatsapp, correo, url, linkedin, instagram, facebook,
         calle, ciudad, estado, cp, pais, nota, google_maps_url, video_youtube_url,
         theme, font_family, font_primary, font_secondary, color_primario, color_secundario, color_cta,
-        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo, custom_layout, calendly_url, google_calendar_url, icloud_calendar_url, paypal_url, bank_details, pdf_url, referred_by
+        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo, custom_layout, calendly_url, google_calendar_url, icloud_calendar_url, paypal_url, bank_details, pdf_url, referred_by, plan_tier
       ) VALUES (
         $1, $2, $3, $4, $5, $6,
         $7, $8, $9, $10, $11, $12, $13,
         $14, $15, $16, $17, $18, $19, $20, $21,
         $22, $23, $24, $25, $26, $27, $28,
-        $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
+        $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42
       )
       RETURNING id, slug, created_at;
     `;
@@ -48,11 +48,15 @@ export async function POST(request) {
     // Preparar JSON para custom_layout
     const customLayout = {
       logoPosition: design.logoPosition || 'center',
+      infoAlignment: design.infoAlignment || 'center',
+      socialIconShape: design.socialIconShape || 'circle',
+      socialIconStyle: design.socialIconStyle || 'default',
       hideBanner: !!design.hideBanner,
       hideBio: !!design.hideBio,
       hideContact: !!design.hideContact,
       hideSocial: !!design.hideSocial,
       hideMap: !!design.hideMap,
+      hideVideo: !!design.hideVideo,
       customLabels: design.customLabels || {}
     };
 
@@ -97,7 +101,8 @@ export async function POST(request) {
       formData.paypalUrl || '',
       formData.bankDetails || '',
       formData.pdfUrl || '',
-      referredBy
+      referredBy,
+      'elite'
     ];
 
     const result = await pool.query(query, values);
