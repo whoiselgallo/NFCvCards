@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { getTranslation } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
-import { MessageCircle, Camera, Briefcase, Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
+import { Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
+import { FacebookIcon, InstagramIcon, LinkedInIcon, TikTokIcon, XTwitterIcon, YouTubeIcon, WhatsAppIcon } from '../../components/BrandSocialIcons';
 import UsageExperienceModal from '../../components/UsageExperienceModal';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
@@ -212,6 +213,10 @@ export default function PublicProfileClient({ profile = {} }) {
   const fbUrl = getSocialUrl('facebook', facebook);
   const igUrl = getSocialUrl('instagram', instagram);
   const inUrl = getSocialUrl('linkedin', linkedin);
+  const ttUrl = getSocialUrl('tiktok', profile.tiktok);
+  const xUrl = getSocialUrl('x', profile.twitter || profile.xtwitter || profile.x);
+  const ytUrl = getSocialUrl('youtube', video_youtube_url || profile.youtube);
+  const waUrl = whatsapp ? (whatsapp.startsWith('http') ? whatsapp : `https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`) : '';
 
   // Arrays auxiliares seguros
   const safePortfolio = Array.isArray(portfolio) ? portfolio : [];
@@ -521,20 +526,21 @@ export default function PublicProfileClient({ profile = {} }) {
             </div>
           )}
 
-          {/* ACCIÓN PRINCIPAL RÁPIDA: AGENDAR CITA EN GOOGLE CALENDAR / CALENDLY */}
-          {google_calendar_url && (
+          {/* ACCIÓN PRINCIPAL RÁPIDA: AGENDAR CITA DE NEGOCIOS (BOTÓN PRINCIPAL BRILLANTE) */}
+          {(google_calendar_url || calendly_url || icloud_calendar_url) && (
             <a
-              href={google_calendar_url}
+              href={google_calendar_url || calendly_url || icloud_calendar_url}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent('calendar_click')}
-              className="w-full py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2.5 text-xs font-bruno font-bold uppercase tracking-wider text-white shadow-xl transition-all hover:scale-[1.02] border"
+              className="w-full py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 text-xs font-bruno font-bold uppercase tracking-wider text-white transition-all hover:scale-[1.02] border"
               style={{
-                background: `linear-gradient(135deg, ${color_primario} 0%, #000000 120%)`,
-                borderColor: color_primario
+                background: `linear-gradient(135deg, ${color_primario} 0%, #15050A 100%)`,
+                borderColor: color_primario,
+                boxShadow: `0 0 25px ${color_primario}60`
               }}
             >
-              <span className="text-base">📅</span> Agendar Cita en Google Calendar
+              <span className="text-base animate-pulse">📅</span> Agendar Cita de Negocios
             </a>
           )}
 
@@ -644,7 +650,7 @@ export default function PublicProfileClient({ profile = {} }) {
 
           {/* REDES SOCIALES */}
           {/* REDES SOCIALES (ICONOS AVANZADOS) */}
-          {!layout.hideSocial && (fbUrl || igUrl || inUrl) && (
+          {!layout.hideSocial && (fbUrl || igUrl || inUrl || ttUrl || xUrl || ytUrl || waUrl) && (
             <div className={`space-y-3 mt-4 flex flex-col ${layout.infoAlignment === 'left' ? 'items-start' : layout.infoAlignment === 'right' ? 'items-end' : 'items-center'}`}>
               {layout.customLabels?.social && (
                 <h3 className="text-[11px] font-bruno uppercase tracking-wider pl-1" style={{ color: color_primario }}>
@@ -652,25 +658,26 @@ export default function PublicProfileClient({ profile = {} }) {
                 </h3>
               )}
               
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 {fbUrl && (
                   <a
                     href={fbUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
+                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
                       layout.socialIconShape === 'square' ? 'rounded-md' : 
                       layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
                       layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                     style={
                       layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
                       layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#1877F215', borderColor: '#1877F230', color: '#1877F2' }
+                      { backgroundColor: '#1877F218', borderColor: '#1877F240', color: '#1877F2' }
                     }
+                    title="Facebook"
                   >
-                    <MessageCircle className="w-5 h-5" />
+                    <FacebookIcon className="w-5 h-5" />
                   </a>
                 )}
                 {igUrl && (
@@ -679,18 +686,19 @@ export default function PublicProfileClient({ profile = {} }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
+                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
                       layout.socialIconShape === 'square' ? 'rounded-md' : 
                       layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
                       layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                     style={
                       layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
                       layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#E4405F15', borderColor: '#E4405F30', color: '#E4405F' }
+                      { backgroundColor: '#E4405F18', borderColor: '#E4405F40', color: '#E4405F' }
                     }
+                    title="Instagram"
                   >
-                    <Camera className="w-5 h-5" />
+                    <InstagramIcon className="w-5 h-5" />
                   </a>
                 )}
                 {inUrl && (
@@ -699,18 +707,103 @@ export default function PublicProfileClient({ profile = {} }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
+                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
                       layout.socialIconShape === 'square' ? 'rounded-md' : 
                       layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
                       layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                     style={
                       layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
                       layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#0A66C215', borderColor: '#0A66C230', color: '#0A66C2' }
+                      { backgroundColor: '#0A66C218', borderColor: '#0A66C240', color: '#0A66C2' }
                     }
+                    title="LinkedIn"
                   >
-                    <Briefcase className="w-5 h-5" />
+                    <LinkedInIcon className="w-5 h-5" />
+                  </a>
+                )}
+                {ttUrl && (
+                  <a
+                    href={ttUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('social_click')}
+                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                      layout.socialIconShape === 'square' ? 'rounded-md' : 
+                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                    style={
+                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                      { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                    }
+                    title="TikTok"
+                  >
+                    <TikTokIcon className="w-5 h-5" />
+                  </a>
+                )}
+                {xUrl && (
+                  <a
+                    href={xUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('social_click')}
+                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                      layout.socialIconShape === 'square' ? 'rounded-md' : 
+                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                    style={
+                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                      { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                    }
+                    title="X (Twitter)"
+                  >
+                    <XTwitterIcon className="w-5 h-5" />
+                  </a>
+                )}
+                {ytUrl && (
+                  <a
+                    href={ytUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('social_click')}
+                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                      layout.socialIconShape === 'square' ? 'rounded-md' : 
+                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                    style={
+                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                      { backgroundColor: '#FF000018', borderColor: '#FF000040', color: '#FF0000' }
+                    }
+                    title="YouTube"
+                  >
+                    <YouTubeIcon className="w-5 h-5" />
+                  </a>
+                )}
+                {waUrl && (
+                  <a
+                    href={waUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('whatsapp_click')}
+                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                      layout.socialIconShape === 'square' ? 'rounded-md' : 
+                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                    style={
+                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                      { backgroundColor: '#25D36618', borderColor: '#25D36640', color: '#25D366' }
+                    }
+                    title="WhatsApp"
+                  >
+                    <WhatsAppIcon className="w-5 h-5" />
                   </a>
                 )}
               </div>
@@ -761,30 +854,22 @@ export default function PublicProfileClient({ profile = {} }) {
           </div>
 
                     {/* PRODUCTIVIDAD Y CONVERSIÓN */}
-          {(calendly_url || google_calendar_url || icloud_calendar_url || paypal_url || bank_details || pdf_url) && (
+          {(paypal_url || bank_details || pdf_url) && (
             <div className="pt-2 space-y-2.5">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5" style={{ fontFamily: font_secondary }}>
                 <span>⚡</span> Productividad y Negocio
               </h3>
               <div className="grid grid-cols-1 gap-2.5">
-                {calendly_url && (
-                  <a href={calendly_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: ` ${color_primario}15 `, borderColor: color_primario, color: color_primario }}>
-                    <Calendar className="w-4 h-4" /> Agendar Reunión (Calendly)
-                  </a>
-                )}
-                {google_calendar_url && (
-                  <a href={google_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#4285F415", borderColor: '#4285F4', color: '#4285F4' }}>
-                    <Calendar className="w-4 h-4" /> Google Calendar
-                  </a>
-                )}
-                {icloud_calendar_url && (
-                  <a href={icloud_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#FFFFFF15", borderColor: '#FFFFFF', color: '#FFFFFF' }}>
-                    <Calendar className="w-4 h-4" /> Apple Calendar
-                  </a>
-                )}
                 {paypal_url && (
-                  <a href={paypal_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#10b98115", borderColor: '#10b981', color: '#10b981' }}>
-                    <CreditCard className="w-4 h-4" /> Realizar Pago
+                  <a
+                    href={paypal_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('payment_click')}
+                    className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]"
+                    style={{ backgroundColor: "#10b98115", borderColor: '#10b981', color: '#10b981' }}
+                  >
+                    <CreditCard className="w-4 h-4" /> Realizar Pago (PayPal / Stripe)
                   </a>
                 )}
                 {pdf_url && (

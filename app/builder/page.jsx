@@ -8,6 +8,10 @@ import brandConfig from '../../brand.config';
 import { generateDeliveryInstructions } from '../../lib/brand';
 import { getTranslation } from '../../lib/i18n';
 import ConstructionFeedbackModal from '../components/ConstructionFeedbackModal';
+import PayPalHelperModal, { parsePaymentInput } from '../components/PayPalHelperModal';
+import ExpressCatalogModal from '../components/ExpressCatalogModal';
+import EcoFootprintModal from '../components/EcoFootprintModal';
+import { BrandSocialIcon } from '../components/BrandSocialIcons';
 
 // Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
 const THEMES = {
@@ -327,9 +331,14 @@ export default function VCardEngineDashboard() {
   // Estado de guardado en la nube
   const [isSaving, setIsSaving] = useState(false);
   const [savedUrl, setSavedUrl] = useState('');
+  const [savedSlug, setSavedSlug] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
+  const [isBuilderLocked, setIsBuilderLocked] = useState(false);
+  const [showPayPalHelper, setShowPayPalHelper] = useState(false);
+  const [showExpressCatalogModal, setShowExpressCatalogModal] = useState(false);
+  const [showEcoModal, setShowEcoModal] = useState(false);
 
   // Estados de Idioma (Español base + auto-detección flexible)
   const [lang, setLang] = useState('es');
@@ -808,7 +817,32 @@ export default function VCardEngineDashboard() {
       if (json.success && json.slug) {
         const fullUrl = `${window.location.origin}/p/${json.slug}`;
         setSavedUrl(fullUrl);
+        setSavedSlug(json.slug);
         setSavedSuccess(true);
+        setIsBuilderLocked(true);
+
+        // Respaldo inmediato en almacenamiento local para la página de agradecimiento
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('vcard_last_created_profile', JSON.stringify({
+              ...formData,
+              design,
+              logoImg,
+              coverPhoto
+            }));
+            localStorage.setItem(`vcard_draft_${json.slug}`, JSON.stringify({
+              ...formData,
+              design,
+              logoImg,
+              coverPhoto
+            }));
+          } catch {}
+        }
+
+        // Redirección inmediata al Centro Oficial de Entregables
+        setTimeout(() => {
+          router.push(`/gracias/${json.slug}`);
+        }, 1200);
       } else {
         alert('Error al guardar: ' + (json.error || 'No se pudo conectar a Google Cloud SQL'));
       }
@@ -1451,8 +1485,28 @@ export default function VCardEngineDashboard() {
                         <input type="url" name="icloudCalendarUrl" value={formData.icloudCalendarUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://www.icloud.com/..." />
                       </div>
                       <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Botón de Pago (PayPal / Stripe)</label>
-                        <input type="url" name="paypalUrl" value={formData.paypalUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://paypal.me/tu-usuario" />
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wider">Botón de Pago (PayPal / Stripe)</label>
+                          <button
+                            type="button"
+                            onClick={() => setShowPayPalHelper(true)}
+                            className="text-[10px] text-[#00E5FF] hover:underline flex items-center gap-1 font-mono font-bold"
+                          >
+                            ❓ Guía de Vinculación
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          name="paypalUrl"
+                          value={formData.paypalUrl}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const parsed = parsePaymentInput(val);
+                            setFormData(prev => ({ ...prev, paypalUrl: parsed }));
+                          }}
+                          className="input-dark w-full"
+                          placeholder="https://paypal.me/tu-usuario o pega código embed / JSON..."
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Datos Bancarios para Transferencia</label>
@@ -1461,8 +1515,36 @@ CLABE: 0123...
 Beneficiario: TSolutions" />
                       </div>
                       <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Documento PDF (CV, Catálogo)</label>
-                        <input type="url" name="pdfUrl" value={formData.pdfUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://mi-sitio.com/catalogo.pdf" />
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wider">Documento PDF (Catálogo, Menú o Portafolio)</label>
+                          <button
+                            type="button"
+                            onClick={() => setShowExpressCatalogModal(true)}
+                            className="text-[10px] bg-[#EE334E]/20 text-[#EE334E] hover:bg-[#EE334E]/30 px-2.5 py-0.5 rounded-lg border border-[#EE334E]/40 font-mono font-bold flex items-center gap-1 transition-all"
+                          >
+                            ✨ Crear PDF Express
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="url"
+                            name="pdfUrl"
+                            value={formData.pdfUrl}
+                            onChange={handleInputChange}
+                            className="input-dark w-full"
+                            placeholder="https://mi-sitio.com/catalogo.pdf o créalo con el botón de arriba"
+                          />
+                          {formData.pdfUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, pdfUrl: '' }))}
+                              className="px-2.5 py-2 bg-red-950/40 border border-red-800 text-red-400 rounded-lg text-xs hover:bg-red-900/40"
+                              title="Quitar PDF"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1686,311 +1768,55 @@ Beneficiario: TSolutions" />
                   )}
                 </div>
 
-                {/* ========================================================= */}
-                {/* PASO 5: TELEMETRÍA NTAG & DESCARGA DE ENTREGABLES         */}
-                {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-5 shadow-lg">
+                {/* INICIATIVA DE HUELLA ECOLÓGICA Y TARJETA FÍSICA NFC */}
+                <div className="bg-gradient-to-r from-emerald-950/40 via-[#0C1410] to-emerald-950/40 border border-emerald-500/40 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-xl shrink-0">
+                      🌱
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase font-mono tracking-wider flex items-center gap-2">
+                        <span>Iniciativa Huella de Carbono Cero</span>
+                        <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold">ECO-RESPONSABLE</span>
+                      </h4>
+                      <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">
+                        ¿Deseas evaluar solicitar una tarjeta física inteligente NFC o recibir tu cupón vitalicio por mantenerte 100% digital?
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowEcoModal(true)}
+                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold font-mono uppercase tracking-wider shrink-0 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center gap-2"
+                  >
+                    <span>Evaluar Tarjeta Física</span>
+                    <span>→</span>
+                  </button>
+                </div>
+
+                {/* INFORMACIÓN DEL CENTRO OFICIAL DE ENTREGABLES (/gracias/[slug]) */}
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-3 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">5</span>
+                      <span className="w-6 h-6 rounded-full bg-[#00E5FF] text-black text-xs font-rosetta font-bold flex items-center justify-center shrink-0">5</span>
                       <div>
-                        <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Entregables & Telemetría NFC</h3>
-                        <p className="text-[10px] text-gray-400">Paquete 1-Click o Módulos Individuales Desglosados</p>
+                        <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Centro Oficial de Entregables</h3>
+                        <p className="text-[10px] text-gray-400">Activación automática al desplegar en Google Cloud</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Suite Comercial</span>
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase bg-emerald-950/40 px-2.5 py-1 rounded border border-emerald-500/30">
+                      100% Incluido
+                    </span>
                   </div>
 
-                  {/* BANNER DE CONDICIÓN DE FEEDBACK PARA TARJETAS DE OBSEQUIO */}
-                  {(referredByAgent || vipPass) && (
-                    <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs transition-all ${
-                      feedbackCompleted
-                        ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-                        : 'bg-[#EE334E]/10 border-[#EE334E]/40 text-slate-200 shadow-[0_0_15px_rgba(238,51,78,0.2)]'
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0 ${
-                          feedbackCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#EE334E]/20 text-[#EE334E]'
-                        }`}>
-                          {feedbackCompleted ? '✓' : '🎁'}
-                        </div>
-                        <div>
-                          <p className="font-bold uppercase tracking-wider text-white">
-                            {feedbackCompleted ? '¡Descargas Gratuitas Habilitadas!' : 'Pase de Obsequio: Descargas Gratuitas'}
-                          </p>
-                          <p className="text-[11px] text-slate-300">
-                            {feedbackCompleted
-                              ? 'Has completado el feedback. Todos tus entregables están liberados al 100% sin costo.'
-                              : 'Para activar tus botones de descarga, completa un breve formulario de 1 minuto sobre tu experiencia de construcción.'}
-                          </p>
-                        </div>
-                      </div>
-                      {!feedbackCompleted && (
-                        <button
-                          type="button"
-                          onClick={() => setShowConstructionFeedback(true)}
-                          className="px-4 py-2 bg-[#EE334E] hover:bg-[#ff0003] text-white rounded-xl font-bold text-xs uppercase tracking-wider shrink-0 shadow-[0_0_15px_rgba(238,51,78,0.4)]"
-                        >
-                          Llenar Feedback (1 min)
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* TELEMETRÍA NTAG */}
-                  <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-rosetta text-[#EE334E] flex items-center gap-1.5 uppercase">
-                        <span>⚡</span> TELEMETRÍA DE MEMORIA NTAG
-                      </h4>
-                      <p className="text-[10px] text-gray-400">Payload URL para Chip NFC Físico o Sticker</p>
-                      <p className="text-[10px] font-mono text-white">NTAG213 (100% Compatible con iPhone y Android)</p>
-                    </div>
-                    <div className="bg-black/50 px-4 py-2.5 rounded-xl border border-gray-800 text-center shrink-0">
-                      <span className="text-[10px] text-gray-400 uppercase font-mono block">Tamaño vCard</span>
-                      <span className="text-2xl font-rosetta font-bold text-[#EE334E]">{new Blob([qrTargetValue]).size} <span className="text-xs">Bytes</span></span>
-                    </div>
+                  <div className="p-4 rounded-xl bg-black/50 border border-gray-800 text-xs text-gray-300 space-y-2">
+                    <p className="leading-relaxed">
+                      🎉 <strong className="text-white">Descarga de Entregables en su Propia Página:</strong> Para garantizar un flujo limpio y enfocado, el Paso 5 de descargas ahora cuenta con su propia pantalla dedicada (<code className="text-[#00E5FF]">/gracias/[slug]</code>).
+                    </p>
+                    <p className="text-[11px] text-gray-400 leading-relaxed">
+                      Al presionar <strong className="text-[#EE334E]">"Guardar y Desplegar Perfil"</strong> (Paso 4), el constructor asegurará tu diseño en Google Cloud SQL, se cerrará para proteger tu enlace y te dirigirá automáticamente al Centro de Entregables donde podrás descargar tu Ficha .VCF, Código QR HD (1200x1200px), Instructivo Oficial y el Paquete Completo .ZIP.
+                    </p>
                   </div>
-
-                  {/* PRESENTACIÓN COMERCIAL: PAQUETE COMPLETO ALL-IN-ONE ($199 MXN) */}
-                  <div className="bg-gradient-to-r from-[#180c0f] via-[#240d12] to-[#180c0f] p-5 rounded-2xl border-2 border-[#ff0003] shadow-[0_0_30px_rgba(255,0,3,0.25)] space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase bg-[#ff0003] text-white px-2.5 py-0.5 rounded font-extrabold tracking-wider">
-                          {(referredByAgent || vipPass) ? '🎁 PASE DE OBSEQUIO ACTIVO' : '🔥 OFERTA RECOMENDADA (45% OFF)'}
-                        </span>
-                        <h4 className="text-base font-rosetta text-white font-bold mt-1.5">PAQUETE COMPLETO ALL-IN-ONE</h4>
-                        <p className="text-xs text-gray-300">Incluye los 4 Entregables Completos + Despliegue Cloud en archivo .ZIP</p>
-                      </div>
-                      <div className="text-left sm:text-right">
-                        {(referredByAgent || vipPass) ? (
-                          <>
-                            <span className="text-xs text-emerald-400 font-mono block">Cortesía de Embajador</span>
-                            <span className="text-2xl sm:text-3xl font-rosetta text-emerald-400 font-extrabold">$0 <span className="text-xs">MXN (GRATIS)</span></span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-xs text-gray-500 line-through font-mono block">Suma Individual: $288 MXN</span>
-                            <span className="text-2xl sm:text-3xl font-rosetta text-[#EE334E] font-extrabold">$199 <span className="text-xs">MXN</span></span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (requireGiftFeedback(() => downloadFullPackage())) return;
-                        if (isPaid || unlockedItems.bundle || isVipActive) {
-                          downloadFullPackage();
-                        } else {
-                          setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables en .ZIP)', price: 199, id: 'bundle' });
-                          setShowCheckoutModal(true);
-                        }
-                      }}
-                      disabled={isZipping}
-                      className="btn-primary w-full py-4 text-xs sm:text-sm tracking-wider"
-                    >
-                      {isZipping ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>EMPAQUETANDO PAQUETE COMPLETO (.ZIP)...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.bundle || isVipActive ? '📦' : '💳')}</span>
-                          <span>
-                            {(referredByAgent || vipPass) && !feedbackCompleted
-                              ? 'COMPLETAR FEEDBACK PARA DESCARGAR (.ZIP)'
-                              : 'DESCARGAR PAQUETE COMPLETO (.ZIP)'}
-                          </span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* PRESENTACIÓN DE LOS 4 MÓDULOS INDIVIDUALES DESGLOSADOS (SUMATORIA: 1.45x = $288 MXN) */}
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-rosetta text-gray-300 uppercase tracking-wider">
-                        Desglose de Productos Individuales (Sumatoria: $288 MXN = 1.45x):
-                      </h4>
-                      <span className="text-[10px] font-mono text-gray-500">
-                        {(referredByAgent || vipPass) ? 'Entregables Desbloqueados' : 'Comprar por Separado'}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      
-                      {/* Módulo 1: Código QR HD */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 1</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Código QR HD (.PNG)</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Vectorial 1200x1200px listo para impresión</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
-                            {(referredByAgent || vipPass) ? '$0 MXN' : '$69 MXN'}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (requireGiftFeedback(() => downloadQR())) return;
-                            if (isPaid || unlockedItems.qr || unlockedItems.bundle || isVipActive) {
-                              downloadQR();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 1: Código QR HD 1200x1200px (.PNG)', price: 69, id: 'qr' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.qr || unlockedItems.bundle || isVipActive ? '⬇' : '💳')}</span>
-                          <span>
-                            {(referredByAgent || vipPass) && !feedbackCompleted
-                              ? 'Activar con Feedback'
-                              : 'Descargar QR (.PNG)'}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 2: Archivo vCard .VCF */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 2</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Archivo vCard 3.0 (.VCF)</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Instalación automática en agenda telefónica</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
-                            {(referredByAgent || vipPass) ? '$0 MXN' : '$69 MXN'}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (requireGiftFeedback(() => downloadVCF())) return;
-                            if (isPaid || unlockedItems.vcf || unlockedItems.bundle || isVipActive) {
-                              downloadVCF();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 2: Archivo de Contacto vCard 3.0 (.VCF)', price: 69, id: 'vcf' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.vcf || unlockedItems.bundle || isVipActive ? '💾' : '💳')}</span>
-                          <span>
-                            {(referredByAgent || vipPass) && !feedbackCompleted
-                              ? 'Activar con Feedback'
-                              : 'Descargar .VCF'}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 3: Enlace Cloud Permanente */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 3</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Enlace Cloud (/p/[slug])</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Alojamiento Google Cloud SQL activo 24/7</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
-                            {(referredByAgent || vipPass) ? '$0 MXN' : '$99 MXN'}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (requireGiftFeedback(() => handleSaveToCloud())) return;
-                            if (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive) {
-                              handleSaveToCloud();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 3: Despliegue Cloud & Enlace Permanente', price: 99, id: 'cloud' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive ? '🚀' : '💳')}</span>
-                          <span>
-                            {(referredByAgent || vipPass) && !feedbackCompleted
-                              ? 'Activar con Feedback'
-                              : (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive ? 'Guardar en la Nube' : 'Comprar Cloud ($99 MXN)')}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 4: Carta Oficial de Entrega */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 4</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Carta de Entrega & Guía</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Manual paso a paso para programar chip NFC</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$51 MXN</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isPaid || unlockedItems.letter || unlockedItems.bundle) {
-                              setShowEmailModal(true);
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 4: Carta Oficial de Entrega + Manual NFC Tools', price: 51, id: 'letter' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{isPaid || unlockedItems.letter || unlockedItems.bundle ? '📜' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.letter || unlockedItems.bundle ? 'Ver Carta de Entrega' : 'Comprar Carta ($51 MXN)'}</span>
-                        </button>
-                      </div>
-
-                    </div>
-                  </div>
-
-                  {/* LOGÍSTICA DE ENVÍO DE TARJETA FÍSICA NFC (MEXICALI 100% GRATIS / DHL & UPS) */}
-                  <div className="bg-[#090914] p-4 rounded-xl border border-gray-800 space-y-3">
-                    <div className="flex items-center justify-between border-b border-gray-800/80 pb-2">
-                      <div className="flex items-center gap-2">
-                        <span>📦</span>
-                        <h4 className="text-xs font-bruno text-white font-bold uppercase">{t('shipping_title')}</h4>
-                      </div>
-                      <span className="text-[10px] font-mono text-[#00E5FF] font-bold">Cobertura Total</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {/* Mexicali 100% Gratis */}
-                      <div className="bg-[#12121c] p-3.5 rounded-xl border border-green-500/40 space-y-1.5 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono font-bold text-green-400 bg-green-950/50 px-2 py-0.5 rounded border border-green-500/30">
-                            {t('shipping_mxl_badge')}
-                          </span>
-                          <span className="text-xs font-bruno font-extrabold text-green-400 uppercase">100% GRATIS</span>
-                        </div>
-                        <h5 className="text-xs font-bruno text-white font-bold">{t('shipping_mxl_title')}</h5>
-                        <p className="text-[10px] text-gray-400 leading-relaxed">{t('shipping_mxl_desc')}</p>
-                      </div>
-
-                      {/* México & Mundo vía DHL / UPS */}
-                      <div className="bg-[#12121c] p-3.5 rounded-xl border border-blue-500/40 space-y-1.5 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-500/30">
-                            {t('shipping_global_badge')}
-                          </span>
-                          <span className="text-xs font-mono font-bold text-yellow-400">DHL / UPS</span>
-                        </div>
-                        <h5 className="text-xs font-bruno text-white font-bold">{t('shipping_global_title')}</h5>
-                        <p className="text-[10px] text-gray-400 leading-relaxed">{t('shipping_global_desc')}</p>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </>
             )}
@@ -3169,6 +2995,49 @@ Beneficiario: TSolutions" />
                 Cerrar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE ASISTENTE DE PAGOS PAYPAL / STRIPE */}
+      <PayPalHelperModal
+        isOpen={showPayPalHelper}
+        onClose={() => setShowPayPalHelper(false)}
+        onApplyLink={(url) => setFormData(prev => ({ ...prev, paypalUrl: url }))}
+      />
+
+      {/* CREADOR EXPRESS DE CATÁLOGO / PORTAFOLIO / MENÚ EN PDF */}
+      <ExpressCatalogModal
+        isOpen={showExpressCatalogModal}
+        onClose={() => setShowExpressCatalogModal(false)}
+        companyName={formData.empresa || formData.nombre}
+        onPdfGenerated={(url) => setFormData(prev => ({ ...prev, pdfUrl: url }))}
+      />
+
+      {/* MODAL DE HUELLA ECOLÓGICA Y DECISIÓN DE TARJETA FÍSICA NFC */}
+      <EcoFootprintModal
+        isOpen={showEcoModal}
+        onClose={() => setShowEcoModal(false)}
+        slug={baseCardSlug}
+        shippingLocation={shippingLocation}
+        setShippingLocation={setShippingLocation}
+      />
+
+      {/* OVERLAY DE BLOQUEO DEL CONSTRUCTOR TRAS GUARDADO EN NUBE */}
+      {isBuilderLocked && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-3xl mb-4 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+            🔒
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-white uppercase font-mono tracking-wider">
+            Tarjeta Desplegada y Asegurada
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-300 max-w-md mt-2 leading-relaxed">
+            Tu tarjeta digital ya vive en la nube. El editor se ha cerrado para proteger la integridad de tus datos y telemetría. Redirigiendo a tu Centro de Entregables Oficial...
+          </p>
+          <div className="mt-6 flex items-center gap-2 text-xs font-mono text-emerald-400">
+            <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+            Cargando /gracias/{savedSlug || baseCardSlug}...
           </div>
         </div>
       )}
