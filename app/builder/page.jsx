@@ -157,13 +157,15 @@ export function getEffectiveMapsUrl(formData) {
   return '';
 }
 
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { getVipPass } from "../../lib/vipPasses";
 
 export default function VCardEngineDashboard() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
+  const [vipPass, setVipPass] = useState(null);
 
   
   const handleFreePass = async () => {
@@ -182,17 +184,50 @@ export default function VCardEngineDashboard() {
     }
   };
 
+  // Detección y activación del Pase VIP por parámetro URL (?vip= o ?pass=)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const vipSlug = sp.get('vip') || sp.get('pass');
+      if (vipSlug) {
+        const pass = getVipPass(vipSlug);
+        if (pass) {
+          setVipPass(pass);
+          if (status === 'unauthenticated') {
+            signIn('credentials', {
+              redirect: false,
+              passSlug: vipSlug
+            }).then(() => {
+              if (update) update();
+            });
+          }
+          setFormData(prev => ({
+            ...prev,
+            nombre: prev.nombre || pass.firstName,
+            apellido: prev.apellido || pass.lastName,
+            correo: prev.correo || pass.email,
+            empresa: prev.empresa || pass.company
+          }));
+        }
+      }
+    }
+  }, [status, update]);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login');
+      const sp = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const vipSlug = sp?.get('vip') || sp?.get('pass');
+      if (!vipSlug || !getVipPass(vipSlug)) {
+        router.push('/login');
+      }
     }
   }, [status, router]);
 
 
 
-  // Determinar el plan del usuario
-  
-  const userPlan = session?.user?.plan_id || 'free';
+  // Determinar el plan del usuario (Pase VIP desbloquea automáticamente Tier 4 Elite)
+  const isVipActive = !!vipPass || session?.user?.plan_id === 'elite';
+  const userPlan = isVipActive ? 'elite' : (session?.user?.plan_id || 'free');
   
   const getTier = (plan) => {
     switch(plan) {
@@ -728,13 +763,36 @@ export default function VCardEngineDashboard() {
     return <div className="min-h-screen flex items-center justify-center bg-[#05050D] text-white">Cargando editor...</div>;
   }
 
-  if (!session) {
+  if (!session && !vipPass) {
     return null;
   }
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#060509] text-[#F8FAFC]">
       
+      {/* BANNER DE PASE LIBRE VIP ELITE (50 TARJETAS) */}
+      {isVipActive && (
+        <div className="mb-4 max-w-[1920px] mx-auto w-full p-3.5 bg-gradient-to-r from-rose-950/60 via-[#0A0A10] to-purple-950/60 border border-[#EE334E]/40 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-[0_0_20px_rgba(238,51,78,0.25)]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#EE334E]/20 border border-[#EE334E]/50 flex items-center justify-center text-sm shadow-[0_0_10px_rgba(238,51,78,0.5)]">
+              ✨
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <span>PASE LIBRE VIP ACTIVO:</span>
+                <span className="text-[#00E5FF]">{vipPass?.name || session?.user?.name || 'USUARIO ELITE'}</span>
+              </p>
+              <p className="text-[11px] text-slate-400">
+                Nivel Elite Desbloqueado • 50 Tarjetas Libres • Todos los temas, diseño libre y Cloud SQL habilitados
+              </p>
+            </div>
+          </div>
+          <div className="px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-[10px] font-mono font-bold uppercase tracking-widest shrink-0">
+            50 TARJETAS DISPONIBLES
+          </div>
+        </div>
+      )}
+
       {/* HEADER DE LA PLATAFORMA */}
       <header className="mb-6 max-w-[1920px] mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-rose-900/30">
         <div className="flex items-center gap-3.5">
