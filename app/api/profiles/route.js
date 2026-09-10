@@ -32,16 +32,18 @@ export async function POST(request) {
         telefono, whatsapp, correo, url, linkedin, instagram, facebook,
         calle, ciudad, estado, cp, pais, nota, google_maps_url, video_youtube_url,
         theme, font_family, font_primary, font_secondary, color_primario, color_secundario, color_cta,
-        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo, custom_layout, calendly_url, google_calendar_url, icloud_calendar_url, paypal_url, bank_details, pdf_url
+        logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo, custom_layout, calendly_url, google_calendar_url, icloud_calendar_url, paypal_url, bank_details, pdf_url, referred_by
       ) VALUES (
         $1, $2, $3, $4, $5, $6,
         $7, $8, $9, $10, $11, $12, $13,
         $14, $15, $16, $17, $18, $19, $20, $21,
         $22, $23, $24, $25, $26, $27, $28,
-        $29, $30, $31, $32, $33, $34
+        $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
       )
       RETURNING id, slug, created_at;
     `;
+
+    const referredBy = data.referred_by || data.referredBy || formData.referred_by || formData.referredBy || null;
 
     // Preparar JSON para custom_layout
     const customLayout = {
@@ -94,7 +96,8 @@ export async function POST(request) {
       formData.icloudCalendarUrl || '',
       formData.paypalUrl || '',
       formData.bankDetails || '',
-      formData.pdfUrl || ''
+      formData.pdfUrl || '',
+      referredBy
     ];
 
     const result = await pool.query(query, values);

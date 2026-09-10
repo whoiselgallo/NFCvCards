@@ -166,6 +166,7 @@ export default function VCardEngineDashboard() {
   const router = useRouter();
   const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
   const [vipPass, setVipPass] = useState(null);
+  const [referredByAgent, setReferredByAgent] = useState(null);
 
   
   const handleFreePass = async () => {
@@ -184,11 +185,20 @@ export default function VCardEngineDashboard() {
     }
   };
 
-  // Detección y activación del Pase VIP por parámetro URL (?vip= o ?pass=)
+  // Detección de parámetros URL (?ref= para invitado o ?vip= / ?owner= para agente)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const sp = new URLSearchParams(window.location.search);
-      const vipSlug = sp.get('vip') || sp.get('pass');
+      const refSlug = sp.get('ref') || sp.get('invitado_por');
+      const vipSlug = sp.get('vip') || sp.get('pass') || sp.get('owner');
+
+      if (refSlug) {
+        const agent = getVipPass(refSlug);
+        if (agent) {
+          setReferredByAgent(agent);
+        }
+      }
+
       if (vipSlug) {
         const pass = getVipPass(vipSlug);
         if (pass) {
@@ -216,8 +226,10 @@ export default function VCardEngineDashboard() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       const sp = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-      const vipSlug = sp?.get('vip') || sp?.get('pass');
-      if (!vipSlug || !getVipPass(vipSlug)) {
+      const vipSlug = sp?.get('vip') || sp?.get('pass') || sp?.get('owner');
+      const refSlug = sp?.get('ref') || sp?.get('invitado_por');
+      // Si viene por invitación de regalo de un agente o por pase VIP, permitimos diseñar
+      if ((!vipSlug || !getVipPass(vipSlug)) && (!refSlug || !getVipPass(refSlug))) {
         router.push('/login');
       }
     }
@@ -225,8 +237,8 @@ export default function VCardEngineDashboard() {
 
 
 
-  // Determinar el plan del usuario (Pase VIP desbloquea automáticamente Tier 4 Elite)
-  const isVipActive = !!vipPass || session?.user?.plan_id === 'elite';
+  // Determinar el plan del usuario (Pase VIP o Invitación de Regalo desbloquea automáticamente Tier 4 Elite)
+  const isVipActive = !!vipPass || !!referredByAgent || session?.user?.plan_id === 'elite';
   const userPlan = isVipActive ? 'elite' : (session?.user?.plan_id || 'free');
   
   const getTier = (plan) => {
@@ -735,7 +747,8 @@ export default function VCardEngineDashboard() {
         },
         design,
         logoImg,
-        coverPhoto
+        coverPhoto,
+        referred_by: referredByAgent?.slug || vipPass?.slug || null
       };
 
       const res = await fetch('/api/profiles', {
@@ -763,15 +776,38 @@ export default function VCardEngineDashboard() {
     return <div className="min-h-screen flex items-center justify-center bg-[#05050D] text-white">Cargando editor...</div>;
   }
 
-  if (!session && !vipPass) {
+  if (!session && !vipPass && !referredByAgent) {
     return null;
   }
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#060509] text-[#F8FAFC]">
       
-      {/* BANNER DE PASE LIBRE VIP ELITE (50 TARJETAS) */}
-      {isVipActive && (
+      {/* BANNER DE OBSEQUIO DE AGENTE EMBAJADOR */}
+      {referredByAgent && (
+        <div className="mb-4 max-w-[1920px] mx-auto w-full p-3.5 bg-gradient-to-r from-emerald-950/70 via-[#0A0A10] to-teal-950/70 border border-emerald-500/40 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-[0_0_20px_rgba(16,185,129,0.25)]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-sm shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+              🎁
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <span>TARJETA DE OBSEQUIO:</span>
+                <span className="text-[#00E5FF]">Cortesía de {referredByAgent.name} ({referredByAgent.company})</span>
+              </p>
+              <p className="text-[11px] text-slate-400">
+                Lote de 50 Tarjetas de Invitado • Todas las funciones y temas desbloqueados sin costo
+              </p>
+            </div>
+          </div>
+          <div className="px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-[10px] font-mono font-bold uppercase tracking-widest shrink-0">
+            OBSEQUIO VIP ACTIVO
+          </div>
+        </div>
+      )}
+
+      {/* BANNER DE PASE PERSONAL DEL AGENTE */}
+      {!referredByAgent && isVipActive && (
         <div className="mb-4 max-w-[1920px] mx-auto w-full p-3.5 bg-gradient-to-r from-rose-950/60 via-[#0A0A10] to-purple-950/60 border border-[#EE334E]/40 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-[0_0_20px_rgba(238,51,78,0.25)]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-[#EE334E]/20 border border-[#EE334E]/50 flex items-center justify-center text-sm shadow-[0_0_10px_rgba(238,51,78,0.5)]">
@@ -783,7 +819,7 @@ export default function VCardEngineDashboard() {
                 <span className="text-[#00E5FF]">{vipPass?.name || session?.user?.name || 'USUARIO ELITE'}</span>
               </p>
               <p className="text-[11px] text-slate-400">
-                Nivel Elite Desbloqueado • 50 Tarjetas Libres • Todos los temas, diseño libre y Cloud SQL habilitados
+                Nivel Elite Desbloqueado • 50 Tarjetas Libres para Obsequiar • Todos los temas y Cloud SQL habilitados
               </p>
             </div>
           </div>
