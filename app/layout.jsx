@@ -5,6 +5,9 @@ import { Providers } from './providers';
 export const metadata = {
   title: `${brandConfig.brandName} - ${brandConfig.brandTagline}`,
   description: brandConfig.brandDescription,
+  verification: {
+    google: 'hd2ke5ja1sNeHcVzVs1j4SUViEbgIz5gW1Y7RiuBfgE',
+  },
   icons: {
     icon: [
       { url: brandConfig.assets.favicon || '/favicon.png', type: 'image/png' },
@@ -19,6 +22,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <head>
+        <meta name="google-site-verification" content="hd2ke5ja1sNeHcVzVs1j4SUViEbgIz5gW1Y7RiuBfgE" />
         <link rel="icon" type="image/png" href={brandConfig.assets.favicon || '/favicon.png'} />
         <link rel="apple-touch-icon" href={brandConfig.assets.appleIcon || '/apple-icon.png'} />
         <script src="https://cdn.tailwindcss.com"></script>
