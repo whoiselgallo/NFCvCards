@@ -73,7 +73,7 @@ export default function AllAgentesDashboard() {
                 Seguimiento de Agentes Embajadores
               </h1>
               <p className="text-slate-400 text-xs font-mono">
-                {brandConfig.companyName} • 200 Tarjetas en Campaña (50 por Agente)
+                {brandConfig.companyName} • {data?.totals?.totalGiftQuota || 250} Tarjetas en Campaña (50 por Agente)
               </p>
             </div>
           </div>
@@ -111,17 +111,17 @@ export default function AllAgentesDashboard() {
           <div className="bg-[#0A0A10]/80 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
             <span className="text-xs font-mono uppercase text-slate-400">Cupos Restantes</span>
             <div className="text-4xl font-extrabold text-green-400 mt-2 mb-1">
-              {loading ? '...' : (data?.totals?.totalRemaining || 200)}
+              {loading ? '...' : (data?.totals?.totalRemaining || 250)}
             </div>
             <p className="text-xs text-slate-500 font-mono">
-              Disponibles para obsequiar del total (200)
+              Disponibles para obsequiar del total ({data?.totals?.totalGiftQuota || 250})
             </p>
           </div>
 
           <div className="bg-[#0A0A10]/80 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
             <span className="text-xs font-mono uppercase text-slate-400">Agentes Activos</span>
             <div className="text-4xl font-extrabold text-[#00E5FF] mt-2 mb-1">
-              4 Embajadores
+              {loading ? '...' : `${data?.agents?.length || 5} Embajadores`}
             </div>
             <p className="text-xs text-slate-500 font-mono">
               50 tarjetas asignadas a cada uno
@@ -135,7 +135,8 @@ export default function AllAgentesDashboard() {
             { slug: 'ariel-higera', name: 'Ariel Higera', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 },
             { slug: 'michelle-hernandez', name: 'Michelle Hernandez', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 },
             { slug: 'fatima-itxel-hernandez', name: 'Fatima Itxel Hernandez', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 },
-            { slug: 'osclari-marlene', name: 'Osclari Marlene', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 }
+            { slug: 'osclari-marlene', name: 'Osclari Marlene', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 },
+            { slug: 'javier-gallardo', name: 'Javier Gallardo', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 }
           ]).map((ag) => (
             <div
               key={ag.slug}
