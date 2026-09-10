@@ -7,6 +7,7 @@ import {
   Activity, ArrowUpRight, Search, Calendar, ShieldCheck 
 } from 'lucide-react';
 import brandConfig from '../../../brand.config';
+import AgentInvitationSender from '../../components/AgentInvitationSender';
 
 export default function AgenteTrackingPage() {
   const params = useParams();
@@ -202,6 +203,13 @@ export default function AgenteTrackingPage() {
             </div>
           </div>
         </div>
+
+        {/* CENTRO DE ENVÍO DE INVITACIONES CON PLANTILLA */}
+        <AgentInvitationSender
+          agentName={agentData?.name || 'Agente Embajador'}
+          agentCompany={agentData?.company || brandConfig.companyName}
+          giftUrl={giftUrl}
+        />
 
         {/* TABLA DE TARJETAS REGISTRADAS */}
         <div className="bg-[#0A0A10]/80 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-sm">
