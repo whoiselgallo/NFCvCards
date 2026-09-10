@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { 
   Users, Gift, Copy, Check, Share2, CreditCard, ExternalLink, 
-  Activity, ArrowUpRight, Search, Calendar, ShieldCheck 
+  Activity, ArrowUpRight, Search, Calendar, ShieldCheck, Trash2, AlertTriangle 
 } from 'lucide-react';
 import brandConfig from '../../../brand.config';
 import AgentInvitationSender from '../../components/AgentInvitationSender';
@@ -19,31 +19,33 @@ export default function AgenteTrackingPage() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [deletingCard, setDeletingCard] = useState(null); // Tarjeta seleccionada para borrar
+  const [deleteReason, setDeleteReason] = useState('inactiva'); // 'inactiva', 'duplicada', 'error', 'otro'
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState(null);
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://vc.tsolutionsipidd.com';
   const giftUrl = `${origin}/regalo/${slug}`;
 
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/agents/${slug}`);
+      const data = await res.json();
+      if (data.success) {
+        setAgentData(data.agent);
+        setCards(data.cards || []);
+      }
+    } catch (err) {
+      console.error('Error cargando métricas de agente:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!slug) return;
-
-    let isMounted = true;
-    async function fetchStats() {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/agents/${slug}`);
-        const data = await res.json();
-        if (data.success && isMounted) {
-          setAgentData(data.agent);
-          setCards(data.cards || []);
-        }
-      } catch (err) {
-        console.error('Error cargando métricas de agente:', err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
     fetchStats();
-    return () => { isMounted = false; };
   }, [slug]);
 
   const handleCopy = () => {
@@ -59,7 +61,73 @@ export default function AgenteTrackingPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const filteredCards = cards.filter(c => {
+  // Función para confirmar y ejecutar la eliminación de la tarjeta
+  const confirmDeleteCard = async () => {
+    if (!deletingCard) return;
+
+    try {
+      setIsDeleting(true);
+      const res = await fetch(`/api/agents/${slug}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardId: deletingCard.id,
+          cardSlug: deletingCard.slug,
+          reason: deleteReason
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setDeleteMessage({
+          type: 'success',
+          text: `Tarjeta de "${deletingCard.nombre || deletingCard.slug}" eliminada exitosamente. ¡Cupo liberado!`
+        });
+        setDeletingCard(null);
+        // Actualizar datos locales
+        setCards(prev => prev.filter(c => c.id !== deletingCard.id));
+        if (data.stats) {
+          setAgentData(prev => ({
+            ...prev,
+            giftedCount: data.stats.giftedCount,
+            remaining: data.stats.remaining
+          }));
+        } else {
+          fetchStats();
+        }
+      } else {
+        alert(`Error al eliminar: ${data.error || 'No se pudo procesar'}`);
+      }
+    } catch (err) {
+      alert(`Error de red al eliminar tarjeta: ${err.message}`);
+    } finally {
+      setIsDeleting(false);
+      setTimeout(() => setDeleteMessage(null), 6000);
+    }
+  };
+
+  // Identificar posibles duplicados por nombre o correo
+  const nameCounts = {};
+  const emailCounts = {};
+  cards.forEach(c => {
+    const full = `${(c.nombre || '').trim()} ${(c.apellido || '').trim()}`.toLowerCase();
+    if (full.length > 2) nameCounts[full] = (nameCounts[full] || 0) + 1;
+    if (c.correo) emailCounts[c.correo.toLowerCase()] = (emailCounts[c.correo.toLowerCase()] || 0) + 1;
+  });
+
+  const filteredCards = cards.map(c => {
+    const full = `${(c.nombre || '').trim()} ${(c.apellido || '').trim()}`.toLowerCase();
+    const isDup = (nameCounts[full] > 1) || (c.correo && emailCounts[c.correo.toLowerCase()] > 1);
+    const views = parseInt(c.views_count || 0, 10);
+    const createdDaysAgo = c.created_at ? (new Date() - new Date(c.created_at)) / (1000 * 60 * 60 * 24) : 0;
+    const isInactive = views === 0 && createdDaysAgo >= 1; // Sin uso tras más de 24 horas
+
+    return {
+      ...c,
+      isDuplicateCandidate: isDup,
+      isInactiveCandidate: isInactive
+    };
+  }).filter(c => {
     const term = searchTerm.toLowerCase();
     const fullName = `${c.nombre || ''} ${c.apellido || ''}`.toLowerCase();
     const empresa = (c.empresa || '').toLowerCase();
@@ -211,6 +279,22 @@ export default function AgenteTrackingPage() {
           giftUrl={giftUrl}
         />
 
+        {/* MENSAJE DE ÉXITO TRAS ELIMINAR */}
+        {deleteMessage && (
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 text-xs font-mono flex items-center justify-between shadow-[0_0_20px_rgba(16,185,129,0.2)] animate-fadeIn">
+            <span className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-400" />
+              {deleteMessage.text}
+            </span>
+            <button
+              onClick={() => setDeleteMessage(null)}
+              className="text-slate-400 hover:text-white text-xs px-2 py-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* TABLA DE TARJETAS REGISTRADAS */}
         <div className="bg-[#0A0A10]/80 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-sm">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -220,7 +304,7 @@ export default function AgenteTrackingPage() {
                 Invitados que han creado su tarjeta ({cards.length})
               </h3>
               <p className="text-slate-400 text-xs">
-                Seguimiento en tiempo real de los prospectos y clientes que activaron su tarjeta con tu enlace.
+                Seguimiento en tiempo real de los prospectos y clientes que activaron su tarjeta con tu enlace. Puedes depurar tarjetas inactivas o duplicadas para liberar cupos.
               </p>
             </div>
 
@@ -265,21 +349,42 @@ export default function AgenteTrackingPage() {
                     <th className="pb-3 px-3">Titular</th>
                     <th className="pb-3 px-3">Empresa / Puesto</th>
                     <th className="pb-3 px-3">Contacto</th>
+                    <th className="pb-3 px-3">Estado / Uso</th>
                     <th className="pb-3 px-3">Fecha de Creación</th>
-                    <th className="pb-3 px-3 text-right">Acción</th>
+                    <th className="pb-3 px-3 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {filteredCards.map((c) => (
-                    <tr key={c.id} className="hover:bg-white/5 transition-colors">
+                    <tr key={c.id} className="hover:bg-white/5 transition-colors group">
                       <td className="py-4 px-3 font-semibold text-white">
-                        {c.nombre || ''} {c.apellido || ''}
+                        <div className="flex items-center gap-2">
+                          <span>{c.nombre || ''} {c.apellido || ''}</span>
+                          {c.isDuplicateCandidate && (
+                            <span className="px-1.5 py-0.5 rounded bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 text-[10px] font-mono font-bold flex items-center gap-1" title="Posible tarjeta duplicada">
+                              <AlertTriangle className="w-3 h-3" /> Duplicado
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 px-3 text-slate-300">
                         {c.empresa || 'Particular'} {c.puesto ? `• ${c.puesto}` : ''}
                       </td>
                       <td className="py-4 px-3 text-slate-400">
                         {c.telefono || c.correo || '—'}
+                      </td>
+                      <td className="py-4 px-3">
+                        {c.isInactiveCandidate ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-950/40 border border-red-500/30 text-red-400 text-[10px] font-mono">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                            Sin uso (0 vistas)
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            {parseInt(c.views_count || 0, 10)} vistas
+                          </span>
+                        )}
                       </td>
                       <td className="py-4 px-3 text-slate-500 font-mono">
                         {c.created_at ? new Date(c.created_at).toLocaleDateString('es-MX', {
@@ -289,15 +394,32 @@ export default function AgenteTrackingPage() {
                         }) : 'Reciente'}
                       </td>
                       <td className="py-4 px-3 text-right">
-                        <a
-                          href={`/p/${c.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-white/10 hover:bg-[#EE334E] text-white rounded-lg font-semibold transition-colors"
-                        >
-                          <span>Ver Tarjeta</span>
-                          <ArrowUpRight className="w-3.5 h-3.5" />
-                        </a>
+                        <div className="inline-flex items-center gap-2">
+                          <a
+                            href={`/p/${c.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white/10 hover:bg-[#EE334E] text-white rounded-lg font-semibold transition-colors"
+                            title="Abrir tarjeta digital"
+                          >
+                            <span>Ver</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </a>
+                          
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDeletingCard(c);
+                              if (c.isDuplicateCandidate) setDeleteReason('duplicada');
+                              else if (c.isInactiveCandidate) setDeleteReason('inactiva');
+                              else setDeleteReason('inactiva');
+                            }}
+                            className="inline-flex items-center justify-center p-1.5 rounded-lg bg-red-950/30 border border-red-500/20 text-red-400 hover:bg-red-600 hover:text-white transition-all"
+                            title="Eliminar tarjeta y recuperar cupo"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -308,6 +430,98 @@ export default function AgenteTrackingPage() {
         </div>
 
       </div>
+
+      {/* MODAL DE CONFIRMACIÓN PARA BORRAR TARJETA */}
+      {deletingCard && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-[#0c0c16] border border-red-500/30 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-[0_0_40px_rgba(238,51,78,0.25)] relative">
+            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 mb-4">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-lg font-bold text-white mb-1">
+              ¿Eliminar esta tarjeta?
+            </h3>
+            <p className="text-xs text-slate-300 leading-relaxed mb-4">
+              Estás a punto de borrar la tarjeta de <strong className="text-white">{deletingCard.nombre} {deletingCard.apellido}</strong> ({deletingCard.empresa || 'Particular'}). Al eliminarla, <strong className="text-emerald-400">recuperarás 1 cupo de regalo</strong> en tu lote de 50 tarjetas.
+            </p>
+
+            <div className="mb-5 space-y-2">
+              <label className="block text-[11px] font-mono text-slate-400 uppercase font-bold">
+                Motivo de la baja:
+              </label>
+              <div className="grid grid-cols-1 gap-2 text-xs">
+                <label className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all ${deleteReason === 'inactiva' ? 'bg-red-950/40 border-red-500 text-white' : 'bg-black/40 border-white/10 text-slate-300 hover:bg-white/5'}`}>
+                  <input
+                    type="radio"
+                    name="deleteReason"
+                    value="inactiva"
+                    checked={deleteReason === 'inactiva'}
+                    onChange={(e) => setDeleteReason(e.target.value)}
+                    className="accent-red-500"
+                  />
+                  <span>No la está utilizando / Cero actividad</span>
+                </label>
+
+                <label className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all ${deleteReason === 'duplicada' ? 'bg-red-950/40 border-red-500 text-white' : 'bg-black/40 border-white/10 text-slate-300 hover:bg-white/5'}`}>
+                  <input
+                    type="radio"
+                    name="deleteReason"
+                    value="duplicada"
+                    checked={deleteReason === 'duplicada'}
+                    onChange={(e) => setDeleteReason(e.target.value)}
+                    className="accent-red-500"
+                  />
+                  <span>Tarjeta duplicada por el mismo usuario</span>
+                </label>
+
+                <label className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all ${deleteReason === 'error' ? 'bg-red-950/40 border-red-500 text-white' : 'bg-black/40 border-white/10 text-slate-300 hover:bg-white/5'}`}>
+                  <input
+                    type="radio"
+                    name="deleteReason"
+                    value="error"
+                    checked={deleteReason === 'error'}
+                    onChange={(e) => setDeleteReason(e.target.value)}
+                    className="accent-red-500"
+                  />
+                  <span>Error en captura de datos / Prueba descartada</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeletingCard(null)}
+                className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={confirmDeleteCard}
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-lg flex items-center justify-center gap-1.5"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Eliminando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Sí, Eliminar</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+
