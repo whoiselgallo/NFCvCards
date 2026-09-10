@@ -7,6 +7,7 @@ import JSZip from 'jszip';
 import brandConfig from '../../brand.config';
 import { generateDeliveryInstructions } from '../../lib/brand';
 import { getTranslation } from '../../lib/i18n';
+import ConstructionFeedbackModal from '../components/ConstructionFeedbackModal';
 
 // Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
 const THEMES = {
@@ -359,6 +360,11 @@ export default function VCardEngineDashboard() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [unlockedItems, setUnlockedItems] = useState({ qr: false, vcf: false, cloud: false, letter: false, bundle: false });
 
+  // Estados de Feedback Obligatorio para Tarjetas de Obsequio
+  const [showConstructionFeedback, setShowConstructionFeedback] = useState(false);
+  const [feedbackCompleted, setFeedbackCompleted] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+
   // Detección de Retorno de Pago Exitoso en Stripe (Stripe Checkout Redirect)
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -664,6 +670,47 @@ export default function VCardEngineDashboard() {
     .replace(/^-+|-+$/g, '') || 'vcard';
 
   const cardProfileUrl = savedUrl || `${originUrl}/p/${baseCardSlug}`;
+
+  // Verificación de feedback previo y desbloqueo de cortesía para tarjetas de obsequio
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isDone = localStorage.getItem(`vcard_feedback_done_${baseCardSlug}`) === 'true';
+      if (isDone) {
+        setFeedbackCompleted(true);
+      }
+    }
+  }, [baseCardSlug]);
+
+  useEffect(() => {
+    if ((referredByAgent || vipPass) && feedbackCompleted) {
+      setIsPaid(true);
+      setUnlockedItems({ qr: true, vcf: true, cloud: true, letter: true, bundle: true });
+    }
+  }, [referredByAgent, vipPass, feedbackCompleted]);
+
+  // Interceptor obligatorio para tarjetas de obsequio antes de permitir descargas
+  const requireGiftFeedback = (actionCallback) => {
+    if ((referredByAgent || vipPass) && !feedbackCompleted) {
+      setPendingAction(() => actionCallback);
+      setShowConstructionFeedback(true);
+      return true;
+    }
+    return false;
+  };
+
+  const handleFeedbackSuccess = () => {
+    setFeedbackCompleted(true);
+    setIsPaid(true);
+    setUnlockedItems({ qr: true, vcf: true, cloud: true, letter: true, bundle: true });
+    setShowConstructionFeedback(false);
+    if (pendingAction) {
+      const act = pendingAction;
+      setPendingAction(null);
+      setTimeout(() => {
+        act();
+      }, 300);
+    }
+  };
 
   const qrTargetValue = mode === 'review'
     ? (effectiveMapsUrl || 'https://maps.google.com')
@@ -1566,14 +1613,15 @@ Beneficiario: TSolutions" />
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] font-mono text-gray-400 block uppercase">Módulo Individual</span>
-                      <span className="text-xs font-mono text-[#EE334E] font-bold">{isPaid || unlockedItems.cloud ? '✓ Incluido' : '$99 MXN'}</span>
+                      <span className="text-xs font-mono text-[#EE334E] font-bold">{isPaid || unlockedItems.cloud || isVipActive ? '✓ Incluido' : '$99 MXN'}</span>
                     </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => {
-                      if (isPaid || unlockedItems.cloud) {
+                      if (requireGiftFeedback(() => handleSaveToCloud())) return;
+                      if (isPaid || unlockedItems.cloud || isVipActive) {
                         handleSaveToCloud();
                       } else {
                         setSelectedProduct({ name: 'Módulo 3: Despliegue Cloud & Enlace Permanente (/p/[slug])', price: 99, id: 'cloud' });
@@ -1590,8 +1638,12 @@ Beneficiario: TSolutions" />
                       </>
                     ) : (
                       <>
-                        <span>🚀</span>
-                        <span>{isPaid || unlockedItems.cloud ? 'GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)' : 'DESPLEGAR EN LA NUBE ($99 MXN O INCLUIDO EN PAQUETE)'}</span>
+                        <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : '🚀'}</span>
+                        <span>
+                          {(referredByAgent || vipPass) && !feedbackCompleted
+                            ? 'ACTIVAR Y DESPLEGAR PERFIL (CON FEEDBACK)'
+                            : (isPaid || unlockedItems.cloud || isVipActive ? 'GUARDAR Y DESPLEGAR PERFIL (GOOGLE CLOUD)' : 'DESPLEGAR EN LA NUBE ($99 MXN O INCLUIDO EN PAQUETE)')}
+                        </span>
                       </>
                     )}
                   </button>
@@ -1649,6 +1701,42 @@ Beneficiario: TSolutions" />
                     <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Suite Comercial</span>
                   </div>
 
+                  {/* BANNER DE CONDICIÓN DE FEEDBACK PARA TARJETAS DE OBSEQUIO */}
+                  {(referredByAgent || vipPass) && (
+                    <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs transition-all ${
+                      feedbackCompleted
+                        ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
+                        : 'bg-[#EE334E]/10 border-[#EE334E]/40 text-slate-200 shadow-[0_0_15px_rgba(238,51,78,0.2)]'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0 ${
+                          feedbackCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#EE334E]/20 text-[#EE334E]'
+                        }`}>
+                          {feedbackCompleted ? '✓' : '🎁'}
+                        </div>
+                        <div>
+                          <p className="font-bold uppercase tracking-wider text-white">
+                            {feedbackCompleted ? '¡Descargas Gratuitas Habilitadas!' : 'Pase de Obsequio: Descargas Gratuitas'}
+                          </p>
+                          <p className="text-[11px] text-slate-300">
+                            {feedbackCompleted
+                              ? 'Has completado el feedback. Todos tus entregables están liberados al 100% sin costo.'
+                              : 'Para activar tus botones de descarga, completa un breve formulario de 1 minuto sobre tu experiencia de construcción.'}
+                          </p>
+                        </div>
+                      </div>
+                      {!feedbackCompleted && (
+                        <button
+                          type="button"
+                          onClick={() => setShowConstructionFeedback(true)}
+                          className="px-4 py-2 bg-[#EE334E] hover:bg-[#ff0003] text-white rounded-xl font-bold text-xs uppercase tracking-wider shrink-0 shadow-[0_0_15px_rgba(238,51,78,0.4)]"
+                        >
+                          Llenar Feedback (1 min)
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   {/* TELEMETRÍA NTAG */}
                   <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="space-y-1">
@@ -1668,20 +1756,32 @@ Beneficiario: TSolutions" />
                   <div className="bg-gradient-to-r from-[#180c0f] via-[#240d12] to-[#180c0f] p-5 rounded-2xl border-2 border-[#ff0003] shadow-[0_0_30px_rgba(255,0,3,0.25)] space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
-                        <span className="text-[10px] font-mono uppercase bg-[#ff0003] text-white px-2.5 py-0.5 rounded font-extrabold tracking-wider">🔥 OFERTA RECOMENDADA (45% OFF)</span>
+                        <span className="text-[10px] font-mono uppercase bg-[#ff0003] text-white px-2.5 py-0.5 rounded font-extrabold tracking-wider">
+                          {(referredByAgent || vipPass) ? '🎁 PASE DE OBSEQUIO ACTIVO' : '🔥 OFERTA RECOMENDADA (45% OFF)'}
+                        </span>
                         <h4 className="text-base font-rosetta text-white font-bold mt-1.5">PAQUETE COMPLETO ALL-IN-ONE</h4>
                         <p className="text-xs text-gray-300">Incluye los 4 Entregables Completos + Despliegue Cloud en archivo .ZIP</p>
                       </div>
                       <div className="text-left sm:text-right">
-                        <span className="text-xs text-gray-500 line-through font-mono block">Suma Individual: $288 MXN</span>
-                        <span className="text-2xl sm:text-3xl font-rosetta text-[#EE334E] font-extrabold">$199 <span className="text-xs">MXN</span></span>
+                        {(referredByAgent || vipPass) ? (
+                          <>
+                            <span className="text-xs text-emerald-400 font-mono block">Cortesía de Embajador</span>
+                            <span className="text-2xl sm:text-3xl font-rosetta text-emerald-400 font-extrabold">$0 <span className="text-xs">MXN (GRATIS)</span></span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-xs text-gray-500 line-through font-mono block">Suma Individual: $288 MXN</span>
+                            <span className="text-2xl sm:text-3xl font-rosetta text-[#EE334E] font-extrabold">$199 <span className="text-xs">MXN</span></span>
+                          </>
+                        )}
                       </div>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => {
-                        if (isPaid || unlockedItems.bundle) {
+                        if (requireGiftFeedback(() => downloadFullPackage())) return;
+                        if (isPaid || unlockedItems.bundle || isVipActive) {
                           downloadFullPackage();
                         } else {
                           setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables en .ZIP)', price: 199, id: 'bundle' });
@@ -1698,8 +1798,12 @@ Beneficiario: TSolutions" />
                         </>
                       ) : (
                         <>
-                          <span>{isPaid || unlockedItems.bundle ? '📦' : '💳'}</span>
-                          <span>'DESCARGAR PAQUETE COMPLETO (.ZIP)'</span>
+                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.bundle || isVipActive ? '📦' : '💳')}</span>
+                          <span>
+                            {(referredByAgent || vipPass) && !feedbackCompleted
+                              ? 'COMPLETAR FEEDBACK PARA DESCARGAR (.ZIP)'
+                              : 'DESCARGAR PAQUETE COMPLETO (.ZIP)'}
+                          </span>
                         </>
                       )}
                     </button>
@@ -1711,7 +1815,9 @@ Beneficiario: TSolutions" />
                       <h4 className="text-xs font-rosetta text-gray-300 uppercase tracking-wider">
                         Desglose de Productos Individuales (Sumatoria: $288 MXN = 1.45x):
                       </h4>
-                      <span className="text-[10px] font-mono text-gray-500">Comprar por Separado</span>
+                      <span className="text-[10px] font-mono text-gray-500">
+                        {(referredByAgent || vipPass) ? 'Entregables Desbloqueados' : 'Comprar por Separado'}
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1724,12 +1830,15 @@ Beneficiario: TSolutions" />
                             <h5 className="text-xs font-rosetta text-white font-bold">Código QR HD (.PNG)</h5>
                             <p className="text-[10px] text-gray-400 mt-0.5">Vectorial 1200x1200px listo para impresión</p>
                           </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$69 MXN</span>
+                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
+                            {(referredByAgent || vipPass) ? '$0 MXN' : '$69 MXN'}
+                          </span>
                         </div>
                         <button
                           type="button"
                           onClick={() => {
-                            if (isPaid || unlockedItems.qr || unlockedItems.bundle) {
+                            if (requireGiftFeedback(() => downloadQR())) return;
+                            if (isPaid || unlockedItems.qr || unlockedItems.bundle || isVipActive) {
                               downloadQR();
                             } else {
                               setSelectedProduct({ name: 'Entregable 1: Código QR HD 1200x1200px (.PNG)', price: 69, id: 'qr' });
@@ -1738,8 +1847,12 @@ Beneficiario: TSolutions" />
                           }}
                           className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
                         >
-                          <span>{isPaid || unlockedItems.qr || unlockedItems.bundle ? '⬇' : '💳'}</span>
-                          <span>'Descargar QR (.PNG)'</span>
+                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.qr || unlockedItems.bundle || isVipActive ? '⬇' : '💳')}</span>
+                          <span>
+                            {(referredByAgent || vipPass) && !feedbackCompleted
+                              ? 'Activar con Feedback'
+                              : 'Descargar QR (.PNG)'}
+                          </span>
                         </button>
                       </div>
 
@@ -1751,12 +1864,15 @@ Beneficiario: TSolutions" />
                             <h5 className="text-xs font-rosetta text-white font-bold">Archivo vCard 3.0 (.VCF)</h5>
                             <p className="text-[10px] text-gray-400 mt-0.5">Instalación automática en agenda telefónica</p>
                           </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$69 MXN</span>
+                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
+                            {(referredByAgent || vipPass) ? '$0 MXN' : '$69 MXN'}
+                          </span>
                         </div>
                         <button
                           type="button"
                           onClick={() => {
-                            if (isPaid || unlockedItems.vcf || unlockedItems.bundle) {
+                            if (requireGiftFeedback(() => downloadVCF())) return;
+                            if (isPaid || unlockedItems.vcf || unlockedItems.bundle || isVipActive) {
                               downloadVCF();
                             } else {
                               setSelectedProduct({ name: 'Entregable 2: Archivo de Contacto vCard 3.0 (.VCF)', price: 69, id: 'vcf' });
@@ -1765,8 +1881,12 @@ Beneficiario: TSolutions" />
                           }}
                           className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
                         >
-                          <span>{isPaid || unlockedItems.vcf || unlockedItems.bundle ? '💾' : '💳'}</span>
-                          <span>'Descargar .VCF'</span>
+                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.vcf || unlockedItems.bundle || isVipActive ? '💾' : '💳')}</span>
+                          <span>
+                            {(referredByAgent || vipPass) && !feedbackCompleted
+                              ? 'Activar con Feedback'
+                              : 'Descargar .VCF'}
+                          </span>
                         </button>
                       </div>
 
@@ -1778,12 +1898,15 @@ Beneficiario: TSolutions" />
                             <h5 className="text-xs font-rosetta text-white font-bold">Enlace Cloud (/p/[slug])</h5>
                             <p className="text-[10px] text-gray-400 mt-0.5">Alojamiento Google Cloud SQL activo 24/7</p>
                           </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$99 MXN</span>
+                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
+                            {(referredByAgent || vipPass) ? '$0 MXN' : '$99 MXN'}
+                          </span>
                         </div>
                         <button
                           type="button"
                           onClick={() => {
-                            if (isPaid || unlockedItems.cloud || unlockedItems.bundle) {
+                            if (requireGiftFeedback(() => handleSaveToCloud())) return;
+                            if (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive) {
                               handleSaveToCloud();
                             } else {
                               setSelectedProduct({ name: 'Entregable 3: Despliegue Cloud & Enlace Permanente', price: 99, id: 'cloud' });
@@ -1792,8 +1915,12 @@ Beneficiario: TSolutions" />
                           }}
                           className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
                         >
-                          <span>{isPaid || unlockedItems.cloud || unlockedItems.bundle ? '🚀' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.cloud || unlockedItems.bundle ? 'Desplegar Cloud' : 'Comprar Cloud ($99 MXN)'}</span>
+                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive ? '🚀' : '💳')}</span>
+                          <span>
+                            {(referredByAgent || vipPass) && !feedbackCompleted
+                              ? 'Activar con Feedback'
+                              : (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive ? 'Guardar en la Nube' : 'Comprar Cloud ($99 MXN)')}
+                          </span>
                         </button>
                       </div>
 
@@ -3012,6 +3139,16 @@ Beneficiario: TSolutions" />
           </div>
         </div>
       )}
+
+      {/* MODAL DE FEEDBACK OBLIGATORIO PARA TARJETAS DE OBSEQUIO */}
+      <ConstructionFeedbackModal
+        isOpen={showConstructionFeedback}
+        onClose={() => setShowConstructionFeedback(false)}
+        onSuccess={handleFeedbackSuccess}
+        profileSlug={baseCardSlug}
+        referredBy={referredByAgent?.slug || vipPass?.slug || null}
+        clientEmail={formData.correo || null}
+      />
 
       {/* MODAL DE PASARELA DE PAGO: TSOLUTIONS SECURE PAY GATEWAY */}
       {showCheckoutModal && (

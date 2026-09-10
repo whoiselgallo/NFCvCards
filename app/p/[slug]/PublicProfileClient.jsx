@@ -5,6 +5,7 @@ import { getTranslation } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
 import { MessageCircle, Camera, Briefcase, Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
+import UsageExperienceModal from '../../components/UsageExperienceModal';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
 export function getSocialUrl(type, value) {
@@ -83,12 +84,32 @@ export default function PublicProfileClient({ profile = {} }) {
     portfolio = [],
     gallery = [],
     marketing_carousel = [],
-    customer_reviews = []
+    customer_reviews = [],
+    views_count = 0,
+    referred_by = null,
+    usage_feedback_completed = false
   } = profile;
 
   // Estado para modal de fototeca
   const [selectedGalleryImg, setSelectedGalleryImg] = useState(null);
   const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
+
+  // Estados para Retroalimentación de Experiencia (tras 10 usos)
+  const [showUsageModal, setShowUsageModal] = useState(false);
+  const [usageFeedbackDone, setUsageFeedbackDone] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && slug) {
+      const isDone = localStorage.getItem(`vcard_usage_feedback_done_${slug}`) === 'true' || usage_feedback_completed;
+      setUsageFeedbackDone(isDone);
+      if (!isDone && views_count >= 10) {
+        const timer = setTimeout(() => {
+          setShowUsageModal(true);
+        }, 2500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [slug, views_count, usage_feedback_completed]);
 
   // Tema activo y estilos
   const activeThemeConfig = THEMES[theme] || THEMES.modern;
@@ -923,6 +944,31 @@ export default function PublicProfileClient({ profile = {} }) {
             <span className="text-[9px] text-white/40 mt-1 bg-white/5 px-2 py-0.5 rounded-full border border-white/10 uppercase tracking-wider">Crea tu ROSE vCard Gratis</span>
           </a>
         </div>
+
+        {/* MODAL DE EXPERIENCIA TRAS 10 USOS */}
+        <UsageExperienceModal
+          isOpen={showUsageModal}
+          onClose={() => {
+            setShowUsageModal(false);
+            setUsageFeedbackDone(true);
+          }}
+          profileSlug={slug}
+          viewsCount={views_count || 10}
+          referredBy={referred_by}
+        />
+
+        {/* BOTÓN FLOTANTE DISCRETO SI YA TIENE 10 USOS Y NO HA CALIFICADO */}
+        {views_count >= 10 && !usageFeedbackDone && !showUsageModal && (
+          <div className="fixed bottom-4 right-4 z-40 animate-bounce">
+            <button
+              onClick={() => setShowUsageModal(true)}
+              className="px-3.5 py-2 bg-[#090912]/90 hover:bg-[#0A0A18] text-[#00E5FF] border border-[#00E5FF]/50 rounded-full shadow-[0_0_20px_rgba(0,229,255,0.4)] text-[11px] font-mono font-bold flex items-center gap-2 backdrop-blur-md transition-all"
+            >
+              <span>🚀</span>
+              <span>+{views_count} Consultas • Calificar</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
