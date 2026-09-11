@@ -11,6 +11,7 @@ import ConstructionFeedbackModal from '../components/ConstructionFeedbackModal';
 import PayPalHelperModal, { parsePaymentInput } from '../components/PayPalHelperModal';
 import ExpressCatalogModal from '../components/ExpressCatalogModal';
 import EcoFootprintModal from '../components/EcoFootprintModal';
+import PreBuilderChecklistModal from '../components/PreBuilderChecklistModal';
 import { BrandSocialIcon } from '../components/BrandSocialIcons';
 
 // Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
@@ -172,6 +173,24 @@ export default function VCardEngineDashboard() {
   const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
   const [vipPass, setVipPass] = useState(null);
   const [referredByAgent, setReferredByAgent] = useState(null);
+  const [showPreChecklist, setShowPreChecklist] = useState(false);
+
+  // Mostrar checklist/advertencia previa en la primera visita a la sesión
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasSeen = sessionStorage.getItem('vcard_prechecklist_seen');
+      if (!hasSeen) {
+        setShowPreChecklist(true);
+      }
+    }
+  }, []);
+
+  const handleDismissPreChecklist = () => {
+    setShowPreChecklist(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('vcard_prechecklist_seen', 'true');
+    }
+  };
 
   
   const handleFreePass = async () => {
@@ -1010,6 +1029,33 @@ export default function VCardEngineDashboard() {
               <span>⭐</span> {t('mode_review')}
             </button>
           </div>
+
+          {/* Botón de Checklist Previo / Advertencia de Datos */}
+          <button
+            type="button"
+            onClick={() => setShowPreChecklist(true)}
+            className="px-3 py-2 rounded-xl text-xs font-bruno bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all flex items-center gap-1.5 shadow-sm"
+            title="Ver checklist de requisitos y archivos necesarios"
+          >
+            <span>⚠️</span> <span className="hidden sm:inline">Requisitos de Construcción</span>
+          </button>
+
+          {/* Botón de Inicio de Sesión / Cuenta para Móvil */}
+          {status === 'unauthenticated' ? (
+            <a
+              href="/login"
+              className="px-3 py-1.5 rounded-xl text-xs font-bruno bg-[#EE334E] hover:bg-[#ff0003] text-white transition-all flex sm:hidden items-center gap-1 shadow-[0_0_10px_rgba(238,51,78,0.4)]"
+            >
+              <span>Acceder</span>
+            </a>
+          ) : (
+            <a
+              href="/dashboard"
+              className="px-3 py-1.5 rounded-xl text-xs font-bruno bg-white/10 hover:bg-white/20 text-white transition-all flex sm:hidden items-center gap-1 border border-white/10"
+            >
+              <span>Mi Cuenta</span>
+            </a>
+          )}
 
           {/* Selector de Idioma Flexible (ES / EN) */}
           <button
@@ -3373,6 +3419,12 @@ Beneficiario: TSolutions" />
           </div>
         </div>
       )}
+
+      {/* MODAL DE CHECKLIST & ADVERTENCIA PREVIA AL CONSTRUCTOR */}
+      <PreBuilderChecklistModal
+        isOpen={showPreChecklist}
+        onClose={handleDismissPreChecklist}
+      />
 
     </div>
   );

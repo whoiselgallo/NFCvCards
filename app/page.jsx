@@ -114,11 +114,29 @@ export default function LandingPage() {
       
       {/* HEADER / NAVBAR */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#05050D]/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Nfc className="text-[#EE334E] w-8 h-8" />
-            <span className="text-2xl font-bold tracking-tight text-white">Rose VCards</span>
+            <Nfc className="text-[#EE334E] w-7 h-7 sm:w-8 h-8" />
+            <span className="text-xl sm:text-2xl font-bold tracking-tight text-white">Rose VCards</span>
           </div>
+
+          {/* Botón de Inicio de Sesión para Celulares (Visible en Móvil) */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link 
+              href="/builder" 
+              className="text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10"
+            >
+              Editor
+            </Link>
+            <Link 
+              href="/login" 
+              className="text-white bg-gradient-to-r from-[#EE334E] to-[#ff0003] hover:brightness-110 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-[0_0_12px_rgba(238,51,78,0.4)] flex items-center gap-1.5"
+            >
+              <span>Iniciar Sesión</span>
+            </Link>
+          </div>
+
+          {/* Menú Desktop */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <a href="#use-cases" className="hover:text-white transition-colors">Casos de Uso</a>
             <a href="#white-label" className="hover:text-white transition-colors">Marca Blanca</a>

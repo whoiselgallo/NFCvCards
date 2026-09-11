@@ -1033,6 +1033,19 @@ export default function PublicProfileClient({ profile = {} }) {
             </div>
           )}
 
+          {/* BOTÓN DE ACCESO AL PANEL DE AGENTE / EMBAJADOR */}
+          {(['ariel-higera', 'michelle-hernandez', 'fatima-itxel-hernandez', 'osclari-marlene', 'javier-gallardo'].includes(slug) || !!referred_by) && (
+            <div className="pt-4 pb-2">
+              <a
+                href={`/agente/${['ariel-higera', 'michelle-hernandez', 'fatima-itxel-hernandez', 'osclari-marlene', 'javier-gallardo'].includes(slug) ? slug : (referred_by || 'javier-gallardo')}`}
+                className="w-full py-3.5 px-4 rounded-2xl bg-[#12111a] hover:bg-[#1a1725] border border-[#EE334E]/40 hover:border-[#EE334E] text-white font-bold text-xs tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(238,51,78,0.2)] flex items-center justify-center gap-2 group"
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-[#EE334E] group-hover:scale-125 transition-transform animate-pulse"></span>
+                <span>🚀 Panel de Agente Embajador</span>
+              </a>
+            </div>
+          )}
+
           {/* FOOTER DISCRETO WHITE-LABEL */}
           {brandConfig.footer?.enabled && (
             <div className="pt-4 text-center">

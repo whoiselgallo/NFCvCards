@@ -164,12 +164,21 @@ export default function AgenteTrackingPage() {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
+            <a
+              href={`/p/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-gradient-to-r from-[#EE334E] to-[#ff0003] hover:brightness-110 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-[#EE334E]/20"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Ver Mi Tarjeta en Vivo
+            </a>
             <button
               onClick={() => router.push(`/builder?owner=${slug}&vip=${slug}`)}
               className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 border border-white/10"
             >
               <CreditCard className="w-4 h-4 text-[#00E5FF]" />
-              Crear / Editar Mi Tarjeta Personal
+              Editar Mi Tarjeta
             </button>
             <button
               onClick={() => router.push('/agentes')}
