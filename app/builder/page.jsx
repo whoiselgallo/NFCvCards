@@ -398,6 +398,40 @@ export default function VCardEngineDashboard() {
     }
   }, []);
 
+  // Auto-guardado en LocalStorage para garantizar CERO PÉRDIDA DE DATOS
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasContent = formData.nombre || formData.apellido || formData.empresa || formData.puesto || formData.telefono || formData.correo;
+      if (hasContent) {
+        try {
+          localStorage.setItem('vcard_builder_draft', JSON.stringify({
+            formData,
+            design,
+            timestamp: Date.now()
+          }));
+        } catch (e) {}
+      }
+    }
+  }, [formData, design]);
+
+  // Restauración de borrador al cargar
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedDraft = localStorage.getItem('vcard_builder_draft');
+        if (savedDraft) {
+          const parsed = JSON.parse(savedDraft);
+          if (parsed.formData && !formData.nombre) {
+            setFormData(prev => ({ ...prev, ...parsed.formData }));
+          }
+          if (parsed.design) {
+            setDesign(prev => ({ ...prev, ...parsed.design }));
+          }
+        }
+      } catch (e) {}
+    }
+  }, []);
+
   // Procesamiento de Pago Seguro (Stripe Checkout Oficial)
   const handleProcessPayment = async () => {
     setIsProcessingPayment(true);
@@ -929,14 +963,27 @@ export default function VCardEngineDashboard() {
           </div>
         </div>
 
-        {/* CONTROLES DE CABECERA: SELECTOR DE MODO, IDIOMA & ENLACE ADMIN */}
+          {/* BOTÓN CTA PERSISTENTE DE PAGO / DESBLOQUEO */}
+          {!isPaid && !isVipActive && (
+            <button 
+              type="button"
+              onClick={() => {
+                setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' });
+                setShowCheckoutModal(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#EE334E] via-[#ff0003] to-[#EE334E] hover:brightness-125 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(255,0,3,0.6)] transition-all active:scale-95 animate-pulse"
+            >
+              <span>💳</span>
+              <span>Desbloquear Todo / Pagar ($199 MXN)</span>
+            </button>
+          )}
 
           {!isPremium && userPlan !== 'meet_me' && (
             <button 
               onClick={handleFreePass}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all active:scale-95"
+              className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/50 hover:bg-emerald-500/30 text-emerald-300 rounded-xl text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
             >
-              🎁 Usar Pase Libre Meet Me
+              🎁 Pase Demo
             </button>
           )}
 
@@ -3133,25 +3180,153 @@ Beneficiario: TSolutions" />
         clientEmail={formData.correo || null}
       />
 
-      {/* MODAL DE PASARELA DE PAGO: TSOLUTIONS SECURE PAY GATEWAY */}
+      {/* MODAL DE PASARELA DE PAGO DIRECTA: TSOLUTIONS SECURE CHECKOUT */}
       {showCheckoutModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-rose-600/30 w-full max-w-sm rounded-3xl p-6 text-center shadow-[0_0_30px_rgba(255,0,3,0.15)] animate-scaleIn">
-            <div className="w-16 h-16 bg-rose-600/10 border border-rose-600/20 text-[#ff0003] flex items-center justify-center rounded-full mx-auto mb-4 text-2xl">
-              <Lock className="w-8 h-8" />
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#0e0d18] border border-[#ff0003]/40 w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-[0_0_50px_rgba(255,0,3,0.25)] animate-scaleIn space-y-5 my-8">
+            
+            {/* Header del Modal */}
+            <div className="text-center space-y-1.5">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#ff0003]/20 to-[#00E5FF]/10 border border-[#ff0003]/40 text-[#ff0003] flex items-center justify-center rounded-2xl mx-auto shadow-[0_0_20px_rgba(255,0,3,0.3)] text-2xl">
+                💳
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-white font-bruno">
+                Desbloquea tu Tarjeta & Entregables
+              </h3>
+              <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+                ¡Tu diseño está 100% listo y guardado! Selecciona tu paquete para desplegar en Google Cloud y activar tus descargas inmediatas.
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2 font-bruno">Módulo Bloqueado</h3>
-            <p className="text-sm text-gray-400 mb-6 font-mono">
-              Esta función no está incluida en tu paquete actual. Los bloqueos visuales protegen las características exclusivas de los paquetes superiores.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowCheckoutModal(false)}
-                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all"
+
+            {/* Selector de Paquetes Comerciales */}
+            <div className="space-y-3">
+              {/* Opción 1: Paquete Completo (Recomendado) */}
+              <div
+                onClick={() => setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' })}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                  selectedProduct.id === 'bundle'
+                    ? 'bg-gradient-to-r from-[#ff0003]/15 to-rose-950/40 border-[#ff0003] shadow-[0_0_20px_rgba(255,0,3,0.25)]'
+                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                }`}
               >
-                Cerrar
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
+                    selectedProduct.id === 'bundle' ? 'border-[#ff0003] bg-[#ff0003]' : 'border-gray-600'
+                  }`}>
+                    {selectedProduct.id === 'bundle' && <span className="w-2 h-2 rounded-full bg-white"></span>}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-white font-rosetta">Paquete Completo All-in-One</span>
+                      <span className="text-[10px] bg-[#ff0003] text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">MÁS POPULAR</span>
+                    </div>
+                    <p className="text-[11px] text-gray-300">
+                      Incluye los 4 Entregables Oficiales: Despliegue en Cloud SQL, Archivo .VCF, Código QR HD 1200px y Paquete ZIP.
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-lg font-bold text-white font-mono">$199</span>
+                  <span className="text-[10px] text-gray-400 block font-mono">MXN</span>
+                </div>
+              </div>
+
+              {/* Opción 2: Plan Business Elite */}
+              <div
+                onClick={() => setSelectedProduct({ name: 'Plan Business Elite Anual (Acceso Total)', price: 1499, id: 'elite_annual' })}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                  selectedProduct.id === 'elite_annual'
+                    ? 'bg-gradient-to-r from-purple-950/40 to-[#00E5FF]/10 border-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.2)]'
+                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
+                    selectedProduct.id === 'elite_annual' ? 'border-[#00E5FF] bg-[#00E5FF]' : 'border-gray-600'
+                  }`}>
+                    {selectedProduct.id === 'elite_annual' && <span className="w-2 h-2 rounded-full bg-black"></span>}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-white font-rosetta">Plan Business Elite</span>
+                      <span className="text-[10px] bg-[#00E5FF] text-black px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">MÁXIMO PODER</span>
+                    </div>
+                    <p className="text-[11px] text-gray-300">
+                      50 Tarjetas, Módulos Elite (Portafolio, Galería, Reseñas, Agenda) y Edición Ilimitada.
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-lg font-bold text-white font-mono">$1,499</span>
+                  <span className="text-[10px] text-gray-400 block font-mono">MXN/Año</span>
+                </div>
+              </div>
+
+              {/* Opción 3: Solo Despliegue Cloud */}
+              <div
+                onClick={() => setSelectedProduct({ name: 'Módulo 3: Despliegue Cloud & Enlace Permanente (/p/[slug])', price: 99, id: 'cloud' })}
+                className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                  selectedProduct.id === 'cloud'
+                    ? 'bg-gradient-to-r from-[#ff0003]/15 to-black border-[#ff0003]'
+                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
+                    selectedProduct.id === 'cloud' ? 'border-[#ff0003] bg-[#ff0003]' : 'border-gray-600'
+                  }`}>
+                    {selectedProduct.id === 'cloud' && <span className="w-2 h-2 rounded-full bg-white"></span>}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-white">Despliegue Cloud Básico</span>
+                    <p className="text-[10px] text-gray-400">Alojamiento en Google Cloud SQL con enlace permanente</p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-base font-bold text-white font-mono">$99</span>
+                  <span className="text-[10px] text-gray-400 block font-mono">MXN</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Resumen de Seguridad */}
+            <div className="bg-black/60 p-3 rounded-xl border border-gray-800 flex items-center justify-between text-[11px] text-gray-400">
+              <span className="flex items-center gap-1.5">
+                <span className="text-emerald-400">🔒</span> Pago Seguro Cifrado con Stripe
+              </span>
+              <span className="font-mono text-white">Tarjetas Crédito / Débito</span>
+            </div>
+
+            {/* Botones de Acción */}
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={handleProcessPayment}
+                disabled={isProcessingPayment}
+                className="w-full py-4 bg-gradient-to-r from-[#ff0003] via-[#EE334E] to-[#ff0003] hover:brightness-110 text-white rounded-2xl text-sm font-bold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(255,0,3,0.5)] flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+              >
+                {isProcessingPayment ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Conectando con Stripe Seguro...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>💳</span>
+                    <span>Pagar ${selectedProduct.price} MXN y Desbloquear Ahora</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowCheckoutModal(false)}
+                className="w-full py-2.5 text-xs text-gray-400 hover:text-white font-mono transition-colors text-center cursor-pointer"
+              >
+                ✓ Borrador guardado automáticamente • Continuar editando
               </button>
             </div>
+
           </div>
         </div>
       )}

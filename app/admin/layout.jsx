@@ -11,9 +11,21 @@ export const metadata = {
 export default async function AdminLayout({ children }) {
   const session = await getServerSession(authOptions);
 
-  // 🛡️ REGLA 1: EL CANDADO MAESTRO (Lista Blanca)
-  // Si no hay sesión o el correo NO es el tuyo, expulsa al usuario al login
-  if (!session || session.user?.email !== 'javier.gallardo@tsolutionsipidd.com') {
+  // 🛡️ REGLA 1: EL CANDADO MAESTRO (Lista Blanca de Administradores)
+  const allowedAdminEmails = [
+    'javier.gallardo@tsolutionsipidd.com',
+    'whoiselgallo@gmail.com',
+    'contacto@tsolutionsipidd.com',
+    'admin@tsolutionsipidd.com'
+  ];
+
+  const userEmail = session?.user?.email?.toLowerCase() || '';
+  const isAuthorized = userEmail && (
+    allowedAdminEmails.includes(userEmail) || 
+    userEmail.endsWith('@tsolutionsipidd.com')
+  );
+
+  if (!session || !isAuthorized) {
     redirect('/api/auth/signin'); 
   }
 
