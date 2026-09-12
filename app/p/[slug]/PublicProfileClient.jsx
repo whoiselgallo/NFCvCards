@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getTranslation } from '../../../lib/i18n';
+import { getTranslation, SUPPORTED_LANGUAGES } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
 import { Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
@@ -32,9 +32,12 @@ export default function PublicProfileClient({ profile = {} }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && navigator.language) {
-      if (navigator.language.toLowerCase().startsWith('en')) {
-        setLang('en');
-      }
+      const bLang = navigator.language.toLowerCase();
+      if (bLang.startsWith('zh')) setLang('zh');
+      else if (bLang.startsWith('ru')) setLang('ru');
+      else if (bLang.startsWith('pt')) setLang('pt');
+      else if (bLang.startsWith('en')) setLang('en');
+      else setLang('es');
     }
   }, []);
 
@@ -242,6 +245,23 @@ export default function PublicProfileClient({ profile = {} }) {
           boxShadow: `0 20px 50px rgba(0,0,0,0.6)`
         }}
       >
+        {/* SELECTOR DE IDIOMA DISCRETO (ES / EN / PT / RU / ZH) */}
+        <div className="absolute top-3 right-3 z-40">
+          <button
+            type="button"
+            onClick={() => {
+              const codes = SUPPORTED_LANGUAGES.map(l => l.code);
+              const nextIdx = (codes.indexOf(lang) + 1) % codes.length;
+              setLang(codes[nextIdx]);
+            }}
+            className="px-2 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-mono font-bold flex items-center gap-1 shadow-lg transition-all active:scale-95"
+            title={`Idioma: ${SUPPORTED_LANGUAGES.find(l => l.code === lang)?.label || lang.toUpperCase()}`}
+          >
+            <span>{SUPPORTED_LANGUAGES.find(l => l.code === lang)?.flag || '🌐'}</span>
+            <span>{SUPPORTED_LANGUAGES.find(l => l.code === lang)?.shortLabel || lang.toUpperCase()}</span>
+          </button>
+        </div>
+
         {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             LAYOUT RENDERER — 10 PRESETS
         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
@@ -618,7 +638,7 @@ export default function PublicProfileClient({ profile = {} }) {
                 boxShadow: `0 0 25px ${color_primario}60`
               }}
             >
-              <span className="text-base animate-pulse">📅</span> Agendar Cita de Negocios
+              <span className="text-base animate-pulse">📅</span> {t('schedule_meeting') || 'Agendar Cita de Negocios'}
             </a>
           )}
 
@@ -680,7 +700,7 @@ export default function PublicProfileClient({ profile = {} }) {
                   style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
                 >
                   <span className="text-base" style={{ color: color_primario }}>📞</span>
-                  <span className="truncate font-mono">Llamar: {telefono}</span>
+                  <span className="truncate font-mono">{t('card_call_btn') || 'Llamar'}: {telefono}</span>
                 </a>
               )}
 
@@ -1023,12 +1043,12 @@ export default function PublicProfileClient({ profile = {} }) {
                 onClick={() => trackEvent('video_click')}
                 className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-lg transition-all hover:scale-[1.01]"
               >
-                <span>▶</span> Ver Video de Presentación
+                <span>▶</span> {t('watch_video') || 'Ver Video de Presentación'}
               </a>
             )}
           </div>
 
-                    {/* PRODUCTIVIDAD Y CONVERSIÓN */}
+          {/* PRODUCTIVIDAD Y CONVERSIÓN */}
           {(paypal_url || bank_details || pdf_url) && (
             <div className="pt-2 space-y-2.5">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5" style={{ fontFamily: font_secondary }}>
@@ -1044,7 +1064,7 @@ export default function PublicProfileClient({ profile = {} }) {
                     className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]"
                     style={{ backgroundColor: "#10b98115", borderColor: '#10b981', color: '#10b981' }}
                   >
-                    <CreditCard className="w-4 h-4" /> Realizar Pago (PayPal / Stripe)
+                    <CreditCard className="w-4 h-4" /> {t('make_payment') || 'Realizar Pago (PayPal / Stripe)'}
                   </a>
                 )}
                 {pdf_url && (
@@ -1054,7 +1074,7 @@ export default function PublicProfileClient({ profile = {} }) {
                 )}
                 {bank_details && (
                   <div className="w-full p-4 rounded-xl border border-gray-700 bg-black/40 text-xs text-gray-300">
-                    <div className="flex items-center gap-2 mb-2 font-bold text-white"><Wallet className="w-4 h-4" /> Datos Bancarios / Transferencia</div>
+                    <div className="flex items-center gap-2 mb-2 font-bold text-white"><Wallet className="w-4 h-4" /> {t('bank_details_title') || 'Datos Bancarios / Transferencia'}</div>
                     <pre className="whitespace-pre-wrap font-mono text-[11px] text-gray-400">{bank_details}</pre>
                   </div>
                 )}
@@ -1066,7 +1086,7 @@ export default function PublicProfileClient({ profile = {} }) {
           {safePortfolio.length > 0 && (
             <div className="pt-2 space-y-2.5">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                <span>💼</span> Portafolio & Proyectos
+                <span>💼</span> {t('portfolio_title') || 'Portafolio & Proyectos'}
               </h3>
               <div className="grid grid-cols-1 gap-2.5">
                 {safePortfolio.map((item, idx) => (
@@ -1093,7 +1113,7 @@ export default function PublicProfileClient({ profile = {} }) {
           {safeGallery.length > 0 && (
             <div className="pt-2 space-y-2">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                <span>📸</span> Fototeca & Instalaciones
+                <span>📸</span> {t('gallery_title') || 'Fototeca & Instalaciones'}
               </h3>
               <div className="grid grid-cols-3 gap-2">
                 {safeGallery.map((imgUrl, idx) => (
@@ -1114,7 +1134,7 @@ export default function PublicProfileClient({ profile = {} }) {
           {safeReviews.length > 0 && (
             <div className="pt-2 space-y-2.5">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                <span>⭐</span> Reseñas de Clientes
+                <span>⭐</span> {t('reviews_title') || 'Reseñas de Clientes'}
               </h3>
               <div className="space-y-2">
                 {safeReviews.map((rev, idx) => (
@@ -1159,7 +1179,7 @@ export default function PublicProfileClient({ profile = {} }) {
 
         </div>
 
-                {/* BOTONES DE DESCARGA: CONTACTO & WALLET */}
+        {/* BOTONES DE DESCARGA: CONTACTO & WALLET */}
         <div className="fixed bottom-3 left-0 right-0 max-w-[430px] mx-auto px-4 z-30 space-y-2">
           <button
             onClick={downloadVCF}
@@ -1169,7 +1189,7 @@ export default function PublicProfileClient({ profile = {} }) {
               boxShadow: `0 8px 30px ${color_cta}60`
             }}
           >
-            <span className="text-base">💾</span> Guardar Contacto en Mi Celular
+            <span className="text-base">💾</span> {t('preview_save_btn') || t('card_save_btn') || 'Guardar Contacto en Mi Celular'}
           </button>
 
           <div className="grid grid-cols-2 gap-2">
@@ -1177,13 +1197,13 @@ export default function PublicProfileClient({ profile = {} }) {
               onClick={() => alert('Para agregar a Apple Wallet, necesitas configurar tu Certificado de Desarrollador Apple (P12) en el panel administrativo de TSolutions.')}
               className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg"
             >
-               Apple Wallet
+               {t('apple_wallet') || 'Apple Wallet'}
             </button>
             <button 
               onClick={() => alert('Para agregar a Google Wallet, necesitas configurar tu Service Account de Google Cloud en el panel administrativo de TSolutions.')}
               className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg"
             >
-              Google Wallet
+              {t('google_wallet') || 'Google Wallet'}
             </button>
           </div>
         </div>

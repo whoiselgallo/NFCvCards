@@ -6,7 +6,7 @@ import { Lock } from 'lucide-react';
 import JSZip from 'jszip';
 import brandConfig from '../../brand.config';
 import { generateDeliveryInstructions } from '../../lib/brand';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation, SUPPORTED_LANGUAGES } from '../../lib/i18n';
 import ConstructionFeedbackModal from '../components/ConstructionFeedbackModal';
 import PayPalHelperModal, { parsePaymentInput } from '../components/PayPalHelperModal';
 import ExpressCatalogModal from '../components/ExpressCatalogModal';
@@ -594,27 +594,75 @@ export default function VCardEngineDashboard() {
     img.src = imgSrc;
   };
 
-  const handleLogoUpload = (e) => {
+  // Helper para comprimir imágenes en el cliente (Evita error 413 Payload Too Large)
+  const compressImage = (file, maxWidth = 1200, quality = 0.85) => {
+    return new Promise((resolve, reject) => {
+      if (!file) return resolve(null);
+      if (!file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const isPng = file.type === 'image/png';
+          const mimeType = isPng ? 'image/png' : 'image/jpeg';
+          const dataUrl = canvas.toDataURL(mimeType, quality);
+          resolve(dataUrl);
+        };
+        img.onerror = () => resolve(e.target?.result);
+        img.src = e.target?.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const result = evt.target?.result;
-        setLogoImg(result);
-        if (result) {
-          extractDominantColor(result);
+      try {
+        const compressed = await compressImage(file, 600, 0.88);
+        if (compressed) {
+          setLogoImg(compressed);
+          extractDominantColor(compressed);
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Error procesando logo:', err);
+      }
     }
   };
 
-  const handleCoverUpload = (e) => {
+  const handleCoverUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (evt) => setCoverPhoto(evt.target?.result);
-      reader.readAsDataURL(file);
+      try {
+        const compressed = await compressImage(file, 1200, 0.82);
+        if (compressed) {
+          setCoverPhoto(compressed);
+        }
+      } catch (err) {
+        console.error('Error procesando portada:', err);
+      }
     }
   };
 
@@ -1037,14 +1085,19 @@ export default function VCardEngineDashboard() {
             </a>
           )}
 
-          {/* Selector de Idioma Flexible (ES / EN) */}
+          {/* Selector de Idioma Multilingüe (ES / EN / PT / RU / ZH) */}
           <button
             type="button"
-            onClick={() => setLang(l => (l === 'es' ? 'en' : 'es'))}
+            onClick={() => {
+              const codes = SUPPORTED_LANGUAGES.map(l => l.code);
+              const nextIdx = (codes.indexOf(lang) + 1) % codes.length;
+              setLang(codes[nextIdx]);
+            }}
             className="px-3 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-800 hover:border-[#FF2A54]/50 transition-all flex items-center gap-1.5 shadow-sm"
-            title={lang === 'es' ? 'Cambiar a Inglés' : 'Switch to Spanish'}
+            title={`Idioma actual: ${SUPPORTED_LANGUAGES.find(l => l.code === lang)?.label || lang.toUpperCase()} • Clic para cambiar`}
           >
-            <span>{lang === 'es' ? '🇲🇽 ES' : '🇺🇸 EN'}</span>
+            <span>{SUPPORTED_LANGUAGES.find(l => l.code === lang)?.flag || '🌐'}</span>
+            <span>{SUPPORTED_LANGUAGES.find(l => l.code === lang)?.shortLabel || lang.toUpperCase()}</span>
           </button>
 
           {/* Enlace al Panel Administrativo Corporativo */}
@@ -2950,7 +3003,7 @@ Beneficiario: TSolutions" />
                           boxShadow: `0 0 15px ${design.colorPrimario}40`
                         }}
                       >
-                        <span className="text-sm animate-pulse">📅</span> Agendar Cita de Negocios
+                        <span className="text-sm animate-pulse">📅</span> {t('schedule_meeting') || 'Agendar Cita de Negocios'}
                       </a>
                     )}
 
@@ -3167,7 +3220,7 @@ Beneficiario: TSolutions" />
 
                     {!design.hideVideo && formData.videoYoutubeUrl && (
                       <div className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-md">
-                        <span>▶</span> Ver Video de Presentación
+                        <span>▶</span> {t('watch_video') || 'Ver Video de Presentación'}
                       </div>
                     )}
 
@@ -3206,7 +3259,7 @@ Beneficiario: TSolutions" />
                   }}
                 >
                   <span className="text-sm">💾</span>
-                  <span>{t('preview_save_btn')}</span>
+                  <span>{t('preview_save_btn') || '💾 Guardar Contacto en Mi Celular'}</span>
                 </button>
 
                 <div className="grid grid-cols-2 gap-1.5">
@@ -3215,14 +3268,14 @@ Beneficiario: TSolutions" />
                     onClick={() => alert('Apple Wallet estará disponible al descargar tu tarjeta.')}
                     className="w-full py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg text-white font-semibold text-[10px] flex items-center justify-center gap-1 hover:bg-white/10 transition-colors shadow-sm"
                   >
-                     Apple Wallet
+                     {t('apple_wallet') || 'Apple Wallet'}
                   </button>
                   <button 
                     type="button"
                     onClick={() => alert('Google Wallet estará disponible al descargar tu tarjeta.')}
                     className="w-full py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg text-white font-semibold text-[10px] flex items-center justify-center gap-1 hover:bg-white/10 transition-colors shadow-sm"
                   >
-                    Google Wallet
+                    {t('google_wallet') || 'Google Wallet'}
                   </button>
                 </div>
               </div>
