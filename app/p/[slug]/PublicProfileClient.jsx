@@ -727,7 +727,7 @@ export default function PublicProfileClient({ profile = {} }) {
           )}
 
           {/* REDES SOCIALES */}
-          {/* REDES SOCIALES (ICONOS AVANZADOS) */}
+          {/* REDES SOCIALES & ENLACES CON FORMATO DINÁMICO */}
           {!layout.hideSocial && (fbUrl || igUrl || inUrl || ttUrl || xUrl || ytUrl || waUrl) && (
             <div className={`space-y-3 mt-4 flex flex-col ${layout.infoAlignment === 'left' ? 'items-start' : layout.infoAlignment === 'right' ? 'items-end' : 'items-center'}`}>
               {layout.customLabels?.social && (
@@ -735,156 +735,253 @@ export default function PublicProfileClient({ profile = {} }) {
                   {layout.customLabels.social}
                 </h3>
               )}
-              
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                {fbUrl && (
-                  <a
-                    href={fbUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#1877F218', borderColor: '#1877F240', color: '#1877F2' }
-                    }
-                    title="Facebook"
-                  >
-                    <FacebookIcon className="w-5 h-5" />
-                  </a>
-                )}
-                {igUrl && (
-                  <a
-                    href={igUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#E4405F18', borderColor: '#E4405F40', color: '#E4405F' }
-                    }
-                    title="Instagram"
-                  >
-                    <InstagramIcon className="w-5 h-5" />
-                  </a>
-                )}
-                {inUrl && (
-                  <a
-                    href={inUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#0A66C218', borderColor: '#0A66C240', color: '#0A66C2' }
-                    }
-                    title="LinkedIn"
-                  >
-                    <LinkedInIcon className="w-5 h-5" />
-                  </a>
-                )}
-                {ttUrl && (
-                  <a
-                    href={ttUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
-                    }
-                    title="TikTok"
-                  >
-                    <TikTokIcon className="w-5 h-5" />
-                  </a>
-                )}
-                {xUrl && (
-                  <a
-                    href={xUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
-                    }
-                    title="X (Twitter)"
-                  >
-                    <XTwitterIcon className="w-5 h-5" />
-                  </a>
-                )}
-                {ytUrl && (
-                  <a
-                    href={ytUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#FF000018', borderColor: '#FF000040', color: '#FF0000' }
-                    }
-                    title="YouTube"
-                  >
-                    <YouTubeIcon className="w-5 h-5" />
-                  </a>
-                )}
-                {waUrl && (
-                  <a
-                    href={waUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('whatsapp_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#25D36618', borderColor: '#25D36640', color: '#25D366' }
-                    }
-                    title="WhatsApp"
-                  >
-                    <WhatsAppIcon className="w-5 h-5" />
-                  </a>
-                )}
-              </div>
+
+              {/* 1. MODO CUADROS CON URL (URL_BOXES) */}
+              {(layout.linksDisplayMode === 'url_boxes') && (
+                <div className="space-y-2.5 w-full">
+                  {[
+                    fbUrl ? { id: 'fb', title: 'Facebook', displayUrl: `facebook.com/${(facebook || '').replace(/^@+/, '')}`, href: fbUrl, icon: <FacebookIcon className="w-4 h-4" />, color: '#1877F2' } : null,
+                    igUrl ? { id: 'ig', title: 'Instagram', displayUrl: `instagram.com/${(instagram || '').replace(/^@+/, '')}`, href: igUrl, icon: <InstagramIcon className="w-4 h-4" />, color: '#E4405F' } : null,
+                    inUrl ? { id: 'in', title: 'LinkedIn', displayUrl: `linkedin.com/in/${(linkedin || '').replace(/^@+/, '')}`, href: inUrl, icon: <LinkedInIcon className="w-4 h-4" />, color: '#0A66C2' } : null,
+                    ttUrl ? { id: 'tt', title: 'TikTok', displayUrl: `tiktok.com/@${(profile.tiktok || '').replace(/^@+/, '')}`, href: ttUrl, icon: <TikTokIcon className="w-4 h-4" />, color: '#FFFFFF' } : null,
+                    xUrl ? { id: 'x', title: 'X (Twitter)', displayUrl: `x.com/${(profile.twitter || profile.xtwitter || profile.x || '').replace(/^@+/, '')}`, href: xUrl, icon: <XTwitterIcon className="w-4 h-4" />, color: '#FFFFFF' } : null,
+                    ytUrl ? { id: 'yt', title: 'YouTube', displayUrl: 'youtube.com/canal', href: ytUrl, icon: <YouTubeIcon className="w-4 h-4" />, color: '#FF0000' } : null,
+                    waUrl ? { id: 'wa', title: 'WhatsApp Directo', displayUrl: `wa.me/${(whatsapp || '').replace(/[^0-9]/g, '')}`, href: waUrl, icon: <WhatsAppIcon className="w-4 h-4" />, color: '#25D366' } : null
+                  ].filter(Boolean).map(item => (
+                    <a
+                      key={item.id}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className="w-full flex items-center justify-between p-3 rounded-2xl border transition-all hover:scale-[1.01] shadow-md group"
+                      style={{
+                        backgroundColor: `${color_secundario}0d`,
+                        borderColor: `${color_secundario}30`
+                      }}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border" style={{ backgroundColor: `${color_secundario}18`, borderColor: `${color_secundario}40`, color: item.color }}>
+                          {item.icon}
+                        </div>
+                        <div className="text-left min-w-0">
+                          <p className="text-xs font-bold font-bruno tracking-wide text-white group-hover:text-[#00E5FF] transition-colors">{item.title}</p>
+                          <p className="text-[10px] text-gray-400 truncate font-mono">{item.displayUrl}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0 text-gray-400 group-hover:text-white transition-colors pl-2">
+                        <span className="text-[10px] font-mono opacity-80">Abrir</span>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* 2. MODO TARJETAS / WIDGETS EMBEBIDOS (EMBEDDED) */}
+              {(layout.linksDisplayMode === 'embedded') && (
+                <div className="space-y-3 w-full">
+                  {[
+                    fbUrl ? { id: 'fb', title: 'Facebook Oficial', badge: 'Red Social', displayUrl: `facebook.com/${(facebook || '').replace(/^@+/, '')}`, href: fbUrl, icon: <FacebookIcon className="w-4 h-4" />, color: '#1877F2' } : null,
+                    igUrl ? { id: 'ig', title: 'Instagram Feed', badge: 'Comunidad', displayUrl: `instagram.com/${(instagram || '').replace(/^@+/, '')}`, href: igUrl, icon: <InstagramIcon className="w-4 h-4" />, color: '#E4405F' } : null,
+                    inUrl ? { id: 'in', title: 'LinkedIn Profile', badge: 'Networking', displayUrl: `linkedin.com/in/${(linkedin || '').replace(/^@+/, '')}`, href: inUrl, icon: <LinkedInIcon className="w-4 h-4" />, color: '#0A66C2' } : null,
+                    ttUrl ? { id: 'tt', title: 'TikTok Videos', badge: 'Contenido', displayUrl: `tiktok.com/@${(profile.tiktok || '').replace(/^@+/, '')}`, href: ttUrl, icon: <TikTokIcon className="w-4 h-4" />, color: '#FFFFFF' } : null,
+                    xUrl ? { id: 'x', title: 'X (Twitter)', badge: 'Noticias', displayUrl: `x.com/${(profile.twitter || profile.xtwitter || profile.x || '').replace(/^@+/, '')}`, href: xUrl, icon: <XTwitterIcon className="w-4 h-4" />, color: '#FFFFFF' } : null,
+                    ytUrl ? { id: 'yt', title: 'Canal de YouTube', badge: 'Videos', displayUrl: 'youtube.com/canal', href: ytUrl, icon: <YouTubeIcon className="w-4 h-4" />, color: '#FF0000' } : null,
+                    waUrl ? { id: 'wa', title: 'Chat WhatsApp', badge: 'Directo', displayUrl: `wa.me/${(whatsapp || '').replace(/[^0-9]/g, '')}`, href: waUrl, icon: <WhatsAppIcon className="w-4 h-4" />, color: '#25D366' } : null
+                  ].filter(Boolean).map(item => (
+                    <div
+                      key={item.id}
+                      className="w-full rounded-2xl p-3.5 border shadow-xl relative overflow-hidden backdrop-blur-md transition-all hover:border-[#00E5FF]/60"
+                      style={{
+                        background: `linear-gradient(135deg, ${color_secundario}12 0%, rgba(10,10,20,0.85) 100%)`,
+                        borderColor: `${color_secundario}35`
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border" style={{ backgroundColor: `${color_secundario}25`, borderColor: `${color_secundario}60`, color: item.color }}>
+                            {item.icon}
+                          </div>
+                          <div className="text-left">
+                            <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md border" style={{ color: color_secundario, borderColor: `${color_secundario}50`, backgroundColor: `${color_secundario}15` }}>
+                              {item.badge}
+                            </span>
+                            <h4 className="text-xs font-bold text-white mt-1">{item.title}</h4>
+                          </div>
+                        </div>
+                        <a
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => trackEvent('social_click')}
+                          className="px-3 py-1.5 rounded-xl text-[10px] font-bold font-bruno text-white uppercase tracking-wider transition-all hover:brightness-125 flex items-center gap-1 shadow-lg"
+                          style={{ backgroundColor: color_primario }}
+                        >
+                          <span>Visitar</span> ↗
+                        </a>
+                      </div>
+                      <div className="p-2 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between text-[10px] font-mono text-gray-300">
+                        <span className="truncate">{item.displayUrl}</span>
+                        <span className="text-[9px] text-emerald-400 shrink-0 ml-2">● Enlace Activo</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* 3. MODO ICONOS CLÁSICOS / DEFAULT (ICONS) */}
+              {(!layout.linksDisplayMode || layout.linksDisplayMode === 'icons') && (
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  {fbUrl && (
+                    <a
+                      href={fbUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#1877F218', borderColor: '#1877F240', color: '#1877F2' }
+                      }
+                      title="Facebook"
+                    >
+                      <FacebookIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {igUrl && (
+                    <a
+                      href={igUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#E4405F18', borderColor: '#E4405F40', color: '#E4405F' }
+                      }
+                      title="Instagram"
+                    >
+                      <InstagramIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {inUrl && (
+                    <a
+                      href={inUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#0A66C218', borderColor: '#0A66C240', color: '#0A66C2' }
+                      }
+                      title="LinkedIn"
+                    >
+                      <LinkedInIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {ttUrl && (
+                    <a
+                      href={ttUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                      }
+                      title="TikTok"
+                    >
+                      <TikTokIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {xUrl && (
+                    <a
+                      href={xUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                      }
+                      title="X (Twitter)"
+                    >
+                      <XTwitterIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {ytUrl && (
+                    <a
+                      href={ytUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#FF000018', borderColor: '#FF000040', color: '#FF0000' }
+                      }
+                      title="YouTube"
+                    >
+                      <YouTubeIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {waUrl && (
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('whatsapp_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#25D36618', borderColor: '#25D36640', color: '#25D366' }
+                      }
+                      title="WhatsApp"
+                    >
+                      <WhatsAppIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

@@ -15,6 +15,7 @@ import {
   MonitorSmartphone,
   Layers
 } from 'lucide-react';
+import MasterAdminDrawer from './components/MasterAdminDrawer';
 
 const WORDS = [
   "Cierre de alto Impacto", 
@@ -109,6 +110,7 @@ export default function LandingPage() {
 
   return (
     <>
+      <MasterAdminDrawer />
       <Script src="https://www.paypal.com/sdk/js?client-id=BAAVBTkbyfhfvSv-LwMOAjKhD4cWmr2himsyOcDfmT_oBblFqSZ5LdvTLDibQfmSi6mSrgCtYcA0YsoMoI&vault=true&intent=subscription" strategy="lazyOnload" />
     <div className="min-h-screen bg-[#05050D] text-slate-200 font-sans selection:bg-[#EE334E] selection:text-white overflow-x-hidden">
       

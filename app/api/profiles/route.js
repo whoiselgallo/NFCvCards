@@ -51,6 +51,7 @@ export async function POST(request) {
       infoAlignment: design.infoAlignment || 'center',
       socialIconShape: design.socialIconShape || 'circle',
       socialIconStyle: design.socialIconStyle || 'default',
+      linksDisplayMode: design.linksDisplayMode || 'icons',
       hideBanner: !!design.hideBanner,
       hideBio: !!design.hideBio,
       hideContact: !!design.hideContact,

@@ -12,7 +12,7 @@ import PayPalHelperModal, { parsePaymentInput } from '../components/PayPalHelper
 import ExpressCatalogModal from '../components/ExpressCatalogModal';
 import EcoFootprintModal from '../components/EcoFootprintModal';
 import PreBuilderChecklistModal from '../components/PreBuilderChecklistModal';
-import { BrandSocialIcon } from '../components/BrandSocialIcons';
+import { BrandSocialIcon, FacebookIcon, InstagramIcon, LinkedInIcon, TikTokIcon, XTwitterIcon, YouTubeIcon, WhatsAppIcon } from '../components/BrandSocialIcons';
 
 // Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
 const THEMES = {
@@ -192,23 +192,6 @@ export default function VCardEngineDashboard() {
     }
   };
 
-  
-  const handleFreePass = async () => {
-    try {
-      const res = await fetch('/api/hack/all-access');
-      const data = await res.json();
-      if(data.success) {
-        await update(); 
-        alert('¡Pase Libre Activado! Ya tienes los beneficios del plan Meet Me.');
-        window.location.reload();
-      } else {
-        alert('Error: ' + data.error);
-      }
-    } catch(err) {
-      alert('Error activando pase libre');
-    }
-  };
-
   // Detección de parámetros URL (?ref= para invitado o ?vip= / ?owner= para agente)
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -297,6 +280,9 @@ export default function VCardEngineDashboard() {
     linkedin: '',
     instagram: '',
     facebook: '',
+    tiktok: '',
+    twitter: '',
+    youtube: '',
     calle: '',
     ciudad: '',
     estado: '',
@@ -328,7 +314,10 @@ export default function VCardEngineDashboard() {
     // NUEVO MÓDULO DE DISEÑO LIBRE
     hideBanner: false,          // Toggle para quitar el banner/portada
     logoPosition: 'center',     // center, left, right, hidden
-    socialIconStyle: 'default', socialIconShape: 'circle', socialIconStyle: 'default', socialIconShape: 'circle', infoAlignment: 'center',
+    socialIconShape: 'circle',  // circle, rounded, square, none
+    socialIconStyle: 'default', // default, monochrome, glow
+    linksDisplayMode: 'icons',  // 'icons' | 'url_boxes' | 'embedded'
+    infoAlignment: 'center',    // left, center, right
     hideBio: false,             // Toggle contenedor Nota/Bio
     hideContact: false,         // Toggle contenedor Canales de Contacto Directo
     hideSocial: false,          // Toggle contenedor Redes Sociales
@@ -997,15 +986,6 @@ export default function VCardEngineDashboard() {
             </button>
           )}
 
-          {!isPremium && userPlan !== 'meet_me' && (
-            <button 
-              onClick={handleFreePass}
-              className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/50 hover:bg-emerald-500/30 text-emerald-300 rounded-xl text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
-            >
-              🎁 Pase Demo
-            </button>
-          )}
-
         <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
           <div className="flex bg-[#0F0B15] p-1 rounded-xl border border-rose-900/40 shadow-inner">
             <button
@@ -1284,8 +1264,8 @@ export default function VCardEngineDashboard() {
 
                         {/* Personalización de Botones Sociales y Alineación */}
                         <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3">
-                          <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Botones Sociales y Alineación de Contenido</h5>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Botones Sociales, Alineación & Formato de Enlaces</h5>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                             <div>
                               <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Alineación de Info</label>
                               <select name="infoAlignment" value={design.infoAlignment || 'center'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
@@ -1311,6 +1291,15 @@ export default function VCardEngineDashboard() {
                                 <option value="default">Color Original App</option>
                                 <option value="monochrome">Monocromático</option>
                                 <option value="glow">Neón / Brillo</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] text-[#00E5FF] uppercase tracking-wider mb-1 font-bold">Formato de Enlaces</label>
+                              <select name="linksDisplayMode" value={design.linksDisplayMode || 'icons'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2 border-[#00E5FF]/40 focus:border-[#00E5FF]">
+                                <option value="icons">Iconos (Grid Clásico)</option>
+                                <option value="url_boxes">Cuadros con URL & Título</option>
+                                <option value="embedded">Tarjetas / Widgets Embebidos</option>
                               </select>
                             </div>
                           </div>
@@ -1483,6 +1472,60 @@ export default function VCardEngineDashboard() {
                             value={formData.linkedin}
                             onChange={handleInputChange}
                             placeholder="tu-perfil"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* TikTok */}
+                      <div>
+                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">TikTok</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            tiktok.com/@
+                          </span>
+                          <input
+                            type="text"
+                            name="tiktok"
+                            value={formData.tiktok}
+                            onChange={handleInputChange}
+                            placeholder="usuario"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* X (Twitter) */}
+                      <div>
+                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">X (Twitter)</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            x.com/
+                          </span>
+                          <input
+                            type="text"
+                            name="twitter"
+                            value={formData.twitter}
+                            onChange={handleInputChange}
+                            placeholder="usuario"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* YouTube */}
+                      <div>
+                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">Canal de YouTube</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            youtube.com/
+                          </span>
+                          <input
+                            type="text"
+                            name="youtube"
+                            value={formData.youtube}
+                            onChange={handleInputChange}
+                            placeholder="usuario o @canal"
                             className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
                           />
                         </div>
@@ -1940,17 +1983,17 @@ Beneficiario: TSolutions" />
         <section className="w-full lg:w-5/12 flex flex-col items-center justify-center lg:sticky lg:top-6 lg:self-start">
           
           {/* MOCKUP ELEGANTE DEL CELULAR CON TOKENS OFICIALES */}
-          <div className="smartphone-mockup-frame w-[320px] sm:w-[350px] h-[670px]">
+          <div className="smartphone-mockup-frame w-[320px] sm:w-[350px] h-[670px] relative overflow-hidden flex flex-col shadow-2xl">
             
             {/* DYNAMIC ISLAND / NOTCH */}
-            <div className="smartphone-dynamic-island">
+            <div className="smartphone-dynamic-island shrink-0">
               <div className="w-2.5 h-2.5 bg-[#121114] rounded-full border border-gray-800"></div>
               <div className="w-7 h-1 bg-gray-800 rounded-full"></div>
             </div>
 
             {/* PANTALLA INTERNA DEL CELULAR (AISLADA: RESPONDE A LOS COLORES Y TIPOGRAFÍAS DEL CLIENTE) */}
             <div
-              className="smartphone-screen relative pb-20 select-none transition-all"
+              className="smartphone-screen relative overflow-y-auto flex-1 select-none transition-all pb-36 custom-scrollbar"
               style={{
                 backgroundColor: activeTheme.bgColor,
                 fontFamily: currentFontSecondary,
@@ -2894,104 +2937,213 @@ Beneficiario: TSolutions" />
                       </div>
                     )}
 
-                    {/* REDES SOCIALES EN EL CELULAR */}
-                    {!design.hideSocial && (formData.facebook || formData.instagram || formData.linkedin) && (
+                    {/* ACCIÓN PRINCIPAL RÁPIDA: AGENDAR CITA */}
+                    {(formData.googleCalendarUrl || formData.calendlyUrl || formData.icloudCalendarUrl) && (
+                      <a
+                        href={formData.googleCalendarUrl || formData.calendlyUrl || formData.icloudCalendarUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-3 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg border"
+                        style={{
+                          background: `linear-gradient(135deg, ${design.colorPrimario} 0%, #15050A 100%)`,
+                          borderColor: design.colorPrimario,
+                          boxShadow: `0 0 15px ${design.colorPrimario}40`
+                        }}
+                      >
+                        <span className="text-sm animate-pulse">📅</span> Agendar Cita de Negocios
+                      </a>
+                    )}
+
+                    {/* REDES SOCIALES & ENLACES EN EL CELULAR */}
+                    {!design.hideSocial && (formData.facebook || formData.instagram || formData.linkedin || formData.tiktok || formData.twitter || formData.youtube || formData.whatsapp) && (
                       <div className="space-y-2 pt-1">
                         {design.customLabels?.social && (
                           <div className="text-[10px] uppercase font-bold tracking-wider opacity-60 px-1 text-left">
                             {design.customLabels.social}
                           </div>
                         )}
-                        {formData.facebook && (
-                          <div
-                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
-                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
-                            } ${
-                              design.theme === 'neobrutalism'
-                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                                : design.theme === 'glassmorphism'
-                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                                : design.theme === 'cyber_matrix'
-                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                                : design.theme === 'monolith'
-                                ? 'bg-[#141414] border-white/15 text-white'
-                                : design.theme === 'editorial_swiss'
-                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                                : ''
-                            }`}
-                            style={
-                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                                ? {
-                                    backgroundColor: `${design.colorSecundario}08`,
-                                    borderColor: `${design.colorSecundario}25`
-                                  }
-                                : {}
-                            }
-                          >
-                            <span className="text-xs font-bold text-blue-500">📘</span>
-                            <span className="truncate font-mono">facebook.com/{formData.facebook.replace(/^@+/, '')}</span>
+
+                        {/* 1. MODO CUADROS CON URL */}
+                        {design.linksDisplayMode === 'url_boxes' && (
+                          <div className="space-y-2">
+                            {[
+                              formData.facebook ? { id: 'fb', title: 'Facebook', displayUrl: `facebook.com/${formData.facebook.replace(/^@+/, '')}`, icon: <FacebookIcon className="w-3.5 h-3.5" />, color: '#1877F2' } : null,
+                              formData.instagram ? { id: 'ig', title: 'Instagram', displayUrl: `instagram.com/${formData.instagram.replace(/^@+/, '')}`, icon: <InstagramIcon className="w-3.5 h-3.5" />, color: '#E4405F' } : null,
+                              formData.linkedin ? { id: 'in', title: 'LinkedIn', displayUrl: `linkedin.com/in/${formData.linkedin.replace(/^@+/, '')}`, icon: <LinkedInIcon className="w-3.5 h-3.5" />, color: '#0A66C2' } : null,
+                              formData.tiktok ? { id: 'tt', title: 'TikTok', displayUrl: `tiktok.com/@${formData.tiktok.replace(/^@+/, '')}`, icon: <TikTokIcon className="w-3.5 h-3.5" />, color: '#FFFFFF' } : null,
+                              formData.twitter ? { id: 'x', title: 'X (Twitter)', displayUrl: `x.com/${formData.twitter.replace(/^@+/, '')}`, icon: <XTwitterIcon className="w-3.5 h-3.5" />, color: '#FFFFFF' } : null,
+                              formData.youtube ? { id: 'yt', title: 'YouTube', displayUrl: `youtube.com/${formData.youtube.replace(/^@+/, '')}`, icon: <YouTubeIcon className="w-3.5 h-3.5" />, color: '#FF0000' } : null,
+                              formData.whatsapp ? { id: 'wa', title: 'WhatsApp', displayUrl: `wa.me/${formData.whatsapp.replace(/[^0-9]/g, '')}`, icon: <WhatsAppIcon className="w-3.5 h-3.5" />, color: '#25D366' } : null
+                            ].filter(Boolean).map(item => (
+                              <div
+                                key={item.id}
+                                className="w-full flex items-center justify-between p-2.5 rounded-xl border text-xs shadow-sm transition-all"
+                                style={{
+                                  backgroundColor: `${design.colorSecundario}0d`,
+                                  borderColor: `${design.colorSecundario}30`
+                                }}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border" style={{ backgroundColor: `${design.colorSecundario}18`, borderColor: `${design.colorSecundario}40`, color: item.color }}>
+                                    {item.icon}
+                                  </div>
+                                  <div className="text-left min-w-0">
+                                    <p className="text-[11px] font-bold tracking-wide truncate">{item.title}</p>
+                                    <p className="text-[9px] opacity-70 truncate font-mono">{item.displayUrl}</p>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono opacity-70 shrink-0">Abrir ↗</span>
+                              </div>
+                            ))}
                           </div>
                         )}
 
-                        {formData.instagram && (
-                          <div
-                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
-                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
-                            } ${
-                              design.theme === 'neobrutalism'
-                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                                : design.theme === 'glassmorphism'
-                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                                : design.theme === 'cyber_matrix'
-                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                                : design.theme === 'monolith'
-                                ? 'bg-[#141414] border-white/15 text-white'
-                                : design.theme === 'editorial_swiss'
-                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                                : ''
-                            }`}
-                            style={
-                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                                ? {
-                                    backgroundColor: `${design.colorSecundario}08`,
-                                    borderColor: `${design.colorSecundario}25`
-                                  }
-                                : {}
-                            }
-                          >
-                            <span className="text-xs font-bold text-pink-500">📸</span>
-                            <span className="truncate font-mono">instagram.com/{formData.instagram.replace(/^@+/, '')}</span>
+                        {/* 2. MODO TARJETAS / WIDGETS EMBEBIDOS */}
+                        {design.linksDisplayMode === 'embedded' && (
+                          <div className="space-y-2.5">
+                            {[
+                              formData.facebook ? { id: 'fb', title: 'Facebook', badge: 'Social', displayUrl: `facebook.com/${formData.facebook.replace(/^@+/, '')}`, icon: <FacebookIcon className="w-3.5 h-3.5" />, color: '#1877F2' } : null,
+                              formData.instagram ? { id: 'ig', title: 'Instagram', badge: 'Feed', displayUrl: `instagram.com/${formData.instagram.replace(/^@+/, '')}`, icon: <InstagramIcon className="w-3.5 h-3.5" />, color: '#E4405F' } : null,
+                              formData.linkedin ? { id: 'in', title: 'LinkedIn', badge: 'Perfil', displayUrl: `linkedin.com/in/${formData.linkedin.replace(/^@+/, '')}`, icon: <LinkedInIcon className="w-3.5 h-3.5" />, color: '#0A66C2' } : null,
+                              formData.tiktok ? { id: 'tt', title: 'TikTok', badge: 'Videos', displayUrl: `tiktok.com/@${formData.tiktok.replace(/^@+/, '')}`, icon: <TikTokIcon className="w-3.5 h-3.5" />, color: '#FFFFFF' } : null,
+                              formData.twitter ? { id: 'x', title: 'X (Twitter)', badge: 'News', displayUrl: `x.com/${formData.twitter.replace(/^@+/, '')}`, icon: <XTwitterIcon className="w-3.5 h-3.5" />, color: '#FFFFFF' } : null,
+                              formData.youtube ? { id: 'yt', title: 'YouTube', badge: 'Canal', displayUrl: `youtube.com/${formData.youtube.replace(/^@+/, '')}`, icon: <YouTubeIcon className="w-3.5 h-3.5" />, color: '#FF0000' } : null,
+                              formData.whatsapp ? { id: 'wa', title: 'WhatsApp', badge: 'Chat', displayUrl: `wa.me/${formData.whatsapp.replace(/[^0-9]/g, '')}`, icon: <WhatsAppIcon className="w-3.5 h-3.5" />, color: '#25D366' } : null
+                            ].filter(Boolean).map(item => (
+                              <div
+                                key={item.id}
+                                className="w-full rounded-xl p-2.5 border shadow-md relative overflow-hidden backdrop-blur-md"
+                                style={{
+                                  background: `linear-gradient(135deg, ${design.colorSecundario}12 0%, rgba(10,10,20,0.85) 100%)`,
+                                  borderColor: `${design.colorSecundario}35`
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-2 mb-1.5">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border" style={{ backgroundColor: `${design.colorSecundario}25`, borderColor: `${design.colorSecundario}60`, color: item.color }}>
+                                      {item.icon}
+                                    </div>
+                                    <div className="text-left">
+                                      <span className="text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border" style={{ color: design.colorSecundario, borderColor: `${design.colorSecundario}50`, backgroundColor: `${design.colorSecundario}15` }}>
+                                        {item.badge}
+                                      </span>
+                                      <h4 className="text-[10px] font-bold mt-0.5">{item.title}</h4>
+                                    </div>
+                                  </div>
+                                  <span className="px-2 py-1 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider" style={{ backgroundColor: design.colorPrimario }}>
+                                    Visitar ↗
+                                  </span>
+                                </div>
+                                <div className="p-1.5 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between text-[9px] font-mono text-gray-300">
+                                  <span className="truncate">{item.displayUrl}</span>
+                                  <span className="text-[8px] text-emerald-400 shrink-0 ml-1">● Conectado</span>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         )}
 
-                        {formData.linkedin && (
-                          <div
-                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
-                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
-                            } ${
-                              design.theme === 'neobrutalism'
-                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                                : design.theme === 'glassmorphism'
-                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                                : design.theme === 'cyber_matrix'
-                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                                : design.theme === 'monolith'
-                                ? 'bg-[#141414] border-white/15 text-white'
-                                : design.theme === 'editorial_swiss'
-                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                                : ''
-                            }`}
-                            style={
-                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                                ? {
-                                    backgroundColor: `${design.colorSecundario}08`,
-                                    borderColor: `${design.colorSecundario}25`
-                                  }
-                                : {}
-                            }
-                          >
-                            <span className="text-xs font-bold text-blue-400">💼</span>
-                            <span className="truncate font-mono">linkedin.com/in/{formData.linkedin.replace(/^@+/, '')}</span>
+                        {/* 3. MODO ICONOS CLÁSICOS (GRID) */}
+                        {(!design.linksDisplayMode || design.linksDisplayMode === 'icons') && (
+                          <div className="flex flex-wrap items-center justify-center gap-2.5">
+                            {formData.facebook && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#1877F218', borderColor: '#1877F240', color: '#1877F2' }
+                                }
+                              >
+                                <FacebookIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.instagram && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#E4405F18', borderColor: '#E4405F40', color: '#E4405F' }
+                                }
+                              >
+                                <InstagramIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.linkedin && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#0A66C218', borderColor: '#0A66C240', color: '#0A66C2' }
+                                }
+                              >
+                                <LinkedInIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.tiktok && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                                }
+                              >
+                                <TikTokIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.twitter && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                                }
+                              >
+                                <XTwitterIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.youtube && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#FF000018', borderColor: '#FF000040', color: '#FF0000' }
+                                }
+                              >
+                                <YouTubeIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.whatsapp && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#25D36618', borderColor: '#25D36640', color: '#25D366' }
+                                }
+                              >
+                                <WhatsAppIcon className="w-4 h-4" />
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -3012,22 +3164,31 @@ Beneficiario: TSolutions" />
                         <span>📍</span> {locationLabel}
                       </a>
                     )}
+
                     {!design.hideVideo && formData.videoYoutubeUrl && (
                       <div className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-md">
                         <span>▶</span> Ver Video de Presentación
                       </div>
                     )}
+
+                    {/* FOOTER DISCRETO EN PREVIEW */}
+                    <div className="pt-6 pb-2 text-center opacity-60">
+                      <p className="text-[9px] font-mono tracking-wider uppercase">
+                        Tecnología por <span className="font-bold text-white">TSolutions ROSE</span>
+                      </p>
+                    </div>
                   </div>
                 </>
               )}
             </div>
 
-            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (TIPOGRAFÍA PRIMARIA Y COLOR CTA DEL CLIENTE) */}
+            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (SIEMPRE VISIBLE / FIJO EN EL SCROLL) */}
             {mode === 'vcard' && (
-              <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20">
+              <div className="absolute bottom-3 left-3 right-3 z-30 space-y-1.5 pointer-events-auto bg-gradient-to-t from-black/95 via-black/85 to-transparent pt-3 pb-0.5 px-0.5 rounded-b-[28px] backdrop-blur-xs">
                 <button
+                  type="button"
                   onClick={downloadVCF}
-                  className={`w-full py-3 rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all hover:brightness-110 flex items-center justify-center gap-2 ${
+                  className={`w-full py-3.5 rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all hover:brightness-110 active:scale-[0.99] flex items-center justify-center gap-2 border border-white/20 shadow-2xl ${
                     design.theme === 'neobrutalism'
                       ? 'border-2.5 border-black shadow-[4px_4px_0px_#000] text-white font-black'
                       : design.theme === 'glassmorphism'
@@ -3039,13 +3200,31 @@ Beneficiario: TSolutions" />
                       : 'text-white shadow-xl'
                   }`}
                   style={{
-                    backgroundColor: design.colorCTA,
-                    fontFamily: currentFontPrimary
+                    background: `linear-gradient(135deg, ${design.colorCTA} 0%, #BE123C 100%)`,
+                    fontFamily: currentFontPrimary,
+                    boxShadow: `0 6px 20px ${design.colorCTA}60`
                   }}
                 >
-                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                  <span className="text-sm">💾</span>
                   <span>{t('preview_save_btn')}</span>
                 </button>
+
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button 
+                    type="button"
+                    onClick={() => alert('Apple Wallet estará disponible al descargar tu tarjeta.')}
+                    className="w-full py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg text-white font-semibold text-[10px] flex items-center justify-center gap-1 hover:bg-white/10 transition-colors shadow-sm"
+                  >
+                     Apple Wallet
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => alert('Google Wallet estará disponible al descargar tu tarjeta.')}
+                    className="w-full py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg text-white font-semibold text-[10px] flex items-center justify-center gap-1 hover:bg-white/10 transition-colors shadow-sm"
+                  >
+                    Google Wallet
+                  </button>
+                </div>
               </div>
             )}
           </div>
