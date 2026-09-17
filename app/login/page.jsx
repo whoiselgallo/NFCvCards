@@ -1,12 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Mail, Lock, User } from 'lucide-react';
 import brandConfig from '../../brand.config';
 
-export default function LoginPage() {
-  const [error, setError] = useState('');
+const AUTH_ERRORS = {
+  CredentialsSignin: 'Correo o contraseña incorrectos.',
+  OAuthAccountNotLinked: 'Esta cuenta de Google ya está vinculada a otro método de acceso.',
+  OAuthSignin: 'Error al conectar con Google. Intenta de nuevo.',
+  OAuthCallback: 'Respuesta inválida de Google. Intenta de nuevo.',
+  Default: 'Error de autenticación. Intenta de nuevo.',
+};
+
+function LoginContent() {
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get('error');
+  const oauthError = urlError ? (AUTH_ERRORS[urlError] || AUTH_ERRORS.Default) : '';
+
+  const [error, setError] = useState(oauthError);
   const [loading, setLoading] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   
@@ -140,6 +154,17 @@ export default function LoginPage() {
               />
             </div>
 
+            {!isRegistering && (
+              <div className="text-right -mt-1">
+                <Link
+                  href="/recuperar-contrasena"
+                  className="text-xs text-slate-400 hover:text-[#EE334E] transition-colors font-mono"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
@@ -155,7 +180,7 @@ export default function LoginPage() {
               onClick={() => { setIsRegistering(!isRegistering); setError(''); }}
               className="text-sm text-slate-400 hover:text-white transition-colors"
             >
-              {isRegistering ? 'Ya tengo una cuenta, iniciar sesin' : 'No tengo cuenta, quiero registrarme'}
+              {isRegistering ? 'Ya tengo una cuenta, iniciar sesión' : 'No tengo cuenta, quiero registrarme'}
             </button>
           </div>
 
@@ -171,7 +196,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             <button 
               type="button" 
-              onClick={() => signIn('google', { callbackUrl: '/dashboard' })} 
+              onClick={() => signIn('google', { callbackUrl: '/auth/welcome' })} 
               className="w-full relative overflow-hidden group flex items-center justify-center gap-3 py-4 bg-black/40 hover:bg-[#ff0003]/10 border border-white/10 hover:border-[#ff0003]/50 rounded-xl transition-all duration-300 shadow-[0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_0_20px_rgba(255,0,3,0.3)]"
             >
               <svg viewBox="0 0 24 24" className="w-6 h-6" xmlns="http://www.w3.org/2000/svg">
@@ -192,5 +217,17 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#05050A] text-white flex items-center justify-center font-mono text-xs">
+        Cargando...
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
