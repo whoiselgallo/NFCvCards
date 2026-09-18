@@ -571,29 +571,114 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-              {/* FAQ SECTION */}
+        {/* FAQ SECTION */}
         <section className="py-24 bg-black/60 border-t border-white/5 relative z-10">
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Preguntas Frecuentes</h2>
-              <p className="text-slate-400">Todo lo que necesitas saber, con total transparencia.</p>
+              <span className="text-xs font-mono uppercase tracking-widest text-[#EE334E] font-bold">
+                RESOLVEMOS TUS DUDAS
+              </span>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mt-2 mb-4 font-bruno">Preguntas Frecuentes</h2>
+              <p className="text-slate-400">Todo lo que necesitas saber sobre tu tarjeta digital interactiva y hardware NFC.</p>
             </div>
+            
             <div className="space-y-4">
               
-              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-2">¿Cómo funciona la descarga en Smart Watch?</h3>
-                <p className="text-slate-400 text-sm">Tu tarjeta digital genera automáticamente un Código QR dinámico de alto contraste optimizado para pantallas pequeñas. Puedes descargar este QR a la galería de tu Apple Watch, Wear OS o cualquier Smart Watch, permitiendo que compartas tu perfil girando la muñeca, sin necesidad de sacar tu teléfono.</p>
-              </div>
+              {/* FAQ 1 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#EE334E] shrink-0" />
+                    ¿Cómo funciona la descarga en Smart Watch?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Tu tarjeta digital genera automáticamente un Código QR dinámico de alto contraste optimizado para pantallas pequeñas. Puedes descargar este QR a la galería de tu Apple Watch, Wear OS o cualquier Smart Watch, permitiendo que compartas tu perfil girando la muñeca, sin necesidad de sacar tu teléfono.
+                </div>
+              </details>
 
-              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-2">¿Existen cuotas o letras chiquitas ocultas?</h3>
-                <p className="text-slate-400 text-sm">Absolutamente no. La transparencia es nuestro estandarte. El costo anual que pagas cubre estrictamente el mantenimiento de tus datos en servidores de Google Cloud, garantizando cargas ultrarrápidas y que tu tarjeta jamás se caerá. Si deseas actualizar tus datos (cambiar tu número, correo, etc.), se aplica un costo de revisión transparente y predecible detallado en nuestros <Link href="/terminos" className="text-[#EE334E] hover:underline">Términos y Condiciones</Link>.</p>
-              </div>
+              {/* FAQ 2 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#00E5FF] shrink-0" />
+                    ¿Existen cuotas o letras chiquitas ocultas?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Absolutamente no. La transparencia es nuestro estandarte. El costo anual que pagas cubre estrictamente el mantenimiento de tus datos en servidores en la nube de alta disponibilidad, garantizando cargas ultrarrápidas y que tu tarjeta jamás se caerá. Si deseas actualizar tus datos, puedes hacerlo directamente desde tu panel de control o consultar nuestros <Link href="/terminos" className="text-[#EE334E] hover:underline">Términos y Condiciones</Link>.
+                </div>
+              </details>
 
-              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-2">¿Qué obtengo físicamente al comprar un paquete?</h3>
-                <p className="text-slate-400 text-sm">Todos los paquetes de pago incluyen gratis una (1) Tarjeta Física Inteligente de PVC y un (1) Sticker NFC para el celular con nuestra identidad visual. Si prefieres un diseño con tu propio logotipo corporativo, puedes solicitar la manufactura personalizada en PVC Blanco, Negro o Bamboo por  USD adicionales.</p>
-              </div>
+              {/* FAQ 3 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#EE334E] shrink-0" />
+                    ¿Qué obtengo físicamente al comprar un paquete?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Todos los paquetes de pago incluyen gratis una (1) Tarjeta Física Inteligente de PVC y un (1) Sticker NFC para el celular con nuestra identidad visual. Si prefieres un diseño con tu propio logotipo corporativo, puedes solicitar la manufactura personalizada en PVC Blanco, Negro Mate o Madera Bamboo ecológica.
+                </div>
+              </details>
+
+              {/* NUEVA FAQ 4 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#00E5FF] shrink-0" />
+                    ¿Qué teléfonos son compatibles y qué pasa si el cliente no tiene NFC?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  El 100% de los smartphones actuales (iPhone modelo XR en adelante y casi la totalidad de teléfonos Android) cuentan con lector NFC integrado y leen la tarjeta al instante con solo aproximarla, sin instalar nada. Si el dispositivo de tu cliente es un modelo antiguo sin NFC, la tarjeta física incluye en el reverso tu Código QR dinámico de alta definición para escanear con la cámara y acceder exactamente a la misma experiencia interactiva.
+                </div>
+              </details>
+
+              {/* NUEVA FAQ 5 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#EE334E] shrink-0" />
+                    ¿Puedo actualizar mis datos después de tener mi tarjeta física fabricada?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Sí, de forma ilimitada y en tiempo real. Tu tarjeta física se conecta con tu perfil digital alojado en la nube. Si cambias de número de teléfono, añades un nuevo catálogo de productos, modificas tu puesto o actualizas tus fotos de portada y logotipo desde tu panel de control, los cambios se reflejan inmediatamente en la próxima lectura sin necesidad de reprogramar ni reimprimir el chip físico.
+                </div>
+              </details>
+
+              {/* NUEVA FAQ 6 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#00E5FF] shrink-0" />
+                    ¿La otra persona necesita descargar alguna aplicación para recibir mis datos?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  No. Cero aplicaciones necesarias ni para ti ni para quien recibe tus datos. Al acercar la tarjeta física o escanear el QR, tu tarjeta interactiva se despliega al instante en el navegador nativo del smartphone (Safari, Chrome) y con un solo toque en el botón "Guardar Contacto" descarga tu archivo vCard (.vcf) directamente en la agenda nativa del celular con tu nombre, teléfono, WhatsApp, correo y redes.
+                </div>
+              </details>
 
             </div>
           </div>
