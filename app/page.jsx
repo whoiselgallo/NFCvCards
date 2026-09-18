@@ -13,7 +13,8 @@ import {
   Zap,
   ArrowRight,
   MonitorSmartphone,
-  Layers
+  Layers,
+  Mail
 } from 'lucide-react';
 import MasterAdminDrawer from './components/MasterAdminDrawer';
 
@@ -235,7 +236,7 @@ export default function LandingPage() {
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/design1.jpeg" alt="Emprendedor NFC" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/formal_casual.jpeg" alt="Formal Casual" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-8 flex-1 flex flex-col">
                 <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
@@ -253,7 +254,7 @@ export default function LandingPage() {
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/design2.jpeg" alt="Ejecutivo Ventas" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/ejecutivo_comercial.jpeg" alt="Ejecutivo Comercial" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-8 flex-1 flex flex-col">
                 <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
@@ -271,7 +272,7 @@ export default function LandingPage() {
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/design3.jpeg" alt="Corporativo Elite" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/profesional_elite.jpeg" alt="Profesional Élite" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-8 flex-1 flex flex-col">
                 <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
@@ -685,23 +686,51 @@ export default function LandingPage() {
         </section>
 
         {/* FOOTER */}
-      <footer className="py-12 border-t border-white/5 bg-[#030308] text-center relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Nfc className="text-slate-500 w-6 h-6" />
-            <span className="text-xl font-bold tracking-tight text-slate-400">Rose VCards</span>
+        <footer className="py-16 border-t border-white/10 bg-[#030308] text-center relative z-10">
+          <div className="max-w-7xl mx-auto px-6">
+            
+            {/* Logo y Nombre */}
+            <div className="flex items-center justify-center gap-2.5 mb-6">
+              <div className="w-9 h-9 rounded-xl bg-[#EE334E]/10 border border-[#EE334E]/30 flex items-center justify-center">
+                <Nfc className="text-[#EE334E] w-5 h-5" />
+              </div>
+              <span className="text-2xl font-extrabold tracking-tight text-white font-bruno">
+                Rose VCards
+              </span>
+            </div>
+
+            {/* Bloque de Contacto Directo */}
+            <div className="mb-8">
+              <p className="text-xs font-mono uppercase tracking-widest text-slate-500 mb-3 font-bold">
+                ¿Tienes dudas o requieres atención corporativa personalizada?
+              </p>
+              <a 
+                href="mailto:contacto@tsolutionsipidd.com"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/5 hover:bg-[#EE334E]/10 border border-white/10 hover:border-[#EE334E]/50 text-slate-200 hover:text-[#EE334E] text-sm font-mono font-bold transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)] hover:shadow-[0_0_20px_rgba(238,51,78,0.25)] group"
+              >
+                <Mail className="w-4 h-4 text-[#EE334E] group-hover:scale-110 transition-transform" />
+                <span>contacto@tsolutionsipidd.com</span>
+              </a>
+            </div>
+
+            {/* Enlaces Legales */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-slate-400 mb-6">
+              <Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link>
+              <span className="hidden sm:inline text-slate-700">•</span>
+              <Link href="/privacidad" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
+              <span className="hidden sm:inline text-slate-700">•</span>
+              <Link href="/login" className="hover:text-[#EE334E] transition-colors">Acceso a Clientes</Link>
+            </div>
+
+            {/* Copyright */}
+            <p className="text-slate-500 text-xs font-sans">
+              © {new Date().getFullYear()} TSOLUTIONS IPIDD · Rose VCards. Todos los derechos reservados.
+            </p>
+            <p className="text-[11px] text-slate-600 font-mono mt-1 uppercase tracking-wider">
+              Tecnología NFC Contactless & Cloud Engine
+            </p>
           </div>
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-slate-500 mb-6">
-            <Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link>
-            <span className="hidden md:block">•</span>
-            <Link href="/privacidad" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
-          </div>
-          <p className="text-slate-600 text-xs">
-            © {new Date().getFullYear()} Rose VCards. Todos los derechos reservados. <br className="md:hidden" />
-            Potenciado por Google Cloud Platform.
-          </p>
-        </div>
-      </footer>
+        </footer>
     </div>
     </>
 
