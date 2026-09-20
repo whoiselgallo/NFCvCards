@@ -159,9 +159,9 @@ export default function ExpressCatalogModal({ isOpen, onClose, companyName, onPd
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn">
+    <div className="app-modal-open fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn">
       <div className="bg-[#0B0B12] border border-gray-800 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
-        
+
         {/* Header */}
         <div className="p-5 border-b border-gray-800 flex items-center justify-between bg-[#10101C]">
           <div className="flex items-center gap-3">
@@ -191,11 +191,10 @@ export default function ExpressCatalogModal({ isOpen, onClose, companyName, onPd
             <button
               type="button"
               onClick={() => handleTemplateChange('catalogo')}
-              className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-3 ${
-                template === 'catalogo'
+              className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-3 ${template === 'catalogo'
                   ? 'bg-[#EE334E]/15 border-[#EE334E] text-white shadow-[0_0_15px_rgba(238,51,78,0.2)]'
                   : 'bg-white/5 border-gray-800 text-gray-400 hover:bg-white/10'
-              }`}
+                }`}
             >
               <BookOpen className={`w-5 h-5 ${template === 'catalogo' ? 'text-[#EE334E]' : 'text-gray-400'}`} />
               <div>
@@ -207,11 +206,10 @@ export default function ExpressCatalogModal({ isOpen, onClose, companyName, onPd
             <button
               type="button"
               onClick={() => handleTemplateChange('portafolio')}
-              className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-3 ${
-                template === 'portafolio'
+              className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-3 ${template === 'portafolio'
                   ? 'bg-[#00E5FF]/15 border-[#00E5FF] text-white shadow-[0_0_15px_rgba(0,229,255,0.2)]'
                   : 'bg-white/5 border-gray-800 text-gray-400 hover:bg-white/10'
-              }`}
+                }`}
             >
               <Briefcase className={`w-5 h-5 ${template === 'portafolio' ? 'text-[#00E5FF]' : 'text-gray-400'}`} />
               <div>
@@ -223,11 +221,10 @@ export default function ExpressCatalogModal({ isOpen, onClose, companyName, onPd
             <button
               type="button"
               onClick={() => handleTemplateChange('menu')}
-              className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-3 ${
-                template === 'menu'
+              className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-3 ${template === 'menu'
                   ? 'bg-amber-500/15 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.2)]'
                   : 'bg-white/5 border-gray-800 text-gray-400 hover:bg-white/10'
-              }`}
+                }`}
             >
               <Utensils className={`w-5 h-5 ${template === 'menu' ? 'text-amber-400' : 'text-gray-400'}`} />
               <div>

@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../../../lib/nextAuthOptions';
+import { isOrganizationEmail } from '../../../lib/brand';
+import { getPlatformAccessConfig, isEmailInDomains } from '../../../lib/accessConfig';
 
 const stripeKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeKey ? new Stripe(stripeKey) : null;
 
 export async function POST(request) {
   try {
+    const authSession = await getServerSession(authOptions);
+    const accessConfig = await getPlatformAccessConfig();
+    if (isOrganizationEmail(authSession?.user?.email) || isEmailInDomains(authSession?.user?.email, accessConfig.freeDomains)) {
+      return NextResponse.json({ success: true, freeAccess: true });
+    }
+
     if (!stripe) {
       return NextResponse.json(
         { error: 'Stripe no est configurado (STRIPE_SECRET_KEY faltante).' },
@@ -14,7 +24,7 @@ export async function POST(request) {
     }
 
     const { planId, userEmail, userId } = await request.json();
-    
+
     // Configurar precios segn el plan
     let lineItems = [];
     let mode = 'subscription';
@@ -83,7 +93,7 @@ export async function POST(request) {
           quantity: 1,
         }
       ];
-      mode = 'subscription'; 
+      mode = 'subscription';
     } else {
       return NextResponse.json({ error: 'Plan invlido' }, { status: 400 });
     }

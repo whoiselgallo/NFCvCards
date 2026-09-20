@@ -107,9 +107,9 @@ export default function ConstructionFeedbackModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto">
+    <div className="app-modal-open fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn overflow-y-auto">
       <div className="relative w-full max-w-xl bg-[#0B0B14] border border-[#EE334E]/50 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(238,51,78,0.3)] my-8 text-white">
-        
+
         {/* ENCABEZADO */}
         <div className="flex items-start justify-between gap-4 mb-6">
           <div className="space-y-1">
@@ -135,7 +135,7 @@ export default function ConstructionFeedbackModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 text-left">
-          
+
           {/* 1. FACILIDAD */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-200 uppercase tracking-wider block">
@@ -147,11 +147,10 @@ export default function ConstructionFeedbackModal({
                   key={opt.id}
                   type="button"
                   onClick={() => setEaseLevel(opt.id)}
-                  className={`px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all border ${
-                    easeLevel === opt.id
+                  className={`px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all border ${easeLevel === opt.id
                       ? 'bg-[#EE334E]/20 border-[#EE334E] text-white shadow-[0_0_15px_rgba(238,51,78,0.3)]'
                       : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
-                  }`}
+                    }`}
                 >
                   {opt.label}
                 </button>
@@ -170,11 +169,10 @@ export default function ConstructionFeedbackModal({
                   key={opt.id}
                   type="button"
                   onClick={() => setFriendlyUi(opt.id)}
-                  className={`px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all border ${
-                    friendlyUi === opt.id
+                  className={`px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all border ${friendlyUi === opt.id
                       ? 'bg-[#00E5FF]/20 border-[#00E5FF] text-white shadow-[0_0_15px_rgba(0,229,255,0.3)]'
                       : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
-                  }`}
+                    }`}
                 >
                   {opt.label}
                 </button>
@@ -195,11 +193,10 @@ export default function ConstructionFeedbackModal({
                     key={item}
                     type="button"
                     onClick={() => toggleFieldSuggestion(item)}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${
-                      isSelected
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all border ${isSelected
                         ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
                         : 'bg-white/5 border-white/10 text-slate-400 hover:text-slate-200'
-                    }`}
+                      }`}
                   >
                     {isSelected ? '✓ ' : '+ '}
                     {item}
@@ -219,11 +216,10 @@ export default function ConstructionFeedbackModal({
                 <label
                   key={iss}
                   onClick={() => setIssuesReported(iss)}
-                  className={`flex items-center gap-2.5 p-2 rounded-xl border text-xs cursor-pointer transition-all ${
-                    issuesReported === iss
+                  className={`flex items-center gap-2.5 p-2 rounded-xl border text-xs cursor-pointer transition-all ${issuesReported === iss
                       ? 'bg-white/10 border-white/30 text-white'
                       : 'bg-white/5 border-transparent text-slate-400 hover:bg-white/10'
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"
@@ -268,9 +264,8 @@ export default function ConstructionFeedbackModal({
                   className="p-1 text-yellow-400 transition-transform hover:scale-125 focus:outline-none"
                 >
                   <Star
-                    className={`w-5 h-5 ${
-                      (hoverRating || rating) >= star ? 'fill-yellow-400 text-yellow-400' : 'text-slate-600'
-                    }`}
+                    className={`w-5 h-5 ${(hoverRating || rating) >= star ? 'fill-yellow-400 text-yellow-400' : 'text-slate-600'
+                      }`}
                   />
                 </button>
               ))}

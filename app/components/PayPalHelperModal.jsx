@@ -33,7 +33,7 @@ export function parsePaymentInput(input) {
   // 2. Si es código HTML / Formulario Embed de PayPal
   if (trimmed.includes('<form') || trimmed.includes('<a') || trimmed.includes('hosted_button_id')) {
     const buttonIdMatch = trimmed.match(/name="hosted_button_id"\s+value="([^"]+)"/i) ||
-                          trimmed.match(/value="([^"]+)"\s+name="hosted_button_id"/i);
+      trimmed.match(/value="([^"]+)"\s+name="hosted_button_id"/i);
     if (buttonIdMatch && buttonIdMatch[1]) {
       return `https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=${buttonIdMatch[1]}`;
     }
@@ -87,7 +87,7 @@ export default function PayPalHelperModal({ isOpen, onClose, onApplyLink }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div className="app-modal-open fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       <div className="bg-[#0D0D14] border border-gray-800 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-5 border-b border-gray-800 flex items-center justify-between bg-[#12121D]">
@@ -116,31 +116,28 @@ export default function PayPalHelperModal({ isOpen, onClose, onApplyLink }) {
         <div className="flex border-b border-gray-800 bg-[#0A0A10] text-xs">
           <button
             onClick={() => setActiveTab('paypalme')}
-            className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${
-              activeTab === 'paypalme'
+            className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${activeTab === 'paypalme'
                 ? 'border-[#0079C1] text-white bg-white/5'
                 : 'border-transparent text-gray-400 hover:text-gray-200'
-            }`}
+              }`}
           >
             1. Enlace PayPal.me (Recomendado)
           </button>
           <button
             onClick={() => setActiveTab('embed')}
-            className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${
-              activeTab === 'embed'
+            className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${activeTab === 'embed'
                 ? 'border-[#0079C1] text-white bg-white/5'
                 : 'border-transparent text-gray-400 hover:text-gray-200'
-            }`}
+              }`}
           >
             2. Código Embed / Botón PayPal
           </button>
           <button
             onClick={() => setActiveTab('stripe')}
-            className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${
-              activeTab === 'stripe'
+            className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${activeTab === 'stripe'
                 ? 'border-[#635BFF] text-white bg-white/5'
                 : 'border-transparent text-gray-400 hover:text-gray-200'
-            }`}
+              }`}
           >
             3. Stripe Payment Links
           </button>

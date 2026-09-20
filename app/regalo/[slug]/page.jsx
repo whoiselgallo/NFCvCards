@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Gift, CheckCircle2, ArrowRight, Sparkles, ShieldCheck, AlertCircle, BookOpen } from 'lucide-react';
 import brandConfig from '../../../brand.config';
 import CreationGuideModal from '../../components/CreationGuideModal';
@@ -45,7 +46,7 @@ export default function RegaloPage() {
   }, [slug]);
 
   const handleStartBuilder = () => {
-    router.push(`/builder?ref=${slug}`);
+    router.push(`/login?callbackUrl=${encodeURIComponent(`/builder?ref=${slug}`)}`);
   };
 
   return (
@@ -55,7 +56,7 @@ export default function RegaloPage() {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[140px] pointer-events-none z-0" />
 
       <div className="w-full max-w-xl relative z-10">
-        
+
         {/* LOGO */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-20 h-20 bg-[#0A0A10] border border-white/10 rounded-2xl flex items-center justify-center mb-4 shadow-2xl relative">
@@ -113,9 +114,8 @@ export default function RegaloPage() {
                     {agent.remaining > 0 ? `${agent.remaining} de ${agent.giftQuota} disponibles` : 'Lote agotado'}
                   </p>
                 </div>
-                <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
-                  agent.remaining > 0 ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                }`}>
+                <span className={`px-3 py-1 rounded-lg text-xs font-bold ${agent.remaining > 0 ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                  }`}>
                   {agent.remaining > 0 ? '● Cupo Activo' : 'Agotado'}
                 </span>
               </div>
@@ -152,6 +152,14 @@ export default function RegaloPage() {
                   </button>
 
                   <button
+                    onClick={() => signIn('google', { callbackUrl: `/builder?ref=${slug}` })}
+                    className="w-full py-3 bg-white hover:bg-slate-100 text-slate-900 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2"
+                  >
+                    <span className="text-base font-black">G</span>
+                    <span>Registrarme con Google y activar Elite</span>
+                  </button>
+
+                  <button
                     onClick={() => setIsGuideOpen(true)}
                     className="w-full py-3 bg-[#00E5FF]/10 hover:bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/30 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                   >
@@ -174,7 +182,7 @@ export default function RegaloPage() {
         </p>
       </div>
 
-      <CreationGuideModal 
+      <CreationGuideModal
         isOpen={isGuideOpen}
         onClose={() => setIsGuideOpen(false)}
         agentInfo={agent}

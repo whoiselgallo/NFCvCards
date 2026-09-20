@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { 
-  Menu, X, Home, LayoutDashboard, User, CreditCard, 
+import {
+  Menu, X, Home, LayoutDashboard, User, CreditCard,
   Award, Gift, ExternalLink, LogOut, ShieldCheck, Sparkles,
   BarChart3, Settings
 } from 'lucide-react';
@@ -16,9 +16,9 @@ export default function MasterAdminDrawer() {
   // Verificamos si la sesión corresponde a Javier Gallardo o administradores autorizados
   const userEmail = session?.user?.email?.toLowerCase() || '';
   const isJavier = userEmail === 'javier.gallardo@tsolutionsipidd.com' ||
-                   userEmail === 'whoiselgallo@gmail.com' ||
-                   userEmail === 'contacto@tsolutionsipidd.com' ||
-                   userEmail.endsWith('@tsolutionsipidd.com');
+    userEmail === 'whoiselgallo@gmail.com' ||
+    userEmail === 'contacto@tsolutionsipidd.com' ||
+    userEmail.endsWith('@tsolutionsipidd.com');
 
   if (!isJavier) return null;
 
@@ -38,7 +38,7 @@ export default function MasterAdminDrawer() {
       {/* BOTÓN FLOTANTE DE HAMBURGUESA MAESTRO (Siempre accesible en la esquina superior) */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-4 sm:top-5 sm:right-6 z-50 px-3.5 py-2.5 rounded-2xl bg-[#0A0A12]/95 hover:bg-[#12111A] text-white border border-[#EE334E]/60 shadow-[0_0_30px_rgba(238,51,78,0.45)] backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 group cursor-pointer"
+        className="fixed top-4 right-4 sm:top-5 sm:right-6 z-[60] px-3.5 py-2.5 rounded-2xl bg-[#0A0A12]/95 hover:bg-[#12111A] text-white border border-[#EE334E]/60 shadow-[0_0_30px_rgba(238,51,78,0.45)] backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 group cursor-pointer"
         title="Centro de Mando Maestro - Javier Gallardo"
       >
         <div className="w-2.5 h-2.5 rounded-full bg-[#EE334E] animate-pulse"></div>
@@ -48,8 +48,8 @@ export default function MasterAdminDrawer() {
 
       {/* DRAWER LATERAL DESLIZABLE */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex justify-end animate-fadeIn">
-          <div 
+        <div className="app-modal-open fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex justify-end animate-fadeIn">
+          <div
             className="w-full max-w-sm sm:max-w-md bg-[#07070D] border-l border-[#EE334E]/30 h-full p-6 sm:p-8 flex flex-col justify-between overflow-y-auto shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
@@ -65,7 +65,7 @@ export default function MasterAdminDrawer() {
                     <p className="text-[11px] text-[#EE334E] font-mono">Master Administrator</p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsOpen(false)}
                   className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
                 >
@@ -85,11 +85,10 @@ export default function MasterAdminDrawer() {
                       key={idx}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-semibold transition-all ${
-                        item.highlight 
-                          ? 'bg-gradient-to-r from-[#EE334E]/20 to-transparent border border-[#EE334E]/40 text-white shadow-[0_0_20px_rgba(238,51,78,0.2)]' 
-                          : 'hover:bg-white/5 text-slate-300 hover:text-white border border-transparent hover:border-white/5'
-                      }`}
+                      className={`flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-semibold transition-all ${item.highlight
+                        ? 'bg-gradient-to-r from-[#EE334E]/20 to-transparent border border-[#EE334E]/40 text-white shadow-[0_0_20px_rgba(238,51,78,0.2)]'
+                        : 'hover:bg-white/5 text-slate-300 hover:text-white border border-transparent hover:border-white/5'
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <Icon className={`w-4 h-4 ${item.color}`} />

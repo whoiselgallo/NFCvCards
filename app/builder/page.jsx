@@ -5,7 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Lock } from 'lucide-react';
 import JSZip from 'jszip';
 import brandConfig from '../../brand.config';
-import { generateDeliveryInstructions } from '../../lib/brand';
+import { generateDeliveryInstructions, isOrganizationEmail } from '../../lib/brand';
 import { getTranslation, SUPPORTED_LANGUAGES } from '../../lib/i18n';
 import ConstructionFeedbackModal from '../components/ConstructionFeedbackModal';
 import PayPalHelperModal, { parsePaymentInput } from '../components/PayPalHelperModal';
@@ -17,15 +17,6 @@ import { BrandSocialIcon, FacebookIcon, InstagramIcon, LinkedInIcon, TikTokIcon,
 
 // Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
 const THEMES = {
-  classic: {
-    id: 'classic',
-    name: 'Clásico Corporativo',
-    badge: 'Formal',
-    desc: 'Cabecera vibrante, logotipo centrado y pastillas de contacto',
-    bgColor: '#ffffff',
-    textColor: '#1e293b',
-    subTextColor: '#64748b'
-  },
   modern: {
     id: 'modern',
     name: 'Cyber Modern Dark',
@@ -148,7 +139,7 @@ export function getEffectiveMapsUrl(formData) {
   if (formData.googleMapsUrl && formData.googleMapsUrl.trim().startsWith('http')) {
     return formData.googleMapsUrl.trim();
   }
-  
+
   const parts = [];
   if (formData.calle?.trim()) parts.push(formData.calle.trim());
   if (formData.ciudad?.trim()) parts.push(formData.ciudad.trim());
@@ -238,21 +229,36 @@ export default function VCardEngineDashboard() {
       const sp = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
       const vipSlug = sp?.get('vip') || sp?.get('pass') || sp?.get('owner');
       const refSlug = sp?.get('ref') || sp?.get('invitado_por');
-      // Si viene por invitación de regalo de un agente o por pase VIP, permitimos diseñar
-      if ((!vipSlug || !getVipPass(vipSlug)) && (!refSlug || !getVipPass(refSlug))) {
+      if (refSlug && getVipPass(refSlug) && (!vipSlug || !getVipPass(vipSlug))) {
+        router.push(`/login?callbackUrl=${encodeURIComponent(`/builder?ref=${refSlug}`)}`);
+      } else if ((!vipSlug || !getVipPass(vipSlug)) && (!refSlug || !getVipPass(refSlug))) {
         router.push('/login');
       }
     }
   }, [status, router]);
 
+  useEffect(() => {
+    if (status !== 'authenticated' || !referredByAgent) return;
+
+    fetch('/api/pass/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: referredByAgent.slug })
+    }).then(async response => {
+      if (!response.ok) return;
+      await update({ plan_id: 'elite', card_limit: 1 });
+    }).catch(() => { });
+  }, [status, referredByAgent, update]);
+
 
 
   // Determinar el plan del usuario (Pase VIP o Invitación de Regalo desbloquea automáticamente Tier 4 Elite)
-  const isVipActive = !!vipPass || !!referredByAgent || session?.user?.plan_id === 'elite';
+  const hasOrganizationAccess = isOrganizationEmail(session?.user?.email);
+  const isVipActive = !!vipPass || !!referredByAgent || hasOrganizationAccess || session?.user?.plan_id === 'elite';
   const userPlan = isVipActive ? 'elite' : (session?.user?.plan_id || 'free');
-  
+
   const getTier = (plan) => {
-    switch(plan) {
+    switch (plan) {
       case 'student':
       case 'meetme': return 1;
       case 'pro': return 2;
@@ -262,7 +268,7 @@ export default function VCardEngineDashboard() {
       default: return 0;
     }
   };
-  
+
   const tier = getTier(userPlan);
   const isPremium = tier >= 3;
   const isPro = tier >= 2;
@@ -313,7 +319,7 @@ export default function VCardEngineDashboard() {
     logoScale: 100,
     coverPositionY: 50,         // Slider 1: Deslizar Arriba / Abajo (0% a 100%)
     coverZoom: 100,             // Slider 2: Acercar / Alejar (100% a 250%)
-    
+
     // NUEVO MÓDULO DE DISEÑO LIBRE
     hideBanner: false,          // Toggle para quitar el banner/portada
     logoPosition: 'center',     // center, left, right, hidden
@@ -458,7 +464,7 @@ export default function VCardEngineDashboard() {
             setCoverPhoto(parsed.coverPhoto);
           }
         }
-      } catch (e) {}
+      } catch (e) { }
     }
   }, []);
 
@@ -506,7 +512,7 @@ export default function VCardEngineDashboard() {
       }
       setShowCheckoutModal(false);
       alert(`¡Pago de $${selectedProduct.price} MXN procesado con éxito!\nFolio Oficial: TS-PAY-${Math.floor(100000 + Math.random() * 900000)}\nEntregable desbloqueado de inmediato.`);
-      
+
       if (selectedProduct.id === 'bundle') {
         downloadFullPackage();
       } else if (selectedProduct.id === 'qr') {
@@ -547,9 +553,9 @@ export default function VCardEngineDashboard() {
 
   const handleDesignChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setDesign(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
+    setDesign(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -576,18 +582,18 @@ export default function VCardEngineDashboard() {
         canvas.height = 40;
         ctx.drawImage(img, 0, 0, 40, 40);
         const data = ctx.getImageData(0, 0, 40, 40).data;
-        
+
         let maxScore = 0;
         let bestHex = null;
 
         for (let i = 0; i < data.length; i += 4) {
           const r = data[i];
-          const g = data[i+1];
-          const b = data[i+2];
-          const a = data[i+3];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const a = data[i + 3];
 
           if (a < 100) continue;
-          
+
           const brightness = (r * 299 + g * 587 + b * 114) / 1000;
           if (brightness < 30 || brightness > 230) continue;
 
@@ -949,7 +955,7 @@ export default function VCardEngineDashboard() {
               logoImg,
               coverPhoto
             }));
-          } catch {}
+          } catch { }
         }
 
         // Redirección inmediata al Centro Oficial de Entregables
@@ -976,7 +982,7 @@ export default function VCardEngineDashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-[#060509] text-[#F8FAFC]">
-      
+
       {/* BANNER DE OBSEQUIO DE AGENTE EMBAJADOR */}
       {referredByAgent && (
         <div className="mb-4 max-w-[1920px] mx-auto w-full p-3.5 bg-gradient-to-r from-emerald-950/70 via-[#0A0A10] to-teal-950/70 border border-emerald-500/40 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-[0_0_20px_rgba(16,185,129,0.25)]">
@@ -1041,40 +1047,38 @@ export default function VCardEngineDashboard() {
           </div>
         </div>
 
-          {/* BOTÓN CTA PERSISTENTE DE PAGO / DESBLOQUEO */}
-          {!isPaid && !isVipActive && (
-            <button 
-              type="button"
-              onClick={() => {
-                setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' });
-                setShowCheckoutModal(true);
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#EE334E] via-[#ff0003] to-[#EE334E] hover:brightness-125 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(255,0,3,0.6)] transition-all active:scale-95 animate-pulse"
-            >
-              <span>💳</span>
-              <span>Desbloquear Todo / Pagar ($199 MXN)</span>
-            </button>
-          )}
+        {/* BOTÓN CTA PERSISTENTE DE PAGO / DESBLOQUEO */}
+        {!isPaid && !isVipActive && (
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' });
+              setShowCheckoutModal(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#EE334E] via-[#ff0003] to-[#EE334E] hover:brightness-125 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(255,0,3,0.6)] transition-all active:scale-95 animate-pulse"
+          >
+            <span>💳</span>
+            <span>Desbloquear Todo / Pagar ($199 MXN)</span>
+          </button>
+        )}
 
         <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
           <div className="flex bg-[#0F0B15] p-1 rounded-xl border border-rose-900/40 shadow-inner">
             <button
               onClick={() => setMode('vcard')}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
-                mode === 'vcard'
-                  ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(255,0,3,0.6)]'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
-              }`}
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${mode === 'vcard'
+                ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(255,0,3,0.6)]'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
             >
               <span>📇</span> {t('mode_vcard')}
             </button>
             <button
               onClick={() => setMode('review')}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${
-                mode === 'review'
-                  ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(238,51,78,0.6)]'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
-              }`}
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-bruno transition-all flex items-center gap-1.5 sm:gap-2 ${mode === 'review'
+                ? 'bg-gradient-to-r from-[#EE334E] to-[#ff0003] text-white font-extrabold shadow-[0_0_16px_rgba(238,51,78,0.6)]'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
             >
               <span>⭐</span> {t('mode_review')}
             </button>
@@ -1140,7 +1144,7 @@ export default function VCardEngineDashboard() {
 
       {/* CONTENIDO PRINCIPAL EN 2 COLUMNAS */}
       <main className="flex-1 flex flex-col lg:flex-row gap-8 max-w-[1920px] mx-auto w-full items-start">
-        
+
         {/* COLUMNA 1: PANEL DE CONFIGURACIÓN */}
         <section className="w-full lg:w-7/12 panel-glass p-6 md:p-8 space-y-6">
           <h2 className="text-xl font-bruno text-[#FF2A54] flex items-center gap-2 border-b border-gray-800/80 pb-3">
@@ -1149,9 +1153,9 @@ export default function VCardEngineDashboard() {
             </svg>
             DATA INPUT & CONFIGURACIÓN
           </h2>
-          
+
           <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-            
+
             {mode === 'review' ? (
               /* MODO GOOGLE REVIEWS */
               <div className="bg-[#12121c] border border-[#ff0003]/30 rounded-xl p-5 space-y-4">
@@ -1303,11 +1307,10 @@ export default function VCardEngineDashboard() {
                       <button
                         type="button"
                         onClick={() => setIsFreeDesignOpen(!isFreeDesignOpen)}
-                        className={`px-3 py-1.5 rounded-xl text-[10px] font-mono uppercase tracking-wider font-bold border transition-all ${
-                          isFreeDesignOpen
-                            ? 'bg-purple-950/70 border-purple-500/60 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.3)]'
-                            : 'bg-black/50 border-gray-700 text-gray-400 hover:text-white'
-                        }`}
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-mono uppercase tracking-wider font-bold border transition-all ${isFreeDesignOpen
+                          ? 'bg-purple-950/70 border-purple-500/60 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.3)]'
+                          : 'bg-black/50 border-gray-700 text-gray-400 hover:text-white'
+                          }`}
                       >
                         {isFreeDesignOpen ? '▼ Módulo Abierto (Activo)' : '▶ Abrir Módulo'}
                       </button>
@@ -1496,7 +1499,7 @@ export default function VCardEngineDashboard() {
                     <h4 className="text-xs font-rosetta text-[#EE334E] flex items-center gap-2 uppercase">
                       <span>🌐</span> Redes Sociales (Solo Usuario)
                     </h4>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       {/* Facebook */}
                       <div>
@@ -1689,98 +1692,98 @@ export default function VCardEngineDashboard() {
                   </div>
                 </div>
 
-                                  {/* ========================================================= */}
-                  {/* PASO 2.5: PRODUCTIVIDAD Y CONVERSIÓN                        */}
-                  {/* ========================================================= */}
-                  <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
-                    <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">★</span>
-                        <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Productividad & Conversión</h3>
-                      </div>
-                      <span className="text-[10px] font-mono text-gray-400 uppercase">Ventas y PDF</span>
+                {/* ========================================================= */}
+                {/* PASO 2.5: PRODUCTIVIDAD Y CONVERSIÓN                        */}
+                {/* ========================================================= */}
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">★</span>
+                      <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Productividad & Conversión</h3>
                     </div>
+                    <span className="text-[10px] font-mono text-gray-400 uppercase">Ventas y PDF</span>
+                  </div>
 
-                    <div className="grid grid-cols-1 gap-4">
-                      <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Calendly)</label>
-                        <input type="url" name="calendlyUrl" value={formData.calendlyUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://calendly.com/tu-usuario" />
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Calendly)</label>
+                      <input type="url" name="calendlyUrl" value={formData.calendlyUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://calendly.com/tu-usuario" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Google Calendar)</label>
+                      <input type="url" name="googleCalendarUrl" value={formData.googleCalendarUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://calendar.google.com/..." />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Apple / iCloud Calendar)</label>
+                      <input type="url" name="icloudCalendarUrl" value={formData.icloudCalendarUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://www.icloud.com/..." />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wider">Botón de Pago (PayPal / Stripe)</label>
+                        <button
+                          type="button"
+                          onClick={() => setShowPayPalHelper(true)}
+                          className="text-[10px] text-[#00E5FF] hover:underline flex items-center gap-1 font-mono font-bold"
+                        >
+                          ❓ Guía de Vinculación
+                        </button>
                       </div>
-                      <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Google Calendar)</label>
-                        <input type="url" name="googleCalendarUrl" value={formData.googleCalendarUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://calendar.google.com/..." />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Agendar Reunión (Apple / iCloud Calendar)</label>
-                        <input type="url" name="icloudCalendarUrl" value={formData.icloudCalendarUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://www.icloud.com/..." />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wider">Botón de Pago (PayPal / Stripe)</label>
-                          <button
-                            type="button"
-                            onClick={() => setShowPayPalHelper(true)}
-                            className="text-[10px] text-[#00E5FF] hover:underline flex items-center gap-1 font-mono font-bold"
-                          >
-                            ❓ Guía de Vinculación
-                          </button>
-                        </div>
-                        <input
-                          type="text"
-                          name="paypalUrl"
-                          value={formData.paypalUrl}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            const parsed = parsePaymentInput(val);
-                            setFormData(prev => ({ ...prev, paypalUrl: parsed }));
-                          }}
-                          className="input-dark w-full"
-                          placeholder="https://paypal.me/tu-usuario o pega código embed / JSON..."
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Datos Bancarios para Transferencia</label>
-                        <textarea name="bankDetails" value={formData.bankDetails} onChange={handleInputChange} className="input-dark w-full resize-none h-20" placeholder="Banco: XXXX
+                      <input
+                        type="text"
+                        name="paypalUrl"
+                        value={formData.paypalUrl}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const parsed = parsePaymentInput(val);
+                          setFormData(prev => ({ ...prev, paypalUrl: parsed }));
+                        }}
+                        className="input-dark w-full"
+                        placeholder="https://paypal.me/tu-usuario o pega código embed / JSON..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Datos Bancarios para Transferencia</label>
+                      <textarea name="bankDetails" value={formData.bankDetails} onChange={handleInputChange} className="input-dark w-full resize-none h-20" placeholder="Banco: XXXX
 CLABE: 0123...
 Beneficiario: TSolutions" />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wider">Documento PDF (Catálogo, Menú o Portafolio)</label>
+                        <button
+                          type="button"
+                          onClick={() => setShowExpressCatalogModal(true)}
+                          className="text-[10px] bg-[#EE334E]/20 text-[#EE334E] hover:bg-[#EE334E]/30 px-2.5 py-0.5 rounded-lg border border-[#EE334E]/40 font-mono font-bold flex items-center gap-1 transition-all"
+                        >
+                          ✨ Crear PDF Express
+                        </button>
                       </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wider">Documento PDF (Catálogo, Menú o Portafolio)</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="url"
+                          name="pdfUrl"
+                          value={formData.pdfUrl}
+                          onChange={handleInputChange}
+                          className="input-dark w-full"
+                          placeholder="https://mi-sitio.com/catalogo.pdf o créalo con el botón de arriba"
+                        />
+                        {formData.pdfUrl && (
                           <button
                             type="button"
-                            onClick={() => setShowExpressCatalogModal(true)}
-                            className="text-[10px] bg-[#EE334E]/20 text-[#EE334E] hover:bg-[#EE334E]/30 px-2.5 py-0.5 rounded-lg border border-[#EE334E]/40 font-mono font-bold flex items-center gap-1 transition-all"
+                            onClick={() => setFormData(prev => ({ ...prev, pdfUrl: '' }))}
+                            className="px-2.5 py-2 bg-red-950/40 border border-red-800 text-red-400 rounded-lg text-xs hover:bg-red-900/40"
+                            title="Quitar PDF"
                           >
-                            ✨ Crear PDF Express
+                            ✕
                           </button>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="url"
-                            name="pdfUrl"
-                            value={formData.pdfUrl}
-                            onChange={handleInputChange}
-                            className="input-dark w-full"
-                            placeholder="https://mi-sitio.com/catalogo.pdf o créalo con el botón de arriba"
-                          />
-                          {formData.pdfUrl && (
-                            <button
-                              type="button"
-                              onClick={() => setFormData(prev => ({ ...prev, pdfUrl: '' }))}
-                              className="px-2.5 py-2 bg-red-950/40 border border-red-800 text-red-400 rounded-lg text-xs hover:bg-red-900/40"
-                              title="Quitar PDF"
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* ========================================================= */}
-                  {/* PASO 3: BRANDING, TIPOGRAFÍAS & COLORES                   */}
+                {/* ========================================================= */}
+                {/* PASO 3: BRANDING, TIPOGRAFÍAS & COLORES                   */}
                 {/* ========================================================= */}
                 <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-4 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
@@ -1800,7 +1803,7 @@ Beneficiario: TSolutions" />
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                       {Object.values(THEMES).map((th, index) => {
                         const isLocked = !isFreeDesignOpen && tier < 1 && index >= 2;
-                        
+
                         return (
                           <button
                             key={th.id}
@@ -1812,11 +1815,10 @@ Beneficiario: TSolutions" />
                               }
                               setDesign(prev => ({ ...prev, theme: th.id }));
                             }}
-                            className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between relative group ${
-                              design.theme === th.id
-                                ? 'bg-[#ff0003]/15 border-[#EE334E] shadow-[0_0_15px_rgba(255,0,3,0.35)] scale-[1.02]'
-                                : 'bg-black/40 border-gray-800/90 hover:border-gray-700 hover:bg-black/60'
-                            } ${isLocked ? 'opacity-40 cursor-not-allowed grayscale hover:opacity-70' : ''}`}
+                            className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between relative group ${design.theme === th.id
+                              ? 'bg-[#ff0003]/15 border-[#EE334E] shadow-[0_0_15px_rgba(255,0,3,0.35)] scale-[1.02]'
+                              : 'bg-black/40 border-gray-800/90 hover:border-gray-700 hover:bg-black/60'
+                              } ${isLocked ? 'opacity-40 cursor-not-allowed grayscale hover:opacity-70' : ''}`}
                           >
                             {isLocked && (
                               <div className="absolute top-2 right-2 bg-black/80 rounded-full p-1 border border-white/10 z-10">
@@ -1826,11 +1828,10 @@ Beneficiario: TSolutions" />
                             <div className={isLocked ? 'pointer-events-none' : ''}>
                               <div className="flex items-center justify-between gap-1 mb-1.5">
                                 <span
-                                  className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full font-bold border ${
-                                    design.theme === th.id
-                                      ? 'bg-[#ff0003] text-white border-[#EE334E]'
-                                      : 'bg-white/5 text-gray-400 border-white/10'
-                                  }`}
+                                  className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded-full font-bold border ${design.theme === th.id
+                                    ? 'bg-[#ff0003] text-white border-[#EE334E]'
+                                    : 'bg-white/5 text-gray-400 border-white/10'
+                                    }`}
                                 >
                                   {th.badge || 'Tema'}
                                 </span>
@@ -1848,7 +1849,7 @@ Beneficiario: TSolutions" />
                       })}
                     </div>
                   </div>
-                  
+
                   {/* SELECTORES DESPLEGABLES DE TIPOGRAFÍA */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -2056,10 +2057,10 @@ Beneficiario: TSolutions" />
 
         {/* COLUMNA 2: ÁREA EXCLUSIVA DE CONSTRUCCIÓN Y VISTA PREVIA DENTRO DEL CELULAR (STICKY & LIMPIA) */}
         <section className="w-full lg:w-5/12 flex flex-col items-center justify-center lg:sticky lg:top-6 lg:self-start">
-          
+
           {/* MOCKUP ELEGANTE DEL CELULAR CON TOKENS OFICIALES */}
           <div className="smartphone-mockup-frame w-[320px] sm:w-[350px] h-[670px] relative overflow-hidden flex flex-col shadow-2xl">
-            
+
             {/* DYNAMIC ISLAND / NOTCH */}
             <div className="smartphone-dynamic-island shrink-0">
               <div className="w-2.5 h-2.5 bg-[#121114] rounded-full border border-gray-800"></div>
@@ -2075,7 +2076,7 @@ Beneficiario: TSolutions" />
                 color: activeTheme.textColor
               }}
             >
-              
+
               {mode === 'review' ? (
                 /* MODO REVIEW EN CELULAR */
                 <div className="h-full flex flex-col items-center justify-center p-6 text-center">
@@ -2084,7 +2085,7 @@ Beneficiario: TSolutions" />
                   </div>
                   <h2 className="text-xl font-bold font-bruno" style={{ fontFamily: currentFontPrimary }}>{formData.empresa || 'Nombre del Negocio'}</h2>
                   <p className="text-xs opacity-70 mt-1">Calificación en Google Maps</p>
-                  
+
                   <div className="flex gap-1 my-4 text-yellow-400 text-lg">
                     <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                   </div>
@@ -2150,7 +2151,7 @@ Beneficiario: TSolutions" />
                           >
                             {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
                           </h2>
-                          
+
                           {/* Franja de Acento Centrada / Alineada */}
                           <div
                             className={`h-1.5 w-14 my-2.5 rounded-full transition-all ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`}
@@ -2159,9 +2160,9 @@ Beneficiario: TSolutions" />
                               boxShadow: `0 0 10px ${design.colorSecundario}60`
                             }}
                           ></div>
-                          
+
                           <p className="text-sm font-bold" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                          
+
                           {/* Badge de Empresa */}
                           {formData.empresa && (
                             <div
@@ -2233,7 +2234,7 @@ Beneficiario: TSolutions" />
                         >
                           {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
                         </h2>
-                        
+
                         {/* Franja de Acento */}
                         <div
                           className={`h-1.5 w-14 my-2 rounded-full transition-all ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`}
@@ -2242,9 +2243,9 @@ Beneficiario: TSolutions" />
                             boxShadow: `0 0 10px ${design.colorSecundario}80`
                           }}
                         ></div>
-                        
+
                         <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                        
+
                         {formData.empresa && (
                           <div
                             className="inline-block px-3 py-1 mt-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border transition-all"
@@ -2313,11 +2314,11 @@ Beneficiario: TSolutions" />
                         >
                           {formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span>
                         </h2>
-                        
+
                         <div className={`w-12 h-1 my-2 rounded-full ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`} style={{ backgroundColor: design.colorSecundario }}></div>
-                        
+
                         <p className="text-xs font-bold tracking-wider uppercase font-rosetta" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                        
+
                         {formData.empresa && (
                           <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
                         )}
@@ -2504,9 +2505,8 @@ Beneficiario: TSolutions" />
 
                   {/* 6. TEMA NEO-BRUTALISM POP */}
                   {design.theme === 'neobrutalism' && (
-                    <div className={`p-5 flex flex-col bg-[#fffdfa] text-black ${
-                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
-                    }`}>
+                    <div className={`p-5 flex flex-col bg-[#fffdfa] text-black ${design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                      }`}>
                       {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border-3 border-black shadow-[4px_4px_0px_#000000] relative bg-white">
                           <img
@@ -2523,9 +2523,8 @@ Beneficiario: TSolutions" />
                       )}
 
                       {design.logoPosition !== 'hidden' && (
-                        <div className={`w-full flex ${
-                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
-                        }`}>
+                        <div className={`w-full flex ${design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                          }`}>
                           <div
                             className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
                             style={{
@@ -2542,9 +2541,8 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div className={`bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-3 rounded-2xl w-full mt-1 ${
-                        design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'
-                      }`}>
+                      <div className={`bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-3 rounded-2xl w-full mt-1 ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'
+                        }`}>
                         <h2
                           className="text-xl font-black tracking-tight text-black uppercase"
                           style={{ fontFamily: currentFontPrimary }}
@@ -2612,9 +2610,8 @@ Beneficiario: TSolutions" />
                         )
                       )}
 
-                      <div className={`flex items-start justify-between gap-3 mt-1 ${
-                        design.infoAlignment === 'right' ? 'flex-row-reverse text-right' : design.infoAlignment === 'center' ? 'flex-col items-center text-center' : 'text-left'
-                      }`}>
+                      <div className={`flex items-start justify-between gap-3 mt-1 ${design.infoAlignment === 'right' ? 'flex-row-reverse text-right' : design.infoAlignment === 'center' ? 'flex-col items-center text-center' : 'text-left'
+                        }`}>
                         <div className={`flex-1 ${design.infoAlignment === 'right' ? 'text-right' : design.infoAlignment === 'center' ? 'text-center' : 'text-left'}`}>
                           <h2
                             className="text-xl font-extrabold leading-tight text-white tracking-tight"
@@ -2675,9 +2672,8 @@ Beneficiario: TSolutions" />
                   {/* 8. TEMA BENTO GRID TECH */}
                   {design.theme === 'bento_grid' && (
                     <div className="p-4 flex flex-col gap-3 bg-[#0f0f14] text-white">
-                      <div className={`bg-white/[0.05] border border-white/10 rounded-3xl p-4 flex flex-col relative overflow-hidden shadow-lg ${
-                        design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
-                      }`}>
+                      <div className={`bg-white/[0.05] border border-white/10 rounded-3xl p-4 flex flex-col relative overflow-hidden shadow-lg ${design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                        }`}>
                         {!design.hideBanner && coverPhoto && (
                           <div className="w-full h-20 rounded-2xl overflow-hidden mb-3 relative border border-white/10">
                             <img
@@ -2695,9 +2691,8 @@ Beneficiario: TSolutions" />
                         )}
 
                         {design.logoPosition !== 'hidden' && (
-                          <div className={`w-full flex ${
-                            design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
-                          }`}>
+                          <div className={`w-full flex ${design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                            }`}>
                             <div
                               className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
                               style={{
@@ -2752,9 +2747,8 @@ Beneficiario: TSolutions" />
 
                   {/* 9. TEMA CYBER NEON MATRIX */}
                   {design.theme === 'cyber_matrix' && (
-                    <div className={`p-5 flex flex-col bg-[#050508] text-white relative font-mono ${
-                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
-                    }`}>
+                    <div className={`p-5 flex flex-col bg-[#050508] text-white relative font-mono ${design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                      }`}>
                       <div className="w-full flex justify-between text-[10px] text-cyan-400/80 mb-2 border-b border-cyan-500/20 pb-1 font-mono">
                         <span>[SYS_PROFILE]</span>
                         <span className="text-emerald-400">● LIVE HUD</span>
@@ -2777,9 +2771,8 @@ Beneficiario: TSolutions" />
                       )}
 
                       {design.logoPosition !== 'hidden' && (
-                        <div className={`w-full flex ${
-                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
-                        }`}>
+                        <div className={`w-full flex ${design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                          }`}>
                           <div className="relative my-2">
                             <div
                               className="flex items-center justify-center overflow-hidden bg-transparent border-0 shadow-none transition-all"
@@ -2837,9 +2830,8 @@ Beneficiario: TSolutions" />
 
                   {/* 10. TEMA SUIZO EDITORIAL CLEAN */}
                   {design.theme === 'editorial_swiss' && (
-                    <div className={`p-6 flex flex-col bg-white text-zinc-900 ${
-                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
-                    }`}>
+                    <div className={`p-6 flex flex-col bg-white text-zinc-900 ${design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                      }`}>
                       {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 overflow-hidden mb-3 border-b border-zinc-200 relative">
                           <img
@@ -2856,9 +2848,8 @@ Beneficiario: TSolutions" />
                       )}
 
                       {design.logoPosition !== 'hidden' && (
-                        <div className={`w-full flex ${
-                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
-                        }`}>
+                        <div className={`w-full flex ${design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                          }`}>
                           <div
                             className="flex items-center justify-center my-2 bg-transparent border-0 shadow-none transition-all"
                             style={{
@@ -2921,27 +2912,25 @@ Beneficiario: TSolutions" />
                         )}
                         {formData.telefono && (
                           <div
-                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
-                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
-                            } ${
-                              design.theme === 'neobrutalism'
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                              } ${design.theme === 'neobrutalism'
                                 ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
                                 : design.theme === 'glassmorphism'
-                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                                : design.theme === 'cyber_matrix'
-                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                                : design.theme === 'monolith'
-                                ? 'bg-[#141414] border-white/15 text-white'
-                                : design.theme === 'editorial_swiss'
-                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                                : ''
-                            }`}
+                                  ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                  : design.theme === 'cyber_matrix'
+                                    ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                    : design.theme === 'monolith'
+                                      ? 'bg-[#141414] border-white/15 text-white'
+                                      : design.theme === 'editorial_swiss'
+                                        ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                        : ''
+                              }`}
                             style={
                               design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
                                 ? {
-                                    backgroundColor: `${design.colorSecundario}08`,
-                                    borderColor: `${design.colorSecundario}25`
-                                  }
+                                  backgroundColor: `${design.colorSecundario}08`,
+                                  borderColor: `${design.colorSecundario}25`
+                                }
                                 : {}
                             }
                           >
@@ -2951,27 +2940,25 @@ Beneficiario: TSolutions" />
                         )}
                         {formData.correo && (
                           <div
-                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
-                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
-                            } ${
-                              design.theme === 'neobrutalism'
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                              } ${design.theme === 'neobrutalism'
                                 ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
                                 : design.theme === 'glassmorphism'
-                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                                : design.theme === 'cyber_matrix'
-                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                                : design.theme === 'monolith'
-                                ? 'bg-[#141414] border-white/15 text-white'
-                                : design.theme === 'editorial_swiss'
-                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                                : ''
-                            }`}
+                                  ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                  : design.theme === 'cyber_matrix'
+                                    ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                    : design.theme === 'monolith'
+                                      ? 'bg-[#141414] border-white/15 text-white'
+                                      : design.theme === 'editorial_swiss'
+                                        ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                        : ''
+                              }`}
                             style={
                               design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
                                 ? {
-                                    backgroundColor: `${design.colorSecundario}08`,
-                                    borderColor: `${design.colorSecundario}25`
-                                  }
+                                  backgroundColor: `${design.colorSecundario}08`,
+                                  borderColor: `${design.colorSecundario}25`
+                                }
                                 : {}
                             }
                           >
@@ -2981,27 +2968,25 @@ Beneficiario: TSolutions" />
                         )}
                         {formData.url && (
                           <div
-                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
-                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
-                            } ${
-                              design.theme === 'neobrutalism'
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                              } ${design.theme === 'neobrutalism'
                                 ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
                                 : design.theme === 'glassmorphism'
-                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                                : design.theme === 'cyber_matrix'
-                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                                : design.theme === 'monolith'
-                                ? 'bg-[#141414] border-white/15 text-white'
-                                : design.theme === 'editorial_swiss'
-                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                                : ''
-                            }`}
+                                  ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                  : design.theme === 'cyber_matrix'
+                                    ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                    : design.theme === 'monolith'
+                                      ? 'bg-[#141414] border-white/15 text-white'
+                                      : design.theme === 'editorial_swiss'
+                                        ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                        : ''
+                              }`}
                             style={
                               design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
                                 ? {
-                                    backgroundColor: `${design.colorSecundario}08`,
-                                    borderColor: `${design.colorSecundario}25`
-                                  }
+                                  backgroundColor: `${design.colorSecundario}08`,
+                                  borderColor: `${design.colorSecundario}25`
+                                }
                                 : {}
                             }
                           >
@@ -3123,13 +3108,12 @@ Beneficiario: TSolutions" />
                           <div className="flex flex-wrap items-center justify-center gap-2.5">
                             {formData.facebook && (
                               <div
-                                className={`flex items-center justify-center ${
-                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                className={`flex items-center justify-center ${design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                  } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
                                 style={
                                   design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
-                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
-                                  { backgroundColor: '#1877F218', borderColor: '#1877F240', color: '#1877F2' }
+                                    design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                      { backgroundColor: '#1877F218', borderColor: '#1877F240', color: '#1877F2' }
                                 }
                               >
                                 <FacebookIcon className="w-4 h-4" />
@@ -3137,13 +3121,12 @@ Beneficiario: TSolutions" />
                             )}
                             {formData.instagram && (
                               <div
-                                className={`flex items-center justify-center ${
-                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                className={`flex items-center justify-center ${design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                  } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
                                 style={
                                   design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
-                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
-                                  { backgroundColor: '#E4405F18', borderColor: '#E4405F40', color: '#E4405F' }
+                                    design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                      { backgroundColor: '#E4405F18', borderColor: '#E4405F40', color: '#E4405F' }
                                 }
                               >
                                 <InstagramIcon className="w-4 h-4" />
@@ -3151,13 +3134,12 @@ Beneficiario: TSolutions" />
                             )}
                             {formData.linkedin && (
                               <div
-                                className={`flex items-center justify-center ${
-                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                className={`flex items-center justify-center ${design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                  } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
                                 style={
                                   design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
-                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
-                                  { backgroundColor: '#0A66C218', borderColor: '#0A66C240', color: '#0A66C2' }
+                                    design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                      { backgroundColor: '#0A66C218', borderColor: '#0A66C240', color: '#0A66C2' }
                                 }
                               >
                                 <LinkedInIcon className="w-4 h-4" />
@@ -3165,13 +3147,12 @@ Beneficiario: TSolutions" />
                             )}
                             {formData.tiktok && (
                               <div
-                                className={`flex items-center justify-center ${
-                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                className={`flex items-center justify-center ${design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                  } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
                                 style={
                                   design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
-                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
-                                  { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                                    design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                      { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
                                 }
                               >
                                 <TikTokIcon className="w-4 h-4" />
@@ -3179,13 +3160,12 @@ Beneficiario: TSolutions" />
                             )}
                             {formData.twitter && (
                               <div
-                                className={`flex items-center justify-center ${
-                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                className={`flex items-center justify-center ${design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                  } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
                                 style={
                                   design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
-                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
-                                  { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                                    design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                      { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
                                 }
                               >
                                 <XTwitterIcon className="w-4 h-4" />
@@ -3193,13 +3173,12 @@ Beneficiario: TSolutions" />
                             )}
                             {formData.youtube && (
                               <div
-                                className={`flex items-center justify-center ${
-                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                className={`flex items-center justify-center ${design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                  } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
                                 style={
                                   design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
-                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
-                                  { backgroundColor: '#FF000018', borderColor: '#FF000040', color: '#FF0000' }
+                                    design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                      { backgroundColor: '#FF000018', borderColor: '#FF000040', color: '#FF0000' }
                                 }
                               >
                                 <YouTubeIcon className="w-4 h-4" />
@@ -3207,13 +3186,12 @@ Beneficiario: TSolutions" />
                             )}
                             {formData.whatsapp && (
                               <div
-                                className={`flex items-center justify-center ${
-                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                className={`flex items-center justify-center ${design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                  } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
                                 style={
                                   design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
-                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
-                                  { backgroundColor: '#25D36618', borderColor: '#25D36640', color: '#25D366' }
+                                    design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                      { backgroundColor: '#25D36618', borderColor: '#25D36640', color: '#25D366' }
                                 }
                               >
                                 <WhatsAppIcon className="w-4 h-4" />
@@ -3263,17 +3241,16 @@ Beneficiario: TSolutions" />
                 <button
                   type="button"
                   onClick={downloadVCF}
-                  className={`w-full py-3.5 rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all hover:brightness-110 active:scale-[0.99] flex items-center justify-center gap-2 border border-white/20 shadow-2xl ${
-                    design.theme === 'neobrutalism'
-                      ? 'border-2.5 border-black shadow-[4px_4px_0px_#000] text-white font-black'
-                      : design.theme === 'glassmorphism'
+                  className={`w-full py-3.5 rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all hover:brightness-110 active:scale-[0.99] flex items-center justify-center gap-2 border border-white/20 shadow-2xl ${design.theme === 'neobrutalism'
+                    ? 'border-2.5 border-black shadow-[4px_4px_0px_#000] text-white font-black'
+                    : design.theme === 'glassmorphism'
                       ? 'backdrop-blur-xl border border-white/30 text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
                       : design.theme === 'cyber_matrix'
-                      ? 'border border-cyan-400 text-white font-mono shadow-[0_0_15px_rgba(0,255,255,0.4)]'
-                      : design.theme === 'monolith'
-                      ? 'border border-white/20 text-white shadow-2xl font-bold'
-                      : 'text-white shadow-xl'
-                  }`}
+                        ? 'border border-cyan-400 text-white font-mono shadow-[0_0_15px_rgba(0,255,255,0.4)]'
+                        : design.theme === 'monolith'
+                          ? 'border border-white/20 text-white shadow-2xl font-bold'
+                          : 'text-white shadow-xl'
+                    }`}
                   style={{
                     background: `linear-gradient(135deg, ${design.colorCTA} 0%, #BE123C 100%)`,
                     fontFamily: currentFontPrimary,
@@ -3285,14 +3262,14 @@ Beneficiario: TSolutions" />
                 </button>
 
                 <div className="grid grid-cols-2 gap-1.5">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => alert('Apple Wallet estará disponible al descargar tu tarjeta.')}
                     className="w-full py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg text-white font-semibold text-[10px] flex items-center justify-center gap-1 hover:bg-white/10 transition-colors shadow-sm"
                   >
                      {t('apple_wallet') || 'Apple Wallet'}
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => alert('Google Wallet estará disponible al descargar tu tarjeta.')}
                     className="w-full py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg text-white font-semibold text-[10px] flex items-center justify-center gap-1 hover:bg-white/10 transition-colors shadow-sm"
@@ -3409,9 +3386,9 @@ Beneficiario: TSolutions" />
 
       {/* MODAL DE LA CARTA OFICIAL DE ENTREGA DE TSOLUTIONS IPIDD */}
       {showEmailModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="app-modal-open fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0c0c16] border border-[#ff0003]/50 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-[0_0_40px_rgba(255,0,3,0.25)] flex flex-col overflow-hidden animate-scaleIn">
-            
+
             {/* Header Modal */}
             <div className="p-4 bg-[#12121c] border-b border-gray-800 flex justify-between items-center">
               <div className="flex items-center gap-2 text-[#ff0003]">
@@ -3482,9 +3459,9 @@ Beneficiario: TSolutions" />
 
       {/* MODAL DE PASARELA DE PAGO DIRECTA: TSOLUTIONS SECURE CHECKOUT */}
       {showCheckoutModal && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div className="app-modal-open fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-[#0e0d18] border border-[#ff0003]/40 w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-[0_0_50px_rgba(255,0,3,0.25)] animate-scaleIn space-y-5 my-8">
-            
+
             {/* Header del Modal */}
             <div className="text-center space-y-1.5">
               <div className="w-14 h-14 bg-gradient-to-br from-[#ff0003]/20 to-[#00E5FF]/10 border border-[#ff0003]/40 text-[#ff0003] flex items-center justify-center rounded-2xl mx-auto shadow-[0_0_20px_rgba(255,0,3,0.3)] text-2xl">
@@ -3503,16 +3480,14 @@ Beneficiario: TSolutions" />
               {/* Opción 1: Paquete Completo (Recomendado) */}
               <div
                 onClick={() => setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' })}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
-                  selectedProduct.id === 'bundle'
-                    ? 'bg-gradient-to-r from-[#ff0003]/15 to-rose-950/40 border-[#ff0003] shadow-[0_0_20px_rgba(255,0,3,0.25)]'
-                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
-                }`}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${selectedProduct.id === 'bundle'
+                  ? 'bg-gradient-to-r from-[#ff0003]/15 to-rose-950/40 border-[#ff0003] shadow-[0_0_20px_rgba(255,0,3,0.25)]'
+                  : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                  }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
-                    selectedProduct.id === 'bundle' ? 'border-[#ff0003] bg-[#ff0003]' : 'border-gray-600'
-                  }`}>
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${selectedProduct.id === 'bundle' ? 'border-[#ff0003] bg-[#ff0003]' : 'border-gray-600'
+                    }`}>
                     {selectedProduct.id === 'bundle' && <span className="w-2 h-2 rounded-full bg-white"></span>}
                   </div>
                   <div className="space-y-1">
@@ -3534,16 +3509,14 @@ Beneficiario: TSolutions" />
               {/* Opción 2: Plan Business Elite */}
               <div
                 onClick={() => setSelectedProduct({ name: 'Plan Business Elite Anual (Acceso Total)', price: 1499, id: 'elite_annual' })}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
-                  selectedProduct.id === 'elite_annual'
-                    ? 'bg-gradient-to-r from-purple-950/40 to-[#00E5FF]/10 border-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.2)]'
-                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
-                }`}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${selectedProduct.id === 'elite_annual'
+                  ? 'bg-gradient-to-r from-purple-950/40 to-[#00E5FF]/10 border-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.2)]'
+                  : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                  }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
-                    selectedProduct.id === 'elite_annual' ? 'border-[#00E5FF] bg-[#00E5FF]' : 'border-gray-600'
-                  }`}>
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${selectedProduct.id === 'elite_annual' ? 'border-[#00E5FF] bg-[#00E5FF]' : 'border-gray-600'
+                    }`}>
                     {selectedProduct.id === 'elite_annual' && <span className="w-2 h-2 rounded-full bg-black"></span>}
                   </div>
                   <div className="space-y-1">
@@ -3565,16 +3538,14 @@ Beneficiario: TSolutions" />
               {/* Opción 3: Solo Despliegue Cloud */}
               <div
                 onClick={() => setSelectedProduct({ name: 'Módulo 3: Despliegue Cloud & Enlace Permanente (/p/[slug])', price: 99, id: 'cloud' })}
-                className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
-                  selectedProduct.id === 'cloud'
-                    ? 'bg-gradient-to-r from-[#ff0003]/15 to-black border-[#ff0003]'
-                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
-                }`}
+                className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${selectedProduct.id === 'cloud'
+                  ? 'bg-gradient-to-r from-[#ff0003]/15 to-black border-[#ff0003]'
+                  : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                  }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
-                    selectedProduct.id === 'cloud' ? 'border-[#ff0003] bg-[#ff0003]' : 'border-gray-600'
-                  }`}>
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${selectedProduct.id === 'cloud' ? 'border-[#ff0003] bg-[#ff0003]' : 'border-gray-600'
+                    }`}>
                     {selectedProduct.id === 'cloud' && <span className="w-2 h-2 rounded-full bg-white"></span>}
                   </div>
                   <div>
@@ -3657,7 +3628,7 @@ Beneficiario: TSolutions" />
 
       {/* OVERLAY DE BLOQUEO DEL CONSTRUCTOR TRAS GUARDADO EN NUBE */}
       {isBuilderLocked && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
+        <div className="app-modal-open fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
           <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-3xl mb-4 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
             🔒
           </div>

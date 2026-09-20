@@ -43,9 +43,9 @@ export default function EcoFootprintModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn">
+    <div className="app-modal-open fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn">
       <div className="bg-[#09090F] border border-gray-800 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
-        
+
         {/* Header */}
         <div className="p-5 border-b border-gray-800 flex items-center justify-between bg-[#0F0F1A]">
           <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export default function EcoFootprintModal({
 
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-5 text-xs text-gray-300">
-          
+
           {/* PASO 1: PREGUNTA INICIAL */}
           {step === 'question' && (
             <div className="space-y-5 text-center py-2">
@@ -255,11 +255,10 @@ export default function EcoFootprintModal({
                   <button
                     type="button"
                     onClick={() => setShippingLocation && setShippingLocation('mexicali')}
-                    className={`p-2.5 rounded-xl border text-center transition-all ${
-                      shippingLocation === 'mexicali'
+                    className={`p-2.5 rounded-xl border text-center transition-all ${shippingLocation === 'mexicali'
                         ? 'bg-emerald-950/40 border-emerald-500 text-emerald-400 font-bold'
                         : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
+                      }`}
                   >
                     <div className="text-xs">Mexicali, B.C.</div>
                     <div className="text-[10px] text-emerald-400 font-bold font-mono">100% GRATIS</div>
@@ -268,11 +267,10 @@ export default function EcoFootprintModal({
                   <button
                     type="button"
                     onClick={() => setShippingLocation && setShippingLocation('mexico_dhl')}
-                    className={`p-2.5 rounded-xl border text-center transition-all ${
-                      shippingLocation === 'mexico_dhl'
+                    className={`p-2.5 rounded-xl border text-center transition-all ${shippingLocation === 'mexico_dhl'
                         ? 'bg-amber-950/40 border-amber-500 text-amber-300 font-bold'
                         : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
+                      }`}
                   >
                     <div className="text-xs">México (DHL)</div>
                     <div className="text-[10px] text-amber-400 font-bold font-mono">+$149 MXN</div>
@@ -281,11 +279,10 @@ export default function EcoFootprintModal({
                   <button
                     type="button"
                     onClick={() => setShippingLocation && setShippingLocation('world_ups')}
-                    className={`p-2.5 rounded-xl border text-center transition-all ${
-                      shippingLocation === 'world_ups'
+                    className={`p-2.5 rounded-xl border text-center transition-all ${shippingLocation === 'world_ups'
                         ? 'bg-purple-950/40 border-purple-500 text-purple-300 font-bold'
                         : 'bg-black/40 border-gray-800 text-gray-400'
-                    }`}
+                      }`}
                   >
                     <div className="text-xs">Mundo (UPS)</div>
                     <div className="text-[10px] text-purple-400 font-bold font-mono">+$450 MXN</div>

@@ -92,9 +92,9 @@ export default function UsageExperienceModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn overflow-y-auto">
+    <div className="app-modal-open fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn overflow-y-auto">
       <div className="relative w-full max-w-lg bg-[#0B0B14] border border-[#00E5FF]/40 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(0,229,255,0.25)] my-8 text-white">
-        
+
         {/* BOTÓN CERRAR */}
         <button
           onClick={onClose}
@@ -130,7 +130,7 @@ export default function UsageExperienceModal({
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-5 text-left">
-              
+
               {/* 1. EXPERIENCIA COMPARTIENDO */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-200 uppercase tracking-wider block">
@@ -142,11 +142,10 @@ export default function UsageExperienceModal({
                       key={opt.id}
                       type="button"
                       onClick={() => setSharingExp(opt.id)}
-                      className={`w-full p-2.5 rounded-xl text-xs font-medium text-left transition-all border ${
-                        sharingExp === opt.id
+                      className={`w-full p-2.5 rounded-xl text-xs font-medium text-left transition-all border ${sharingExp === opt.id
                           ? 'bg-[#00E5FF]/20 border-[#00E5FF] text-white shadow-[0_0_12px_rgba(0,229,255,0.25)]'
                           : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
-                      }`}
+                        }`}
                     >
                       {opt.label}
                     </button>
@@ -167,11 +166,10 @@ export default function UsageExperienceModal({
                         key={ch}
                         type="button"
                         onClick={() => toggleChannel(ch)}
-                        className={`p-2 rounded-xl text-[11px] font-medium text-left transition-all border ${
-                          isSel
+                        className={`p-2 rounded-xl text-[11px] font-medium text-left transition-all border ${isSel
                             ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
                             : 'bg-white/5 border-white/10 text-slate-400 hover:text-slate-200'
-                        }`}
+                          }`}
                       >
                         {isSel ? '✓ ' : '+ '} {ch}
                       </button>
@@ -191,11 +189,10 @@ export default function UsageExperienceModal({
                       key={opt.id}
                       type="button"
                       onClick={() => setClientEase(opt.id)}
-                      className={`w-full p-2.5 rounded-xl text-xs font-medium text-left transition-all border ${
-                        clientEase === opt.id
+                      className={`w-full p-2.5 rounded-xl text-xs font-medium text-left transition-all border ${clientEase === opt.id
                           ? 'bg-purple-500/20 border-purple-400 text-white shadow-[0_0_12px_rgba(168,85,247,0.25)]'
                           : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
-                      }`}
+                        }`}
                     >
                       {opt.label}
                     </button>
@@ -219,9 +216,8 @@ export default function UsageExperienceModal({
                       className="p-1 text-yellow-400 transition-transform hover:scale-125 focus:outline-none"
                     >
                       <Star
-                        className={`w-5 h-5 ${
-                          (hoverRating || rating) >= star ? 'fill-yellow-400 text-yellow-400' : 'text-slate-600'
-                        }`}
+                        className={`w-5 h-5 ${(hoverRating || rating) >= star ? 'fill-yellow-400 text-yellow-400' : 'text-slate-600'
+                          }`}
                       />
                     </button>
                   ))}

@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  LayoutDashboard, Users, CreditCard, MessageSquare, 
-  Activity, Truck, Search, RefreshCw, Star, 
-  Smartphone, Share2, ExternalLink, Mail, Phone, MapPin, 
-  Calendar, Download, CheckCircle2, Award, DollarSign, 
+import {
+  LayoutDashboard, Users, CreditCard, MessageSquare,
+  Activity, Truck, Search, RefreshCw, Star,
+  Smartphone, Share2, ExternalLink, Mail, Phone, MapPin,
+  Calendar, Download, CheckCircle2, Award, DollarSign,
   TrendingUp, BarChart3, AlertCircle, ArrowUpRight, Zap
 } from 'lucide-react';
 
@@ -17,6 +17,15 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [accessConfig, setAccessConfig] = useState({
+    freeDomains: ['tsolutionsipidd.com'],
+    organizationCardLimit: 50,
+    agentFreePassLimit: 250
+  });
+  const [freeDomainsText, setFreeDomainsText] = useState('tsolutionsipidd.com');
+  const [accessConfigLoading, setAccessConfigLoading] = useState(false);
+  const [accessConfigSaving, setAccessConfigSaving] = useState(false);
+  const [accessConfigMessage, setAccessConfigMessage] = useState('');
 
   const fetchAnalytics = async () => {
     try {
@@ -40,6 +49,47 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchAnalytics();
   }, []);
+
+  const fetchAccessConfig = async () => {
+    setAccessConfigLoading(true);
+    try {
+      const res = await fetch('/api/admin/access-config');
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'No se pudo cargar la configuración');
+      setAccessConfig(json.config);
+      setFreeDomainsText(json.config.freeDomains.join(', '));
+      setAccessConfigMessage('');
+    } catch (err) {
+      setAccessConfigMessage(err.message);
+    } finally {
+      setAccessConfigLoading(false);
+    }
+  };
+
+  const saveAccessConfig = async () => {
+    setAccessConfigSaving(true);
+    setAccessConfigMessage('');
+    try {
+      const res = await fetch('/api/admin/access-config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          freeDomains: freeDomainsText,
+          organizationCardLimit: accessConfig.organizationCardLimit,
+          agentFreePassLimit: accessConfig.agentFreePassLimit
+        })
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'No se pudo guardar');
+      setAccessConfig(json.config);
+      setFreeDomainsText(json.config.freeDomains.join(', '));
+      setAccessConfigMessage('Configuración guardada correctamente.');
+    } catch (err) {
+      setAccessConfigMessage(err.message);
+    } finally {
+      setAccessConfigSaving(false);
+    }
+  };
 
   useEffect(() => {
     if (!autoRefresh) return;
@@ -123,7 +173,7 @@ export default function AdminDashboard() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `tsolutions_crm_leads_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', `tsolutions_crm_leads_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -131,7 +181,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#030308] text-slate-300 flex font-sans">
-      
+
       {/* SIDEBAR */}
       <aside className="w-64 bg-[#0a0a10] border-r border-white/5 flex flex-col hidden lg:flex shrink-0">
         <div className="p-6 border-b border-white/5">
@@ -145,17 +195,17 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-        
+
         <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-          <button 
-            onClick={() => setActiveTab('overview')} 
+          <button
+            onClick={() => setActiveTab('overview')}
             className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ' + (activeTab === 'overview' ? 'bg-[#EE334E]/15 text-white border border-[#EE334E]/30 font-semibold shadow-lg shadow-[#EE334E]/10' : 'hover:bg-white/5 text-slate-400')}
           >
             <LayoutDashboard className={'w-4 h-4 ' + (activeTab === 'overview' ? 'text-[#EE334E]' : '')} /> Resumen & KPIs
           </button>
 
-          <button 
-            onClick={() => setActiveTab('leads')} 
+          <button
+            onClick={() => setActiveTab('leads')}
             className={'w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ' + (activeTab === 'leads' ? 'bg-[#EE334E]/15 text-white border border-[#EE334E]/30 font-semibold shadow-lg shadow-[#EE334E]/10' : 'hover:bg-white/5 text-slate-400')}
           >
             <div className="flex items-center gap-3">
@@ -164,8 +214,8 @@ export default function AdminDashboard() {
             <span className="text-xs bg-white/10 px-2 py-0.5 rounded-full font-mono text-white">{leads.length}</span>
           </button>
 
-          <button 
-            onClick={() => setActiveTab('orders')} 
+          <button
+            onClick={() => setActiveTab('orders')}
             className={'w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ' + (activeTab === 'orders' ? 'bg-[#EE334E]/15 text-white border border-[#EE334E]/30 font-semibold shadow-lg shadow-[#EE334E]/10' : 'hover:bg-white/5 text-slate-400')}
           >
             <div className="flex items-center gap-3">
@@ -176,8 +226,8 @@ export default function AdminDashboard() {
             )}
           </button>
 
-          <button 
-            onClick={() => setActiveTab('feedback')} 
+          <button
+            onClick={() => setActiveTab('feedback')}
             className={'w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all ' + (activeTab === 'feedback' ? 'bg-[#EE334E]/15 text-white border border-[#EE334E]/30 font-semibold shadow-lg shadow-[#EE334E]/10' : 'hover:bg-white/5 text-slate-400')}
           >
             <div className="flex items-center gap-3">
@@ -186,18 +236,25 @@ export default function AdminDashboard() {
             <span className="text-xs text-amber-400 font-bold flex items-center gap-1">⭐ {feedback.avgRating}</span>
           </button>
 
-          <button 
-            onClick={() => setActiveTab('telemetry')} 
+          <button
+            onClick={() => setActiveTab('telemetry')}
             className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ' + (activeTab === 'telemetry' ? 'bg-[#EE334E]/15 text-white border border-[#EE334E]/30 font-semibold shadow-lg shadow-[#EE334E]/10' : 'hover:bg-white/5 text-slate-400')}
           >
             <Activity className={'w-4 h-4 ' + (activeTab === 'telemetry' ? 'text-[#EE334E]' : '')} /> Telemetría en Vivo
           </button>
 
-          <button 
-            onClick={() => setActiveTab('agents')} 
+          <button
+            onClick={() => setActiveTab('agents')}
             className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ' + (activeTab === 'agents' ? 'bg-[#EE334E]/15 text-white border border-[#EE334E]/30 font-semibold shadow-lg shadow-[#EE334E]/10' : 'hover:bg-white/5 text-slate-400')}
           >
             <Award className={'w-4 h-4 ' + (activeTab === 'agents' ? 'text-[#EE334E]' : '')} /> Red de Embajadores
+          </button>
+
+          <button
+            onClick={() => { setActiveTab('access'); fetchAccessConfig(); }}
+            className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ' + (activeTab === 'access' ? 'bg-[#EE334E]/15 text-white border border-[#EE334E]/30 font-semibold shadow-lg shadow-[#EE334E]/10' : 'hover:bg-white/5 text-slate-400')}
+          >
+            <SettingsIcon className={'w-4 h-4 ' + (activeTab === 'access' ? 'text-[#EE334E]' : '')} /> Acceso Elite Global
           </button>
         </nav>
 
@@ -217,7 +274,7 @@ export default function AdminDashboard() {
 
       {/* MAIN CONTENT */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        
+
         {/* TOPBAR */}
         <header className="h-20 border-b border-white/5 bg-[#0a0a10]/70 backdrop-blur-md flex items-center justify-between px-6 lg:px-8 shrink-0 z-10">
           <div className="flex items-center gap-3">
@@ -234,7 +291,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={() => fetchAnalytics()}
               disabled={loading}
               className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-colors"
@@ -244,7 +301,7 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">Refrescar</span>
             </button>
 
-            <button 
+            <button
               onClick={handleExportCSV}
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#EE334E] hover:bg-[#ff0003] text-white text-xs font-bold shadow-lg shadow-[#EE334E]/20 transition-all"
             >
@@ -256,13 +313,13 @@ export default function AdminDashboard() {
 
         {/* MOBILE NAVIGATION PILLS */}
         <div className="flex lg:hidden overflow-x-auto gap-2 p-3 bg-[#0a0a10] border-b border-white/5 shrink-0">
-          {['overview', 'leads', 'orders', 'feedback', 'telemetry', 'agents'].map(tab => (
+          {['overview', 'leads', 'orders', 'feedback', 'telemetry', 'agents', 'access'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={'px-3 py-1.5 rounded-lg text-xs font-medium uppercase whitespace-nowrap ' + (activeTab === tab ? 'bg-[#EE334E] text-white' : 'bg-white/5 text-slate-400')}
             >
-              {tab === 'overview' ? 'Resumen' : tab === 'leads' ? 'Leads' : tab === 'orders' ? 'Pedidos' : tab === 'feedback' ? 'Feedback' : tab === 'telemetry' ? 'Telemetría' : 'Agentes'}
+              {tab === 'overview' ? 'Resumen' : tab === 'leads' ? 'Leads' : tab === 'orders' ? 'Pedidos' : tab === 'feedback' ? 'Feedback' : tab === 'telemetry' ? 'Telemetría' : tab === 'agents' ? 'Agentes' : 'Acceso Elite'}
             </button>
           ))}
         </div>
@@ -277,13 +334,13 @@ export default function AdminDashboard() {
 
         {/* SCROLLABLE VIEWPORT */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8">
-          
+
           {/* ===================== TAB: OVERVIEW ===================== */}
           {activeTab === 'overview' && (
             <>
               {/* 4 GRANDES KPIS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                
+
                 {/* KPI 1: INGRESOS */}
                 <div className="bg-[#0a0a10] border border-white/5 hover:border-emerald-500/30 transition-all rounded-2xl p-5 sm:p-6 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-all"></div>
@@ -429,7 +486,7 @@ export default function AdminDashboard() {
 
               {/* GRID: TOP PERFILES Y DISTRIBUCION DE PAQUETES */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* TOP PERFILES RANKING */}
                 <div className="bg-[#0a0a10] border border-white/5 rounded-2xl p-6 lg:col-span-2">
                   <div className="flex justify-between items-center mb-6">
@@ -486,18 +543,18 @@ export default function AdminDashboard() {
                             </td>
                             <td className="py-3.5 text-right">
                               <div className="flex items-center justify-end gap-2">
-                                <a 
-                                  href={`/p/${p.slug}`} 
-                                  target="_blank" 
+                                <a
+                                  href={`/p/${p.slug}`}
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                   className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
                                   title="Ver vCard pública"
                                 >
                                   <ExternalLink className="w-3.5 h-3.5" />
                                 </a>
-                                <a 
-                                  href={`/portal?slug=${p.slug}`} 
-                                  target="_blank" 
+                                <a
+                                  href={`/portal?slug=${p.slug}`}
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                   className="p-1.5 rounded-lg bg-[#EE334E]/10 hover:bg-[#EE334E]/20 text-[#EE334E] transition-colors"
                                   title="Portal de Gestión"
@@ -528,8 +585,8 @@ export default function AdminDashboard() {
                         <span className="text-white font-mono font-bold">{summary.elite_profiles}</span>
                       </div>
                       <div className="w-full bg-white/5 rounded-full h-2">
-                        <div 
-                          className="bg-purple-500 h-2 rounded-full" 
+                        <div
+                          className="bg-purple-500 h-2 rounded-full"
                           style={{ width: `${summary.total_profiles > 0 ? (summary.elite_profiles / summary.total_profiles) * 100 : 100}%` }}
                         ></div>
                       </div>
@@ -544,8 +601,8 @@ export default function AdminDashboard() {
                         <span className="text-white font-mono font-bold">{summary.business_profiles}</span>
                       </div>
                       <div className="w-full bg-white/5 rounded-full h-2">
-                        <div 
-                          className="bg-blue-500 h-2 rounded-full" 
+                        <div
+                          className="bg-blue-500 h-2 rounded-full"
                           style={{ width: `${summary.total_profiles > 0 ? (summary.business_profiles / summary.total_profiles) * 100 : 0}%` }}
                         ></div>
                       </div>
@@ -560,8 +617,8 @@ export default function AdminDashboard() {
                         <span className="text-white font-mono font-bold">{summary.pro_profiles}</span>
                       </div>
                       <div className="w-full bg-white/5 rounded-full h-2">
-                        <div 
-                          className="bg-emerald-500 h-2 rounded-full" 
+                        <div
+                          className="bg-emerald-500 h-2 rounded-full"
                           style={{ width: `${summary.total_profiles > 0 ? (summary.pro_profiles / summary.total_profiles) * 100 : 0}%` }}
                         ></div>
                       </div>
@@ -595,19 +652,19 @@ export default function AdminDashboard() {
                   </h3>
                   <p className="text-xs text-slate-400">Base de datos de todos los contactos registrados en la plataforma</p>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Buscar por nombre, empresa, email, teléfono..." 
+                      placeholder="Buscar por nombre, empresa, email, teléfono..."
                       className="bg-black/50 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-[#EE334E] w-72"
                     />
                   </div>
-                  <button 
+                  <button
                     onClick={handleExportCSV}
                     className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold border border-white/10 transition-colors flex items-center gap-1.5"
                   >
@@ -681,9 +738,9 @@ export default function AdminDashboard() {
                             <td className="py-4 text-right">
                               <div className="flex items-center justify-end gap-1.5">
                                 {waNumber && (
-                                  <a 
+                                  <a
                                     href={`https://wa.me/${waNumber}?text=Hola%20${encodeURIComponent(lead.nombre || '')},%20te%20contactamos%20de%20TSolutions`}
-                                    target="_blank" 
+                                    target="_blank"
                                     rel="noopener noreferrer"
                                     className="p-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 text-green-400 transition-colors"
                                     title="WhatsApp directo"
@@ -691,18 +748,18 @@ export default function AdminDashboard() {
                                     <MessageSquare className="w-3.5 h-3.5" />
                                   </a>
                                 )}
-                                <a 
-                                  href={`/p/${lead.slug}`} 
-                                  target="_blank" 
+                                <a
+                                  href={`/p/${lead.slug}`}
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                   className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
                                   title="Abrir vCard pública"
                                 >
                                   <ExternalLink className="w-3.5 h-3.5" />
                                 </a>
-                                <a 
-                                  href={`/portal?slug=${lead.slug}`} 
-                                  target="_blank" 
+                                <a
+                                  href={`/portal?slug=${lead.slug}`}
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                   className="p-2 rounded-lg bg-[#EE334E]/10 hover:bg-[#EE334E]/20 text-[#EE334E] transition-colors"
                                   title="Abrir portal de cliente"
@@ -837,7 +894,7 @@ export default function AdminDashboard() {
                             <p className="text-xs font-mono text-slate-400 mt-1">/p/{f.profile_slug}</p>
                           </div>
                           <div className="flex gap-0.5">
-                            {[1,2,3,4,5].map(star => (
+                            {[1, 2, 3, 4, 5].map(star => (
                               <Star key={star} className={'w-3.5 h-3.5 ' + (star <= (f.rating || 5) ? 'text-amber-400 fill-amber-400' : 'text-slate-700')} />
                             ))}
                           </div>
@@ -953,8 +1010,8 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {agents.map((ag, i) => {
-                      const conv = ag.total_views > 0 
-                        ? ((ag.total_interactions / ag.total_views) * 100).toFixed(1) 
+                      const conv = ag.total_views > 0
+                        ? ((ag.total_interactions / ag.total_views) * 100).toFixed(1)
                         : '0.0';
                       return (
                         <tr key={i} className="hover:bg-white/[0.02] transition-colors">
@@ -979,6 +1036,87 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {activeTab === 'access' && (
+            <div className="max-w-4xl bg-[#0a0a10] border border-white/5 rounded-2xl p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
+                <div>
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <SettingsIcon className="w-6 h-6 text-[#EE334E]" /> Acceso Elite Global
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Configura qué dominios reciben acceso gratuito y cuántas tarjetas pueden crear.
+                  </p>
+                </div>
+                <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Protegido por servidor
+                </span>
+              </div>
+
+              {accessConfigLoading ? (
+                <div className="py-10 text-center text-xs text-slate-400">Cargando configuración...</div>
+              ) : (
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-2">Dominios gratuitos</label>
+                    <input
+                      type="text"
+                      value={freeDomainsText}
+                      onChange={(event) => setFreeDomainsText(event.target.value)}
+                      placeholder="empresa.com, otraempresa.mx"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
+                    />
+                    <p className="text-[11px] text-slate-500 mt-2">Separa varios dominios con comas. El dominio completo se valida en el servidor.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="block text-xs font-bold text-slate-300 mb-2">Tarjetas por cuenta Elite</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10000"
+                        value={accessConfig.organizationCardLimit}
+                        onChange={(event) => setAccessConfig(prev => ({ ...prev, organizationCardLimit: Number(event.target.value) }))}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="block text-xs font-bold text-slate-300 mb-2">Pases gratuitos globales de agentes</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="10000"
+                        value={accessConfig.agentFreePassLimit}
+                        onChange={(event) => setAccessConfig(prev => ({ ...prev, agentFreePassLimit: Number(event.target.value) }))}
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#EE334E]/5 border border-[#EE334E]/20 text-xs text-slate-300 leading-relaxed">
+                    Los enlaces de agentes mantienen su cuota individual de 50 tarjetas, pero nunca podrán superar el límite global configurado. Actualmente el valor inicial es de 250 pases.
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={saveAccessConfig}
+                      disabled={accessConfigSaving}
+                      className="px-5 py-3 rounded-xl bg-[#EE334E] hover:bg-[#ff0003] disabled:opacity-50 text-white text-xs font-bold transition-all"
+                    >
+                      {accessConfigSaving ? 'Guardando...' : 'Guardar configuración'}
+                    </button>
+                    {accessConfigMessage && (
+                      <span className={`text-xs ${accessConfigMessage.includes('correctamente') ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {accessConfigMessage}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
       </main>
     </div>
@@ -988,8 +1126,8 @@ export default function AdminDashboard() {
 function SettingsIcon(props) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-      <circle cx="12" cy="12" r="3"/>
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   );
-}
+}

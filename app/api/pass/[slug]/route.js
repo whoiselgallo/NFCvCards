@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getVipPass } from '../../../../lib/vipPasses';
 import { getPool } from '../../../../lib/db';
+import { getPlatformAccessConfig } from '../../../../lib/accessConfig';
 
 export async function GET(request, context) {
   try {
@@ -16,20 +17,22 @@ export async function GET(request, context) {
     }
 
     // Asegurar que el usuario existe en Google Cloud SQL con 50 tarjetas y plan elite
+    let accessConfig;
     try {
       const pool = getPool();
+      accessConfig = await getPlatformAccessConfig(pool);
       const client = await pool.connect();
       try {
         const existing = await client.query('SELECT * FROM users WHERE email = $1', [vip.email]);
         if (existing.rows.length > 0) {
           await client.query(
-            "UPDATE users SET plan_id = 'elite', card_limit = 50, name = $1 WHERE email = $2",
-            [vip.name, vip.email]
+            "UPDATE users SET plan_id = 'elite', card_limit = $1, name = $2 WHERE email = $3",
+            [accessConfig.organizationCardLimit, vip.name, vip.email]
           );
         } else {
           await client.query(
-            "INSERT INTO users (name, email, plan_id, card_limit) VALUES ($1, $2, 'elite', 50)",
-            [vip.name, vip.email]
+            "INSERT INTO users (name, email, plan_id, card_limit) VALUES ($1, $2, 'elite', $3)",
+            [vip.name, vip.email, accessConfig.organizationCardLimit]
           );
         }
       } finally {
@@ -38,7 +41,6 @@ export async function GET(request, context) {
     } catch (dbErr) {
       console.warn('Advertencia al sincronizar usuario VIP en BD:', dbErr.message);
     }
-
     return NextResponse.json({
       success: true,
       pass: {
@@ -48,11 +50,11 @@ export async function GET(request, context) {
         lastName: vip.lastName,
         email: vip.email,
         plan: vip.plan,
-        cardLimit: vip.cardLimit,
+        cardLimit: accessConfig.organizationCardLimit,
         role: vip.role,
         company: vip.company
       },
-      message: `Pase Libre Elite activo (50 Tarjetas Libres) para ${vip.name}`
+      message: `Pase Libre Elite activo (${accessConfig.organizationCardLimit} tarjetas) para ${vip.name}`
     });
   } catch (error) {
     console.error('Error en ruta VIP pass:', error);

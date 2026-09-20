@@ -5,16 +5,24 @@
 :root {
   /* 🌹 1. Paleta de Colores de la Marca (Figma Official Design Tokens) */
   /* Paleta Principal */
-  --rojo-nucleo: #ff0003;           /* HEX: #ff0003 | RGB: 255, 0, 3 - Color Primario de Marca */
-  --carmesi-geometrico: #EE334E;    /* HEX: #EE334E | RGB: 238, 51, 78 - Acentos, resplandores y CTA */
-  --gris-circuito: #B1B3B3;        /* HEX: #B1B3B3 | RGB: 177, 179, 179 - Líneas, circuitos y texto secundario */
-  --negro-profundo: #0A0A0A;       /* HEX: #0A0A0A | RGB: 10, 10, 10 - Fondo inmersivo */
+  --rojo-nucleo: #ff0003;
+  /* HEX: #ff0003 | RGB: 255, 0, 3 - Color Primario de Marca */
+  --carmesi-geometrico: #EE334E;
+  /* HEX: #EE334E | RGB: 238, 51, 78 - Acentos, resplandores y CTA */
+  --gris-circuito: #B1B3B3;
+  /* HEX: #B1B3B3 | RGB: 177, 179, 179 - Líneas, circuitos y texto secundario */
+  --negro-profundo: #0A0A0A;
+  /* HEX: #0A0A0A | RGB: 10, 10, 10 - Fondo inmersivo */
 
   /* Paleta Secundaria */
-  --gris-apoyo: #EBEBF2;           /* HEX: #EBEBF2 | RGB: 235, 235, 242 - Tarjetas claras / Fondos suaves */
-  --azul-tecnologico: #4A7AFF;     /* HEX: #4A7AFF | RGB: 74, 122, 255 - Subtle cool accent */
-  --plata-metalizado: #D9DADC;     /* HEX: #D9DADC | RGB: 217, 218, 220 - Highlights y biseles */
-  --sombra-carmesi: #9A0020;       /* HEX: #9A0020 | RGB: 154, 0, 32 - Sombras y estados hover profundos */
+  --gris-apoyo: #EBEBF2;
+  /* HEX: #EBEBF2 | RGB: 235, 235, 242 - Tarjetas claras / Fondos suaves */
+  --azul-tecnologico: #4A7AFF;
+  /* HEX: #4A7AFF | RGB: 74, 122, 255 - Subtle cool accent */
+  --plata-metalizado: #D9DADC;
+  /* HEX: #D9DADC | RGB: 217, 218, 220 - Highlights y biseles */
+  --sombra-carmesi: #9A0020;
+  /* HEX: #9A0020 | RGB: 154, 0, 32 - Sombras y estados hover profundos */
 
   /* Tipografías Oficiales */
   --font-primary: 'Plaster', cursive, sans-serif;
@@ -30,7 +38,7 @@
   --midnight-panel: #121114;
   --blanco-puro: #F8FAFC;
   --humo: #EBEBF2;
-  
+
   /* Sistema de Luces, Sombras y Glows */
   --shadow-glowRose: 0 0 16px rgba(255, 0, 3, 0.45);
   --shadow-glowRoseHover: 0 0 26px rgba(238, 51, 78, 0.70);
@@ -38,37 +46,60 @@
   --shadow-silverSoft: 0 0 12px rgba(217, 218, 220, 0.25);
   --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.75);
   --border-rose-subtle: 1px solid rgba(255, 0, 3, 0.30);
-  
+
   /* Radios de Borde */
   --radius-soft: 10px;
   --radius-medium: 14px;
   --radius-large: 18px;
   --radius-device: 44px;
   --radius-full: 999px;
+
+  --z-content: 0;
+  --z-nav: 40;
+  --z-floating: 60;
+  --z-modal: 100;
 }
 
 body {
   background-color: var(--negro-profundo);
   color: var(--gris-circuito);
   font-family: var(--font-body);
-  background-image: 
-      radial-gradient(ellipse at 50% 0%, rgba(255, 0, 3, 0.15) 0%, transparent 60%),
-      radial-gradient(circle at 90% 80%, rgba(154, 0, 32, 0.20) 0%, transparent 50%),
-      linear-gradient(rgba(154, 0, 32, 0.15) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(154, 0, 32, 0.15) 1px, transparent 1px);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 0, 3, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 90% 80%, rgba(154, 0, 32, 0.20) 0%, transparent 50%),
+    linear-gradient(rgba(154, 0, 32, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(154, 0, 32, 0.15) 1px, transparent 1px);
   background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
   background-attachment: fixed;
   min-height: 100vh;
 }
 
+body:has(.app-modal-open) {
+  overflow: hidden;
+}
+
+.app-modal-open {
+  isolation: isolate;
+  z-index: var(--z-modal);
+}
+
 /* 1. Logotipo y Display en Plaster */
-.font-plaster, .font-brand-primary {
+.font-plaster,
+.font-brand-primary {
   font-family: var(--font-primary);
   letter-spacing: 2px;
 }
 
 /* 2. Títulos con Tipografía Secundaria (Rosetta Tech Sans) para Máxima Legibilidad */
-h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-rosetta,
+.font-corporate,
+.font-bruno {
   font-family: var(--font-secondary);
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -108,6 +139,7 @@ h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
   box-shadow: 0 0 16px rgba(255, 0, 3, 0.4);
   transition: all 0.3s ease;
 }
+
 .rose-logo-container:hover {
   transform: scale(1.05);
   box-shadow: 0 0 24px rgba(238, 51, 78, 0.7);
@@ -131,9 +163,11 @@ h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
   min-height: 48px;
   padding: 0 14px;
 }
-.input-dark::placeholder { 
-  color: rgba(177, 179, 179, 0.45); 
+
+.input-dark::placeholder {
+  color: rgba(177, 179, 179, 0.45);
 }
+
 .input-dark:focus {
   outline: none;
   border-color: var(--carmesi-geometrico);
@@ -161,11 +195,13 @@ h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
   gap: 8px;
   border: 1px solid rgba(238, 51, 78, 0.4);
 }
+
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--carmesi-geometrico) 0%, var(--rojo-nucleo) 100%);
   transform: translateY(-2px);
   box-shadow: 0 0 26px rgba(238, 51, 78, 0.70);
 }
+
 .btn-primary:active {
   transform: translateY(0);
 }
@@ -180,6 +216,7 @@ h1, h2, h3, h4, h5, h6, .font-rosetta, .font-corporate, .font-bruno {
   font-weight: 600;
   transition: all 0.2s ease;
 }
+
 .btn-secondary:hover {
   background: rgba(238, 51, 78, 0.12);
   border-color: var(--carmesi-geometrico);

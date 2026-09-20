@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getAllAgents } from '../../../lib/vipPasses';
 import { getPool, initDb } from '../../../lib/db';
+import { getPlatformAccessConfig } from '../../../lib/accessConfig';
 
 export async function GET() {
   try {
     await initDb();
     const agents = getAllAgents();
     const pool = getPool();
+    const accessConfig = await getPlatformAccessConfig(pool);
 
     // Consultar conteo de tarjetas por referido
     const query = `
@@ -23,7 +25,7 @@ export async function GET() {
 
     const summary = agents.map(ag => {
       const gifted = countsMap[ag.slug.toLowerCase()] || 0;
-      const quota = ag.giftQuota || 50;
+      const quota = Math.min(ag.giftQuota || 50, accessConfig.agentFreePassLimit);
       return {
         slug: ag.slug,
         name: ag.name,
@@ -36,7 +38,7 @@ export async function GET() {
       };
     });
 
-    const totalGiftQuota = summary.reduce((acc, a) => acc + a.giftQuota, 0);
+    const totalGiftQuota = Math.min(summary.reduce((acc, a) => acc + a.giftQuota, 0), accessConfig.agentFreePassLimit);
     const totalGifted = summary.reduce((acc, a) => acc + a.giftedCount, 0);
 
     return NextResponse.json({
@@ -44,7 +46,8 @@ export async function GET() {
       totals: {
         totalGiftQuota,
         totalGifted,
-        totalRemaining: Math.max(0, totalGiftQuota - totalGifted)
+        totalRemaining: Math.max(0, accessConfig.agentFreePassLimit - totalGifted),
+        configuredLimit: accessConfig.agentFreePassLimit
       },
       agents: summary
     });

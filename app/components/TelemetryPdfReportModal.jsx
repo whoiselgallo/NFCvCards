@@ -59,9 +59,9 @@ export default function TelemetryPdfReportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn">
+    <div className="app-modal-open fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn">
       <div className="bg-[#0A0A12] border border-gray-800 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
-        
+
         {/* Header - No Print */}
         <div className="p-5 border-b border-gray-800 flex items-center justify-between bg-[#10101C] print:hidden">
           <div className="flex items-center gap-3">
@@ -105,11 +105,10 @@ export default function TelemetryPdfReportModal({
                 key={tf}
                 type="button"
                 onClick={() => setTimeframe(tf)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
-                  timeframe === tf
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${timeframe === tf
                     ? 'bg-[#00E5FF] text-black shadow-[0_0_10px_rgba(0,229,255,0.4)]'
                     : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                }`}
+                  }`}
               >
                 {tf === '7d' ? '7 Días' : tf === '30d' ? '30 Días' : tf === '90d' ? '90 Días' : 'Todo'}
               </button>
@@ -119,7 +118,7 @@ export default function TelemetryPdfReportModal({
 
         {/* REPORTE EJECUTIVO IMPRIMIBLE (PRINTABLE AREA) */}
         <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-xs text-gray-300 print:text-black print:bg-white print:p-0">
-          
+
           {/* Encabezado del Documento */}
           <div className="border-b border-gray-800 pb-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>

@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { 
-  Users, Gift, Copy, Check, Share2, CreditCard, ExternalLink, 
-  Activity, ArrowUpRight, Search, Calendar, ShieldCheck, Trash2, AlertTriangle 
+import {
+  Users, Gift, Copy, Check, Share2, CreditCard, ExternalLink,
+  Activity, ArrowUpRight, Search, Calendar, ShieldCheck, Trash2, AlertTriangle
 } from 'lucide-react';
 import brandConfig from '../../../brand.config';
 import AgentInvitationSender from '../../components/AgentInvitationSender';
@@ -142,7 +142,7 @@ export default function AgenteTrackingPage() {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#00E5FF]/10 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto relative z-10">
-        
+
         {/* HEADER */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6 pb-6 border-b border-white/10">
           <div className="flex items-center gap-4">
@@ -273,7 +273,7 @@ export default function AgenteTrackingPage() {
             </div>
             {/* Barra de progreso */}
             <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-              <div 
+              <div
                 className="bg-gradient-to-r from-[#EE334E] to-[#00E5FF] h-full rounded-full transition-all duration-500"
                 style={{ width: `${Math.min(100, Math.round(((agentData?.giftedCount || 0) / (agentData?.giftQuota || 50)) * 100))}%` }}
               />
@@ -414,7 +414,7 @@ export default function AgenteTrackingPage() {
                             <span>Ver</span>
                             <ArrowUpRight className="w-3.5 h-3.5" />
                           </a>
-                          
+
                           <button
                             type="button"
                             onClick={() => {
@@ -442,7 +442,7 @@ export default function AgenteTrackingPage() {
 
       {/* MODAL DE CONFIRMACIÓN PARA BORRAR TARJETA */}
       {deletingCard && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+        <div className="app-modal-open fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-[#0c0c16] border border-red-500/30 w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-[0_0_40px_rgba(238,51,78,0.25)] relative">
             <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 mb-4">
               <Trash2 className="w-6 h-6" />

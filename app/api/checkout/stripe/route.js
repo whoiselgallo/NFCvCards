@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../../../../lib/nextAuthOptions';
+import { isOrganizationEmail } from '../../../../lib/brand';
+import { getPlatformAccessConfig, isEmailInDomains } from '../../../../lib/accessConfig';
 
 const stripeKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeKey ? new Stripe(stripeKey) : null;
 
 export async function POST(request) {
   try {
+    const authSession = await getServerSession(authOptions);
+    const accessConfig = await getPlatformAccessConfig();
+    if (isOrganizationEmail(authSession?.user?.email) || isEmailInDomains(authSession?.user?.email, accessConfig.freeDomains)) {
+      return NextResponse.json({ success: true, freeAccess: true });
+    }
+
     if (!stripe) {
       return NextResponse.json(
         { error: 'Stripe no está configurado en el servidor (STRIPE_SECRET_KEY faltante).' },

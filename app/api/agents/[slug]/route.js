@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAgent } from '../../../../lib/vipPasses';
 import { getPool, initDb } from '../../../../lib/db';
+import { getPlatformAccessConfig } from '../../../../lib/accessConfig';
 
 export async function GET(request, context) {
   try {
@@ -14,6 +15,7 @@ export async function GET(request, context) {
     }
 
     const pool = getPool();
+    const accessConfig = await getPlatformAccessConfig(pool);
     const query = `
       SELECT id, slug, nombre, apellido, empresa, puesto, telefono, correo, status, views_count, created_at
       FROM vcard_profiles
@@ -23,7 +25,7 @@ export async function GET(request, context) {
     const result = await pool.query(query, [agent.slug]);
     const cards = result.rows || [];
     const giftedCount = cards.length;
-    const giftQuota = agent.giftQuota || 50;
+    const giftQuota = Math.min(agent.giftQuota || 50, accessConfig.agentFreePassLimit);
     const remaining = Math.max(0, giftQuota - giftedCount);
 
     return NextResponse.json({
@@ -76,9 +78,9 @@ export async function DELETE(request, context) {
     const checkRes = await pool.query(checkQuery, [cardId || -1, cardSlug || '', agent.slug]);
 
     if (!checkRes.rows || checkRes.rows.length === 0) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Tarjeta no encontrada o no pertenece a tu cupo de agente' 
+      return NextResponse.json({
+        success: false,
+        error: 'Tarjeta no encontrada o no pertenece a tu cupo de agente'
       }, { status: 404 });
     }
 
@@ -107,7 +109,8 @@ export async function DELETE(request, context) {
     `;
     const countRes = await pool.query(countQuery, [agent.slug]);
     const currentGifted = parseInt(countRes.rows[0]?.total || 0, 10);
-    const giftQuota = agent.giftQuota || 50;
+    const accessConfig = await getPlatformAccessConfig(pool);
+    const giftQuota = Math.min(agent.giftQuota || 50, accessConfig.agentFreePassLimit);
     const remaining = Math.max(0, giftQuota - currentGifted);
 
     return NextResponse.json({

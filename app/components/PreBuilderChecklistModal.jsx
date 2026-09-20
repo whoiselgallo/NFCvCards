@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { 
-  AlertTriangle, CheckCircle, FileText, Image, Video, 
-  MapPin, Calendar, CreditCard, ArrowRight, X, Phone, 
+import {
+  AlertTriangle, CheckCircle, FileText, Image, Video,
+  MapPin, Calendar, CreditCard, ArrowRight, X, Phone,
   Sparkles, ShieldCheck, Download
 } from 'lucide-react';
 
@@ -11,9 +11,9 @@ export default function PreBuilderChecklistModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
+    <div className="app-modal-open fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
       <div className="max-w-3xl w-full bg-[#0a0a12] border border-[#EE334E]/40 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(238,51,78,0.25)] text-white relative my-8">
-        
+
         {/* Botón cerrar */}
         <button
           onClick={onClose}
@@ -43,14 +43,14 @@ export default function PreBuilderChecklistModal({ isOpen, onClose }) {
 
         {/* Resumen de Requisitos y Archivos */}
         <div className="space-y-4 my-6 max-h-[50vh] overflow-y-auto pr-1">
-          
+
           {/* GRUPO 1: ARCHIVOS Y MEDIOS DIGITALES */}
           <div>
             <span className="text-[11px] font-mono uppercase tracking-wider text-[#EE334E] font-bold flex items-center gap-1.5 mb-2.5">
               <span>📁</span> Archivos y Documentos Digitales Requeridos:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              
+
               <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 flex items-start gap-3 hover:border-[#EE334E]/40 transition-colors">
                 <div className="w-8 h-8 rounded-xl bg-[#EE334E]/10 text-[#EE334E] flex items-center justify-center shrink-0 mt-0.5">
                   <Image className="w-4 h-4" />
@@ -108,7 +108,7 @@ export default function PreBuilderChecklistModal({ isOpen, onClose }) {
               <span>⚡</span> Puntos de Conversión, Enlaces y Datos Comerciales:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              
+
               <div className="p-3.5 rounded-2xl bg-black/40 border border-white/10 flex items-start gap-3 hover:border-green-500/40 transition-colors">
                 <div className="w-8 h-8 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center shrink-0 mt-0.5">
                   <Phone className="w-4 h-4" />

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPool, initDb } from '../../../lib/db';
+import { getAgent, getAllAgents } from '../../../lib/vipPasses';
+import { getPlatformAccessConfig } from '../../../lib/accessConfig';
 
 export async function POST(request) {
   try {
@@ -44,6 +46,11 @@ export async function POST(request) {
     `;
 
     const referredBy = data.referred_by || data.referredBy || formData.referred_by || formData.referredBy || null;
+    const referringAgent = referredBy ? getAgent(referredBy) : null;
+
+    if (referredBy && !referringAgent) {
+      return NextResponse.json({ success: false, error: 'Código de agente inválido.' }, { status: 400 });
+    }
 
     // Preparar JSON para custom_layout
     const customLayout = {
@@ -106,8 +113,45 @@ export async function POST(request) {
       'elite'
     ];
 
-    const result = await pool.query(query, values);
-    const saved = result.rows[0];
+    const client = await pool.connect();
+    let saved;
+    try {
+      await client.query('BEGIN');
+
+      if (referringAgent) {
+        const accessConfig = await getPlatformAccessConfig(pool);
+        const canonicalSlugs = getAllAgents().map(agent => agent.slug.toLowerCase());
+        await client.query('SELECT pg_advisory_xact_lock($1)', [250250]);
+
+        const countResult = await client.query(`
+          SELECT
+            COUNT(*) FILTER (WHERE LOWER(referred_by) = $1)::int AS agent_count,
+            COUNT(*) FILTER (WHERE LOWER(referred_by) = ANY($2::text[]))::int AS total_count
+          FROM vcard_profiles
+        `, [referringAgent.slug.toLowerCase(), canonicalSlugs]);
+        const agentCount = countResult.rows[0]?.agent_count || 0;
+        const totalCount = countResult.rows[0]?.total_count || 0;
+        const agentQuota = Math.min(referringAgent.giftQuota || 50, accessConfig.agentFreePassLimit);
+
+        if (agentCount >= agentQuota || totalCount >= accessConfig.agentFreePassLimit) {
+          await client.query('ROLLBACK');
+          return NextResponse.json({
+            success: false,
+            error: 'El lote de pases gratuitos de agentes se agotó.',
+            code: 'AGENT_FREE_QUOTA_EXHAUSTED'
+          }, { status: 409 });
+        }
+      }
+
+      const result = await client.query(query, values);
+      saved = result.rows[0];
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
 
     return NextResponse.json({
       success: true,

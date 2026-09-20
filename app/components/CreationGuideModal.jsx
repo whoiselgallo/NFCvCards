@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  X, Sparkles, CheckCircle2, QrCode, Wallet, ShieldCheck, 
+import {
+  X, Sparkles, CheckCircle2, QrCode, Wallet, ShieldCheck,
   ArrowRight, ArrowLeft, Smartphone, Zap, Save, Lock, Layers,
   ExternalLink, Eye, Award
 } from 'lucide-react';
@@ -69,9 +69,9 @@ export default function CreationGuideModal({ isOpen, onClose, agentInfo = null, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#05050D]/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
+    <div className="app-modal-open fixed inset-0 z-[100] bg-[#05050D]/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
       <div className="max-w-4xl w-full bg-[#0B0914]/90 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(238,51,78,0.3)] text-white relative my-8 overflow-hidden">
-        
+
         {/* Glow de fondo decorativo */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#EE334E]/15 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#00E5FF]/15 rounded-full blur-[120px] pointer-events-none" />
@@ -126,7 +126,7 @@ export default function CreationGuideModal({ isOpen, onClose, agentInfo = null, 
         </div>
 
         {/* BARRA DE NAVEGACIÓN / STEPPER */}
-        <div className="grid grid-cols-5 gap-1.5 sm:gap-2 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2 mb-6">
           {STEPS.map((s) => {
             const Icon = s.icon;
             const isActive = currentStep === s.step;
@@ -135,13 +135,12 @@ export default function CreationGuideModal({ isOpen, onClose, agentInfo = null, 
               <button
                 key={s.step}
                 onClick={() => setCurrentStep(s.step)}
-                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between relative overflow-hidden ${
-                  isActive 
-                    ? 'bg-white/10 border-[#EE334E] shadow-[0_0_20px_rgba(238,51,78,0.25)]' 
-                    : isPassed
-                      ? 'bg-white/5 border-emerald-500/40 text-emerald-300'
-                      : 'bg-black/30 border-white/10 opacity-60 hover:opacity-100'
-                }`}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between relative overflow-hidden ${isActive
+                  ? 'bg-white/10 border-[#EE334E] shadow-[0_0_20px_rgba(238,51,78,0.25)]'
+                  : isPassed
+                    ? 'bg-white/5 border-emerald-500/40 text-emerald-300'
+                    : 'bg-black/30 border-white/10 opacity-60 hover:opacity-100'
+                  }`}
               >
                 <div className="flex items-center justify-between w-full mb-1">
                   <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-[#EE334E]' : isPassed ? 'text-emerald-400' : 'text-slate-400'}`}>
@@ -159,7 +158,7 @@ export default function CreationGuideModal({ isOpen, onClose, agentInfo = null, 
 
         {/* CONTENIDO DEL PASO SELECCIONADO */}
         <div className="bg-black/40 border border-white/10 rounded-2xl p-5 sm:p-7 min-h-[300px] flex flex-col justify-between mb-6 relative">
-          
+
           {/* PASO 1 */}
           {currentStep === 1 && (
             <div className="space-y-4 animate-fadeIn">
@@ -201,7 +200,7 @@ export default function CreationGuideModal({ isOpen, onClose, agentInfo = null, 
               <p className="text-sm text-slate-300 leading-relaxed">
                 Rellena tus datos de contacto: Nombre, Puesto, Empresa, WhatsApp, Teléfono directo, Sitio Web, Redes Sociales, Catálogo de Productos en PDF y Video de YouTube corporativo.
               </p>
-              
+
               <div className="p-4 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-xs space-y-2">
                 <p className="font-bold text-[#00E5FF] flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -341,11 +340,10 @@ export default function CreationGuideModal({ isOpen, onClose, agentInfo = null, 
             <button
               onClick={handlePrev}
               disabled={currentStep === 1}
-              className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 ${
-                currentStep === 1 
-                  ? 'bg-white/5 border-white/5 text-slate-600 cursor-not-allowed' 
-                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-              }`}
+              className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 ${currentStep === 1
+                ? 'bg-white/5 border-white/5 text-slate-600 cursor-not-allowed'
+                : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                }`}
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Anterior</span>
@@ -358,11 +356,10 @@ export default function CreationGuideModal({ isOpen, onClose, agentInfo = null, 
             <button
               onClick={handleNext}
               disabled={currentStep === STEPS.length}
-              className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 ${
-                currentStep === STEPS.length 
-                  ? 'bg-white/5 border-white/5 text-slate-600 cursor-not-allowed' 
-                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-              }`}
+              className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 ${currentStep === STEPS.length
+                ? 'bg-white/5 border-white/5 text-slate-600 cursor-not-allowed'
+                : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                }`}
             >
               <span>Siguiente</span>
               <ArrowRight className="w-4 h-4" />
