@@ -13,8 +13,10 @@ import {
   Zap,
   ArrowRight,
   MonitorSmartphone,
-  Layers
+  Layers,
+  Mail
 } from 'lucide-react';
+import MasterAdminDrawer from './components/MasterAdminDrawer';
 
 const WORDS = [
   "Cierre de alto Impacto", 
@@ -109,16 +111,35 @@ export default function LandingPage() {
 
   return (
     <>
+      <MasterAdminDrawer />
       <Script src="https://www.paypal.com/sdk/js?client-id=BAAVBTkbyfhfvSv-LwMOAjKhD4cWmr2himsyOcDfmT_oBblFqSZ5LdvTLDibQfmSi6mSrgCtYcA0YsoMoI&vault=true&intent=subscription" strategy="lazyOnload" />
     <div className="min-h-screen bg-[#05050D] text-slate-200 font-sans selection:bg-[#EE334E] selection:text-white overflow-x-hidden">
       
       {/* HEADER / NAVBAR */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#05050D]/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Nfc className="text-[#EE334E] w-8 h-8" />
-            <span className="text-2xl font-bold tracking-tight text-white">Rose VCards</span>
+            <Nfc className="text-[#EE334E] w-7 h-7 sm:w-8 h-8" />
+            <span className="text-xl sm:text-2xl font-bold tracking-tight text-white">Rose VCards</span>
           </div>
+
+          {/* Botón de Inicio de Sesión para Celulares (Visible en Móvil) */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link 
+              href="/builder" 
+              className="text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10"
+            >
+              Editor
+            </Link>
+            <Link 
+              href="/login" 
+              className="text-white bg-gradient-to-r from-[#EE334E] to-[#ff0003] hover:brightness-110 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-[0_0_12px_rgba(238,51,78,0.4)] flex items-center gap-1.5"
+            >
+              <span>Iniciar Sesión</span>
+            </Link>
+          </div>
+
+          {/* Menú Desktop */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <a href="#use-cases" className="hover:text-white transition-colors">Casos de Uso</a>
             <a href="#white-label" className="hover:text-white transition-colors">Marca Blanca</a>
@@ -215,7 +236,7 @@ export default function LandingPage() {
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/design1.jpeg" alt="Emprendedor NFC" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/formal_casual.jpeg" alt="Formal Casual" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-8 flex-1 flex flex-col">
                 <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
@@ -233,7 +254,7 @@ export default function LandingPage() {
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/design2.jpeg" alt="Ejecutivo Ventas" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/ejecutivo_comercial.jpeg" alt="Ejecutivo Comercial" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-8 flex-1 flex flex-col">
                 <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
@@ -251,7 +272,7 @@ export default function LandingPage() {
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
               <div className="h-48 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/design3.jpeg" alt="Corporativo Elite" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/profesional_elite.jpeg" alt="Profesional Élite" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-8 flex-1 flex flex-col">
                 <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
@@ -551,52 +572,165 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-              {/* FAQ SECTION */}
+        {/* FAQ SECTION */}
         <section className="py-24 bg-black/60 border-t border-white/5 relative z-10">
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Preguntas Frecuentes</h2>
-              <p className="text-slate-400">Todo lo que necesitas saber, con total transparencia.</p>
+              <span className="text-xs font-mono uppercase tracking-widest text-[#EE334E] font-bold">
+                RESOLVEMOS TUS DUDAS
+              </span>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mt-2 mb-4 font-bruno">Preguntas Frecuentes</h2>
+              <p className="text-slate-400">Todo lo que necesitas saber sobre tu tarjeta digital interactiva y hardware NFC.</p>
             </div>
+            
             <div className="space-y-4">
               
-              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-2">¿Cómo funciona la descarga en Smart Watch?</h3>
-                <p className="text-slate-400 text-sm">Tu tarjeta digital genera automáticamente un Código QR dinámico de alto contraste optimizado para pantallas pequeñas. Puedes descargar este QR a la galería de tu Apple Watch, Wear OS o cualquier Smart Watch, permitiendo que compartas tu perfil girando la muñeca, sin necesidad de sacar tu teléfono.</p>
-              </div>
+              {/* FAQ 1 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#EE334E] shrink-0" />
+                    ¿Cómo funciona la descarga en Smart Watch?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Tu tarjeta digital genera automáticamente un Código QR dinámico de alto contraste optimizado para pantallas pequeñas. Puedes descargar este QR a la galería de tu Apple Watch, Wear OS o cualquier Smart Watch, permitiendo que compartas tu perfil girando la muñeca, sin necesidad de sacar tu teléfono.
+                </div>
+              </details>
 
-              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-2">¿Existen cuotas o letras chiquitas ocultas?</h3>
-                <p className="text-slate-400 text-sm">Absolutamente no. La transparencia es nuestro estandarte. El costo anual que pagas cubre estrictamente el mantenimiento de tus datos en servidores de Google Cloud, garantizando cargas ultrarrápidas y que tu tarjeta jamás se caerá. Si deseas actualizar tus datos (cambiar tu número, correo, etc.), se aplica un costo de revisión transparente y predecible detallado en nuestros <Link href="/terminos" className="text-[#EE334E] hover:underline">Términos y Condiciones</Link>.</p>
-              </div>
+              {/* FAQ 2 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#00E5FF] shrink-0" />
+                    ¿Existen cuotas o letras chiquitas ocultas?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Absolutamente no. La transparencia es nuestro estandarte. El costo anual que pagas cubre estrictamente el mantenimiento de tus datos en servidores en la nube de alta disponibilidad, garantizando cargas ultrarrápidas y que tu tarjeta jamás se caerá. Si deseas actualizar tus datos, puedes hacerlo directamente desde tu panel de control o consultar nuestros <Link href="/terminos" className="text-[#EE334E] hover:underline">Términos y Condiciones</Link>.
+                </div>
+              </details>
 
-              <div className="bg-[#0a0a10] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-2">¿Qué obtengo físicamente al comprar un paquete?</h3>
-                <p className="text-slate-400 text-sm">Todos los paquetes de pago incluyen gratis una (1) Tarjeta Física Inteligente de PVC y un (1) Sticker NFC para el celular con nuestra identidad visual. Si prefieres un diseño con tu propio logotipo corporativo, puedes solicitar la manufactura personalizada en PVC Blanco, Negro o Bamboo por  USD adicionales.</p>
-              </div>
+              {/* FAQ 3 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#EE334E] shrink-0" />
+                    ¿Qué obtengo físicamente al comprar un paquete?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Todos los paquetes de pago incluyen gratis una (1) Tarjeta Física Inteligente de PVC y un (1) Sticker NFC para el celular con nuestra identidad visual. Si prefieres un diseño con tu propio logotipo corporativo, puedes solicitar la manufactura personalizada en PVC Blanco, Negro Mate o Madera Bamboo ecológica.
+                </div>
+              </details>
+
+              {/* NUEVA FAQ 4 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#00E5FF] shrink-0" />
+                    ¿Qué teléfonos son compatibles y qué pasa si el cliente no tiene NFC?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  El 100% de los smartphones actuales (iPhone modelo XR en adelante y casi la totalidad de teléfonos Android) cuentan con lector NFC integrado y leen la tarjeta al instante con solo aproximarla, sin instalar nada. Si el dispositivo de tu cliente es un modelo antiguo sin NFC, la tarjeta física incluye en el reverso tu Código QR dinámico de alta definición para escanear con la cámara y acceder exactamente a la misma experiencia interactiva.
+                </div>
+              </details>
+
+              {/* NUEVA FAQ 5 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#EE334E] shrink-0" />
+                    ¿Puedo actualizar mis datos después de tener mi tarjeta física fabricada?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Sí, de forma ilimitada y en tiempo real. Tu tarjeta física se conecta con tu perfil digital alojado en la nube. Si cambias de número de teléfono, añades un nuevo catálogo de productos, modificas tu puesto o actualizas tus fotos de portada y logotipo desde tu panel de control, los cambios se reflejan inmediatamente en la próxima lectura sin necesidad de reprogramar ni reimprimir el chip físico.
+                </div>
+              </details>
+
+              {/* NUEVA FAQ 6 */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#00E5FF] shrink-0" />
+                    ¿La otra persona necesita descargar alguna aplicación para recibir mis datos?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  No. Cero aplicaciones necesarias ni para ti ni para quien recibe tus datos. Al acercar la tarjeta física o escanear el QR, tu tarjeta interactiva se despliega al instante en el navegador nativo del smartphone (Safari, Chrome) y con un solo toque en el botón "Guardar Contacto" descarga tu archivo vCard (.vcf) directamente en la agenda nativa del celular con tu nombre, teléfono, WhatsApp, correo y redes.
+                </div>
+              </details>
 
             </div>
           </div>
         </section>
 
         {/* FOOTER */}
-      <footer className="py-12 border-t border-white/5 bg-[#030308] text-center relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Nfc className="text-slate-500 w-6 h-6" />
-            <span className="text-xl font-bold tracking-tight text-slate-400">Rose VCards</span>
+        <footer className="py-16 border-t border-white/10 bg-[#030308] text-center relative z-10">
+          <div className="max-w-7xl mx-auto px-6">
+            
+            {/* Logo y Nombre */}
+            <div className="flex items-center justify-center gap-2.5 mb-6">
+              <div className="w-9 h-9 rounded-xl bg-[#EE334E]/10 border border-[#EE334E]/30 flex items-center justify-center">
+                <Nfc className="text-[#EE334E] w-5 h-5" />
+              </div>
+              <span className="text-2xl font-extrabold tracking-tight text-white font-bruno">
+                Rose VCards
+              </span>
+            </div>
+
+            {/* Bloque de Contacto Directo */}
+            <div className="mb-8">
+              <p className="text-xs font-mono uppercase tracking-widest text-slate-500 mb-3 font-bold">
+                ¿Tienes dudas o requieres atención corporativa personalizada?
+              </p>
+              <a 
+                href="mailto:contacto@tsolutionsipidd.com"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/5 hover:bg-[#EE334E]/10 border border-white/10 hover:border-[#EE334E]/50 text-slate-200 hover:text-[#EE334E] text-sm font-mono font-bold transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)] hover:shadow-[0_0_20px_rgba(238,51,78,0.25)] group"
+              >
+                <Mail className="w-4 h-4 text-[#EE334E] group-hover:scale-110 transition-transform" />
+                <span>contacto@tsolutionsipidd.com</span>
+              </a>
+            </div>
+
+            {/* Enlaces Legales */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-slate-400 mb-6">
+              <Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link>
+              <span className="hidden sm:inline text-slate-700">•</span>
+              <Link href="/privacidad" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
+              <span className="hidden sm:inline text-slate-700">•</span>
+              <Link href="/login" className="hover:text-[#EE334E] transition-colors">Acceso a Clientes</Link>
+            </div>
+
+            {/* Copyright */}
+            <p className="text-slate-500 text-xs font-sans">
+              © {new Date().getFullYear()} TSOLUTIONS IPIDD · Rose VCards. Todos los derechos reservados.
+            </p>
+            <p className="text-[11px] text-slate-600 font-mono mt-1 uppercase tracking-wider">
+              Tecnología NFC Contactless & Cloud Engine
+            </p>
           </div>
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-slate-500 mb-6">
-            <Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link>
-            <span className="hidden md:block">•</span>
-            <Link href="/privacidad" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
-          </div>
-          <p className="text-slate-600 text-xs">
-            © {new Date().getFullYear()} Rose VCards. Todos los derechos reservados. <br className="md:hidden" />
-            Potenciado por Google Cloud Platform.
-          </p>
-        </div>
-      </footer>
+        </footer>
     </div>
     </>
 

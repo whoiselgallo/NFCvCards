@@ -59,8 +59,8 @@ export async function POST(request) {
         profile_slug: slug,
         platform: 'TSOLUTIONS IPIDD vCard Engine'
       },
-      success_url: `${originUrl}/?payment_status=success&session_id={CHECKOUT_SESSION_ID}&item=${encodeURIComponent(productId)}`,
-      cancel_url: `${originUrl}/?payment_status=cancelled`,
+      success_url: `${originUrl}/builder?payment_status=success&session_id={CHECKOUT_SESSION_ID}&item=${encodeURIComponent(productId)}`,
+      cancel_url: `${originUrl}/builder?payment_status=cancelled`,
     });
 
     return NextResponse.json({

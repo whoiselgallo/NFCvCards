@@ -83,8 +83,8 @@ En nombre de todo el equipo de ${process.env.NEXT_PUBLIC_BRAND_NAME || 'ROSE Car
 
 Hemos finalizado con éxito la configuración y pruebas operativas de tu vCard inteligente. A continuación, encontrarás los enlaces de acceso y recursos indispensables para la integración de tus tarjetas NFC y códigos QR físicos y digitales.`,
 
-    instructionsFilename: (nombre) => `Instrucciones_Entrega_${(process.env.NEXT_PUBLIC_BRAND_NAME || 'ROSE_Card').replace(/\s+/g, '_')}.txt`,
-    qrFilename: (nombre, empresa) => `QR_${nombre || 'Contacto'}_${empresa || 'Oficial'}.png`
+    instructionsFilename: (nombre) => `Enlace_Cloud_e_Instructivo_de_Uso_General.txt`,
+    qrFilename: (nombre, empresa) => `Codigo_QR_Alta_Definicion.png`
   },
 
   // Footer & Créditos

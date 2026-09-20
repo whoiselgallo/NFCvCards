@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getTranslation } from '../../../lib/i18n';
+import { getTranslation, SUPPORTED_LANGUAGES } from '../../../lib/i18n';
 import brandConfig from '../../../brand.config';
 import { THEMES } from '../../../lib/themes';
-import { MessageCircle, Camera, Briefcase, Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
+import { Calendar, CreditCard, FileDown, Wallet } from 'lucide-react';
+import { FacebookIcon, InstagramIcon, LinkedInIcon, TikTokIcon, XTwitterIcon, YouTubeIcon, WhatsAppIcon } from '../../components/BrandSocialIcons';
 import UsageExperienceModal from '../../components/UsageExperienceModal';
 
 // Helper para sanitizar y autocomponer URLs de Redes Sociales
@@ -31,9 +32,12 @@ export default function PublicProfileClient({ profile = {} }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && navigator.language) {
-      if (navigator.language.toLowerCase().startsWith('en')) {
-        setLang('en');
-      }
+      const bLang = navigator.language.toLowerCase();
+      if (bLang.startsWith('zh')) setLang('zh');
+      else if (bLang.startsWith('ru')) setLang('ru');
+      else if (bLang.startsWith('pt')) setLang('pt');
+      else if (bLang.startsWith('en')) setLang('en');
+      else setLang('es');
     }
   }, []);
 
@@ -212,6 +216,10 @@ export default function PublicProfileClient({ profile = {} }) {
   const fbUrl = getSocialUrl('facebook', facebook);
   const igUrl = getSocialUrl('instagram', instagram);
   const inUrl = getSocialUrl('linkedin', linkedin);
+  const ttUrl = getSocialUrl('tiktok', profile.tiktok);
+  const xUrl = getSocialUrl('x', profile.twitter || profile.xtwitter || profile.x);
+  const ytUrl = getSocialUrl('youtube', video_youtube_url || profile.youtube);
+  const waUrl = whatsapp ? (whatsapp.startsWith('http') ? whatsapp : `https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`) : '';
 
   // Arrays auxiliares seguros
   const safePortfolio = Array.isArray(portfolio) ? portfolio : [];
@@ -237,6 +245,23 @@ export default function PublicProfileClient({ profile = {} }) {
           boxShadow: `0 20px 50px rgba(0,0,0,0.6)`
         }}
       >
+        {/* SELECTOR DE IDIOMA DISCRETO (ES / EN / PT / RU / ZH) */}
+        <div className="absolute top-3 right-3 z-40">
+          <button
+            type="button"
+            onClick={() => {
+              const codes = SUPPORTED_LANGUAGES.map(l => l.code);
+              const nextIdx = (codes.indexOf(lang) + 1) % codes.length;
+              setLang(codes[nextIdx]);
+            }}
+            className="px-2 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-mono font-bold flex items-center gap-1 shadow-lg transition-all active:scale-95"
+            title={`Idioma: ${SUPPORTED_LANGUAGES.find(l => l.code === lang)?.label || lang.toUpperCase()}`}
+          >
+            <span>{SUPPORTED_LANGUAGES.find(l => l.code === lang)?.flag || '🌐'}</span>
+            <span>{SUPPORTED_LANGUAGES.find(l => l.code === lang)?.shortLabel || lang.toUpperCase()}</span>
+          </button>
+        </div>
+
         {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             LAYOUT RENDERER — 10 PRESETS
         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
@@ -245,26 +270,34 @@ export default function PublicProfileClient({ profile = {} }) {
             Cover full-bleed con info superpuesta desde abajo       */}
         {theme === 'split_hero' && (
           <div className="relative">
-            <div className="relative h-64 w-full overflow-hidden">
-              {activeCover ? (
-                <img src={activeCover} alt="Cover" className="w-full h-full object-cover"
-                  style={{ objectPosition: `center ${cover_position_y}%`, transform: `scale(${cover_zoom/100})`, transformOrigin: `center ${cover_position_y}%` }} />
-              ) : (
-                <div className="w-full h-full" style={{ background: `linear-gradient(160deg, ${color_primario} 0%, ${color_secundario}60 60%, #000 100%)` }} />
-              )}
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)' }} />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <div className="flex items-end gap-4">
+            {!layout.hideBanner && (
+              <div className="relative h-64 w-full overflow-hidden">
+                {activeCover ? (
+                  <img src={activeCover} alt="Cover" className="w-full h-full object-cover"
+                    style={{ objectPosition: `center ${cover_position_y}%`, transform: `scale(${cover_zoom/100})`, transformOrigin: `center ${cover_position_y}%` }} />
+                ) : (
+                  <div className="w-full h-full" style={{ background: `linear-gradient(160deg, ${color_primario} 0%, ${color_secundario}60 60%, #000 100%)` }} />
+                )}
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)' }} />
+              </div>
+            )}
+            <div className={`${!layout.hideBanner ? '-mt-24' : 'pt-6'} relative z-10 p-5`}>
+              <div className={`flex items-end gap-4 ${
+                layout.infoAlignment === 'right' ? 'flex-row-reverse text-right' :
+                layout.infoAlignment === 'center' ? 'flex-col items-center text-center' :
+                'flex-row text-left'
+              }`}>
+                {layout.logoPosition !== 'hidden' && (
                   <div className="w-16 h-16 rounded-2xl border-2 overflow-hidden shrink-0 bg-black/50 flex items-center justify-center"
                     style={{ borderColor: color_primario, boxShadow: `0 0 20px ${color_primario}60` }}>
                     {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
                       : <div className="w-full h-full flex items-center justify-center font-bold text-2xl text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '★'}</div>}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h1 className="text-xl font-bold text-white leading-tight" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
-                    {puesto && <p className="text-xs font-semibold uppercase mt-0.5" style={{ color: color_primario }}>{puesto}</p>}
-                    {empresa && <p className="text-xs text-gray-300 opacity-80 font-mono">{empresa}</p>}
-                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl font-bold text-white leading-tight" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+                  {puesto && <p className="text-xs font-semibold uppercase mt-0.5" style={{ color: color_primario }}>{puesto}</p>}
+                  {empresa && <p className="text-xs text-gray-300 opacity-80 font-mono">{empresa}</p>}
                 </div>
               </div>
             </div>
@@ -276,12 +309,18 @@ export default function PublicProfileClient({ profile = {} }) {
         {theme === 'neon_cyber' && (
           <div className="relative p-5">
             <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,.05) 28px,rgba(255,255,255,.05) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,.05) 28px,rgba(255,255,255,.05) 29px)' }} />
-            <div className="relative flex flex-col items-center text-center gap-3">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 flex items-center justify-center"
-                style={{ borderColor: color_secundario, boxShadow: `0 0 20px ${color_secundario}80, 0 0 40px ${color_primario}40` }}>
-                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
-                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '⚡'}</div>}
-              </div>
+            <div className={`relative flex flex-col gap-3 ${
+              layout.infoAlignment === 'left' ? 'items-start text-left' :
+              layout.infoAlignment === 'right' ? 'items-end text-right' :
+              'items-center text-center'
+            }`}>
+              {layout.logoPosition !== 'hidden' && (
+                <div className="w-24 h-24 rounded-full overflow-hidden border-2 flex items-center justify-center"
+                  style={{ borderColor: color_secundario, boxShadow: `0 0 20px ${color_secundario}80, 0 0 40px ${color_primario}40` }}>
+                  {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                    : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '⚡'}</div>}
+                </div>
+              )}
               <div>
                 <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: '#fff', textShadow: `0 0 20px ${color_primario}` }}>{nombre} {apellido}</h1>
                 {puesto && <p className="text-xs font-mono uppercase tracking-widest mt-1" style={{ color: color_secundario }}>{puesto}</p>}
@@ -295,16 +334,28 @@ export default function PublicProfileClient({ profile = {} }) {
             Negro azabache, divisores dorados, logo premium     */}
         {theme === 'midnight_gold' && (
           <div className="relative">
-            <div className="h-2 w-full" style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, ${color_secundario}, ${color_primario}, transparent)` }} />
-            <div className="p-6 flex flex-col items-center text-center gap-3">
-              <div className="w-20 h-20 rounded-xl overflow-hidden border flex items-center justify-center bg-black"
-                style={{ borderColor: color_primario, boxShadow: `0 0 30px ${color_primario}50` }}>
-                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
-                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold" style={{ color: color_primario }}>{nombre?.charAt(0) || '✦'}</div>}
-              </div>
+            {!layout.hideBanner && (
+              <div className="h-2 w-full" style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, ${color_secundario}, ${color_primario}, transparent)` }} />
+            )}
+            <div className={`p-6 flex flex-col gap-3 ${
+              layout.infoAlignment === 'left' ? 'items-start text-left' :
+              layout.infoAlignment === 'right' ? 'items-end text-right' :
+              'items-center text-center'
+            }`}>
+              {layout.logoPosition !== 'hidden' && (
+                <div className="w-20 h-20 rounded-xl overflow-hidden border flex items-center justify-center bg-black"
+                  style={{ borderColor: color_primario, boxShadow: `0 0 30px ${color_primario}50` }}>
+                  {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                    : <div className="w-full h-full flex items-center justify-center text-3xl font-bold" style={{ color: color_primario }}>{nombre?.charAt(0) || '✦'}</div>}
+                </div>
+              )}
               <div>
                 <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: color_primario }}>{nombre} {apellido}</h1>
-                <div className="h-px w-16 mx-auto my-2" style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, transparent)` }} />
+                <div className={`h-px w-16 my-2 ${
+                  layout.infoAlignment === 'left' ? 'mr-auto' :
+                  layout.infoAlignment === 'right' ? 'ml-auto' :
+                  'mx-auto'
+                }`} style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, transparent)` }} />
                 {puesto && <p className="text-xs uppercase tracking-widest font-mono" style={{ color: color_secundario }}>{puesto}</p>}
                 {empresa && <p className="text-xs opacity-60 mt-1" style={{ color: '#A3A3A3' }}>{empresa}</p>}
               </div>
@@ -316,14 +367,20 @@ export default function PublicProfileClient({ profile = {} }) {
         {/* ── LAYOUT: AVATAR FOCUS ───────────────────────────────────
             Logo circular gigante centrado, gradiente radial     */}
         {theme === 'avatar_focus' && (
-          <div className="relative pt-8 pb-4 flex flex-col items-center text-center gap-3">
+          <div className={`relative pt-8 pb-4 flex flex-col gap-3 ${
+            layout.infoAlignment === 'left' ? 'items-start text-left px-6' :
+            layout.infoAlignment === 'right' ? 'items-end text-right px-6' :
+            'items-center text-center'
+          }`}>
             <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at top, ${color_primario}25 0%, transparent 70%)` }} />
-            <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 flex items-center justify-center"
-              style={{ borderColor: color_primario, boxShadow: `0 0 0 6px ${color_primario}20, 0 0 40px ${color_primario}40` }}>
-              {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
-                : <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '👤'}</div>}
-            </div>
-            <div>
+            {layout.logoPosition !== 'hidden' && (
+              <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 flex items-center justify-center"
+                style={{ borderColor: color_primario, boxShadow: `0 0 0 6px ${color_primario}20, 0 0 40px ${color_primario}40` }}>
+                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                  : <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '👤'}</div>}
+              </div>
+            )}
+            <div className="relative z-10">
               <h1 className="text-2xl font-bold text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
               {puesto && <p className="text-sm font-semibold uppercase mt-1" style={{ color: color_primario }}>{puesto}</p>}
               {empresa && <p className="text-xs text-gray-400 font-mono mt-0.5">{empresa}</p>}
@@ -336,12 +393,18 @@ export default function PublicProfileClient({ profile = {} }) {
         {theme === 'sidebar_stripe' && (
           <div className="relative flex min-h-[160px]">
             <div className="w-3 shrink-0 rounded-bl-none" style={{ background: `linear-gradient(180deg, ${color_primario}, ${color_secundario})` }} />
-            <div className="flex-1 p-5 flex items-center gap-4">
-              <div className="w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 flex items-center justify-center bg-gray-100"
-                style={{ borderColor: color_primario }}>
-                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
-                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '▌'}</div>}
-              </div>
+            <div className={`flex-1 p-5 flex items-center gap-4 ${
+              layout.infoAlignment === 'right' ? 'flex-row-reverse text-right' :
+              layout.infoAlignment === 'center' ? 'flex-col text-center' :
+              'flex-row text-left'
+            }`}>
+              {layout.logoPosition !== 'hidden' && (
+                <div className="w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 flex items-center justify-center bg-gray-100"
+                  style={{ borderColor: color_primario }}>
+                  {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                    : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '▌'}</div>}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <h1 className="text-xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: '#0f172a' }}>{nombre} {apellido}</h1>
                 {puesto && <p className="text-xs font-bold uppercase mt-1" style={{ color: color_primario }}>{puesto}</p>}
@@ -356,12 +419,18 @@ export default function PublicProfileClient({ profile = {} }) {
         {theme === 'glassmorphism' && (
           <div className="relative overflow-hidden">
             <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 20% 30%, ${color_primario}30, transparent 60%), radial-gradient(circle at 80% 70%, ${color_secundario}20, transparent 60%)` }} />
-            <div className="relative p-6 flex flex-col items-center text-center gap-3 backdrop-blur-sm">
-              <div className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', boxShadow: `0 0 30px ${color_primario}40` }}>
-                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
-                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white">{nombre?.charAt(0) || '🔮'}</div>}
-              </div>
+            <div className={`relative p-6 flex flex-col gap-3 backdrop-blur-sm ${
+              layout.infoAlignment === 'left' ? 'items-start text-left' :
+              layout.infoAlignment === 'right' ? 'items-end text-right' :
+              'items-center text-center'
+            }`}>
+              {layout.logoPosition !== 'hidden' && (
+                <div className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', boxShadow: `0 0 30px ${color_primario}40` }}>
+                  {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                    : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white">{nombre?.charAt(0) || '🔮'}</div>}
+                </div>
+              )}
               <div>
                 <h1 className="text-2xl font-bold text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
                 {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
@@ -375,15 +444,23 @@ export default function PublicProfileClient({ profile = {} }) {
             Gradiente cálido violeta-rosa-naranja de fondo       */}
         {theme === 'sunset_gradient' && (
           <div className="relative">
-            <div className="h-40 w-full relative overflow-hidden flex items-center justify-center"
-              style={{ background: `linear-gradient(135deg, ${color_primario} 0%, #7c3aed 40%, #f43f5e 70%, #fb923c 100%)` }}>
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-              <div className="w-20 h-20 rounded-2xl border-4 border-white/30 overflow-hidden flex items-center justify-center bg-white/10 backdrop-blur-sm">
-                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
-                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white">{nombre?.charAt(0) || '🌅'}</div>}
+            {!layout.hideBanner && (
+              <div className="h-40 w-full relative overflow-hidden flex items-center justify-center"
+                style={{ background: `linear-gradient(135deg, ${color_primario} 0%, #7c3aed 40%, #f43f5e 70%, #fb923c 100%)` }}>
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                {layout.logoPosition !== 'hidden' && (
+                  <div className="w-20 h-20 rounded-2xl border-4 border-white/30 overflow-hidden flex items-center justify-center bg-white/10 backdrop-blur-sm">
+                    {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                      : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white">{nombre?.charAt(0) || '🌅'}</div>}
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="px-5 pt-4 pb-2 text-center">
+            )}
+            <div className={`px-5 pt-4 pb-2 ${
+              layout.infoAlignment === 'left' ? 'text-left' :
+              layout.infoAlignment === 'right' ? 'text-right' :
+              'text-center'
+            }`}>
               <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: activeThemeConfig.textColor || '#FFF1F2' }}>{nombre} {apellido}</h1>
               {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
               {empresa && <p className="text-xs opacity-60 font-mono mt-0.5" style={{ color: activeThemeConfig.subTextColor || '#FDA4AF' }}>{empresa}</p>}
@@ -418,9 +495,17 @@ export default function PublicProfileClient({ profile = {} }) {
               </div>
             )}
             
-            <div className={`relative px-6 ${layout.logoPosition === 'left' ? 'text-left' : layout.logoPosition === 'right' ? 'text-right' : 'text-center'} ${!layout.hideBanner ? '-mt-14' : 'pt-8'} mb-4 z-10`}>
+            <div className={`relative px-6 ${
+              layout.infoAlignment === 'left' || layout.logoPosition === 'left' ? 'text-left' :
+              layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'text-right' :
+              'text-center'
+            } ${!layout.hideBanner ? '-mt-14' : 'pt-8'} mb-4 z-10`}>
               {layout.logoPosition !== 'hidden' && (
-                <div className="inline-block relative">
+                <div className={`w-full flex ${
+                  layout.logoPosition === 'left' ? 'justify-start' :
+                  layout.logoPosition === 'right' ? 'justify-end' :
+                  'justify-center'
+                }`}>
                   <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 shadow-2xl flex items-center justify-center overflow-hidden border-2 bg-[#0a0a10]"
                     style={{ borderColor: color_primario, boxShadow: `0 0 24px ${color_primario}40` }}>
                     {activeLogo ? (
@@ -456,7 +541,11 @@ export default function PublicProfileClient({ profile = {} }) {
                 )}
               </div>
             )}
-            <div className={`px-6 ${!layout.hideBanner ? '-mt-14' : 'pt-8'} relative z-20 flex flex-col ${layout.logoPosition === 'left' ? 'items-start text-left' : layout.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+            <div className={`px-6 ${!layout.hideBanner ? '-mt-14' : 'pt-8'} relative z-20 flex flex-col ${
+              layout.infoAlignment === 'left' || layout.logoPosition === 'left' ? 'items-start text-left' :
+              layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'items-end text-right' :
+              'items-center text-center'
+            }`}>
               {layout.logoPosition !== 'hidden' && (
                 <div className="w-24 h-24 rounded-2xl border-4 border-white overflow-hidden shadow-xl bg-white flex items-center justify-center"
                   style={{ boxShadow: `0 4px 20px ${color_primario}30` }}>
@@ -466,7 +555,11 @@ export default function PublicProfileClient({ profile = {} }) {
               )}
               <div className="mt-4 w-full">
                 <h1 className="text-2xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: '#1E293B' }}>{nombre} {apellido}</h1>
-                <div className={`h-1.5 w-16 my-2.5 rounded-full ${layout.logoPosition === 'left' ? 'ml-0' : layout.logoPosition === 'right' ? 'mr-0 ml-auto' : 'mx-auto'}`} style={{ backgroundColor: color_secundario }} />
+                <div className={`h-1.5 w-16 my-2.5 rounded-full ${
+                  layout.infoAlignment === 'left' || layout.logoPosition === 'left' ? 'ml-0 mr-auto' :
+                  layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'mr-0 ml-auto' :
+                  'mx-auto'
+                }`} style={{ backgroundColor: color_secundario }} />
                 <p className="text-base font-bold" style={{ color: color_primario }}>{puesto}</p>
                 {empresa && <p className="text-xs text-gray-500 font-mono mt-1">{empresa}</p>}
               </div>
@@ -477,16 +570,26 @@ export default function PublicProfileClient({ profile = {} }) {
         {/* ── LAYOUT: MINIMALISTA EJECUTIVO ──────────────────────────
             Sin cover · línea geométrica · editorial centrado     */}
         {theme === 'minimal' && (
-          <div className="px-8 pt-8 pb-4 flex flex-col items-center text-center gap-4">
-            <div className="flex items-center gap-3 w-full justify-center">
-              <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: color_primario }} />
-              <div className="w-20 h-20 rounded-xl overflow-hidden border flex items-center justify-center bg-gray-50"
-                style={{ borderColor: `${color_primario}40` }}>
-                {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
-                  : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '◻'}</div>}
+          <div className={`px-8 pt-8 pb-4 flex flex-col gap-4 ${
+            layout.infoAlignment === 'left' ? 'items-start text-left' :
+            layout.infoAlignment === 'right' ? 'items-end text-right' :
+            'items-center text-center'
+          }`}>
+            {layout.logoPosition !== 'hidden' && (
+              <div className={`flex items-center gap-3 w-full ${
+                layout.infoAlignment === 'left' ? 'justify-start' :
+                layout.infoAlignment === 'right' ? 'justify-end' :
+                'justify-center'
+              }`}>
+                <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: color_primario }} />
+                <div className="w-20 h-20 rounded-xl overflow-hidden border flex items-center justify-center bg-gray-50"
+                  style={{ borderColor: `${color_primario}40` }}>
+                  {activeLogo ? <img src={activeLogo} alt={nombre} className="w-full h-full object-contain" style={{ transform: `scale(${logo_scale/100})` }} />
+                    : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white" style={{ backgroundColor: color_primario }}>{nombre?.charAt(0) || '◻'}</div>}
+                </div>
+                <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: color_primario }} />
               </div>
-              <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: color_primario }} />
-            </div>
+            )}
             <div>
               <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: '#0F172A' }}>{nombre} {apellido}</h1>
               {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
@@ -521,20 +624,21 @@ export default function PublicProfileClient({ profile = {} }) {
             </div>
           )}
 
-          {/* ACCIÓN PRINCIPAL RÁPIDA: AGENDAR CITA EN GOOGLE CALENDAR / CALENDLY */}
-          {google_calendar_url && (
+          {/* ACCIÓN PRINCIPAL RÁPIDA: AGENDAR CITA DE NEGOCIOS (BOTÓN PRINCIPAL BRILLANTE) */}
+          {(google_calendar_url || calendly_url || icloud_calendar_url) && (
             <a
-              href={google_calendar_url}
+              href={google_calendar_url || calendly_url || icloud_calendar_url}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent('calendar_click')}
-              className="w-full py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2.5 text-xs font-bruno font-bold uppercase tracking-wider text-white shadow-xl transition-all hover:scale-[1.02] border"
+              className="w-full py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 text-xs font-bruno font-bold uppercase tracking-wider text-white transition-all hover:scale-[1.02] border"
               style={{
-                background: `linear-gradient(135deg, ${color_primario} 0%, #000000 120%)`,
-                borderColor: color_primario
+                background: `linear-gradient(135deg, ${color_primario} 0%, #15050A 100%)`,
+                borderColor: color_primario,
+                boxShadow: `0 0 25px ${color_primario}60`
               }}
             >
-              <span className="text-base">📅</span> Agendar Cita en Google Calendar
+              <span className="text-base animate-pulse">📅</span> {t('schedule_meeting') || 'Agendar Cita de Negocios'}
             </a>
           )}
 
@@ -596,7 +700,7 @@ export default function PublicProfileClient({ profile = {} }) {
                   style={{ backgroundColor: `${color_secundario}0A`, borderColor: `${color_secundario}30` }}
                 >
                   <span className="text-base" style={{ color: color_primario }}>📞</span>
-                  <span className="truncate font-mono">Llamar: {telefono}</span>
+                  <span className="truncate font-mono">{t('card_call_btn') || 'Llamar'}: {telefono}</span>
                 </a>
               )}
 
@@ -643,77 +747,261 @@ export default function PublicProfileClient({ profile = {} }) {
           )}
 
           {/* REDES SOCIALES */}
-          {/* REDES SOCIALES (ICONOS AVANZADOS) */}
-          {!layout.hideSocial && (fbUrl || igUrl || inUrl) && (
+          {/* REDES SOCIALES & ENLACES CON FORMATO DINÁMICO */}
+          {!layout.hideSocial && (fbUrl || igUrl || inUrl || ttUrl || xUrl || ytUrl || waUrl) && (
             <div className={`space-y-3 mt-4 flex flex-col ${layout.infoAlignment === 'left' ? 'items-start' : layout.infoAlignment === 'right' ? 'items-end' : 'items-center'}`}>
               {layout.customLabels?.social && (
                 <h3 className="text-[11px] font-bruno uppercase tracking-wider pl-1" style={{ color: color_primario }}>
                   {layout.customLabels.social}
                 </h3>
               )}
-              
-              <div className="flex items-center gap-3">
-                {fbUrl && (
-                  <a
-                    href={fbUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#1877F215', borderColor: '#1877F230', color: '#1877F2' }
-                    }
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                  </a>
-                )}
-                {igUrl && (
-                  <a
-                    href={igUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#E4405F15', borderColor: '#E4405F30', color: '#E4405F' }
-                    }
-                  >
-                    <Camera className="w-5 h-5" />
-                  </a>
-                )}
-                {inUrl && (
-                  <a
-                    href={inUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackEvent('social_click')}
-                    className={`flex items-center justify-center transition-all hover:scale-[1.1] ${
-                      layout.socialIconShape === 'square' ? 'rounded-md' : 
-                      layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
-                      layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
-                    } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border' : ''}`}
-                    style={
-                      layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
-                      layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
-                      { backgroundColor: '#0A66C215', borderColor: '#0A66C230', color: '#0A66C2' }
-                    }
-                  >
-                    <Briefcase className="w-5 h-5" />
-                  </a>
-                )}
-              </div>
+
+              {/* 1. MODO CUADROS CON URL (URL_BOXES) */}
+              {(layout.linksDisplayMode === 'url_boxes') && (
+                <div className="space-y-2.5 w-full">
+                  {[
+                    fbUrl ? { id: 'fb', title: 'Facebook', displayUrl: `facebook.com/${(facebook || '').replace(/^@+/, '')}`, href: fbUrl, icon: <FacebookIcon className="w-4 h-4" />, color: '#1877F2' } : null,
+                    igUrl ? { id: 'ig', title: 'Instagram', displayUrl: `instagram.com/${(instagram || '').replace(/^@+/, '')}`, href: igUrl, icon: <InstagramIcon className="w-4 h-4" />, color: '#E4405F' } : null,
+                    inUrl ? { id: 'in', title: 'LinkedIn', displayUrl: `linkedin.com/in/${(linkedin || '').replace(/^@+/, '')}`, href: inUrl, icon: <LinkedInIcon className="w-4 h-4" />, color: '#0A66C2' } : null,
+                    ttUrl ? { id: 'tt', title: 'TikTok', displayUrl: `tiktok.com/@${(profile.tiktok || '').replace(/^@+/, '')}`, href: ttUrl, icon: <TikTokIcon className="w-4 h-4" />, color: '#FFFFFF' } : null,
+                    xUrl ? { id: 'x', title: 'X (Twitter)', displayUrl: `x.com/${(profile.twitter || profile.xtwitter || profile.x || '').replace(/^@+/, '')}`, href: xUrl, icon: <XTwitterIcon className="w-4 h-4" />, color: '#FFFFFF' } : null,
+                    ytUrl ? { id: 'yt', title: 'YouTube', displayUrl: 'youtube.com/canal', href: ytUrl, icon: <YouTubeIcon className="w-4 h-4" />, color: '#FF0000' } : null,
+                    waUrl ? { id: 'wa', title: 'WhatsApp Directo', displayUrl: `wa.me/${(whatsapp || '').replace(/[^0-9]/g, '')}`, href: waUrl, icon: <WhatsAppIcon className="w-4 h-4" />, color: '#25D366' } : null
+                  ].filter(Boolean).map(item => (
+                    <a
+                      key={item.id}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className="w-full flex items-center justify-between p-3 rounded-2xl border transition-all hover:scale-[1.01] shadow-md group"
+                      style={{
+                        backgroundColor: `${color_secundario}0d`,
+                        borderColor: `${color_secundario}30`
+                      }}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border" style={{ backgroundColor: `${color_secundario}18`, borderColor: `${color_secundario}40`, color: item.color }}>
+                          {item.icon}
+                        </div>
+                        <div className="text-left min-w-0">
+                          <p className="text-xs font-bold font-bruno tracking-wide text-white group-hover:text-[#00E5FF] transition-colors">{item.title}</p>
+                          <p className="text-[10px] text-gray-400 truncate font-mono">{item.displayUrl}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0 text-gray-400 group-hover:text-white transition-colors pl-2">
+                        <span className="text-[10px] font-mono opacity-80">Abrir</span>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* 2. MODO TARJETAS / WIDGETS EMBEBIDOS (EMBEDDED) */}
+              {(layout.linksDisplayMode === 'embedded') && (
+                <div className="space-y-3 w-full">
+                  {[
+                    fbUrl ? { id: 'fb', title: 'Facebook Oficial', badge: 'Red Social', displayUrl: `facebook.com/${(facebook || '').replace(/^@+/, '')}`, href: fbUrl, icon: <FacebookIcon className="w-4 h-4" />, color: '#1877F2' } : null,
+                    igUrl ? { id: 'ig', title: 'Instagram Feed', badge: 'Comunidad', displayUrl: `instagram.com/${(instagram || '').replace(/^@+/, '')}`, href: igUrl, icon: <InstagramIcon className="w-4 h-4" />, color: '#E4405F' } : null,
+                    inUrl ? { id: 'in', title: 'LinkedIn Profile', badge: 'Networking', displayUrl: `linkedin.com/in/${(linkedin || '').replace(/^@+/, '')}`, href: inUrl, icon: <LinkedInIcon className="w-4 h-4" />, color: '#0A66C2' } : null,
+                    ttUrl ? { id: 'tt', title: 'TikTok Videos', badge: 'Contenido', displayUrl: `tiktok.com/@${(profile.tiktok || '').replace(/^@+/, '')}`, href: ttUrl, icon: <TikTokIcon className="w-4 h-4" />, color: '#FFFFFF' } : null,
+                    xUrl ? { id: 'x', title: 'X (Twitter)', badge: 'Noticias', displayUrl: `x.com/${(profile.twitter || profile.xtwitter || profile.x || '').replace(/^@+/, '')}`, href: xUrl, icon: <XTwitterIcon className="w-4 h-4" />, color: '#FFFFFF' } : null,
+                    ytUrl ? { id: 'yt', title: 'Canal de YouTube', badge: 'Videos', displayUrl: 'youtube.com/canal', href: ytUrl, icon: <YouTubeIcon className="w-4 h-4" />, color: '#FF0000' } : null,
+                    waUrl ? { id: 'wa', title: 'Chat WhatsApp', badge: 'Directo', displayUrl: `wa.me/${(whatsapp || '').replace(/[^0-9]/g, '')}`, href: waUrl, icon: <WhatsAppIcon className="w-4 h-4" />, color: '#25D366' } : null
+                  ].filter(Boolean).map(item => (
+                    <div
+                      key={item.id}
+                      className="w-full rounded-2xl p-3.5 border shadow-xl relative overflow-hidden backdrop-blur-md transition-all hover:border-[#00E5FF]/60"
+                      style={{
+                        background: `linear-gradient(135deg, ${color_secundario}12 0%, rgba(10,10,20,0.85) 100%)`,
+                        borderColor: `${color_secundario}35`
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border" style={{ backgroundColor: `${color_secundario}25`, borderColor: `${color_secundario}60`, color: item.color }}>
+                            {item.icon}
+                          </div>
+                          <div className="text-left">
+                            <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md border" style={{ color: color_secundario, borderColor: `${color_secundario}50`, backgroundColor: `${color_secundario}15` }}>
+                              {item.badge}
+                            </span>
+                            <h4 className="text-xs font-bold text-white mt-1">{item.title}</h4>
+                          </div>
+                        </div>
+                        <a
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => trackEvent('social_click')}
+                          className="px-3 py-1.5 rounded-xl text-[10px] font-bold font-bruno text-white uppercase tracking-wider transition-all hover:brightness-125 flex items-center gap-1 shadow-lg"
+                          style={{ backgroundColor: color_primario }}
+                        >
+                          <span>Visitar</span> ↗
+                        </a>
+                      </div>
+                      <div className="p-2 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between text-[10px] font-mono text-gray-300">
+                        <span className="truncate">{item.displayUrl}</span>
+                        <span className="text-[9px] text-emerald-400 shrink-0 ml-2">● Enlace Activo</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* 3. MODO ICONOS CLÁSICOS / DEFAULT (ICONS) */}
+              {(!layout.linksDisplayMode || layout.linksDisplayMode === 'icons') && (
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  {fbUrl && (
+                    <a
+                      href={fbUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#1877F218', borderColor: '#1877F240', color: '#1877F2' }
+                      }
+                      title="Facebook"
+                    >
+                      <FacebookIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {igUrl && (
+                    <a
+                      href={igUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#E4405F18', borderColor: '#E4405F40', color: '#E4405F' }
+                      }
+                      title="Instagram"
+                    >
+                      <InstagramIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {inUrl && (
+                    <a
+                      href={inUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#0A66C218', borderColor: '#0A66C240', color: '#0A66C2' }
+                      }
+                      title="LinkedIn"
+                    >
+                      <LinkedInIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {ttUrl && (
+                    <a
+                      href={ttUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                      }
+                      title="TikTok"
+                    >
+                      <TikTokIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {xUrl && (
+                    <a
+                      href={xUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                      }
+                      title="X (Twitter)"
+                    >
+                      <XTwitterIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {ytUrl && (
+                    <a
+                      href={ytUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('social_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#FF000018', borderColor: '#FF000040', color: '#FF0000' }
+                      }
+                      title="YouTube"
+                    >
+                      <YouTubeIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {waUrl && (
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('whatsapp_click')}
+                      className={`flex items-center justify-center transition-all hover:scale-[1.15] ${
+                        layout.socialIconShape === 'square' ? 'rounded-md' : 
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' : 
+                        layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                      } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
+                      style={
+                        layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
+                        layout.socialIconStyle === 'monochrome' ? { backgroundColor: `${color_secundario}15`, borderColor: `${color_secundario}30`, color: color_secundario } :
+                        { backgroundColor: '#25D36618', borderColor: '#25D36640', color: '#25D366' }
+                      }
+                      title="WhatsApp"
+                    >
+                      <WhatsAppIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -755,36 +1043,28 @@ export default function PublicProfileClient({ profile = {} }) {
                 onClick={() => trackEvent('video_click')}
                 className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-lg transition-all hover:scale-[1.01]"
               >
-                <span>▶</span> Ver Video de Presentación
+                <span>▶</span> {t('watch_video') || 'Ver Video de Presentación'}
               </a>
             )}
           </div>
 
-                    {/* PRODUCTIVIDAD Y CONVERSIÓN */}
-          {(calendly_url || google_calendar_url || icloud_calendar_url || paypal_url || bank_details || pdf_url) && (
+          {/* PRODUCTIVIDAD Y CONVERSIÓN */}
+          {(paypal_url || bank_details || pdf_url) && (
             <div className="pt-2 space-y-2.5">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5" style={{ fontFamily: font_secondary }}>
                 <span>⚡</span> Productividad y Negocio
               </h3>
               <div className="grid grid-cols-1 gap-2.5">
-                {calendly_url && (
-                  <a href={calendly_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: ` ${color_primario}15 `, borderColor: color_primario, color: color_primario }}>
-                    <Calendar className="w-4 h-4" /> Agendar Reunión (Calendly)
-                  </a>
-                )}
-                {google_calendar_url && (
-                  <a href={google_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#4285F415", borderColor: '#4285F4', color: '#4285F4' }}>
-                    <Calendar className="w-4 h-4" /> Google Calendar
-                  </a>
-                )}
-                {icloud_calendar_url && (
-                  <a href={icloud_calendar_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#FFFFFF15", borderColor: '#FFFFFF', color: '#FFFFFF' }}>
-                    <Calendar className="w-4 h-4" /> Apple Calendar
-                  </a>
-                )}
                 {paypal_url && (
-                  <a href={paypal_url} target="_blank" rel="noopener noreferrer" className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]" style={{ backgroundColor: "#10b98115", borderColor: '#10b981', color: '#10b981' }}>
-                    <CreditCard className="w-4 h-4" /> Realizar Pago
+                  <a
+                    href={paypal_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('payment_click')}
+                    className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border transition-all hover:scale-[1.01]"
+                    style={{ backgroundColor: "#10b98115", borderColor: '#10b981', color: '#10b981' }}
+                  >
+                    <CreditCard className="w-4 h-4" /> {t('make_payment') || 'Realizar Pago (PayPal / Stripe)'}
                   </a>
                 )}
                 {pdf_url && (
@@ -794,7 +1074,7 @@ export default function PublicProfileClient({ profile = {} }) {
                 )}
                 {bank_details && (
                   <div className="w-full p-4 rounded-xl border border-gray-700 bg-black/40 text-xs text-gray-300">
-                    <div className="flex items-center gap-2 mb-2 font-bold text-white"><Wallet className="w-4 h-4" /> Datos Bancarios / Transferencia</div>
+                    <div className="flex items-center gap-2 mb-2 font-bold text-white"><Wallet className="w-4 h-4" /> {t('bank_details_title') || 'Datos Bancarios / Transferencia'}</div>
                     <pre className="whitespace-pre-wrap font-mono text-[11px] text-gray-400">{bank_details}</pre>
                   </div>
                 )}
@@ -806,7 +1086,7 @@ export default function PublicProfileClient({ profile = {} }) {
           {safePortfolio.length > 0 && (
             <div className="pt-2 space-y-2.5">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                <span>💼</span> Portafolio & Proyectos
+                <span>💼</span> {t('portfolio_title') || 'Portafolio & Proyectos'}
               </h3>
               <div className="grid grid-cols-1 gap-2.5">
                 {safePortfolio.map((item, idx) => (
@@ -833,7 +1113,7 @@ export default function PublicProfileClient({ profile = {} }) {
           {safeGallery.length > 0 && (
             <div className="pt-2 space-y-2">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                <span>📸</span> Fototeca & Instalaciones
+                <span>📸</span> {t('gallery_title') || 'Fototeca & Instalaciones'}
               </h3>
               <div className="grid grid-cols-3 gap-2">
                 {safeGallery.map((imgUrl, idx) => (
@@ -854,7 +1134,7 @@ export default function PublicProfileClient({ profile = {} }) {
           {safeReviews.length > 0 && (
             <div className="pt-2 space-y-2.5">
               <h3 className="text-xs font-bruno uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                <span>⭐</span> Reseñas de Clientes
+                <span>⭐</span> {t('reviews_title') || 'Reseñas de Clientes'}
               </h3>
               <div className="space-y-2">
                 {safeReviews.map((rev, idx) => (
@@ -867,6 +1147,19 @@ export default function PublicProfileClient({ profile = {} }) {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* BOTÓN DE ACCESO AL PANEL DE AGENTE / EMBAJADOR */}
+          {(['ariel-higera', 'michelle-hernandez', 'fatima-itxel-hernandez', 'osclari-marlene', 'javier-gallardo'].includes(slug) || !!referred_by) && (
+            <div className="pt-4 pb-2">
+              <a
+                href={`/agente/${['ariel-higera', 'michelle-hernandez', 'fatima-itxel-hernandez', 'osclari-marlene', 'javier-gallardo'].includes(slug) ? slug : (referred_by || 'javier-gallardo')}`}
+                className="w-full py-3.5 px-4 rounded-2xl bg-[#12111a] hover:bg-[#1a1725] border border-[#EE334E]/40 hover:border-[#EE334E] text-white font-bold text-xs tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(238,51,78,0.2)] flex items-center justify-center gap-2 group"
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-[#EE334E] group-hover:scale-125 transition-transform animate-pulse"></span>
+                <span>🚀 Panel de Agente Embajador</span>
+              </a>
             </div>
           )}
 
@@ -886,7 +1179,7 @@ export default function PublicProfileClient({ profile = {} }) {
 
         </div>
 
-                {/* BOTONES DE DESCARGA: CONTACTO & WALLET */}
+        {/* BOTONES DE DESCARGA: CONTACTO & WALLET */}
         <div className="fixed bottom-3 left-0 right-0 max-w-[430px] mx-auto px-4 z-30 space-y-2">
           <button
             onClick={downloadVCF}
@@ -896,7 +1189,7 @@ export default function PublicProfileClient({ profile = {} }) {
               boxShadow: `0 8px 30px ${color_cta}60`
             }}
           >
-            <span className="text-base">💾</span> Guardar Contacto en Mi Celular
+            <span className="text-base">💾</span> {t('preview_save_btn') || t('card_save_btn') || 'Guardar Contacto en Mi Celular'}
           </button>
 
           <div className="grid grid-cols-2 gap-2">
@@ -904,13 +1197,13 @@ export default function PublicProfileClient({ profile = {} }) {
               onClick={() => alert('Para agregar a Apple Wallet, necesitas configurar tu Certificado de Desarrollador Apple (P12) en el panel administrativo de TSolutions.')}
               className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg"
             >
-               Apple Wallet
+               {t('apple_wallet') || 'Apple Wallet'}
             </button>
             <button 
               onClick={() => alert('Para agregar a Google Wallet, necesitas configurar tu Service Account de Google Cloud en el panel administrativo de TSolutions.')}
               className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg"
             >
-              Google Wallet
+              {t('google_wallet') || 'Google Wallet'}
             </button>
           </div>
         </div>

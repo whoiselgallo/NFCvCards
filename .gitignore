@@ -1,9 +1,19 @@
+# Dependencies
+node_modules/
 node_modules
 
+# Next.js build output
+.next/
+out/
+
+# Environment files
 .env
 .env.local
-node_modules/
-.next/
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary / Testing files
 index.old.html
 test-db.js
-node_modules

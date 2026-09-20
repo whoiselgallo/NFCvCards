@@ -4,12 +4,14 @@ import React, { useState, useEffect } from 'react';
 import brandConfig from '../../brand.config';
 import { THEMES, SUBSCRIPTION_PLANS } from '../../lib/themes';
 import PublicProfileClient from '../p/[slug]/PublicProfileClient';
+import TelemetryPdfReportModal from '../components/TelemetryPdfReportModal';
 
 export default function BusinessElitePortalPage() {
   const [selectedSlug, setSelectedSlug] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [showTelemetryModal, setShowTelemetryModal] = useState(false);
   const [activeTab, setActiveTab] = useState('info'); // 'info', 'fields', 'layout', 'modules', 'themes'
 
   // Perfil Cargado en Edición
@@ -271,6 +273,14 @@ export default function BusinessElitePortalPage() {
             className="btn-primary px-5 py-2.5 text-xs shadow-lg"
           >
             {saving ? 'GUARDANDO...' : '💾 GUARDAR CAMBIOS'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowTelemetryModal(true)}
+            className="px-4 py-2.5 rounded-xl text-xs font-mono font-bold bg-[#00E5FF]/15 hover:bg-[#00E5FF]/25 text-[#00E5FF] border border-[#00E5FF]/40 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+          >
+            <span>📊</span> Auditoría de Telemetría (PDF)
           </button>
 
           <a
@@ -731,6 +741,15 @@ export default function BusinessElitePortalPage() {
         </section>
 
       </main>
+
+      {/* MODAL DE REPORTE TELEMETRÍA PDF EJECUTIVO */}
+      <TelemetryPdfReportModal
+        isOpen={showTelemetryModal}
+        onClose={() => setShowTelemetryModal(false)}
+        cardData={profile}
+        slug={profile.slug || selectedSlug || 'demo'}
+      />
     </div>
   );
 }
+

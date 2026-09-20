@@ -6,8 +6,13 @@ import { Lock } from 'lucide-react';
 import JSZip from 'jszip';
 import brandConfig from '../../brand.config';
 import { generateDeliveryInstructions } from '../../lib/brand';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation, SUPPORTED_LANGUAGES } from '../../lib/i18n';
 import ConstructionFeedbackModal from '../components/ConstructionFeedbackModal';
+import PayPalHelperModal, { parsePaymentInput } from '../components/PayPalHelperModal';
+import ExpressCatalogModal from '../components/ExpressCatalogModal';
+import EcoFootprintModal from '../components/EcoFootprintModal';
+import PreBuilderChecklistModal from '../components/PreBuilderChecklistModal';
+import { BrandSocialIcon, FacebookIcon, InstagramIcon, LinkedInIcon, TikTokIcon, XTwitterIcon, YouTubeIcon, WhatsAppIcon } from '../components/BrandSocialIcons';
 
 // Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
 const THEMES = {
@@ -168,21 +173,22 @@ export default function VCardEngineDashboard() {
   const [mode, setMode] = useState('vcard'); // 'vcard' | 'review'
   const [vipPass, setVipPass] = useState(null);
   const [referredByAgent, setReferredByAgent] = useState(null);
+  const [showPreChecklist, setShowPreChecklist] = useState(false);
 
-  
-  const handleFreePass = async () => {
-    try {
-      const res = await fetch('/api/hack/all-access');
-      const data = await res.json();
-      if(data.success) {
-        await update(); 
-        alert('¡Pase Libre Activado! Ya tienes los beneficios del plan Meet Me.');
-        window.location.reload();
-      } else {
-        alert('Error: ' + data.error);
+  // Mostrar checklist/advertencia previa en la primera visita a la sesión
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasSeen = sessionStorage.getItem('vcard_prechecklist_seen');
+      if (!hasSeen) {
+        setShowPreChecklist(true);
       }
-    } catch(err) {
-      alert('Error activando pase libre');
+    }
+  }, []);
+
+  const handleDismissPreChecklist = () => {
+    setShowPreChecklist(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('vcard_prechecklist_seen', 'true');
     }
   };
 
@@ -258,6 +264,7 @@ export default function VCardEngineDashboard() {
   const isPremium = tier >= 3;
   const isPro = tier >= 2;
   const isBasic = tier >= 1;
+  const [isFreeDesignOpen, setIsFreeDesignOpen] = useState(true);
 
 
   // Datos del Formulario - LIMPIOS POR DEFECTO
@@ -273,6 +280,9 @@ export default function VCardEngineDashboard() {
     linkedin: '',
     instagram: '',
     facebook: '',
+    tiktok: '',
+    twitter: '',
+    youtube: '',
     calle: '',
     ciudad: '',
     estado: '',
@@ -304,7 +314,10 @@ export default function VCardEngineDashboard() {
     // NUEVO MÓDULO DE DISEÑO LIBRE
     hideBanner: false,          // Toggle para quitar el banner/portada
     logoPosition: 'center',     // center, left, right, hidden
-    socialIconStyle: 'default', socialIconShape: 'circle', socialIconStyle: 'default', socialIconShape: 'circle', infoAlignment: 'center',
+    socialIconShape: 'circle',  // circle, rounded, square, none
+    socialIconStyle: 'default', // default, monochrome, glow
+    linksDisplayMode: 'icons',  // 'icons' | 'url_boxes' | 'embedded'
+    infoAlignment: 'center',    // left, center, right
     hideBio: false,             // Toggle contenedor Nota/Bio
     hideContact: false,         // Toggle contenedor Canales de Contacto Directo
     hideSocial: false,          // Toggle contenedor Redes Sociales
@@ -327,9 +340,14 @@ export default function VCardEngineDashboard() {
   // Estado de guardado en la nube
   const [isSaving, setIsSaving] = useState(false);
   const [savedUrl, setSavedUrl] = useState('');
+  const [savedSlug, setSavedSlug] = useState('');
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
+  const [isBuilderLocked, setIsBuilderLocked] = useState(false);
+  const [showPayPalHelper, setShowPayPalHelper] = useState(false);
+  const [showExpressCatalogModal, setShowExpressCatalogModal] = useState(false);
+  const [showEcoModal, setShowEcoModal] = useState(false);
 
   // Estados de Idioma (Español base + auto-detección flexible)
   const [lang, setLang] = useState('es');
@@ -385,6 +403,40 @@ export default function VCardEngineDashboard() {
         window.history.replaceState({}, document.title, window.location.pathname);
         alert('El pago fue cancelado. Puedes reintentar cuando gustes.');
       }
+    }
+  }, []);
+
+  // Auto-guardado en LocalStorage para garantizar CERO PÉRDIDA DE DATOS
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasContent = formData.nombre || formData.apellido || formData.empresa || formData.puesto || formData.telefono || formData.correo;
+      if (hasContent) {
+        try {
+          localStorage.setItem('vcard_builder_draft', JSON.stringify({
+            formData,
+            design,
+            timestamp: Date.now()
+          }));
+        } catch (e) {}
+      }
+    }
+  }, [formData, design]);
+
+  // Restauración de borrador al cargar
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedDraft = localStorage.getItem('vcard_builder_draft');
+        if (savedDraft) {
+          const parsed = JSON.parse(savedDraft);
+          if (parsed.formData && !formData.nombre) {
+            setFormData(prev => ({ ...prev, ...parsed.formData }));
+          }
+          if (parsed.design) {
+            setDesign(prev => ({ ...prev, ...parsed.design }));
+          }
+        }
+      } catch (e) {}
     }
   }, []);
 
@@ -542,27 +594,75 @@ export default function VCardEngineDashboard() {
     img.src = imgSrc;
   };
 
-  const handleLogoUpload = (e) => {
+  // Helper para comprimir imágenes en el cliente (Evita error 413 Payload Too Large)
+  const compressImage = (file, maxWidth = 1200, quality = 0.85) => {
+    return new Promise((resolve, reject) => {
+      if (!file) return resolve(null);
+      if (!file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const isPng = file.type === 'image/png';
+          const mimeType = isPng ? 'image/png' : 'image/jpeg';
+          const dataUrl = canvas.toDataURL(mimeType, quality);
+          resolve(dataUrl);
+        };
+        img.onerror = () => resolve(e.target?.result);
+        img.src = e.target?.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const result = evt.target?.result;
-        setLogoImg(result);
-        if (result) {
-          extractDominantColor(result);
+      try {
+        const compressed = await compressImage(file, 600, 0.88);
+        if (compressed) {
+          setLogoImg(compressed);
+          extractDominantColor(compressed);
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Error procesando logo:', err);
+      }
     }
   };
 
-  const handleCoverUpload = (e) => {
+  const handleCoverUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (evt) => setCoverPhoto(evt.target?.result);
-      reader.readAsDataURL(file);
+      try {
+        const compressed = await compressImage(file, 1200, 0.82);
+        if (compressed) {
+          setCoverPhoto(compressed);
+        }
+      } catch (err) {
+        console.error('Error procesando portada:', err);
+      }
     }
   };
 
@@ -808,7 +908,32 @@ export default function VCardEngineDashboard() {
       if (json.success && json.slug) {
         const fullUrl = `${window.location.origin}/p/${json.slug}`;
         setSavedUrl(fullUrl);
+        setSavedSlug(json.slug);
         setSavedSuccess(true);
+        setIsBuilderLocked(true);
+
+        // Respaldo inmediato en almacenamiento local para la página de agradecimiento
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('vcard_last_created_profile', JSON.stringify({
+              ...formData,
+              design,
+              logoImg,
+              coverPhoto
+            }));
+            localStorage.setItem(`vcard_draft_${json.slug}`, JSON.stringify({
+              ...formData,
+              design,
+              logoImg,
+              coverPhoto
+            }));
+          } catch {}
+        }
+
+        // Redirección inmediata al Centro Oficial de Entregables
+        setTimeout(() => {
+          router.push(`/gracias/${json.slug}`);
+        }, 1200);
       } else {
         alert('Error al guardar: ' + (json.error || 'No se pudo conectar a Google Cloud SQL'));
       }
@@ -894,14 +1019,18 @@ export default function VCardEngineDashboard() {
           </div>
         </div>
 
-        {/* CONTROLES DE CABECERA: SELECTOR DE MODO, IDIOMA & ENLACE ADMIN */}
-
-          {!isPremium && userPlan !== 'meet_me' && (
+          {/* BOTÓN CTA PERSISTENTE DE PAGO / DESBLOQUEO */}
+          {!isPaid && !isVipActive && (
             <button 
-              onClick={handleFreePass}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all active:scale-95"
+              type="button"
+              onClick={() => {
+                setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' });
+                setShowCheckoutModal(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#EE334E] via-[#ff0003] to-[#EE334E] hover:brightness-125 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(255,0,3,0.6)] transition-all active:scale-95 animate-pulse"
             >
-              🎁 Usar Pase Libre Meet Me
+              <span>💳</span>
+              <span>Desbloquear Todo / Pagar ($199 MXN)</span>
             </button>
           )}
 
@@ -929,14 +1058,46 @@ export default function VCardEngineDashboard() {
             </button>
           </div>
 
-          {/* Selector de Idioma Flexible (ES / EN) */}
+          {/* Botón de Checklist Previo / Advertencia de Datos */}
           <button
             type="button"
-            onClick={() => setLang(l => (l === 'es' ? 'en' : 'es'))}
-            className="px-3 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-800 hover:border-[#FF2A54]/50 transition-all flex items-center gap-1.5 shadow-sm"
-            title={lang === 'es' ? 'Cambiar a Inglés' : 'Switch to Spanish'}
+            onClick={() => setShowPreChecklist(true)}
+            className="px-3 py-2 rounded-xl text-xs font-bruno bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-all flex items-center gap-1.5 shadow-sm"
+            title="Ver checklist de requisitos y archivos necesarios"
           >
-            <span>{lang === 'es' ? '🇲🇽 ES' : '🇺🇸 EN'}</span>
+            <span>⚠️</span> <span className="hidden sm:inline">Requisitos de Construcción</span>
+          </button>
+
+          {/* Botón de Inicio de Sesión / Cuenta para Móvil */}
+          {status === 'unauthenticated' ? (
+            <a
+              href="/login"
+              className="px-3 py-1.5 rounded-xl text-xs font-bruno bg-[#EE334E] hover:bg-[#ff0003] text-white transition-all flex sm:hidden items-center gap-1 shadow-[0_0_10px_rgba(238,51,78,0.4)]"
+            >
+              <span>Acceder</span>
+            </a>
+          ) : (
+            <a
+              href="/dashboard"
+              className="px-3 py-1.5 rounded-xl text-xs font-bruno bg-white/10 hover:bg-white/20 text-white transition-all flex sm:hidden items-center gap-1 border border-white/10"
+            >
+              <span>Mi Cuenta</span>
+            </a>
+          )}
+
+          {/* Selector de Idioma Multilingüe (ES / EN / PT / RU / ZH) */}
+          <button
+            type="button"
+            onClick={() => {
+              const codes = SUPPORTED_LANGUAGES.map(l => l.code);
+              const nextIdx = (codes.indexOf(lang) + 1) % codes.length;
+              setLang(codes[nextIdx]);
+            }}
+            className="px-3 py-2 rounded-xl text-xs font-bruno bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-800 hover:border-[#FF2A54]/50 transition-all flex items-center gap-1.5 shadow-sm"
+            title={`Idioma actual: ${SUPPORTED_LANGUAGES.find(l => l.code === lang)?.label || lang.toUpperCase()} • Clic para cambiar`}
+          >
+            <span>{SUPPORTED_LANGUAGES.find(l => l.code === lang)?.flag || '🌐'}</span>
+            <span>{SUPPORTED_LANGUAGES.find(l => l.code === lang)?.shortLabel || lang.toUpperCase()}</span>
           </button>
 
           {/* Enlace al Panel Administrativo Corporativo */}
@@ -1105,118 +1266,145 @@ export default function VCardEngineDashboard() {
                     </div>
                   )}
 
-                  {/* NUEVO: MÓDULO DE DISEÑO LIBRE */}
+                  {/* MÓDULO DE EDICIÓN LIBRE (PLAN ELITE) */}
                   <div className="pt-4 border-t border-gray-800/80 space-y-4 relative">
-                    {!isPremium && (
-                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-xl border border-purple-500/30">
-                        <Lock className="w-8 h-8 text-purple-400 mb-2" />
-                        <span className="text-sm font-bold text-white">Exclusivo Plan Business / Elite</span>
-                        <p className="text-xs text-slate-400 text-center px-4 mt-1">Mejora tu plan para acceder al editor libre.</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[#EE334E] text-base animate-pulse">✦</span>
+                        <div>
+                          <h4 className="text-xs font-rosetta text-white font-bold uppercase tracking-wider">
+                            Módulo de Edición Libre (Plan Elite)
+                          </h4>
+                          <span className="text-[10px] text-purple-400 font-mono">Personalización y reubicación activa para cualquier tema</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsFreeDesignOpen(!isFreeDesignOpen)}
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-mono uppercase tracking-wider font-bold border transition-all ${
+                          isFreeDesignOpen
+                            ? 'bg-purple-950/70 border-purple-500/60 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.3)]'
+                            : 'bg-black/50 border-gray-700 text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        {isFreeDesignOpen ? '▼ Módulo Abierto (Activo)' : '▶ Abrir Módulo'}
+                      </button>
+                    </div>
+
+                    {isFreeDesignOpen && (
+                      <div className="space-y-4 animate-fadeIn">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Ocultar / Mostrar Banner */}
+                          <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-800 bg-black/30 cursor-pointer hover:border-gray-600 transition-colors">
+                            <div className="relative flex items-center">
+                              <input type="checkbox" name="hideBanner" checked={design.hideBanner} onChange={handleDesignChange} className="sr-only peer" />
+                              <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#EE334E]"></div>
+                            </div>
+                            <span className="text-xs text-gray-300 font-semibold uppercase tracking-wider">Ocultar Banner / Portada</span>
+                          </label>
+
+                          {/* Posición del Logotipo */}
+                          <div className="space-y-1">
+                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Posición del Logotipo</label>
+                            <select name="logoPosition" value={design.logoPosition} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                              <option value="center">Centrado (Por Defecto)</option>
+                              <option value="left">Alineado a la Izquierda</option>
+                              <option value="right">Alineado a la Derecha</option>
+                              <option value="hidden">Ocultar Logotipo</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Personalización de Botones Sociales y Alineación */}
+                        <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3">
+                          <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Botones Sociales, Alineación & Formato de Enlaces</h5>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                              <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Alineación de Info</label>
+                              <select name="infoAlignment" value={design.infoAlignment || 'center'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                                <option value="left">Izquierda</option>
+                                <option value="center">Centro</option>
+                                <option value="right">Derecha</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Forma de Iconos</label>
+                              <select name="socialIconShape" value={design.socialIconShape || 'circle'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                                <option value="circle">Redondo (Círculo)</option>
+                                <option value="rounded">Bordes Suaves</option>
+                                <option value="square">Cuadrado</option>
+                                <option value="none">Sin Fondo (Solo Icono)</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Estilo de Iconos</label>
+                              <select name="socialIconStyle" value={design.socialIconStyle || 'default'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
+                                <option value="default">Color Original App</option>
+                                <option value="monochrome">Monocromático</option>
+                                <option value="glow">Neón / Brillo</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] text-[#00E5FF] uppercase tracking-wider mb-1 font-bold">Formato de Enlaces</label>
+                              <select name="linksDisplayMode" value={design.linksDisplayMode || 'icons'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2 border-[#00E5FF]/40 focus:border-[#00E5FF]">
+                                <option value="icons">Iconos (Grid Clásico)</option>
+                                <option value="url_boxes">Cuadros con URL & Título</option>
+                                <option value="embedded">Tarjetas / Widgets Embebidos</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Visibilidad de Contenedores de Información */}
+                        <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3">
+                          <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Ocultar Contenedores de Información</h5>
+                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideBio" checked={design.hideBio} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Nota / Bio</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideContact" checked={design.hideContact} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Datos de Contacto</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideSocial" checked={design.hideSocial} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Redes Sociales</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideMap" checked={design.hideMap} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Google Maps</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="hideVideo" checked={design.hideVideo} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
+                              <span className="text-[10px] text-gray-300">Video</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Etiquetas Personalizadas */}
+                        <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3">
+                          <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Etiquetas Personalizadas</h5>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Nota / Bio</label>
+                              <input type="text" name="bio" value={design.customLabels?.bio || ''} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Nota / Bio / Valor" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Contacto</label>
+                              <input type="text" name="contact" value={design.customLabels?.contact || ''} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Canales de Contacto Directo" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Redes Sociales</label>
+                              <input type="text" name="social" value={design.customLabels?.social || ''} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Redes Sociales" />
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
-                    <h4 className={"text-xs font-rosetta text-white font-bold uppercase tracking-wider flex items-center gap-2 " + (!isPremium ? 'opacity-50' : '')}>
-                      <span className="text-[#EE334E]">✦</span> Controles de Diseño Libre
-                    </h4>
-                    
-                    <div className={"grid grid-cols-1 sm:grid-cols-2 gap-4 " + (!isPremium ? 'opacity-30 pointer-events-none' : '')}>
-                      {/* Ocultar / Mostrar Banner */}
-                      <label className="flex items-center gap-3 p-3 rounded-xl border border-gray-800 bg-black/30 cursor-pointer hover:border-gray-600 transition-colors">
-                        <div className="relative flex items-center">
-                          <input type="checkbox" name="hideBanner" checked={design.hideBanner} onChange={handleDesignChange} className="sr-only peer" />
-                          <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#EE334E]"></div>
-                        </div>
-                        <span className="text-xs text-gray-300 font-semibold uppercase tracking-wider">Ocultar Banner / Portada</span>
-                      </label>
-
-                      {/* Posición del Logotipo */}
-                      <div className="space-y-1">
-                        <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Posición del Logotipo</label>
-                        <select name="logoPosition" value={design.logoPosition} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                          <option value="center">Centrado (Por Defecto)</option>
-                          <option value="left">Alineado a la Izquierda</option>
-                          <option value="right">Alineado a la Derecha</option>
-                          <option value="hidden">Ocultar Logotipo</option>
-                        </select>
-                      </div>
-                    </div>
-
-                                          {/* Personalización de Botones Sociales y Alineación */}
-                      <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3 mt-4">
-                        <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Botones Sociales y Alineación</h5>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          
-                          <div>
-                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Alineación de Info</label>
-                            <select name="infoAlignment" value={design.infoAlignment || 'center'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                              <option value="left">Izquierda</option>
-                              <option value="center">Centro</option>
-                              <option value="right">Derecha</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Forma de Iconos</label>
-                            <select name="socialIconShape" value={design.socialIconShape || 'circle'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                              <option value="circle">Redondo (Círculo)</option>
-                              <option value="rounded">Bordes Suaves</option>
-                              <option value="square">Cuadrado</option>
-                              <option value="none">Sin Fondo (Solo Icono)</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Estilo de Iconos</label>
-                            <select name="socialIconStyle" value={design.socialIconStyle || 'default'} onChange={handleDesignChange} className="input-dark w-full text-xs py-2">
-                              <option value="default">Color Original App</option>
-                              <option value="monochrome">Monocromático</option>
-                              <option value="glow">Neón / Brillo</option>
-                            </select>
-                          </div>
-
-                        </div>
-                      </div>
-
-                      {/* Visibilidad de Contenedores de Información */}
-                    <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 space-y-3 mt-2">
-                      <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Ocultar Contenedores de Información</h5>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideBio" checked={design.hideBio} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Nota / Bio</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideContact" checked={design.hideContact} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Datos de Contacto</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideSocial" checked={design.hideSocial} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Redes Sociales</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name="hideMap" checked={design.hideMap} onChange={handleDesignChange} className="accent-[#EE334E] w-3.5 h-3.5" />
-                          <span className="text-[10px] text-gray-300">Google Maps</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Etiquetas Personalizadas */}
-                    <div className="bg-black/20 p-3.5 rounded-xl border border-gray-800 mt-2 space-y-3">
-                      <h5 className="text-[11px] font-rosetta text-gray-400 uppercase tracking-wider">Etiquetas Personalizadas</h5>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Nota / Bio</label>
-                          <input type="text" name="bio" value={design.customLabels.bio} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Nota / Bio / Valor" />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Contacto</label>
-                          <input type="text" name="contact" value={design.customLabels.contact} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Canales de Contacto Directo" />
-                        </div>
-                        <div>
-                          <label className="block text-[9px] text-gray-500 uppercase tracking-wider mb-1">Redes Sociales</label>
-                          <input type="text" name="social" value={design.customLabels.social} onChange={handleCustomLabelChange} className="input-dark w-full text-xs h-7 px-2" placeholder="Redes Sociales" />
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                 </div>
@@ -1341,6 +1529,60 @@ export default function VCardEngineDashboard() {
                           />
                         </div>
                       </div>
+
+                      {/* TikTok */}
+                      <div>
+                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">TikTok</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            tiktok.com/@
+                          </span>
+                          <input
+                            type="text"
+                            name="tiktok"
+                            value={formData.tiktok}
+                            onChange={handleInputChange}
+                            placeholder="usuario"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* X (Twitter) */}
+                      <div>
+                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">X (Twitter)</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            x.com/
+                          </span>
+                          <input
+                            type="text"
+                            name="twitter"
+                            value={formData.twitter}
+                            onChange={handleInputChange}
+                            placeholder="usuario"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* YouTube */}
+                      <div>
+                        <label className="block text-[11px] font-rosetta text-gray-300 mb-1 uppercase">Canal de YouTube</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
+                          <span className="bg-[#12121c] text-gray-400 text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                            youtube.com/
+                          </span>
+                          <input
+                            type="text"
+                            name="youtube"
+                            value={formData.youtube}
+                            onChange={handleInputChange}
+                            placeholder="usuario o @canal"
+                            className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     {/* YouTube Video URL */}
@@ -1451,8 +1693,28 @@ export default function VCardEngineDashboard() {
                         <input type="url" name="icloudCalendarUrl" value={formData.icloudCalendarUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://www.icloud.com/..." />
                       </div>
                       <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Botón de Pago (PayPal / Stripe)</label>
-                        <input type="url" name="paypalUrl" value={formData.paypalUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://paypal.me/tu-usuario" />
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wider">Botón de Pago (PayPal / Stripe)</label>
+                          <button
+                            type="button"
+                            onClick={() => setShowPayPalHelper(true)}
+                            className="text-[10px] text-[#00E5FF] hover:underline flex items-center gap-1 font-mono font-bold"
+                          >
+                            ❓ Guía de Vinculación
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          name="paypalUrl"
+                          value={formData.paypalUrl}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const parsed = parsePaymentInput(val);
+                            setFormData(prev => ({ ...prev, paypalUrl: parsed }));
+                          }}
+                          className="input-dark w-full"
+                          placeholder="https://paypal.me/tu-usuario o pega código embed / JSON..."
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Datos Bancarios para Transferencia</label>
@@ -1461,8 +1723,36 @@ CLABE: 0123...
 Beneficiario: TSolutions" />
                       </div>
                       <div>
-                        <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Documento PDF (CV, Catálogo)</label>
-                        <input type="url" name="pdfUrl" value={formData.pdfUrl} onChange={handleInputChange} className="input-dark w-full" placeholder="https://mi-sitio.com/catalogo.pdf" />
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-xs font-rosetta text-gray-300 uppercase tracking-wider">Documento PDF (Catálogo, Menú o Portafolio)</label>
+                          <button
+                            type="button"
+                            onClick={() => setShowExpressCatalogModal(true)}
+                            className="text-[10px] bg-[#EE334E]/20 text-[#EE334E] hover:bg-[#EE334E]/30 px-2.5 py-0.5 rounded-lg border border-[#EE334E]/40 font-mono font-bold flex items-center gap-1 transition-all"
+                          >
+                            ✨ Crear PDF Express
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="url"
+                            name="pdfUrl"
+                            value={formData.pdfUrl}
+                            onChange={handleInputChange}
+                            className="input-dark w-full"
+                            placeholder="https://mi-sitio.com/catalogo.pdf o créalo con el botón de arriba"
+                          />
+                          {formData.pdfUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setFormData(prev => ({ ...prev, pdfUrl: '' }))}
+                              className="px-2.5 py-2 bg-red-950/40 border border-red-800 text-red-400 rounded-lg text-xs hover:bg-red-900/40"
+                              title="Quitar PDF"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1487,7 +1777,7 @@ Beneficiario: TSolutions" />
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
                       {Object.values(THEMES).map((th, index) => {
-                        const isLocked = tier < 1 && index >= 2; // Tier 1+ has all themes unlocked
+                        const isLocked = !isFreeDesignOpen && tier < 1 && index >= 2;
                         
                         return (
                           <button
@@ -1495,7 +1785,7 @@ Beneficiario: TSolutions" />
                             type="button"
                             onClick={() => {
                               if (isLocked) {
-                                alert("Este diseño Premium requiere mejorar tu paquete.");
+                                alert("Este diseño Premium requiere mejorar tu paquete o activar el Módulo de Edición Libre.");
                                 return;
                               }
                               setDesign(prev => ({ ...prev, theme: th.id }));
@@ -1686,311 +1976,55 @@ Beneficiario: TSolutions" />
                   )}
                 </div>
 
-                {/* ========================================================= */}
-                {/* PASO 5: TELEMETRÍA NTAG & DESCARGA DE ENTREGABLES         */}
-                {/* ========================================================= */}
-                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-5 shadow-lg">
+                {/* INICIATIVA DE HUELLA ECOLÓGICA Y TARJETA FÍSICA NFC */}
+                <div className="bg-gradient-to-r from-emerald-950/40 via-[#0C1410] to-emerald-950/40 border border-emerald-500/40 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-xl shrink-0">
+                      🌱
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase font-mono tracking-wider flex items-center gap-2">
+                        <span>Iniciativa Huella de Carbono Cero</span>
+                        <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold">ECO-RESPONSABLE</span>
+                      </h4>
+                      <p className="text-[11px] text-gray-300 mt-0.5 leading-relaxed">
+                        ¿Deseas evaluar solicitar una tarjeta física inteligente NFC o recibir tu cupón vitalicio por mantenerte 100% digital?
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowEcoModal(true)}
+                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold font-mono uppercase tracking-wider shrink-0 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center gap-2"
+                  >
+                    <span>Evaluar Tarjeta Física</span>
+                    <span>→</span>
+                  </button>
+                </div>
+
+                {/* INFORMACIÓN DEL CENTRO OFICIAL DE ENTREGABLES (/gracias/[slug]) */}
+                <div className="bg-[#0c0c16] border border-gray-800 rounded-2xl p-5 space-y-3 shadow-lg">
                   <div className="flex items-center justify-between border-b border-gray-800/80 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#ff0003] text-white text-xs font-rosetta font-bold flex items-center justify-center shrink-0">5</span>
+                      <span className="w-6 h-6 rounded-full bg-[#00E5FF] text-black text-xs font-rosetta font-bold flex items-center justify-center shrink-0">5</span>
                       <div>
-                        <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Entregables & Telemetría NFC</h3>
-                        <p className="text-[10px] text-gray-400">Paquete 1-Click o Módulos Individuales Desglosados</p>
+                        <h3 className="text-xs font-rosetta text-white font-bold tracking-wider uppercase">Centro Oficial de Entregables</h3>
+                        <p className="text-[10px] text-gray-400">Activación automática al desplegar en Google Cloud</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Suite Comercial</span>
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase bg-emerald-950/40 px-2.5 py-1 rounded border border-emerald-500/30">
+                      100% Incluido
+                    </span>
                   </div>
 
-                  {/* BANNER DE CONDICIÓN DE FEEDBACK PARA TARJETAS DE OBSEQUIO */}
-                  {(referredByAgent || vipPass) && (
-                    <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs transition-all ${
-                      feedbackCompleted
-                        ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-                        : 'bg-[#EE334E]/10 border-[#EE334E]/40 text-slate-200 shadow-[0_0_15px_rgba(238,51,78,0.2)]'
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg shrink-0 ${
-                          feedbackCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-[#EE334E]/20 text-[#EE334E]'
-                        }`}>
-                          {feedbackCompleted ? '✓' : '🎁'}
-                        </div>
-                        <div>
-                          <p className="font-bold uppercase tracking-wider text-white">
-                            {feedbackCompleted ? '¡Descargas Gratuitas Habilitadas!' : 'Pase de Obsequio: Descargas Gratuitas'}
-                          </p>
-                          <p className="text-[11px] text-slate-300">
-                            {feedbackCompleted
-                              ? 'Has completado el feedback. Todos tus entregables están liberados al 100% sin costo.'
-                              : 'Para activar tus botones de descarga, completa un breve formulario de 1 minuto sobre tu experiencia de construcción.'}
-                          </p>
-                        </div>
-                      </div>
-                      {!feedbackCompleted && (
-                        <button
-                          type="button"
-                          onClick={() => setShowConstructionFeedback(true)}
-                          className="px-4 py-2 bg-[#EE334E] hover:bg-[#ff0003] text-white rounded-xl font-bold text-xs uppercase tracking-wider shrink-0 shadow-[0_0_15px_rgba(238,51,78,0.4)]"
-                        >
-                          Llenar Feedback (1 min)
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* TELEMETRÍA NTAG */}
-                  <div className="bg-[#12121c] p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-rosetta text-[#EE334E] flex items-center gap-1.5 uppercase">
-                        <span>⚡</span> TELEMETRÍA DE MEMORIA NTAG
-                      </h4>
-                      <p className="text-[10px] text-gray-400">Payload URL para Chip NFC Físico o Sticker</p>
-                      <p className="text-[10px] font-mono text-white">NTAG213 (100% Compatible con iPhone y Android)</p>
-                    </div>
-                    <div className="bg-black/50 px-4 py-2.5 rounded-xl border border-gray-800 text-center shrink-0">
-                      <span className="text-[10px] text-gray-400 uppercase font-mono block">Tamaño vCard</span>
-                      <span className="text-2xl font-rosetta font-bold text-[#EE334E]">{new Blob([qrTargetValue]).size} <span className="text-xs">Bytes</span></span>
-                    </div>
+                  <div className="p-4 rounded-xl bg-black/50 border border-gray-800 text-xs text-gray-300 space-y-2">
+                    <p className="leading-relaxed">
+                      🎉 <strong className="text-white">Descarga de Entregables en su Propia Página:</strong> Para garantizar un flujo limpio y enfocado, el Paso 5 de descargas ahora cuenta con su propia pantalla dedicada (<code className="text-[#00E5FF]">/gracias/[slug]</code>).
+                    </p>
+                    <p className="text-[11px] text-gray-400 leading-relaxed">
+                      Al presionar <strong className="text-[#EE334E]">"Guardar y Desplegar Perfil"</strong> (Paso 4), el constructor asegurará tu diseño en Google Cloud SQL, se cerrará para proteger tu enlace y te dirigirá automáticamente al Centro de Entregables donde podrás descargar tu Ficha .VCF, Código QR HD (1200x1200px), Instructivo Oficial y el Paquete Completo .ZIP.
+                    </p>
                   </div>
-
-                  {/* PRESENTACIÓN COMERCIAL: PAQUETE COMPLETO ALL-IN-ONE ($199 MXN) */}
-                  <div className="bg-gradient-to-r from-[#180c0f] via-[#240d12] to-[#180c0f] p-5 rounded-2xl border-2 border-[#ff0003] shadow-[0_0_30px_rgba(255,0,3,0.25)] space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase bg-[#ff0003] text-white px-2.5 py-0.5 rounded font-extrabold tracking-wider">
-                          {(referredByAgent || vipPass) ? '🎁 PASE DE OBSEQUIO ACTIVO' : '🔥 OFERTA RECOMENDADA (45% OFF)'}
-                        </span>
-                        <h4 className="text-base font-rosetta text-white font-bold mt-1.5">PAQUETE COMPLETO ALL-IN-ONE</h4>
-                        <p className="text-xs text-gray-300">Incluye los 4 Entregables Completos + Despliegue Cloud en archivo .ZIP</p>
-                      </div>
-                      <div className="text-left sm:text-right">
-                        {(referredByAgent || vipPass) ? (
-                          <>
-                            <span className="text-xs text-emerald-400 font-mono block">Cortesía de Embajador</span>
-                            <span className="text-2xl sm:text-3xl font-rosetta text-emerald-400 font-extrabold">$0 <span className="text-xs">MXN (GRATIS)</span></span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-xs text-gray-500 line-through font-mono block">Suma Individual: $288 MXN</span>
-                            <span className="text-2xl sm:text-3xl font-rosetta text-[#EE334E] font-extrabold">$199 <span className="text-xs">MXN</span></span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (requireGiftFeedback(() => downloadFullPackage())) return;
-                        if (isPaid || unlockedItems.bundle || isVipActive) {
-                          downloadFullPackage();
-                        } else {
-                          setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables en .ZIP)', price: 199, id: 'bundle' });
-                          setShowCheckoutModal(true);
-                        }
-                      }}
-                      disabled={isZipping}
-                      className="btn-primary w-full py-4 text-xs sm:text-sm tracking-wider"
-                    >
-                      {isZipping ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>EMPAQUETANDO PAQUETE COMPLETO (.ZIP)...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.bundle || isVipActive ? '📦' : '💳')}</span>
-                          <span>
-                            {(referredByAgent || vipPass) && !feedbackCompleted
-                              ? 'COMPLETAR FEEDBACK PARA DESCARGAR (.ZIP)'
-                              : 'DESCARGAR PAQUETE COMPLETO (.ZIP)'}
-                          </span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* PRESENTACIÓN DE LOS 4 MÓDULOS INDIVIDUALES DESGLOSADOS (SUMATORIA: 1.45x = $288 MXN) */}
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-rosetta text-gray-300 uppercase tracking-wider">
-                        Desglose de Productos Individuales (Sumatoria: $288 MXN = 1.45x):
-                      </h4>
-                      <span className="text-[10px] font-mono text-gray-500">
-                        {(referredByAgent || vipPass) ? 'Entregables Desbloqueados' : 'Comprar por Separado'}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      
-                      {/* Módulo 1: Código QR HD */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 1</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Código QR HD (.PNG)</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Vectorial 1200x1200px listo para impresión</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
-                            {(referredByAgent || vipPass) ? '$0 MXN' : '$69 MXN'}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (requireGiftFeedback(() => downloadQR())) return;
-                            if (isPaid || unlockedItems.qr || unlockedItems.bundle || isVipActive) {
-                              downloadQR();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 1: Código QR HD 1200x1200px (.PNG)', price: 69, id: 'qr' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.qr || unlockedItems.bundle || isVipActive ? '⬇' : '💳')}</span>
-                          <span>
-                            {(referredByAgent || vipPass) && !feedbackCompleted
-                              ? 'Activar con Feedback'
-                              : 'Descargar QR (.PNG)'}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 2: Archivo vCard .VCF */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 2</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Archivo vCard 3.0 (.VCF)</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Instalación automática en agenda telefónica</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
-                            {(referredByAgent || vipPass) ? '$0 MXN' : '$69 MXN'}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (requireGiftFeedback(() => downloadVCF())) return;
-                            if (isPaid || unlockedItems.vcf || unlockedItems.bundle || isVipActive) {
-                              downloadVCF();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 2: Archivo de Contacto vCard 3.0 (.VCF)', price: 69, id: 'vcf' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.vcf || unlockedItems.bundle || isVipActive ? '💾' : '💳')}</span>
-                          <span>
-                            {(referredByAgent || vipPass) && !feedbackCompleted
-                              ? 'Activar con Feedback'
-                              : 'Descargar .VCF'}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 3: Enlace Cloud Permanente */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 3</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Enlace Cloud (/p/[slug])</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Alojamiento Google Cloud SQL activo 24/7</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">
-                            {(referredByAgent || vipPass) ? '$0 MXN' : '$99 MXN'}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (requireGiftFeedback(() => handleSaveToCloud())) return;
-                            if (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive) {
-                              handleSaveToCloud();
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 3: Despliegue Cloud & Enlace Permanente', price: 99, id: 'cloud' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{(referredByAgent || vipPass) && !feedbackCompleted ? '🔒' : (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive ? '🚀' : '💳')}</span>
-                          <span>
-                            {(referredByAgent || vipPass) && !feedbackCompleted
-                              ? 'Activar con Feedback'
-                              : (isPaid || unlockedItems.cloud || unlockedItems.bundle || isVipActive ? 'Guardar en la Nube' : 'Comprar Cloud ($99 MXN)')}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Módulo 4: Carta Oficial de Entrega */}
-                      <div className="p-4 bg-[#12121c] border border-gray-800 hover:border-gray-700 rounded-xl flex flex-col justify-between space-y-3 transition-all">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#EE334E] font-bold uppercase">Entregable 4</span>
-                            <h5 className="text-xs font-rosetta text-white font-bold">Carta de Entrega & Guía</h5>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Manual paso a paso para programar chip NFC</p>
-                          </div>
-                          <span className="text-xs font-mono font-bold text-[#EE334E] bg-black/50 px-2 py-1 rounded border border-gray-800">$51 MXN</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isPaid || unlockedItems.letter || unlockedItems.bundle) {
-                              setShowEmailModal(true);
-                            } else {
-                              setSelectedProduct({ name: 'Entregable 4: Carta Oficial de Entrega + Manual NFC Tools', price: 51, id: 'letter' });
-                              setShowCheckoutModal(true);
-                            }
-                          }}
-                          className="w-full py-2 bg-white/5 hover:bg-white/10 text-gray-200 border border-gray-700 rounded-lg text-[11px] font-rosetta font-bold flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>{isPaid || unlockedItems.letter || unlockedItems.bundle ? '📜' : '💳'}</span>
-                          <span>{isPaid || unlockedItems.letter || unlockedItems.bundle ? 'Ver Carta de Entrega' : 'Comprar Carta ($51 MXN)'}</span>
-                        </button>
-                      </div>
-
-                    </div>
-                  </div>
-
-                  {/* LOGÍSTICA DE ENVÍO DE TARJETA FÍSICA NFC (MEXICALI 100% GRATIS / DHL & UPS) */}
-                  <div className="bg-[#090914] p-4 rounded-xl border border-gray-800 space-y-3">
-                    <div className="flex items-center justify-between border-b border-gray-800/80 pb-2">
-                      <div className="flex items-center gap-2">
-                        <span>📦</span>
-                        <h4 className="text-xs font-bruno text-white font-bold uppercase">{t('shipping_title')}</h4>
-                      </div>
-                      <span className="text-[10px] font-mono text-[#00E5FF] font-bold">Cobertura Total</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {/* Mexicali 100% Gratis */}
-                      <div className="bg-[#12121c] p-3.5 rounded-xl border border-green-500/40 space-y-1.5 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono font-bold text-green-400 bg-green-950/50 px-2 py-0.5 rounded border border-green-500/30">
-                            {t('shipping_mxl_badge')}
-                          </span>
-                          <span className="text-xs font-bruno font-extrabold text-green-400 uppercase">100% GRATIS</span>
-                        </div>
-                        <h5 className="text-xs font-bruno text-white font-bold">{t('shipping_mxl_title')}</h5>
-                        <p className="text-[10px] text-gray-400 leading-relaxed">{t('shipping_mxl_desc')}</p>
-                      </div>
-
-                      {/* México & Mundo vía DHL / UPS */}
-                      <div className="bg-[#12121c] p-3.5 rounded-xl border border-blue-500/40 space-y-1.5 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-950/50 px-2 py-0.5 rounded border border-blue-500/30">
-                            {t('shipping_global_badge')}
-                          </span>
-                          <span className="text-xs font-mono font-bold text-yellow-400">DHL / UPS</span>
-                        </div>
-                        <h5 className="text-xs font-bruno text-white font-bold">{t('shipping_global_title')}</h5>
-                        <p className="text-[10px] text-gray-400 leading-relaxed">{t('shipping_global_desc')}</p>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </>
             )}
@@ -2002,17 +2036,17 @@ Beneficiario: TSolutions" />
         <section className="w-full lg:w-5/12 flex flex-col items-center justify-center lg:sticky lg:top-6 lg:self-start">
           
           {/* MOCKUP ELEGANTE DEL CELULAR CON TOKENS OFICIALES */}
-          <div className="smartphone-mockup-frame w-[320px] sm:w-[350px] h-[670px]">
+          <div className="smartphone-mockup-frame w-[320px] sm:w-[350px] h-[670px] relative overflow-hidden flex flex-col shadow-2xl">
             
             {/* DYNAMIC ISLAND / NOTCH */}
-            <div className="smartphone-dynamic-island">
+            <div className="smartphone-dynamic-island shrink-0">
               <div className="w-2.5 h-2.5 bg-[#121114] rounded-full border border-gray-800"></div>
               <div className="w-7 h-1 bg-gray-800 rounded-full"></div>
             </div>
 
             {/* PANTALLA INTERNA DEL CELULAR (AISLADA: RESPONDE A LOS COLORES Y TIPOGRAFÍAS DEL CLIENTE) */}
             <div
-              className="smartphone-screen relative pb-20 select-none transition-all"
+              className="smartphone-screen relative overflow-y-auto flex-1 select-none transition-all pb-36 custom-scrollbar"
               style={{
                 backgroundColor: activeTheme.bgColor,
                 fontFamily: currentFontSecondary,
@@ -2045,45 +2079,49 @@ Beneficiario: TSolutions" />
                   {design.theme === 'classic' && (
                     <div>
                       {/* Portada / Banner */}
-                      <div
-                        className="h-28 w-full relative overflow-hidden flex items-center justify-center transition-colors"
-                        style={{ backgroundColor: design.colorSecundario }}
-                      >
-                        {coverPhoto ? (
-                          <div className="w-full h-full overflow-hidden">
+                      {!design.hideBanner && (
+                        <div
+                          className="h-28 w-full relative overflow-hidden flex items-center justify-center transition-colors"
+                          style={{ backgroundColor: design.colorSecundario }}
+                        >
+                          {coverPhoto ? (
+                            <div className="w-full h-full overflow-hidden">
+                              <img
+                                src={coverPhoto}
+                                alt="Cover"
+                                className="w-full h-full object-cover transition-all"
+                                style={{
+                                  objectPosition: `center ${design.coverPositionY}%`,
+                                  transform: `scale(${design.coverZoom / 100})`,
+                                  transformOrigin: `center ${design.coverPositionY}%`
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Logo & Datos Adaptables */}
+                      <div className={`px-5 ${!design.hideBanner ? '-mt-12' : 'pt-6'} relative z-20 flex flex-col ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+                        {design.logoPosition !== 'hidden' && (
+                          <div
+                            className="flex items-center justify-center overflow-hidden transition-all bg-transparent border-0 shadow-none"
+                            style={{
+                              width: `${design.logoScale}px`,
+                              height: `${design.logoScale}px`
+                            }}
+                          >
                             <img
-                              src={coverPhoto}
-                              alt="Cover"
-                              className="w-full h-full object-cover transition-all"
-                              style={{
-                                objectPosition: `center ${design.coverPositionY}%`,
-                                transform: `scale(${design.coverZoom / 100})`,
-                                transformOrigin: `center ${design.coverPositionY}%`
-                              }}
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain"
                             />
                           </div>
-                        ) : (
-                          <div className="w-full h-full opacity-30 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
                         )}
-                      </div>
 
-                      {/* Logo Centrado con Visibilidad Total (z-20) */}
-                      <div className="px-5 -mt-12 relative z-20 flex flex-col items-center text-center">
-                        <div
-                          className="flex items-center justify-center overflow-hidden transition-all bg-transparent border-0 shadow-none"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-
-                        <div className="mt-3 w-full">
+                        <div className={`mt-3 w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
                           <h2
                             className="text-xl font-bold leading-tight text-slate-800"
                             style={{ fontFamily: currentFontPrimary }}
@@ -2091,9 +2129,9 @@ Beneficiario: TSolutions" />
                             {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
                           </h2>
                           
-                          {/* Franja de Acento (Color Secundario del Cliente) Centrada */}
+                          {/* Franja de Acento Centrada / Alineada */}
                           <div
-                            className="h-1.5 w-14 my-2.5 mx-auto rounded-full transition-all"
+                            className={`h-1.5 w-14 my-2.5 rounded-full transition-all ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`}
                             style={{
                               backgroundColor: design.colorSecundario,
                               boxShadow: `0 0 10px ${design.colorSecundario}60`
@@ -2102,7 +2140,7 @@ Beneficiario: TSolutions" />
                           
                           <p className="text-sm font-bold" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
                           
-                          {/* Badge de Empresa en Color Secundario */}
+                          {/* Badge de Empresa */}
                           {formData.empresa && (
                             <div
                               className="inline-block px-3 py-0.5 mt-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase border transition-all"
@@ -2117,10 +2155,15 @@ Beneficiario: TSolutions" />
                           )}
                         </div>
 
-                        {formData.nota && (
-                          <p className="text-xs mt-3 p-2.5 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-3 w-full" style={{ borderColor: design.colorCTA }}>
-                            "{formData.nota}"
-                          </p>
+                        {!design.hideBio && formData.nota && (
+                          <div className="w-full mt-3">
+                            {design.customLabels?.bio && (
+                              <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                            )}
+                            <p className="text-xs p-2.5 rounded-xl bg-gray-100 opacity-80 leading-relaxed italic border-l-3 w-full" style={{ borderColor: design.colorCTA }}>
+                              "{formData.nota}"
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -2128,8 +2171,8 @@ Beneficiario: TSolutions" />
 
                   {/* 2. TEMA MODERNO (CYBER DARK) */}
                   {design.theme === 'modern' && (
-                    <div className="p-5 flex flex-col items-center text-center">
-                      {coverPhoto && (
+                    <div className={`p-5 flex flex-col ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-2xl overflow-hidden mb-3 border border-white/10 relative">
                           <img
                             src={coverPhoto}
@@ -2144,65 +2187,73 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      {/* Logo Centrado sin fondo ni accesorios */}
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <h2
-                        className="text-xl font-bold tracking-tight mt-2 text-white"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                      </h2>
-                      
-                      {/* Franja de Acento (Color Secundario del Cliente) Centrada */}
-                      <div
-                        className="h-1.5 w-14 my-2 mx-auto rounded-full transition-all"
-                        style={{
-                          backgroundColor: design.colorSecundario,
-                          boxShadow: `0 0 10px ${design.colorSecundario}80`
-                        }}
-                      ></div>
-                      
-                      <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                      
-                      {/* Badge de Empresa con Fondo y Borde Secundario */}
-                      {formData.empresa && (
+                      {/* Logo Adaptable */}
+                      {design.logoPosition !== 'hidden' && (
                         <div
-                          className="inline-block px-3 py-1 mt-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border transition-all"
+                          className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
                           style={{
-                            backgroundColor: `${design.colorSecundario}15`,
-                            borderColor: `${design.colorSecundario}60`,
-                            color: design.colorSecundario
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
                           }}
                         >
-                          {formData.empresa}
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
                         </div>
                       )}
 
-                      {formData.nota && (
-                        <p className="text-xs mt-3 opacity-80 leading-relaxed px-2 italic text-gray-300">
-                          "{formData.nota}"
-                        </p>
+                      <div className={`w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
+                        <h2
+                          className="text-xl font-bold tracking-tight mt-2 text-white"
+                          style={{ fontFamily: currentFontPrimary }}
+                        >
+                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                        </h2>
+                        
+                        {/* Franja de Acento */}
+                        <div
+                          className={`h-1.5 w-14 my-2 rounded-full transition-all ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`}
+                          style={{
+                            backgroundColor: design.colorSecundario,
+                            boxShadow: `0 0 10px ${design.colorSecundario}80`
+                          }}
+                        ></div>
+                        
+                        <p className="text-sm font-bold mt-0.5" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+                        
+                        {formData.empresa && (
+                          <div
+                            className="inline-block px-3 py-1 mt-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border transition-all"
+                            style={{
+                              backgroundColor: `${design.colorSecundario}15`,
+                              borderColor: `${design.colorSecundario}60`,
+                              color: design.colorSecundario
+                            }}
+                          >
+                            {formData.empresa}
+                          </div>
+                        )}
+                      </div>
+
+                      {!design.hideBio && formData.nota && (
+                        <div className="w-full mt-3">
+                          {design.customLabels?.bio && (
+                            <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                          )}
+                          <p className="text-xs opacity-80 leading-relaxed px-2 italic text-gray-300">
+                            "{formData.nota}"
+                          </p>
+                        </div>
                       )}
                     </div>
                   )}
 
                   {/* 3. TEMA MINIMALISTA EJECUTIVO */}
                   {design.theme === 'minimal' && (
-                    <div className="p-6 flex flex-col items-center text-center">
-                      {coverPhoto && (
+                    <div className={`p-6 flex flex-col ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-28 overflow-hidden mb-3 border-b border-gray-200 relative rounded-lg">
                           <img
                             src={coverPhoto}
@@ -2217,48 +2268,55 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      {/* Logo Centrado sin fondo ni accesorios */}
-                      <div
-                        className="flex items-center justify-center my-2.5 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-
-                      <h2
-                        className="text-2xl font-light tracking-tight text-slate-900"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span>
-                      </h2>
-                      
-                      {/* Línea de Color Secundario del Cliente Centrada */}
-                      <div className="w-12 h-1 my-2 mx-auto rounded-full" style={{ backgroundColor: design.colorSecundario }}></div>
-                      
-                      <p className="text-xs font-bold tracking-wider uppercase font-rosetta" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-                      
-                      {formData.empresa && (
-                        <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
+                      {design.logoPosition !== 'hidden' && (
+                        <div
+                          className="flex items-center justify-center my-2.5 bg-transparent border-0 shadow-none transition-all"
+                          style={{
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
+                          }}
+                        >
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
                       )}
 
-                      {formData.nota && (
-                        <p className="text-xs mt-3 opacity-75 leading-relaxed italic max-w-[90%] text-slate-600">
-                          "{formData.nota}"
-                        </p>
+                      <div className={`w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
+                        <h2
+                          className="text-2xl font-light tracking-tight text-slate-900"
+                          style={{ fontFamily: currentFontPrimary }}
+                        >
+                          {formData.nombre || 'Nombre'} <span className="font-extrabold">{formData.apellido || 'Apellido'}</span>
+                        </h2>
+                        
+                        <div className={`w-12 h-1 my-2 rounded-full ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`} style={{ backgroundColor: design.colorSecundario }}></div>
+                        
+                        <p className="text-xs font-bold tracking-wider uppercase font-rosetta" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+                        
+                        {formData.empresa && (
+                          <p className="text-xs font-semibold mt-1" style={{ color: design.colorSecundario }}>{formData.empresa}</p>
+                        )}
+                      </div>
+
+                      {!design.hideBio && formData.nota && (
+                        <div className="w-full mt-3">
+                          {design.customLabels?.bio && (
+                            <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                          )}
+                          <p className="text-xs opacity-75 leading-relaxed italic max-w-[90%] text-slate-600">
+                            "{formData.nota}"
+                          </p>
+                        </div>
                       )}
                     </div>
                   )}
 
                   {/* 4. TEMA GLASSMORPHISM FROST */}
                   {design.theme === 'glassmorphism' && (
-                    <div className="p-5 flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="p-5 flex flex-col relative overflow-hidden">
                       <div
                         className="absolute -top-10 -left-10 w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-30"
                         style={{ backgroundColor: design.colorPrimario }}
@@ -2268,7 +2326,7 @@ Beneficiario: TSolutions" />
                         style={{ backgroundColor: design.colorSecundario }}
                       ></div>
 
-                      {coverPhoto && (
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-3xl overflow-hidden mb-3 border border-white/15 backdrop-blur-md shadow-lg relative">
                           <img
                             src={coverPhoto}
@@ -2284,45 +2342,54 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div className="w-full backdrop-blur-xl bg-white/[0.06] border border-white/15 rounded-3xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col items-center text-center">
-                        <div
-                          className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
-                          />
-                        </div>
-
-                        <h2
-                          className="text-xl font-bold tracking-tight mt-1 text-white"
-                          style={{ fontFamily: currentFontPrimary }}
-                        >
-                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                        </h2>
-
-                        <div
-                          className="h-1 w-12 my-2 rounded-full backdrop-blur-md"
-                          style={{ backgroundColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}` }}
-                        ></div>
-
-                        <p className="text-sm font-semibold tracking-wide" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
-
-                        {formData.empresa && (
-                          <div className="inline-block px-3 py-0.5 mt-2 rounded-full text-[10px] uppercase font-mono tracking-widest backdrop-blur-md bg-white/10 border border-white/20 text-gray-200">
-                            ✨ {formData.empresa}
+                      <div className={`w-full backdrop-blur-xl bg-white/[0.06] border border-white/15 rounded-3xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
+                        {design.logoPosition !== 'hidden' && (
+                          <div
+                            className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
+                            style={{
+                              width: `${design.logoScale}px`,
+                              height: `${design.logoScale}px`
+                            }}
+                          >
+                            <img
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                            />
                           </div>
                         )}
 
-                        {formData.nota && (
-                          <p className="text-xs mt-3 text-gray-300 italic leading-relaxed backdrop-blur-sm bg-black/20 p-2.5 rounded-2xl border border-white/10 w-full">
-                            "{formData.nota}"
-                          </p>
+                        <div className={`w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
+                          <h2
+                            className="text-xl font-bold tracking-tight mt-1 text-white"
+                            style={{ fontFamily: currentFontPrimary }}
+                          >
+                            {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                          </h2>
+
+                          <div
+                            className={`h-1 w-12 my-2 rounded-full backdrop-blur-md ${design.infoAlignment === 'left' ? 'mr-auto ml-0' : design.infoAlignment === 'right' ? 'ml-auto mr-0' : 'mx-auto'}`}
+                            style={{ backgroundColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}` }}
+                          ></div>
+
+                          <p className="text-sm font-semibold tracking-wide" style={{ color: design.colorPrimario }}>{formData.puesto || 'Puesto / Cargo'}</p>
+
+                          {formData.empresa && (
+                            <div className="inline-block px-3 py-0.5 mt-2 rounded-full text-[10px] uppercase font-mono tracking-widest backdrop-blur-md bg-white/10 border border-white/20 text-gray-200">
+                              ✨ {formData.empresa}
+                            </div>
+                          )}
+                        </div>
+
+                        {!design.hideBio && formData.nota && (
+                          <div className="w-full mt-3">
+                            {design.customLabels?.bio && (
+                              <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                            )}
+                            <p className="text-xs text-gray-300 italic leading-relaxed backdrop-blur-sm bg-black/20 p-2.5 rounded-2xl border border-white/10 w-full">
+                              "{formData.nota}"
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -2330,13 +2397,13 @@ Beneficiario: TSolutions" />
 
                   {/* 5. TEMA MONOLITO LUXURY VIP */}
                   {design.theme === 'monolith' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#0d0d0d] relative">
+                    <div className={`p-5 flex flex-col bg-[#0d0d0d] relative ${design.logoPosition === 'left' ? 'items-start text-left' : design.logoPosition === 'right' ? 'items-end text-right' : 'items-center text-center'}`}>
                       <div
                         className="w-full h-1 rounded-full mb-3 shadow-[0_0_15px_rgba(255,0,3,0.5)]"
                         style={{ background: `linear-gradient(90deg, transparent, ${design.colorPrimario}, ${design.colorSecundario}, transparent)` }}
                       ></div>
 
-                      {coverPhoto && (
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border border-white/10 relative shadow-2xl">
                           <img
                             src={coverPhoto}
@@ -2352,53 +2419,62 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                      {design.logoPosition !== 'hidden' && (
+                        <div
+                          className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+                          style={{
+                            width: `${design.logoScale}px`,
+                            height: `${design.logoScale}px`
+                          }}
+                        >
+                          <img
+                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
 
-                      <div className="flex items-center gap-2 justify-center text-[10px] uppercase font-mono tracking-widest text-amber-300/80 mb-1">
+                      <div className={`w-full flex items-center gap-2 ${design.infoAlignment === 'left' ? 'justify-start' : design.infoAlignment === 'right' ? 'justify-end' : 'justify-center'} text-[10px] uppercase font-mono tracking-widest text-amber-300/80 mb-1`}>
                         <span>◆</span>
                         <span>VIP EXECUTIVE</span>
                         <span>◆</span>
                       </div>
 
-                      <h2
-                        className="text-xl font-extrabold uppercase tracking-wider text-white"
-                        style={{ fontFamily: currentFontPrimary }}
-                      >
-                        {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
-                      </h2>
-
-                      <p className="text-xs font-mono uppercase tracking-widest mt-1 font-bold" style={{ color: design.colorPrimario }}>
-                        {formData.puesto || 'Puesto / Cargo'}
-                      </p>
-
-                      {formData.empresa && (
-                        <div
-                          className="inline-block px-4 py-1 mt-2 rounded-lg text-[10px] font-mono uppercase tracking-widest font-bold border"
-                          style={{
-                            borderColor: `${design.colorSecundario}60`,
-                            backgroundColor: `${design.colorSecundario}10`,
-                            color: design.colorSecundario
-                          }}
+                      <div className={`w-full ${design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'}`}>
+                        <h2
+                          className="text-xl font-extrabold uppercase tracking-wider text-white"
+                          style={{ fontFamily: currentFontPrimary }}
                         >
-                          {formData.empresa}
-                        </div>
-                      )}
+                          {formData.nombre || 'Nombre'} {formData.apellido || 'Apellido'}
+                        </h2>
 
-                      {formData.nota && (
-                        <div className="mt-3 p-3 rounded-xl bg-black/60 border border-white/10 text-xs italic text-gray-300 leading-relaxed w-full">
-                          "{formData.nota}"
+                        <p className="text-xs font-mono uppercase tracking-widest mt-1 font-bold" style={{ color: design.colorPrimario }}>
+                          {formData.puesto || 'Puesto / Cargo'}
+                        </p>
+
+                        {formData.empresa && (
+                          <div
+                            className="inline-block px-4 py-1 mt-2 rounded-lg text-[10px] font-mono uppercase tracking-widest font-bold border"
+                            style={{
+                              borderColor: `${design.colorSecundario}60`,
+                              backgroundColor: `${design.colorSecundario}10`,
+                              color: design.colorSecundario
+                            }}
+                          >
+                            {formData.empresa}
+                          </div>
+                        )}
+                      </div>
+
+                      {!design.hideBio && formData.nota && (
+                        <div className="w-full mt-3">
+                          {design.customLabels?.bio && (
+                            <p className="text-[10px] font-rosetta uppercase font-bold tracking-wider mb-1" style={{ color: design.colorPrimario }}>{design.customLabels.bio}</p>
+                          )}
+                          <div className="p-3 rounded-xl bg-black/60 border border-white/10 text-xs italic text-gray-300 leading-relaxed w-full">
+                            "{formData.nota}"
+                          </div>
                         </div>
                       )}
                     </div>
@@ -2406,8 +2482,10 @@ Beneficiario: TSolutions" />
 
                   {/* 6. TEMA NEO-BRUTALISM POP */}
                   {design.theme === 'neobrutalism' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#fffdfa] text-black">
-                      {coverPhoto && (
+                    <div className={`p-5 flex flex-col bg-[#fffdfa] text-black ${
+                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                    }`}>
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-xl overflow-hidden mb-3 border-3 border-black shadow-[4px_4px_0px_#000000] relative bg-white">
                           <img
                             src={coverPhoto}
@@ -2422,21 +2500,29 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div
-                        className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                      {design.logoPosition !== 'hidden' && (
+                        <div className={`w-full flex ${
+                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                        }`}>
+                          <div
+                            className="flex items-center justify-center overflow-hidden my-2 bg-transparent border-0 shadow-none transition-all"
+                            style={{
+                              width: `${design.logoScale}px`,
+                              height: `${design.logoScale}px`
+                            }}
+                          >
+                            <img
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        </div>
+                      )}
 
-                      <div className="bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-3 rounded-2xl w-full mt-1">
+                      <div className={`bg-white border-2.5 border-black shadow-[4px_4px_0px_#000000] p-3 rounded-2xl w-full mt-1 ${
+                        design.infoAlignment === 'left' ? 'text-left' : design.infoAlignment === 'right' ? 'text-right' : 'text-center'
+                      }`}>
                         <h2
                           className="text-xl font-black tracking-tight text-black uppercase"
                           style={{ fontFamily: currentFontPrimary }}
@@ -2460,8 +2546,13 @@ Beneficiario: TSolutions" />
                         )}
                       </div>
 
-                      {formData.nota && (
+                      {!design.hideBio && formData.nota && (
                         <div className="mt-3 p-2.5 rounded-xl bg-yellow-200/90 border-2 border-black shadow-[3px_3px_0px_#000000] text-xs font-bold italic text-black leading-relaxed w-full">
+                          {design.customLabels?.bio && (
+                            <span className="block not-italic text-[10px] uppercase font-black tracking-wider text-black/70 mb-1">
+                              {design.customLabels.bio}
+                            </span>
+                          )}
                           "{formData.nota}"
                         </div>
                       )}
@@ -2471,34 +2562,38 @@ Beneficiario: TSolutions" />
                   {/* 7. TEMA HERO ASIMÉTRICO */}
                   {design.theme === 'split_hero' && (
                     <div className="p-5 flex flex-col bg-[#0a0e17] text-white">
-                      {coverPhoto ? (
-                        <div
-                          className="w-full h-28 overflow-hidden rounded-2xl mb-3 relative border border-white/10"
-                          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)' }}
-                        >
-                          <img
-                            src={coverPhoto}
-                            alt="Cover"
-                            className="w-full h-full object-cover transition-all"
+                      {!design.hideBanner && (
+                        coverPhoto ? (
+                          <div
+                            className="w-full h-28 overflow-hidden rounded-2xl mb-3 relative border border-white/10"
+                            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)' }}
+                          >
+                            <img
+                              src={coverPhoto}
+                              alt="Cover"
+                              className="w-full h-full object-cover transition-all"
+                              style={{
+                                objectPosition: `center ${design.coverPositionY}%`,
+                                transform: `scale(${design.coverZoom / 100})`,
+                                transformOrigin: `center ${design.coverPositionY}%`
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className="w-full h-14 rounded-2xl mb-2"
                             style={{
-                              objectPosition: `center ${design.coverPositionY}%`,
-                              transform: `scale(${design.coverZoom / 100})`,
-                              transformOrigin: `center ${design.coverPositionY}%`
+                              background: `linear-gradient(135deg, ${design.colorPrimario}, ${design.colorSecundario})`,
+                              clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 100%)'
                             }}
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className="w-full h-14 rounded-2xl mb-2"
-                          style={{
-                            background: `linear-gradient(135deg, ${design.colorPrimario}, ${design.colorSecundario})`,
-                            clipPath: 'polygon(0 0, 100% 0, 100% 75%, 0 100%)'
-                          }}
-                        ></div>
+                          ></div>
+                        )
                       )}
 
-                      <div className="flex items-start justify-between gap-3 mt-1">
-                        <div className="flex-1 text-left">
+                      <div className={`flex items-start justify-between gap-3 mt-1 ${
+                        design.infoAlignment === 'right' ? 'flex-row-reverse text-right' : design.infoAlignment === 'center' ? 'flex-col items-center text-center' : 'text-left'
+                      }`}>
+                        <div className={`flex-1 ${design.infoAlignment === 'right' ? 'text-right' : design.infoAlignment === 'center' ? 'text-center' : 'text-left'}`}>
                           <h2
                             className="text-xl font-extrabold leading-tight text-white tracking-tight"
                             style={{ fontFamily: currentFontPrimary }}
@@ -2522,26 +2617,33 @@ Beneficiario: TSolutions" />
                           )}
                         </div>
 
-                        <div
-                          className="flex items-center justify-center overflow-hidden shrink-0 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${Math.min(design.logoScale, 90)}px`,
-                            height: `${Math.min(design.logoScale, 90)}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
+                        {design.logoPosition !== 'hidden' && (
+                          <div
+                            className="flex items-center justify-center overflow-hidden shrink-0 bg-transparent border-0 shadow-none transition-all"
+                            style={{
+                              width: `${Math.min(design.logoScale, 90)}px`,
+                              height: `${Math.min(design.logoScale, 90)}px`
+                            }}
+                          >
+                            <img
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )}
                       </div>
 
-                      {formData.nota && (
+                      {!design.hideBio && formData.nota && (
                         <div
                           className="mt-3 p-2.5 rounded-xl bg-white/[0.04] border-l-3 text-xs italic text-gray-300 leading-relaxed text-left"
                           style={{ borderColor: design.colorCTA }}
                         >
+                          {design.customLabels?.bio && (
+                            <span className="block not-italic text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1">
+                              {design.customLabels.bio}
+                            </span>
+                          )}
                           "{formData.nota}"
                         </div>
                       )}
@@ -2551,8 +2653,10 @@ Beneficiario: TSolutions" />
                   {/* 8. TEMA BENTO GRID TECH */}
                   {design.theme === 'bento_grid' && (
                     <div className="p-4 flex flex-col gap-3 bg-[#0f0f14] text-white">
-                      <div className="bg-white/[0.05] border border-white/10 rounded-3xl p-4 flex flex-col items-center text-center relative overflow-hidden shadow-lg">
-                        {coverPhoto && (
+                      <div className={`bg-white/[0.05] border border-white/10 rounded-3xl p-4 flex flex-col relative overflow-hidden shadow-lg ${
+                        design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                      }`}>
+                        {!design.hideBanner && coverPhoto && (
                           <div className="w-full h-20 rounded-2xl overflow-hidden mb-3 relative border border-white/10">
                             <img
                               src={coverPhoto}
@@ -2568,19 +2672,25 @@ Beneficiario: TSolutions" />
                           </div>
                         )}
 
-                        <div
-                          className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
+                        {design.logoPosition !== 'hidden' && (
+                          <div className={`w-full flex ${
+                            design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                          }`}>
+                            <div
+                              className="flex items-center justify-center overflow-hidden my-1 bg-transparent border-0 shadow-none transition-all"
+                              style={{
+                                width: `${design.logoScale}px`,
+                                height: `${design.logoScale}px`
+                              }}
+                            >
+                              <img
+                                src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                                alt="Logo"
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          </div>
+                        )}
 
                         <h2
                           className="text-lg font-bold text-white mt-1"
@@ -2605,8 +2715,13 @@ Beneficiario: TSolutions" />
                         )}
                       </div>
 
-                      {formData.nota && (
+                      {!design.hideBio && formData.nota && (
                         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-3 text-xs italic text-gray-300 text-center leading-relaxed">
+                          {design.customLabels?.bio && (
+                            <span className="block not-italic text-[10px] uppercase font-bold tracking-wider text-gray-400 mb-1">
+                              {design.customLabels.bio}
+                            </span>
+                          )}
                           "{formData.nota}"
                         </div>
                       )}
@@ -2615,13 +2730,15 @@ Beneficiario: TSolutions" />
 
                   {/* 9. TEMA CYBER NEON MATRIX */}
                   {design.theme === 'cyber_matrix' && (
-                    <div className="p-5 flex flex-col items-center text-center bg-[#050508] text-white relative font-mono">
+                    <div className={`p-5 flex flex-col bg-[#050508] text-white relative font-mono ${
+                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                    }`}>
                       <div className="w-full flex justify-between text-[10px] text-cyan-400/80 mb-2 border-b border-cyan-500/20 pb-1 font-mono">
                         <span>[SYS_PROFILE]</span>
                         <span className="text-emerald-400">● LIVE HUD</span>
                       </div>
 
-                      {coverPhoto && (
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 rounded-lg overflow-hidden mb-3 border border-cyan-500/30 relative shadow-[0_0_15px_rgba(0,255,255,0.15)]">
                           <img
                             src={coverPhoto}
@@ -2637,23 +2754,29 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div className="relative my-2">
-                        <div
-                          className="flex items-center justify-center overflow-hidden bg-transparent border-0 shadow-none transition-all"
-                          style={{
-                            width: `${design.logoScale}px`,
-                            height: `${design.logoScale}px`
-                          }}
-                        >
-                          <img
-                            src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                            alt="Logo"
-                            className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,0,3,0.6)]"
-                          />
+                      {design.logoPosition !== 'hidden' && (
+                        <div className={`w-full flex ${
+                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                        }`}>
+                          <div className="relative my-2">
+                            <div
+                              className="flex items-center justify-center overflow-hidden bg-transparent border-0 shadow-none transition-all"
+                              style={{
+                                width: `${design.logoScale}px`,
+                                height: `${design.logoScale}px`
+                              }}
+                            >
+                              <img
+                                src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                                alt="Logo"
+                                className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,0,3,0.6)]"
+                              />
+                            </div>
+                            <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
+                            <span className="absolute -bottom-1 -right-1 text-[10px] text-cyan-400">+</span>
+                          </div>
                         </div>
-                        <span className="absolute -top-1 -left-1 text-[10px] text-cyan-400">+</span>
-                        <span className="absolute -bottom-1 -right-1 text-[10px] text-cyan-400">+</span>
-                      </div>
+                      )}
 
                       <h2
                         className="text-xl font-bold tracking-widest text-cyan-100 uppercase mt-1"
@@ -2677,8 +2800,13 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      {formData.nota && (
+                      {!design.hideBio && formData.nota && (
                         <div className="mt-3 p-2.5 rounded bg-black/80 border-l-2 border-r-2 border-cyan-500/40 text-[11px] text-cyan-200/80 leading-relaxed text-left w-full">
+                          {design.customLabels?.bio && (
+                            <span className="block text-[9px] uppercase tracking-widest text-cyan-400 mb-0.5">
+                              // {design.customLabels.bio}
+                            </span>
+                          )}
                           &gt; {formData.nota}
                         </div>
                       )}
@@ -2687,8 +2815,10 @@ Beneficiario: TSolutions" />
 
                   {/* 10. TEMA SUIZO EDITORIAL CLEAN */}
                   {design.theme === 'editorial_swiss' && (
-                    <div className="p-6 flex flex-col items-center text-center bg-white text-zinc-900">
-                      {coverPhoto && (
+                    <div className={`p-6 flex flex-col bg-white text-zinc-900 ${
+                      design.infoAlignment === 'left' ? 'items-start text-left' : design.infoAlignment === 'right' ? 'items-end text-right' : 'items-center text-center'
+                    }`}>
+                      {!design.hideBanner && coverPhoto && (
                         <div className="w-full h-24 overflow-hidden mb-3 border-b border-zinc-200 relative">
                           <img
                             src={coverPhoto}
@@ -2703,19 +2833,25 @@ Beneficiario: TSolutions" />
                         </div>
                       )}
 
-                      <div
-                        className="flex items-center justify-center my-2 bg-transparent border-0 shadow-none transition-all"
-                        style={{
-                          width: `${design.logoScale}px`,
-                          height: `${design.logoScale}px`
-                        }}
-                      >
-                        <img
-                          src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
-                          alt="Logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                      {design.logoPosition !== 'hidden' && (
+                        <div className={`w-full flex ${
+                          design.logoPosition === 'left' ? 'justify-start' : design.logoPosition === 'right' ? 'justify-end' : 'justify-center'
+                        }`}>
+                          <div
+                            className="flex items-center justify-center my-2 bg-transparent border-0 shadow-none transition-all"
+                            style={{
+                              width: `${design.logoScale}px`,
+                              height: `${design.logoScale}px`
+                            }}
+                          >
+                            <img
+                              src={logoImg || brandConfig.assets?.logo || '/brand/logo.png'}
+                              alt="Logo"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       <div className="w-full h-[1px] bg-zinc-200 my-2"></div>
 
@@ -2738,190 +2874,335 @@ Beneficiario: TSolutions" />
 
                       <div className="w-full h-[1px] bg-zinc-200 my-2"></div>
 
-                      {formData.nota && (
-                        <p className="text-xs text-zinc-600 leading-relaxed italic px-2">
+                      {!design.hideBio && formData.nota && (
+                        <div className="w-full text-xs text-zinc-600 leading-relaxed italic px-2">
+                          {design.customLabels?.bio && (
+                            <span className="block not-italic text-[10px] uppercase font-bold tracking-wider text-zinc-400 mb-0.5">
+                              {design.customLabels.bio}
+                            </span>
+                          )}
                           "{formData.nota}"
-                        </p>
+                        </div>
                       )}
                     </div>
                   )}
 
                   {/* PASTILLAS DE CONTACTO & REDES SOCIALES ADAPTABLES AL TEMA */}
                   <div className="px-5 space-y-2 mt-3">
-                    {formData.telefono && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                        <span className="truncate">{formData.telefono}</span>
-                      </div>
-                    )}
-                    {formData.correo && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                        <span className="truncate">{formData.correo}</span>
-                      </div>
-                    )}
-                    {formData.url && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                        <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
-                      </div>
-                    )}
-
-                    {/* REDES SOCIALES EN EL CELULAR */}
-                    {formData.facebook && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <span className="text-xs font-bold text-blue-500">📘</span>
-                        <span className="truncate font-mono">facebook.com/{formData.facebook.replace(/^@+/, '')}</span>
+                    {/* BLOQUE DE CONTACTO */}
+                    {!design.hideContact && (formData.telefono || formData.correo || formData.url) && (
+                      <div className="space-y-2">
+                        {design.customLabels?.contact && (
+                          <div className="text-[10px] uppercase font-bold tracking-wider opacity-60 px-1 text-left">
+                            {design.customLabels.contact}
+                          </div>
+                        )}
+                        {formData.telefono && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                            <span className="truncate">{formData.telefono}</span>
+                          </div>
+                        )}
+                        {formData.correo && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                            <span className="truncate">{formData.correo}</span>
+                          </div>
+                        )}
+                        {formData.url && (
+                          <div
+                            className={`flex items-center gap-3 p-2.5 text-xs font-medium border transition-all ${
+                              design.socialIconShape === 'circle' ? 'rounded-full' : design.socialIconShape === 'square' ? 'rounded-none' : 'rounded-xl'
+                            } ${
+                              design.theme === 'neobrutalism'
+                                ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
+                                : design.theme === 'glassmorphism'
+                                ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
+                                : design.theme === 'cyber_matrix'
+                                ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono shadow-[0_0_8px_rgba(0,255,255,0.06)]'
+                                : design.theme === 'monolith'
+                                ? 'bg-[#141414] border-white/15 text-white'
+                                : design.theme === 'editorial_swiss'
+                                ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
+                                : ''
+                            }`}
+                            style={
+                              design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
+                                ? {
+                                    backgroundColor: `${design.colorSecundario}08`,
+                                    borderColor: `${design.colorSecundario}25`
+                                  }
+                                : {}
+                            }
+                          >
+                            <svg className="w-4 h-4 shrink-0 transition-colors" style={{ color: design.colorSecundario }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                            <span className="truncate">{formData.url.replace(/^https?:\/\//, '')}</span>
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    {formData.instagram && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
+                    {/* ACCIÓN PRINCIPAL RÁPIDA: AGENDAR CITA */}
+                    {(formData.googleCalendarUrl || formData.calendlyUrl || formData.icloudCalendarUrl) && (
+                      <a
+                        href={formData.googleCalendarUrl || formData.calendlyUrl || formData.icloudCalendarUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-3 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-white transition-all shadow-lg border"
+                        style={{
+                          background: `linear-gradient(135deg, ${design.colorPrimario} 0%, #15050A 100%)`,
+                          borderColor: design.colorPrimario,
+                          boxShadow: `0 0 15px ${design.colorPrimario}40`
+                        }}
                       >
-                        <span className="text-xs font-bold text-pink-500">📸</span>
-                        <span className="truncate font-mono">instagram.com/{formData.instagram.replace(/^@+/, '')}</span>
+                        <span className="text-sm animate-pulse">📅</span> {t('schedule_meeting') || 'Agendar Cita de Negocios'}
+                      </a>
+                    )}
+
+                    {/* REDES SOCIALES & ENLACES EN EL CELULAR */}
+                    {!design.hideSocial && (formData.facebook || formData.instagram || formData.linkedin || formData.tiktok || formData.twitter || formData.youtube || formData.whatsapp) && (
+                      <div className="space-y-2 pt-1">
+                        {design.customLabels?.social && (
+                          <div className="text-[10px] uppercase font-bold tracking-wider opacity-60 px-1 text-left">
+                            {design.customLabels.social}
+                          </div>
+                        )}
+
+                        {/* 1. MODO CUADROS CON URL */}
+                        {design.linksDisplayMode === 'url_boxes' && (
+                          <div className="space-y-2">
+                            {[
+                              formData.facebook ? { id: 'fb', title: 'Facebook', displayUrl: `facebook.com/${formData.facebook.replace(/^@+/, '')}`, icon: <FacebookIcon className="w-3.5 h-3.5" />, color: '#1877F2' } : null,
+                              formData.instagram ? { id: 'ig', title: 'Instagram', displayUrl: `instagram.com/${formData.instagram.replace(/^@+/, '')}`, icon: <InstagramIcon className="w-3.5 h-3.5" />, color: '#E4405F' } : null,
+                              formData.linkedin ? { id: 'in', title: 'LinkedIn', displayUrl: `linkedin.com/in/${formData.linkedin.replace(/^@+/, '')}`, icon: <LinkedInIcon className="w-3.5 h-3.5" />, color: '#0A66C2' } : null,
+                              formData.tiktok ? { id: 'tt', title: 'TikTok', displayUrl: `tiktok.com/@${formData.tiktok.replace(/^@+/, '')}`, icon: <TikTokIcon className="w-3.5 h-3.5" />, color: '#FFFFFF' } : null,
+                              formData.twitter ? { id: 'x', title: 'X (Twitter)', displayUrl: `x.com/${formData.twitter.replace(/^@+/, '')}`, icon: <XTwitterIcon className="w-3.5 h-3.5" />, color: '#FFFFFF' } : null,
+                              formData.youtube ? { id: 'yt', title: 'YouTube', displayUrl: `youtube.com/${formData.youtube.replace(/^@+/, '')}`, icon: <YouTubeIcon className="w-3.5 h-3.5" />, color: '#FF0000' } : null,
+                              formData.whatsapp ? { id: 'wa', title: 'WhatsApp', displayUrl: `wa.me/${formData.whatsapp.replace(/[^0-9]/g, '')}`, icon: <WhatsAppIcon className="w-3.5 h-3.5" />, color: '#25D366' } : null
+                            ].filter(Boolean).map(item => (
+                              <div
+                                key={item.id}
+                                className="w-full flex items-center justify-between p-2.5 rounded-xl border text-xs shadow-sm transition-all"
+                                style={{
+                                  backgroundColor: `${design.colorSecundario}0d`,
+                                  borderColor: `${design.colorSecundario}30`
+                                }}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border" style={{ backgroundColor: `${design.colorSecundario}18`, borderColor: `${design.colorSecundario}40`, color: item.color }}>
+                                    {item.icon}
+                                  </div>
+                                  <div className="text-left min-w-0">
+                                    <p className="text-[11px] font-bold tracking-wide truncate">{item.title}</p>
+                                    <p className="text-[9px] opacity-70 truncate font-mono">{item.displayUrl}</p>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] font-mono opacity-70 shrink-0">Abrir ↗</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* 2. MODO TARJETAS / WIDGETS EMBEBIDOS */}
+                        {design.linksDisplayMode === 'embedded' && (
+                          <div className="space-y-2.5">
+                            {[
+                              formData.facebook ? { id: 'fb', title: 'Facebook', badge: 'Social', displayUrl: `facebook.com/${formData.facebook.replace(/^@+/, '')}`, icon: <FacebookIcon className="w-3.5 h-3.5" />, color: '#1877F2' } : null,
+                              formData.instagram ? { id: 'ig', title: 'Instagram', badge: 'Feed', displayUrl: `instagram.com/${formData.instagram.replace(/^@+/, '')}`, icon: <InstagramIcon className="w-3.5 h-3.5" />, color: '#E4405F' } : null,
+                              formData.linkedin ? { id: 'in', title: 'LinkedIn', badge: 'Perfil', displayUrl: `linkedin.com/in/${formData.linkedin.replace(/^@+/, '')}`, icon: <LinkedInIcon className="w-3.5 h-3.5" />, color: '#0A66C2' } : null,
+                              formData.tiktok ? { id: 'tt', title: 'TikTok', badge: 'Videos', displayUrl: `tiktok.com/@${formData.tiktok.replace(/^@+/, '')}`, icon: <TikTokIcon className="w-3.5 h-3.5" />, color: '#FFFFFF' } : null,
+                              formData.twitter ? { id: 'x', title: 'X (Twitter)', badge: 'News', displayUrl: `x.com/${formData.twitter.replace(/^@+/, '')}`, icon: <XTwitterIcon className="w-3.5 h-3.5" />, color: '#FFFFFF' } : null,
+                              formData.youtube ? { id: 'yt', title: 'YouTube', badge: 'Canal', displayUrl: `youtube.com/${formData.youtube.replace(/^@+/, '')}`, icon: <YouTubeIcon className="w-3.5 h-3.5" />, color: '#FF0000' } : null,
+                              formData.whatsapp ? { id: 'wa', title: 'WhatsApp', badge: 'Chat', displayUrl: `wa.me/${formData.whatsapp.replace(/[^0-9]/g, '')}`, icon: <WhatsAppIcon className="w-3.5 h-3.5" />, color: '#25D366' } : null
+                            ].filter(Boolean).map(item => (
+                              <div
+                                key={item.id}
+                                className="w-full rounded-xl p-2.5 border shadow-md relative overflow-hidden backdrop-blur-md"
+                                style={{
+                                  background: `linear-gradient(135deg, ${design.colorSecundario}12 0%, rgba(10,10,20,0.85) 100%)`,
+                                  borderColor: `${design.colorSecundario}35`
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-2 mb-1.5">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border" style={{ backgroundColor: `${design.colorSecundario}25`, borderColor: `${design.colorSecundario}60`, color: item.color }}>
+                                      {item.icon}
+                                    </div>
+                                    <div className="text-left">
+                                      <span className="text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border" style={{ color: design.colorSecundario, borderColor: `${design.colorSecundario}50`, backgroundColor: `${design.colorSecundario}15` }}>
+                                        {item.badge}
+                                      </span>
+                                      <h4 className="text-[10px] font-bold mt-0.5">{item.title}</h4>
+                                    </div>
+                                  </div>
+                                  <span className="px-2 py-1 rounded-lg text-[9px] font-bold text-white uppercase tracking-wider" style={{ backgroundColor: design.colorPrimario }}>
+                                    Visitar ↗
+                                  </span>
+                                </div>
+                                <div className="p-1.5 rounded-lg bg-black/40 border border-white/10 flex items-center justify-between text-[9px] font-mono text-gray-300">
+                                  <span className="truncate">{item.displayUrl}</span>
+                                  <span className="text-[8px] text-emerald-400 shrink-0 ml-1">● Conectado</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* 3. MODO ICONOS CLÁSICOS (GRID) */}
+                        {(!design.linksDisplayMode || design.linksDisplayMode === 'icons') && (
+                          <div className="flex flex-wrap items-center justify-center gap-2.5">
+                            {formData.facebook && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#1877F218', borderColor: '#1877F240', color: '#1877F2' }
+                                }
+                              >
+                                <FacebookIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.instagram && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#E4405F18', borderColor: '#E4405F40', color: '#E4405F' }
+                                }
+                              >
+                                <InstagramIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.linkedin && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#0A66C218', borderColor: '#0A66C240', color: '#0A66C2' }
+                                }
+                              >
+                                <LinkedInIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.tiktok && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                                }
+                              >
+                                <TikTokIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.twitter && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#00000030', borderColor: '#FFFFFF30', color: '#FFFFFF' }
+                                }
+                              >
+                                <XTwitterIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.youtube && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#FF000018', borderColor: '#FF000040', color: '#FF0000' }
+                                }
+                              >
+                                <YouTubeIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                            {formData.whatsapp && (
+                              <div
+                                className={`flex items-center justify-center ${
+                                  design.socialIconShape === 'square' ? 'rounded-md' : design.socialIconShape === 'rounded' ? 'rounded-xl' : design.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                                } ${design.socialIconShape !== 'none' ? 'w-10 h-10 border shadow-md' : ''}`}
+                                style={
+                                  design.socialIconStyle === 'glow' ? { backgroundColor: `${design.colorSecundario}20`, borderColor: design.colorSecundario, boxShadow: `0 0 10px ${design.colorSecundario}80`, color: design.colorSecundario } :
+                                  design.socialIconStyle === 'monochrome' ? { backgroundColor: `${design.colorSecundario}15`, borderColor: `${design.colorSecundario}30`, color: design.colorSecundario } :
+                                  { backgroundColor: '#25D36618', borderColor: '#25D36640', color: '#25D366' }
+                                }
+                              >
+                                <WhatsAppIcon className="w-4 h-4" />
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    {formData.linkedin && (
-                      <div
-                        className={`flex items-center gap-3 p-2.5 rounded-xl text-xs font-medium border transition-all ${
-                          design.theme === 'neobrutalism'
-                            ? 'bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black font-bold'
-                            : design.theme === 'glassmorphism'
-                            ? 'backdrop-blur-md bg-white/5 border-white/15 text-white'
-                            : design.theme === 'cyber_matrix'
-                            ? 'bg-[#080812] border-cyan-500/30 text-cyan-200 font-mono'
-                            : design.theme === 'monolith'
-                            ? 'bg-[#141414] border-white/15 text-white'
-                            : design.theme === 'editorial_swiss'
-                            ? 'bg-zinc-50 border-zinc-200 text-zinc-800'
-                            : ''
-                        }`}
-                        style={
-                          design.theme !== 'neobrutalism' && design.theme !== 'glassmorphism' && design.theme !== 'cyber_matrix' && design.theme !== 'monolith' && design.theme !== 'editorial_swiss'
-                            ? {
-                                backgroundColor: `${design.colorSecundario}08`,
-                                borderColor: `${design.colorSecundario}25`
-                              }
-                            : {}
-                        }
-                      >
-                        <span className="text-xs font-bold text-blue-400">💼</span>
-                        <span className="truncate font-mono">linkedin.com/in/{formData.linkedin.replace(/^@+/, '')}</span>
-                      </div>
-                    )}
-
-                    {effectiveMapsUrl && (
+                    {!design.hideMap && effectiveMapsUrl && (
                       <a
                         href={effectiveMapsUrl}
                         target="_blank"
@@ -2936,22 +3217,31 @@ Beneficiario: TSolutions" />
                         <span>📍</span> {locationLabel}
                       </a>
                     )}
-                    {formData.videoYoutubeUrl && (
+
+                    {!design.hideVideo && formData.videoYoutubeUrl && (
                       <div className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-white bg-red-600 shadow-md">
-                        <span>▶</span> Ver Video de Presentación
+                        <span>▶</span> {t('watch_video') || 'Ver Video de Presentación'}
                       </div>
                     )}
+
+                    {/* FOOTER DISCRETO EN PREVIEW */}
+                    <div className="pt-6 pb-2 text-center opacity-60">
+                      <p className="text-[9px] font-mono tracking-wider uppercase">
+                        Tecnología por <span className="font-bold text-white">TSolutions ROSE</span>
+                      </p>
+                    </div>
                   </div>
                 </>
               )}
             </div>
 
-            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (TIPOGRAFÍA PRIMARIA Y COLOR CTA DEL CLIENTE) */}
+            {/* BOTÓN FLOTANTE INFERIOR DENTRO DEL MOCKUP (SIEMPRE VISIBLE / FIJO EN EL SCROLL) */}
             {mode === 'vcard' && (
-              <div className="absolute bottom-3.5 left-3.5 right-3.5 z-20">
+              <div className="absolute bottom-3 left-3 right-3 z-30 space-y-1.5 pointer-events-auto bg-gradient-to-t from-black/95 via-black/85 to-transparent pt-3 pb-0.5 px-0.5 rounded-b-[28px] backdrop-blur-xs">
                 <button
+                  type="button"
                   onClick={downloadVCF}
-                  className={`w-full py-3 rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all hover:brightness-110 flex items-center justify-center gap-2 ${
+                  className={`w-full py-3.5 rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all hover:brightness-110 active:scale-[0.99] flex items-center justify-center gap-2 border border-white/20 shadow-2xl ${
                     design.theme === 'neobrutalism'
                       ? 'border-2.5 border-black shadow-[4px_4px_0px_#000] text-white font-black'
                       : design.theme === 'glassmorphism'
@@ -2963,13 +3253,31 @@ Beneficiario: TSolutions" />
                       : 'text-white shadow-xl'
                   }`}
                   style={{
-                    backgroundColor: design.colorCTA,
-                    fontFamily: currentFontPrimary
+                    background: `linear-gradient(135deg, ${design.colorCTA} 0%, #BE123C 100%)`,
+                    fontFamily: currentFontPrimary,
+                    boxShadow: `0 6px 20px ${design.colorCTA}60`
                   }}
                 >
-                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                  <span>{t('preview_save_btn')}</span>
+                  <span className="text-sm">💾</span>
+                  <span>{t('preview_save_btn') || '💾 Guardar Contacto en Mi Celular'}</span>
                 </button>
+
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button 
+                    type="button"
+                    onClick={() => alert('Apple Wallet estará disponible al descargar tu tarjeta.')}
+                    className="w-full py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg text-white font-semibold text-[10px] flex items-center justify-center gap-1 hover:bg-white/10 transition-colors shadow-sm"
+                  >
+                     {t('apple_wallet') || 'Apple Wallet'}
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => alert('Google Wallet estará disponible al descargar tu tarjeta.')}
+                    className="w-full py-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg text-white font-semibold text-[10px] flex items-center justify-center gap-1 hover:bg-white/10 transition-colors shadow-sm"
+                  >
+                    {t('google_wallet') || 'Google Wallet'}
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -3150,28 +3458,205 @@ Beneficiario: TSolutions" />
         clientEmail={formData.correo || null}
       />
 
-      {/* MODAL DE PASARELA DE PAGO: TSOLUTIONS SECURE PAY GATEWAY */}
+      {/* MODAL DE PASARELA DE PAGO DIRECTA: TSOLUTIONS SECURE CHECKOUT */}
       {showCheckoutModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0c0c16] border border-rose-600/30 w-full max-w-sm rounded-3xl p-6 text-center shadow-[0_0_30px_rgba(255,0,3,0.15)] animate-scaleIn">
-            <div className="w-16 h-16 bg-rose-600/10 border border-rose-600/20 text-[#ff0003] flex items-center justify-center rounded-full mx-auto mb-4 text-2xl">
-              <Lock className="w-8 h-8" />
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#0e0d18] border border-[#ff0003]/40 w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-[0_0_50px_rgba(255,0,3,0.25)] animate-scaleIn space-y-5 my-8">
+            
+            {/* Header del Modal */}
+            <div className="text-center space-y-1.5">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#ff0003]/20 to-[#00E5FF]/10 border border-[#ff0003]/40 text-[#ff0003] flex items-center justify-center rounded-2xl mx-auto shadow-[0_0_20px_rgba(255,0,3,0.3)] text-2xl">
+                💳
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-white font-bruno">
+                Desbloquea tu Tarjeta & Entregables
+              </h3>
+              <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+                ¡Tu diseño está 100% listo y guardado! Selecciona tu paquete para desplegar en Google Cloud y activar tus descargas inmediatas.
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2 font-bruno">Módulo Bloqueado</h3>
-            <p className="text-sm text-gray-400 mb-6 font-mono">
-              Esta función no está incluida en tu paquete actual. Los bloqueos visuales protegen las características exclusivas de los paquetes superiores.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowCheckoutModal(false)}
-                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all"
+
+            {/* Selector de Paquetes Comerciales */}
+            <div className="space-y-3">
+              {/* Opción 1: Paquete Completo (Recomendado) */}
+              <div
+                onClick={() => setSelectedProduct({ name: 'Paquete Completo All-in-One (4 Entregables)', price: 199, id: 'bundle' })}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                  selectedProduct.id === 'bundle'
+                    ? 'bg-gradient-to-r from-[#ff0003]/15 to-rose-950/40 border-[#ff0003] shadow-[0_0_20px_rgba(255,0,3,0.25)]'
+                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                }`}
               >
-                Cerrar
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
+                    selectedProduct.id === 'bundle' ? 'border-[#ff0003] bg-[#ff0003]' : 'border-gray-600'
+                  }`}>
+                    {selectedProduct.id === 'bundle' && <span className="w-2 h-2 rounded-full bg-white"></span>}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-white font-rosetta">Paquete Completo All-in-One</span>
+                      <span className="text-[10px] bg-[#ff0003] text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">MÁS POPULAR</span>
+                    </div>
+                    <p className="text-[11px] text-gray-300">
+                      Incluye los 4 Entregables Oficiales: Despliegue en Cloud SQL, Archivo .VCF, Código QR HD 1200px y Paquete ZIP.
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-lg font-bold text-white font-mono">$199</span>
+                  <span className="text-[10px] text-gray-400 block font-mono">MXN</span>
+                </div>
+              </div>
+
+              {/* Opción 2: Plan Business Elite */}
+              <div
+                onClick={() => setSelectedProduct({ name: 'Plan Business Elite Anual (Acceso Total)', price: 1499, id: 'elite_annual' })}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                  selectedProduct.id === 'elite_annual'
+                    ? 'bg-gradient-to-r from-purple-950/40 to-[#00E5FF]/10 border-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.2)]'
+                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
+                    selectedProduct.id === 'elite_annual' ? 'border-[#00E5FF] bg-[#00E5FF]' : 'border-gray-600'
+                  }`}>
+                    {selectedProduct.id === 'elite_annual' && <span className="w-2 h-2 rounded-full bg-black"></span>}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-white font-rosetta">Plan Business Elite</span>
+                      <span className="text-[10px] bg-[#00E5FF] text-black px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">MÁXIMO PODER</span>
+                    </div>
+                    <p className="text-[11px] text-gray-300">
+                      50 Tarjetas, Módulos Elite (Portafolio, Galería, Reseñas, Agenda) y Edición Ilimitada.
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-lg font-bold text-white font-mono">$1,499</span>
+                  <span className="text-[10px] text-gray-400 block font-mono">MXN/Año</span>
+                </div>
+              </div>
+
+              {/* Opción 3: Solo Despliegue Cloud */}
+              <div
+                onClick={() => setSelectedProduct({ name: 'Módulo 3: Despliegue Cloud & Enlace Permanente (/p/[slug])', price: 99, id: 'cloud' })}
+                className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                  selectedProduct.id === 'cloud'
+                    ? 'bg-gradient-to-r from-[#ff0003]/15 to-black border-[#ff0003]'
+                    : 'bg-black/40 border-gray-800 hover:border-gray-700'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
+                    selectedProduct.id === 'cloud' ? 'border-[#ff0003] bg-[#ff0003]' : 'border-gray-600'
+                  }`}>
+                    {selectedProduct.id === 'cloud' && <span className="w-2 h-2 rounded-full bg-white"></span>}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-white">Despliegue Cloud Básico</span>
+                    <p className="text-[10px] text-gray-400">Alojamiento en Google Cloud SQL con enlace permanente</p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-base font-bold text-white font-mono">$99</span>
+                  <span className="text-[10px] text-gray-400 block font-mono">MXN</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Resumen de Seguridad */}
+            <div className="bg-black/60 p-3 rounded-xl border border-gray-800 flex items-center justify-between text-[11px] text-gray-400">
+              <span className="flex items-center gap-1.5">
+                <span className="text-emerald-400">🔒</span> Pago Seguro Cifrado con Stripe
+              </span>
+              <span className="font-mono text-white">Tarjetas Crédito / Débito</span>
+            </div>
+
+            {/* Botones de Acción */}
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={handleProcessPayment}
+                disabled={isProcessingPayment}
+                className="w-full py-4 bg-gradient-to-r from-[#ff0003] via-[#EE334E] to-[#ff0003] hover:brightness-110 text-white rounded-2xl text-sm font-bold uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(255,0,3,0.5)] flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+              >
+                {isProcessingPayment ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Conectando con Stripe Seguro...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>💳</span>
+                    <span>Pagar ${selectedProduct.price} MXN y Desbloquear Ahora</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowCheckoutModal(false)}
+                className="w-full py-2.5 text-xs text-gray-400 hover:text-white font-mono transition-colors text-center cursor-pointer"
+              >
+                ✓ Borrador guardado automáticamente • Continuar editando
               </button>
             </div>
+
           </div>
         </div>
       )}
+
+      {/* MODAL DE ASISTENTE DE PAGOS PAYPAL / STRIPE */}
+      <PayPalHelperModal
+        isOpen={showPayPalHelper}
+        onClose={() => setShowPayPalHelper(false)}
+        onApplyLink={(url) => setFormData(prev => ({ ...prev, paypalUrl: url }))}
+      />
+
+      {/* CREADOR EXPRESS DE CATÁLOGO / PORTAFOLIO / MENÚ EN PDF */}
+      <ExpressCatalogModal
+        isOpen={showExpressCatalogModal}
+        onClose={() => setShowExpressCatalogModal(false)}
+        companyName={formData.empresa || formData.nombre}
+        onPdfGenerated={(url) => setFormData(prev => ({ ...prev, pdfUrl: url }))}
+      />
+
+      {/* MODAL DE HUELLA ECOLÓGICA Y DECISIÓN DE TARJETA FÍSICA NFC */}
+      <EcoFootprintModal
+        isOpen={showEcoModal}
+        onClose={() => setShowEcoModal(false)}
+        slug={baseCardSlug}
+        shippingLocation={shippingLocation}
+        setShippingLocation={setShippingLocation}
+      />
+
+      {/* OVERLAY DE BLOQUEO DEL CONSTRUCTOR TRAS GUARDADO EN NUBE */}
+      {isBuilderLocked && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-3xl mb-4 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+            🔒
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-white uppercase font-mono tracking-wider">
+            Tarjeta Desplegada y Asegurada
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-300 max-w-md mt-2 leading-relaxed">
+            Tu tarjeta digital ya vive en la nube. El editor se ha cerrado para proteger la integridad de tus datos y telemetría. Redirigiendo a tu Centro de Entregables Oficial...
+          </p>
+          <div className="mt-6 flex items-center gap-2 text-xs font-mono text-emerald-400">
+            <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+            Cargando /gracias/{savedSlug || baseCardSlug}...
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE CHECKLIST & ADVERTENCIA PREVIA AL CONSTRUCTOR */}
+      <PreBuilderChecklistModal
+        isOpen={showPreChecklist}
+        onClose={handleDismissPreChecklist}
+      />
 
     </div>
   );

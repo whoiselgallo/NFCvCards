@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Settings, CreditCard, Star, Calendar, ExternalLink, Activity } from 'lucide-react';
 import brandConfig from '../../brand.config';
+import DashboardTelemetryClient from '../components/DashboardTelemetryClient';
 
 export const metadata = {
   title: `Mi Panel | ${brandConfig.companyName}`,
@@ -58,9 +59,12 @@ export default async function DashboardPage() {
               <p className="text-slate-400 font-mono text-sm">Bienvenido(a), {session.user.name}</p>
             </div>
           </div>
-          <Link href="/builder" className="px-6 py-3 bg-[#EE334E] hover:bg-[#ff0003] text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(238,51,78,0.4)] flex items-center gap-2">
-            <CreditCard className="w-5 h-5" /> Ir al Constructor de Tarjetas
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <DashboardTelemetryClient userName={session.user.name} />
+            <Link href="/builder" className="px-6 py-3 bg-[#EE334E] hover:bg-[#ff0003] text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(238,51,78,0.4)] flex items-center gap-2">
+              <CreditCard className="w-5 h-5" /> Ir al Constructor
+            </Link>
+          </div>
         </header>
 
         {/* Status Dashboard */}
