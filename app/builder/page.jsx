@@ -12,6 +12,7 @@ import PayPalHelperModal, { parsePaymentInput } from '../components/PayPalHelper
 import ExpressCatalogModal from '../components/ExpressCatalogModal';
 import EcoFootprintModal from '../components/EcoFootprintModal';
 import PreBuilderChecklistModal from '../components/PreBuilderChecklistModal';
+import CreationGuideModal from '../components/CreationGuideModal';
 import { BrandSocialIcon, FacebookIcon, InstagramIcon, LinkedInIcon, TikTokIcon, XTwitterIcon, YouTubeIcon, WhatsAppIcon } from '../components/BrandSocialIcons';
 
 // Temas Estructurales de la Tarjeta del Cliente (10 Diseños Profesionales)
@@ -174,6 +175,7 @@ export default function VCardEngineDashboard() {
   const [vipPass, setVipPass] = useState(null);
   const [referredByAgent, setReferredByAgent] = useState(null);
   const [showPreChecklist, setShowPreChecklist] = useState(false);
+  const [showCreationGuide, setShowCreationGuide] = useState(false);
 
   // Mostrar checklist/advertencia previa en la primera visita a la sesión
   useEffect(() => {
@@ -204,6 +206,7 @@ export default function VCardEngineDashboard() {
         if (agent) {
           setReferredByAgent(agent);
         }
+        setShowCreationGuide(true);
       }
 
       if (vipSlug) {
@@ -351,6 +354,7 @@ export default function VCardEngineDashboard() {
 
   // Estados de Idioma (Español base + auto-detección flexible)
   const [lang, setLang] = useState('es');
+  const [autoSaveStatus, setAutoSaveStatus] = useState('saved'); // 'saving' | 'saved'
 
   // Estados de Logística y Envíos (Mexicali 100% Gratis vs DHL/UPS)
   const [shippingLocation, setShippingLocation] = useState('mexicali'); // 'mexicali' | 'mexico_dhl' | 'world_ups'
@@ -406,27 +410,39 @@ export default function VCardEngineDashboard() {
     }
   }, []);
 
-  // Auto-guardado en LocalStorage para garantizar CERO PÉRDIDA DE DATOS
+  // Auto-guardado instantáneo en LocalStorage cada vez que se modifique cualquier campo
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const hasContent = formData.nombre || formData.apellido || formData.empresa || formData.puesto || formData.telefono || formData.correo;
+      const hasContent = Object.values(formData).some(val => typeof val === 'string' ? val.trim() !== '' : Boolean(val));
       if (hasContent) {
+        setAutoSaveStatus('saving');
         try {
-          localStorage.setItem('vcard_builder_draft', JSON.stringify({
+          const draftPayload = JSON.stringify({
             formData,
             design,
+            logoImg,
+            coverPhoto,
             timestamp: Date.now()
-          }));
-        } catch (e) {}
+          });
+          localStorage.setItem('vcard_builder_draft', draftPayload);
+          localStorage.setItem('vcard_builder_auto_draft', draftPayload);
+          if (formData.slug) {
+            localStorage.setItem(`vcard_draft_${formData.slug}`, draftPayload);
+          }
+        } catch (e) {
+          console.warn('Error en auto-guardado local:', e);
+        }
+        const timer = setTimeout(() => setAutoSaveStatus('saved'), 500);
+        return () => clearTimeout(timer);
       }
     }
-  }, [formData, design]);
+  }, [formData, design, logoImg, coverPhoto]);
 
-  // Restauración de borrador al cargar
+  // Restauración completa de borrador al cargar
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const savedDraft = localStorage.getItem('vcard_builder_draft');
+        const savedDraft = localStorage.getItem('vcard_builder_draft') || localStorage.getItem('vcard_builder_auto_draft');
         if (savedDraft) {
           const parsed = JSON.parse(savedDraft);
           if (parsed.formData && !formData.nombre) {
@@ -434,6 +450,12 @@ export default function VCardEngineDashboard() {
           }
           if (parsed.design) {
             setDesign(prev => ({ ...prev, ...parsed.design }));
+          }
+          if (parsed.logoImg) {
+            setLogoImg(parsed.logoImg);
+          }
+          if (parsed.coverPhoto) {
+            setCoverPhoto(parsed.coverPhoto);
           }
         }
       } catch (e) {}
@@ -3657,6 +3679,28 @@ Beneficiario: TSolutions" />
         isOpen={showPreChecklist}
         onClose={handleDismissPreChecklist}
       />
+
+      {/* MODAL FLOTANTE DE INSTRUCTIVO Y BIENVENIDA DE AGENTE */}
+      <CreationGuideModal
+        isOpen={showCreationGuide}
+        onClose={() => setShowCreationGuide(false)}
+        agentInfo={referredByAgent}
+      />
+
+      {/* INDICADOR DE AUTO-GUARDADO EN TIEMPO REAL Y BOTÓN DE INSTRUCTIVO */}
+      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2">
+        <div className="backdrop-blur-md bg-[#090912]/90 border border-white/20 px-3.5 py-1.5 rounded-full shadow-2xl flex items-center gap-2 text-[11px] font-mono font-bold text-gray-200 transition-all">
+          <span className={`w-2 h-2 rounded-full ${autoSaveStatus === 'saving' ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 shadow-[0_0_8px_#34d399]'}`} />
+          <span>{autoSaveStatus === 'saving' ? 'Guardando borrador...' : '🟢 Avance guardado'}</span>
+        </div>
+
+        <button
+          onClick={() => setShowCreationGuide(true)}
+          className="backdrop-blur-md bg-[#00E5FF]/20 hover:bg-[#00E5FF]/30 border border-[#00E5FF]/50 px-3.5 py-1.5 rounded-full shadow-[0_0_15px_rgba(0,229,255,0.25)] flex items-center gap-1.5 text-[11px] font-bold text-white transition-all transform hover:scale-105"
+        >
+          <span>📖 Instructivo</span>
+        </button>
+      </div>
 
     </div>
   );

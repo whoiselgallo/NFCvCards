@@ -14,9 +14,11 @@ import {
   ArrowRight,
   MonitorSmartphone,
   Layers,
-  Mail
+  Mail,
+  BookOpen
 } from 'lucide-react';
 import MasterAdminDrawer from './components/MasterAdminDrawer';
+import CreationGuideModal from './components/CreationGuideModal';
 
 const WORDS = [
   "Cierre de alto Impacto", 
@@ -65,6 +67,7 @@ function PayPalButton({ planId }) {
 }
 
 export default function LandingPage() {
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const handleCheckout = async (planId) => {
     // Aquí puedes agregar validación de sesión para enviar el email del usuario logueado
     // Por ahora redirigimos al checkout donde Stripe pedirá el correo
@@ -124,26 +127,40 @@ export default function LandingPage() {
           </div>
 
           {/* Botón de Inicio de Sesión para Celulares (Visible en Móvil) */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-1.5">
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="text-xs text-[#00E5FF] hover:text-white px-2 py-1.5 rounded-lg bg-[#00E5FF]/10 border border-[#00E5FF]/30 font-semibold flex items-center gap-1"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Instructivo</span>
+            </button>
             <Link 
               href="/builder" 
-              className="text-xs text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10"
+              className="text-xs text-slate-300 hover:text-white px-2 py-1.5 rounded-lg bg-white/5 border border-white/10"
             >
               Editor
             </Link>
             <Link 
               href="/login" 
-              className="text-white bg-gradient-to-r from-[#EE334E] to-[#ff0003] hover:brightness-110 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-[0_0_12px_rgba(238,51,78,0.4)] flex items-center gap-1.5"
+              className="text-white bg-gradient-to-r from-[#EE334E] to-[#ff0003] hover:brightness-110 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-[0_0_12px_rgba(238,51,78,0.4)] flex items-center gap-1"
             >
               <span>Iniciar Sesión</span>
             </Link>
           </div>
 
           {/* Menú Desktop */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
             <a href="#use-cases" className="hover:text-white transition-colors">Casos de Uso</a>
             <a href="#white-label" className="hover:text-white transition-colors">Marca Blanca</a>
             <a href="#pricing" className="hover:text-white transition-colors">Precios</a>
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="text-[#00E5FF] hover:text-white bg-[#00E5FF]/10 hover:bg-[#00E5FF]/20 border border-[#00E5FF]/30 px-3.5 py-2 rounded-lg font-bold transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,229,255,0.15)]"
+            >
+              <BookOpen className="w-4 h-4 text-[#00E5FF]" />
+              <span>Instructivo</span>
+            </button>
             <Link href="/login" className="text-white bg-[#EE334E] hover:bg-[#ff0003] px-4 py-2 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(238,51,78,0.3)]">Iniciar Sesión</Link>
           </div>
         </div>
@@ -212,6 +229,13 @@ export default function LandingPage() {
             <Link href="/builder" className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2">
               Probar Editor <ArrowRight className="w-5 h-5" />
             </Link>
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="w-full sm:w-auto px-7 py-4 bg-[#00E5FF]/10 hover:bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/30 backdrop-blur-md rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+            >
+              <BookOpen className="w-5 h-5 text-[#00E5FF]" />
+              <span>📖 Ver Instructivo</span>
+            </button>
           </motion.div>
         </motion.div>
       </section>
@@ -230,58 +254,112 @@ export default function LandingPage() {
             <p className="text-slate-400 max-w-2xl mx-auto">Soluciones escalables que se adaptan desde el emprendedor individual hasta el corporativo transnacional.</p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            {/* Opción 1 */}
+            {/* Opción 1: Design 1 - Emprendedor & Startup Tech */}
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-52 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/formal_casual.jpeg" alt="Formal Casual" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/design1.jpeg" alt="Diseño Innovación Tech" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
-              <div className="p-8 flex-1 flex flex-col">
-                <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
+              <div className="p-7 flex-1 flex flex-col">
+                <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-4 -mt-12 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
                   <Zap className="w-6 h-6 text-[#EE334E]" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-1">Formal Casual</h3>
-                <p className="text-xs text-[#EE334E] font-bold mb-4 tracking-wide uppercase">Emprendedores y Startups</p>
+                <h3 className="text-xl font-bold text-white mb-1">Diseño Innovación Tech</h3>
+                <p className="text-xs text-[#EE334E] font-bold mb-3 tracking-wide uppercase">Emprendedores, Founders & Startups</p>
                 <p className="text-slate-400 text-sm leading-relaxed flex-1">
-                  En el ecosistema de startups nos obsesiona eliminar la fricción. En <strong>Rose VCards</strong> transformamos el primer punto de contacto en un activo de conversión inmediata. Unimos hardware NFC con <strong>Google Cloud</strong>, permitiendo guardar tu perfil con un solo toque, sin apps.
+                  En el ecosistema de startups nos obsesiona eliminar la fricción. Transformamos el primer punto de contacto en un activo de conversión inmediata. Unimos hardware NFC con <strong>Google Cloud</strong>, permitiendo guardar tu perfil con un solo toque, sin instalar apps.
                 </p>
               </div>
             </motion.div>
 
-            {/* Opción 2 */}
+            {/* Opción 2: Design 2 - Ejecutivo Ventas & Pymes */}
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-52 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/ejecutivo_comercial.jpeg" alt="Ejecutivo Comercial" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/design2.jpeg" alt="Diseño Ejecutivo Comercial" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
-              <div className="p-8 flex-1 flex flex-col">
-                <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
+              <div className="p-7 flex-1 flex flex-col">
+                <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-4 -mt-12 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
                   <BarChart3 className="w-6 h-6 text-[#EE334E]" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-1">Ejecutivo Comercial</h3>
-                <p className="text-xs text-[#EE334E] font-bold mb-4 tracking-wide uppercase">Pymes y Dir. de Ventas</p>
+                <p className="text-xs text-[#EE334E] font-bold mb-3 tracking-wide uppercase">Pymes & Directores de Ventas</p>
                 <p className="text-slate-400 text-sm leading-relaxed flex-1">
-                  El networking tradicional arrastra un costo oculto: prospectos que se enfrían y tarjetas descartadas. Modernizamos la prospección fusionando NFC prémium con la alta disponibilidad de <strong>Google Cloud</strong>. Centralizamos la identidad de tu fuerza comercial con tecnología de vanguardia.
+                  El networking tradicional arrastra un costo oculto: prospectos que se enfrían. Modernizamos la prospección fusionando NFC prémium con la alta disponibilidad de <strong>Google Cloud</strong>. Centralizamos la identidad de tu fuerza comercial con tecnología de vanguardia.
                 </p>
               </div>
             </motion.div>
 
-            {/* Opción 3 */}
+            {/* Opción 3: Design 3 - Corporativo Élite C-Level */}
             <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-52 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/profesional_elite.jpeg" alt="Profesional Élite" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                <img src="/design3.jpeg" alt="Corporativo Élite C-Level" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
               </div>
-              <div className="p-8 flex-1 flex flex-col">
-                <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-5 -mt-14 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
+              <div className="p-7 flex-1 flex flex-col">
+                <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-4 -mt-12 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
                   <ShieldCheck className="w-6 h-6 text-[#EE334E]" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-1">Profesional Élite</h3>
-                <p className="text-xs text-[#EE334E] font-bold mb-4 tracking-wide uppercase">C-Level Transnacionales</p>
+                <h3 className="text-xl font-bold text-white mb-1">Corporativo Élite</h3>
+                <p className="text-xs text-[#EE334E] font-bold mb-3 tracking-wide uppercase">C-Level Transnacionales & Firmas</p>
                 <p className="text-slate-400 text-sm leading-relaxed flex-1">
                   La consistencia de marca y la seguridad no son negociables. Redefinimos el intercambio corporativo mediante una infraestructura de grado empresarial en <strong>Google Cloud Platform</strong>. Proveemos una solución que refuerza la soberanía de datos y proyecta liderazgo.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Opción 4: Sector Salud & Citas Médicas */}
+            <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#00E5FF]/50 transition-colors group flex flex-col">
+              <div className="h-52 overflow-hidden relative">
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
+                <img src="/medical_schedule.jpeg" alt="Sector Salud & Citas Médicas" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+              </div>
+              <div className="p-7 flex-1 flex flex-col">
+                <div className="w-12 h-12 bg-[#00E5FF]/10 rounded-xl flex items-center justify-center mb-4 -mt-12 relative z-20 border border-[#00E5FF]/30 backdrop-blur-md">
+                  <span className="text-xl">🩺</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-1">Sector Salud & Médicos</h3>
+                <p className="text-xs text-[#00E5FF] font-bold mb-3 tracking-wide uppercase">Médicos, Clínicas & Especialistas</p>
+                <p className="text-slate-400 text-sm leading-relaxed flex-1">
+                  Agendamiento inmediato de consultas mediante integración con Google Calendar y Calendly. Tus pacientes guardan tu contacto directo de urgencias y ubicación de consultorio en Google Maps con 1 tap.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Opción 5: Educación & Mentores */}
+            <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#10B981]/50 transition-colors group flex flex-col">
+              <div className="h-52 overflow-hidden relative">
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
+                <img src="/teachers_networking.jpeg" alt="Educación & Networking Académico" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+              </div>
+              <div className="p-7 flex-1 flex flex-col">
+                <div className="w-12 h-12 bg-[#10B981]/10 rounded-xl flex items-center justify-center mb-4 -mt-12 relative z-20 border border-[#10B981]/30 backdrop-blur-md">
+                  <span className="text-xl">🎓</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-1">Académico & Educación</h3>
+                <p className="text-xs text-[#10B981] font-bold mb-3 tracking-wide uppercase">Profesores, Mentores & Conferencistas</p>
+                <p className="text-slate-400 text-sm leading-relaxed flex-1">
+                  Comparte programas de estudio, enlaces de investigación y canales de comunicación oficial con alumnos y colegas en ponencias internacionales con tecnología NFC sostenible sin papel.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Opción 6: Freelancers & Servicios Profesionales */}
+            <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#F59E0B]/50 transition-colors group flex flex-col">
+              <div className="h-52 overflow-hidden relative">
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
+                <img src="/freelancer_payed.jpeg" alt="Freelancers & Pagos Directos" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+              </div>
+              <div className="p-7 flex-1 flex flex-col">
+                <div className="w-12 h-12 bg-[#F59E0B]/10 rounded-xl flex items-center justify-center mb-4 -mt-12 relative z-20 border border-[#F59E0B]/30 backdrop-blur-md">
+                  <span className="text-xl">💼</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-1">Freelancers & Servicios</h3>
+                <p className="text-xs text-[#F59E0B] font-bold mb-3 tracking-wide uppercase">Consultores, Creadores & Despachos</p>
+                <p className="text-slate-400 text-sm leading-relaxed flex-1">
+                  Muestra tu portafolio de proyectos en alta definición, recibe transferencias bancarias SPEI / PayPal directas y envía tus entregables digitales en 1-click a tus clientes.
                 </p>
               </div>
             </motion.div>
@@ -715,6 +793,11 @@ export default function LandingPage() {
 
             {/* Enlaces Legales */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-slate-400 mb-6">
+              <button onClick={() => setIsGuideOpen(true)} className="hover:text-[#00E5FF] transition-colors flex items-center gap-1">
+                <BookOpen className="w-4 h-4 text-[#00E5FF]" />
+                <span>Instructivo de Creación</span>
+              </button>
+              <span className="hidden sm:inline text-slate-700">•</span>
               <Link href="/terminos" className="hover:text-white transition-colors">Términos y Condiciones</Link>
               <span className="hidden sm:inline text-slate-700">•</span>
               <Link href="/privacidad" className="hover:text-white transition-colors">Aviso de Privacidad</Link>
@@ -732,6 +815,11 @@ export default function LandingPage() {
           </div>
         </footer>
     </div>
+    
+    <CreationGuideModal 
+      isOpen={isGuideOpen} 
+      onClose={() => setIsGuideOpen(false)} 
+    />
     </>
 
   );

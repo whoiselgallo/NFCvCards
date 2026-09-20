@@ -1,12 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import brandConfig from '../../brand.config';
 import { THEMES, SUBSCRIPTION_PLANS } from '../../lib/themes';
 import PublicProfileClient from '../p/[slug]/PublicProfileClient';
 import TelemetryPdfReportModal from '../components/TelemetryPdfReportModal';
 
 export default function BusinessElitePortalPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [selectedSlug, setSelectedSlug] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);

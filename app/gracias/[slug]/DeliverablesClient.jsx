@@ -60,7 +60,7 @@ export default function DeliverablesClient({ initialProfile, slug }) {
     return vcard;
   };
 
-  // Generador garantizado de PNG de alta resolución (1200x1200px)
+  // Generador vectorial HD de Código QR con Identidad de Marca y Logotipo (1200x1200px)
   const getQRPNGBlob = () => {
     return new Promise((resolve) => {
       const svg = document.getElementById('deliverables-qr-svg');
@@ -69,24 +69,155 @@ export default function DeliverablesClient({ initialProfile, slug }) {
         return;
       }
 
+      const primaryColor = profile.color_primario || '#E11D48';
+      const secondaryColor = profile.color_secundario || '#00E5FF';
+      const activeLogoUrl = profile.logo_img || profile.logo_url || profile.cover_photo;
+
       const svgData = new XMLSerializer().serializeToString(svg);
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
+      const qrImg = new Image();
 
       canvas.width = 1200;
       canvas.height = 1200;
 
-      img.onload = () => {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 60, 60, 1080, 1080);
-        canvas.toBlob((blob) => {
-          resolve(blob);
-        }, 'image/png');
+      const drawRoundRect = (x, y, w, h, r) => {
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(x, y, w, h, r);
+        } else {
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.arcTo(x + w, y, x + w, y + h, r);
+          ctx.arcTo(x + w, y + h, x, y + h, r);
+          ctx.arcTo(x, y + h, x, y, r);
+          ctx.arcTo(x, y, x + w, y, r);
+          ctx.closePath();
+        }
       };
 
-      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+      qrImg.onload = () => {
+        // 1. Fondo elegante oscuro de marca
+        const bgGrad = ctx.createLinearGradient(0, 0, 1200, 1200);
+        bgGrad.addColorStop(0, '#07070F');
+        bgGrad.addColorStop(0.5, '#0F0B18');
+        bgGrad.addColorStop(1, '#07070F');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1200, 1200);
+
+        // 2. Marco exterior resplandeciente con colores primario y secundario de marca
+        const frameGrad = ctx.createLinearGradient(60, 60, 1140, 1140);
+        frameGrad.addColorStop(0, primaryColor);
+        frameGrad.addColorStop(1, secondaryColor);
+
+        drawRoundRect(35, 35, 1130, 1130, 36);
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = frameGrad;
+        ctx.stroke();
+
+        // 3. Encabezado de Identidad de Marca
+        ctx.textAlign = 'center';
+
+        // Empresa / Marca Top Label
+        ctx.font = 'bold 26px sans-serif';
+        ctx.fillStyle = primaryColor;
+        ctx.fillText((empresa || 'IDENTIDAD DIGITAL NFC').toUpperCase(), 600, 100);
+
+        // Nombre del Titular
+        ctx.font = 'bold 42px sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(titular, 600, 155);
+
+        // Puesto
+        if (profile.puesto) {
+          ctx.font = '600 22px sans-serif';
+          ctx.fillStyle = secondaryColor;
+          ctx.fillText(profile.puesto.toUpperCase(), 600, 195);
+        }
+
+        // 4. Contenedor blanco recortado para el Código QR (mantiene legibilidad perfecta)
+        const qrSize = 700;
+        const qrX = (1200 - qrSize) / 2;
+        const qrY = 225;
+
+        drawRoundRect(qrX - 20, qrY - 20, qrSize + 40, qrSize + 40, 32);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+
+        // Dibujar el QR Code SVG renderizado
+        ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+        // 5. Incrustación de Logotipo sin fondo en el Centro del QR
+        const drawCenterLogoAndFinalize = () => {
+          const logoSize = 140;
+          const logoX = (1200 - logoSize) / 2;
+          const logoY = qrY + (qrSize - logoSize) / 2;
+
+          // Área limpia de seguridad para mantener 100% la escaneabilidad del QR
+          drawRoundRect(logoX - 12, logoY - 12, logoSize + 24, logoSize + 24, 24);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fill();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = primaryColor;
+          ctx.stroke();
+
+          if (activeLogoUrl) {
+            const logoImg = new Image();
+            logoImg.crossOrigin = 'anonymous';
+            logoImg.onload = () => {
+              // Dibujar la imagen PNG respetando 100% su transparencia alfa sin fondo forzado
+              ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+              finishCanvas();
+            };
+            logoImg.onerror = () => {
+              drawLogoFallback(logoX, logoY, logoSize);
+              finishCanvas();
+            };
+            logoImg.src = activeLogoUrl;
+          } else {
+            drawLogoFallback(logoX, logoY, logoSize);
+            finishCanvas();
+          }
+        };
+
+        const drawLogoFallback = (lX, lY, lSize) => {
+          drawRoundRect(lX, lY, lSize, lSize, 18);
+          ctx.fillStyle = primaryColor;
+          ctx.fill();
+
+          ctx.font = 'bold 50px sans-serif';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const initial = (profile.nombre || profile.empresa || 'R').charAt(0).toUpperCase();
+          ctx.fillText(initial, lX + lSize / 2, lY + lSize / 2);
+          ctx.textBaseline = 'alphabetic';
+        };
+
+        const finishCanvas = () => {
+          // 6. Pie de Carta e Instrucción de Escaneo
+          ctx.textAlign = 'center';
+          ctx.font = 'bold 22px sans-serif';
+          ctx.fillStyle = '#94A3B8';
+          ctx.fillText('ESCANEAR CON LA CÁMARA DEL CELULAR • TAP NFC', 600, 1025);
+
+          ctx.font = '600 20px monospace';
+          ctx.fillStyle = secondaryColor;
+          ctx.fillText(cardProfileUrl, 600, 1065);
+
+          ctx.font = 'bold 15px sans-serif';
+          ctx.fillStyle = '#64748B';
+          ctx.fillText('POWERED BY TSOLUTIONS ROSE ENGINE', 600, 1115);
+
+          canvas.toBlob((blob) => {
+            resolve(blob);
+          }, 'image/png');
+        };
+
+        drawCenterLogoAndFinalize();
+      };
+
+      qrImg.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
     });
   };
 
@@ -169,6 +300,17 @@ export default function DeliverablesClient({ initialProfile, slug }) {
 
       // 3. Documento de instrucciones con enlace cloud en encabezado
       zip.file('Enlace_Cloud_e_Instructivo_de_Uso_General.txt', instrucciones);
+
+      // 4. Pase de Apple Wallet (.pkpass)
+      try {
+        const pkpassRes = await fetch(`/api/wallet/apple/${slug}`);
+        if (pkpassRes.ok) {
+          const pkpassBlob = await pkpassRes.blob();
+          zip.file(`Pase_Apple_Wallet_${safeTitular}.pkpass`, pkpassBlob);
+        }
+      } catch (applePassErr) {
+        console.warn('No se pudo incluir pase de Apple Wallet en el ZIP:', applePassErr);
+      }
 
       const content = await zip.generateAsync({ type: 'blob' });
       const url = URL.createObjectURL(content);
@@ -321,7 +463,7 @@ export default function DeliverablesClient({ initialProfile, slug }) {
           </div>
 
           {/* MÓDULOS INDIVIDUALES DESGLOSADOS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             {/* Entregable 1: Ficha .VCF */}
             <div className="p-5 bg-[#0C0C16] border border-gray-800 rounded-2xl flex flex-col justify-between space-y-4 hover:border-gray-700 transition-all">
@@ -390,6 +532,40 @@ export default function DeliverablesClient({ initialProfile, slug }) {
               >
                 <Download className="w-3.5 h-3.5" /> Descargar Instructivo (.TXT)
               </button>
+            </div>
+
+            {/* Entregable 4: Pases Digitales Wallet (Apple & Google) */}
+            <div className="p-5 bg-[#0C0C16] border border-gray-800 rounded-2xl flex flex-col justify-between space-y-4 hover:border-gray-700 transition-all">
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono text-amber-400 uppercase font-bold">Entregable 4</span>
+                  <h4 className="text-sm font-bold text-white">Pases Digitales Wallet</h4>
+                  <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                    Añade tu tarjeta digital NFC directamente a la aplicación nativa de Apple Wallet (iOS) o Google Wallet (Android) con 1 clic.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <a
+                  href={`/api/wallet/apple/${slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 bg-white/5 hover:bg-white/10 text-white border border-gray-700 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <span></span> Apple Wallet (.PKPASS)
+                </a>
+                <a
+                  href={`/api/wallet/google/${slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 bg-white/5 hover:bg-white/10 text-white border border-gray-700 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <span>💳</span> Google Wallet (JWT Pass)
+                </a>
+              </div>
             </div>
 
           </div>

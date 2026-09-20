@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Gift, CheckCircle2, ArrowRight, Sparkles, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Gift, CheckCircle2, ArrowRight, Sparkles, ShieldCheck, AlertCircle, BookOpen } from 'lucide-react';
 import brandConfig from '../../../brand.config';
+import CreationGuideModal from '../../components/CreationGuideModal';
 
 export default function RegaloPage() {
   const params = useParams();
@@ -13,6 +14,7 @@ export default function RegaloPage() {
   const [agent, setAgent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -26,7 +28,11 @@ export default function RegaloPage() {
         if (!data.success || !data.agent) {
           if (isMounted) setError(data.error || 'Enlace de regalo inválido o agente no encontrado.');
         } else {
-          if (isMounted) setAgent(data.agent);
+          if (isMounted) {
+            setAgent(data.agent);
+            // Auto abrir instructivo de bienvenida en la primera visita
+            setIsGuideOpen(true);
+          }
         }
       } catch (err) {
         if (isMounted) setError('Error al cargar la información del regalo.');
@@ -134,15 +140,25 @@ export default function RegaloPage() {
                 </div>
               </div>
 
-              {/* BOTÓN DE ACCIÓN */}
+              {/* BOTÓN DE ACCIÓN Y GUÍA */}
               {agent.remaining > 0 ? (
-                <button
-                  onClick={handleStartBuilder}
-                  className="w-full py-4 bg-[#EE334E] hover:bg-[#ff0003] text-white rounded-xl font-bold uppercase tracking-wider text-sm transition-all shadow-[0_0_25px_rgba(238,51,78,0.5)] flex items-center justify-center gap-2 transform active:scale-98"
-                >
-                  <span>Crear mi Tarjeta Gratis Ahora</span>
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                <div className="space-y-3">
+                  <button
+                    onClick={handleStartBuilder}
+                    className="w-full py-4 bg-[#EE334E] hover:bg-[#ff0003] text-white rounded-xl font-bold uppercase tracking-wider text-sm transition-all shadow-[0_0_25px_rgba(238,51,78,0.5)] flex items-center justify-center gap-2 transform active:scale-98"
+                  >
+                    <span>Crear mi Tarjeta Gratis Ahora</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+
+                  <button
+                    onClick={() => setIsGuideOpen(true)}
+                    className="w-full py-3 bg-[#00E5FF]/10 hover:bg-[#00E5FF]/20 text-[#00E5FF] border border-[#00E5FF]/30 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                  >
+                    <BookOpen className="w-4 h-4 text-[#00E5FF]" />
+                    <span>📖 Ver Instructivo de Creación & Wallet</span>
+                  </button>
+                </div>
               ) : (
                 <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-center text-sm text-red-300">
                   Este lote de 50 tarjetas de obsequio ha sido completado. Contacta a {agent.name} para solicitar un nuevo cupo.
@@ -157,6 +173,13 @@ export default function RegaloPage() {
           POWERED BY GOOGLE CLOUD PLATFORM • HARDWARE NFC & IDENTIDAD DIGITAL
         </p>
       </div>
+
+      <CreationGuideModal 
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        agentInfo={agent}
+        onStartBuilder={handleStartBuilder}
+      />
     </div>
   );
 }

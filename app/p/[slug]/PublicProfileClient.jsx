@@ -1193,18 +1193,24 @@ export default function PublicProfileClient({ profile = {} }) {
           </button>
 
           <div className="grid grid-cols-2 gap-2">
-            <button 
-              onClick={() => alert('Para agregar a Apple Wallet, necesitas configurar tu Certificado de Desarrollador Apple (P12) en el panel administrativo de TSolutions.')}
-              className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg"
+            <a 
+              href={`/api/wallet/apple/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent('apple_wallet_download')}
+              className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg active:scale-95"
             >
-               {t('apple_wallet') || 'Apple Wallet'}
-            </button>
-            <button 
-              onClick={() => alert('Para agregar a Google Wallet, necesitas configurar tu Service Account de Google Cloud en el panel administrativo de TSolutions.')}
-              className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg"
+              <span className="text-sm"></span> {t('apple_wallet') || 'Apple Wallet'}
+            </a>
+            <a 
+              href={`/api/wallet/google/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent('google_wallet_download')}
+              className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg active:scale-95"
             >
-              {t('google_wallet') || 'Google Wallet'}
-            </button>
+              <span className="text-sm">💳</span> {t('google_wallet') || 'Google Wallet'}
+            </a>
           </div>
         </div>
 
