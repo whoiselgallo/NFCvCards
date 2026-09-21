@@ -30,17 +30,17 @@ export async function POST(request) {
     const pool = getPool();
     const query = `
       INSERT INTO vcard_profiles (
-        slug, mode, nombre, apellido, empresa, puesto,
+        slug, mode, nombre, apellido, empresa, puesto, cedula_profesional, permisos_profesionales,
         telefono, whatsapp, correo, url, linkedin, instagram, facebook,
         calle, ciudad, estado, cp, pais, nota, google_maps_url, video_youtube_url,
         theme, font_family, font_primary, font_secondary, color_primario, color_secundario, color_cta,
         logo_scale, cover_position_y, cover_zoom, logo_img, cover_photo, custom_layout, calendly_url, google_calendar_url, icloud_calendar_url, paypal_url, bank_details, pdf_url, referred_by, plan_tier
       ) VALUES (
-        $1, $2, $3, $4, $5, $6,
-        $7, $8, $9, $10, $11, $12, $13,
-        $14, $15, $16, $17, $18, $19, $20, $21,
-        $22, $23, $24, $25, $26, $27, $28,
-        $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42
+        $1, $2, $3, $4, $5, $6, $7, $8,
+        $9, $10, $11, $12, $13, $14, $15,
+        $16, $17, $18, $19, $20, $21, $22, $23,
+        $24, $25, $26, $27, $28, $29, $30, $31,
+        $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44
       )
       RETURNING id, slug, created_at;
     `;
@@ -75,6 +75,8 @@ export async function POST(request) {
       formData.apellido || '',
       formData.empresa || '',
       formData.puesto || '',
+      formData.cedulaProfesional || '',
+      formData.permisosProfesionales || '',
       formData.telefono || '',
       formData.whatsapp || '',
       formData.correo || '',

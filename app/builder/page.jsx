@@ -282,6 +282,8 @@ export default function VCardEngineDashboard() {
     apellido: '',
     empresa: '',
     puesto: '',
+    cedulaProfesional: '',
+    permisosProfesionales: '',
     telefono: '',
     whatsapp: '',
     correo: '',
@@ -1455,6 +1457,18 @@ export default function VCardEngineDashboard() {
                     <div>
                       <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Apellido</label>
                       <input type="text" name="apellido" value={formData.apellido} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Gallardo" />
+                    </div>
+                  </div>
+
+                  {/* CREDENCIALES PROFESIONALES */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Cédula profesional</label>
+                      <input type="text" name="cedulaProfesional" value={formData.cedulaProfesional} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Cédula 12345678" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Permisos / Secretaría Pública</label>
+                      <input type="text" name="permisosProfesionales" value={formData.permisosProfesionales} onChange={handleInputChange} className="input-dark w-full" placeholder="Ej. Permiso sanitario ABC-123" />
                     </div>
                   </div>
 

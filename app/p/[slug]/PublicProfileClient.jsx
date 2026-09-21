@@ -27,6 +27,35 @@ export function getSocialUrl(type, value) {
   return trimmed;
 }
 
+function getReadableText(background) {
+  const hex = String(background || '#0F0B15').replace('#', '').slice(0, 6);
+  const normalized = hex.length === 3 ? hex.split('').map(char => char + char).join('') : hex.padEnd(6, '0');
+  const red = parseInt(normalized.slice(0, 2), 16);
+  const green = parseInt(normalized.slice(2, 4), 16);
+  const blue = parseInt(normalized.slice(4, 6), 16);
+  const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+  return luminance > 0.62 ? '#0F172A' : '#FFFFFF';
+}
+
+function ProfessionalCredentials({ cedula, permisos, color, accent }) {
+  if (!cedula && !permisos) return null;
+
+  return (
+    <div className="mt-1.5 space-y-1 text-[10px] font-semibold leading-snug" style={{ color }}>
+      {cedula && (
+        <p className="break-words" style={{ textShadow: color === '#FFFFFF' ? '0 1px 2px rgba(0,0,0,.75)' : '0 1px 1px rgba(255,255,255,.65)' }}>
+          <span style={{ color: accent }}>Cédula profesional:</span> {cedula}
+        </p>
+      )}
+      {permisos && (
+        <p className="break-words" style={{ textShadow: color === '#FFFFFF' ? '0 1px 2px rgba(0,0,0,.75)' : '0 1px 1px rgba(255,255,255,.65)' }}>
+          <span style={{ color: accent }}>Permisos:</span> {permisos}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function PublicProfileClient({ profile = {} }) {
   const [lang, setLang] = useState('es');
 
@@ -48,6 +77,8 @@ export default function PublicProfileClient({ profile = {} }) {
     apellido = '',
     empresa = '',
     puesto = '',
+    cedula_profesional = '',
+    permisos_profesionales = '',
     telefono = '',
     whatsapp = '',
     correo = '',
@@ -123,6 +154,8 @@ export default function PublicProfileClient({ profile = {} }) {
 
   const currentFontPrimary = font_primary || font_family || 'Inter';
   const currentFontSecondary = font_secondary || font_family || 'Inter';
+
+  const readableText = getReadableText(activeThemeConfig.cardBg || activeThemeConfig.bgColor || '#0F0B15');
 
   // Configuración de Layout Visual
   const layout = typeof custom_layout === 'object' && custom_layout !== null ? custom_layout : {};
@@ -233,16 +266,18 @@ export default function PublicProfileClient({ profile = {} }) {
       className="min-h-screen flex justify-center items-start p-2 sm:p-4 md:p-6"
       style={{
         backgroundColor: activeThemeConfig.bgColor || '#060509',
-        color: activeThemeConfig.textColor || '#F8FAFC',
+        color: readableText,
         fontFamily: currentFontSecondary
       }}
     >
       <div
-        className="w-full max-w-[430px] rounded-3xl shadow-2xl overflow-hidden relative pb-28 border animate-fadeIn"
+        className="public-profile-card w-full max-w-[430px] rounded-3xl shadow-2xl overflow-hidden relative pb-28 border animate-fadeIn"
         style={{
           backgroundColor: activeThemeConfig.cardBg || '#0F0B15',
           borderColor: activeThemeConfig.borderColor || 'rgba(255,255,255,0.1)',
-          boxShadow: `0 20px 50px rgba(0,0,0,0.6)`
+          boxShadow: `0 20px 50px rgba(0,0,0,0.6)`,
+          '--profile-readable': readableText,
+          '--profile-secondary': readableText === '#FFFFFF' ? '#CBD5E1' : '#334155'
         }}
       >
         {/* SELECTOR DE IDIOMA DISCRETO (ES / EN / PT / RU / ZH) */}
@@ -283,8 +318,8 @@ export default function PublicProfileClient({ profile = {} }) {
             )}
             <div className={`${!layout.hideBanner ? '-mt-24' : 'pt-6'} relative z-10 p-5`}>
               <div className={`flex items-end gap-4 ${layout.infoAlignment === 'right' ? 'flex-row-reverse text-right' :
-                  layout.infoAlignment === 'center' ? 'flex-col items-center text-center' :
-                    'flex-row text-left'
+                layout.infoAlignment === 'center' ? 'flex-col items-center text-center' :
+                  'flex-row text-left'
                 }`}>
                 {layout.logoPosition !== 'hidden' && (
                   <div className="w-16 h-16 rounded-2xl border-2 overflow-hidden shrink-0 bg-black/50 flex items-center justify-center"
@@ -294,7 +329,8 @@ export default function PublicProfileClient({ profile = {} }) {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-xl font-bold text-white leading-tight" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+                  <h1 className="text-xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+                  <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_primario} />
                   {puesto && <p className="text-xs font-semibold uppercase mt-0.5" style={{ color: color_primario }}>{puesto}</p>}
                   {empresa && <p className="text-xs text-gray-300 opacity-80 font-mono">{empresa}</p>}
                 </div>
@@ -309,8 +345,8 @@ export default function PublicProfileClient({ profile = {} }) {
           <div className="relative p-5">
             <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,.05) 28px,rgba(255,255,255,.05) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,.05) 28px,rgba(255,255,255,.05) 29px)' }} />
             <div className={`relative flex flex-col gap-3 ${layout.infoAlignment === 'left' ? 'items-start text-left' :
-                layout.infoAlignment === 'right' ? 'items-end text-right' :
-                  'items-center text-center'
+              layout.infoAlignment === 'right' ? 'items-end text-right' :
+                'items-center text-center'
               }`}>
               {layout.logoPosition !== 'hidden' && (
                 <div className="w-24 h-24 rounded-full overflow-hidden border-2 flex items-center justify-center"
@@ -320,7 +356,8 @@ export default function PublicProfileClient({ profile = {} }) {
                 </div>
               )}
               <div>
-                <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: '#fff', textShadow: `0 0 20px ${color_primario}` }}>{nombre} {apellido}</h1>
+                <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: readableText, textShadow: `0 0 20px ${color_primario}` }}>{nombre} {apellido}</h1>
+                <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_secundario} />
                 {puesto && <p className="text-xs font-mono uppercase tracking-widest mt-1" style={{ color: color_secundario }}>{puesto}</p>}
                 {empresa && <p className="text-xs text-gray-400 font-mono mt-0.5">{empresa}</p>}
               </div>
@@ -336,8 +373,8 @@ export default function PublicProfileClient({ profile = {} }) {
               <div className="h-2 w-full" style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, ${color_secundario}, ${color_primario}, transparent)` }} />
             )}
             <div className={`p-6 flex flex-col gap-3 ${layout.infoAlignment === 'left' ? 'items-start text-left' :
-                layout.infoAlignment === 'right' ? 'items-end text-right' :
-                  'items-center text-center'
+              layout.infoAlignment === 'right' ? 'items-end text-right' :
+                'items-center text-center'
               }`}>
               {layout.logoPosition !== 'hidden' && (
                 <div className="w-20 h-20 rounded-xl overflow-hidden border flex items-center justify-center bg-black"
@@ -347,10 +384,11 @@ export default function PublicProfileClient({ profile = {} }) {
                 </div>
               )}
               <div>
-                <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: color_primario }}>{nombre} {apellido}</h1>
+                <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+                <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_primario} />
                 <div className={`h-px w-16 my-2 ${layout.infoAlignment === 'left' ? 'mr-auto' :
-                    layout.infoAlignment === 'right' ? 'ml-auto' :
-                      'mx-auto'
+                  layout.infoAlignment === 'right' ? 'ml-auto' :
+                    'mx-auto'
                   }`} style={{ background: `linear-gradient(90deg, transparent, ${color_primario}, transparent)` }} />
                 {puesto && <p className="text-xs uppercase tracking-widest font-mono" style={{ color: color_secundario }}>{puesto}</p>}
                 {empresa && <p className="text-xs opacity-60 mt-1" style={{ color: '#A3A3A3' }}>{empresa}</p>}
@@ -364,8 +402,8 @@ export default function PublicProfileClient({ profile = {} }) {
             Logo circular gigante centrado, gradiente radial     */}
         {theme === 'avatar_focus' && (
           <div className={`relative pt-8 pb-4 flex flex-col gap-3 ${layout.infoAlignment === 'left' ? 'items-start text-left px-6' :
-              layout.infoAlignment === 'right' ? 'items-end text-right px-6' :
-                'items-center text-center'
+            layout.infoAlignment === 'right' ? 'items-end text-right px-6' :
+              'items-center text-center'
             }`}>
             <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at top, ${color_primario}25 0%, transparent 70%)` }} />
             {layout.logoPosition !== 'hidden' && (
@@ -376,7 +414,8 @@ export default function PublicProfileClient({ profile = {} }) {
               </div>
             )}
             <div className="relative z-10">
-              <h1 className="text-2xl font-bold text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+              <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+              <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_primario} />
               {puesto && <p className="text-sm font-semibold uppercase mt-1" style={{ color: color_primario }}>{puesto}</p>}
               {empresa && <p className="text-xs text-gray-400 font-mono mt-0.5">{empresa}</p>}
             </div>
@@ -389,8 +428,8 @@ export default function PublicProfileClient({ profile = {} }) {
           <div className="relative flex min-h-[160px]">
             <div className="w-3 shrink-0 rounded-bl-none" style={{ background: `linear-gradient(180deg, ${color_primario}, ${color_secundario})` }} />
             <div className={`flex-1 p-5 flex items-center gap-4 ${layout.infoAlignment === 'right' ? 'flex-row-reverse text-right' :
-                layout.infoAlignment === 'center' ? 'flex-col text-center' :
-                  'flex-row text-left'
+              layout.infoAlignment === 'center' ? 'flex-col text-center' :
+                'flex-row text-left'
               }`}>
               {layout.logoPosition !== 'hidden' && (
                 <div className="w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 flex items-center justify-center bg-gray-100"
@@ -400,7 +439,8 @@ export default function PublicProfileClient({ profile = {} }) {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: '#0f172a' }}>{nombre} {apellido}</h1>
+                <h1 className="text-xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+                <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_primario} />
                 {puesto && <p className="text-xs font-bold uppercase mt-1" style={{ color: color_primario }}>{puesto}</p>}
                 {empresa && <p className="text-xs text-gray-500 font-mono mt-0.5 truncate">{empresa}</p>}
               </div>
@@ -414,8 +454,8 @@ export default function PublicProfileClient({ profile = {} }) {
           <div className="relative overflow-hidden">
             <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 20% 30%, ${color_primario}30, transparent 60%), radial-gradient(circle at 80% 70%, ${color_secundario}20, transparent 60%)` }} />
             <div className={`relative p-6 flex flex-col gap-3 backdrop-blur-sm ${layout.infoAlignment === 'left' ? 'items-start text-left' :
-                layout.infoAlignment === 'right' ? 'items-end text-right' :
-                  'items-center text-center'
+              layout.infoAlignment === 'right' ? 'items-end text-right' :
+                'items-center text-center'
               }`}>
               {layout.logoPosition !== 'hidden' && (
                 <div className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center"
@@ -425,7 +465,8 @@ export default function PublicProfileClient({ profile = {} }) {
                 </div>
               )}
               <div>
-                <h1 className="text-2xl font-bold text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+                <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+                <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_secundario} />
                 {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
                 {empresa && <p className="text-xs text-white/50 font-mono mt-0.5">{empresa}</p>}
               </div>
@@ -450,10 +491,11 @@ export default function PublicProfileClient({ profile = {} }) {
               </div>
             )}
             <div className={`px-5 pt-4 pb-2 ${layout.infoAlignment === 'left' ? 'text-left' :
-                layout.infoAlignment === 'right' ? 'text-right' :
-                  'text-center'
+              layout.infoAlignment === 'right' ? 'text-right' :
+                'text-center'
               }`}>
-              <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: activeThemeConfig.textColor || '#FFF1F2' }}>{nombre} {apellido}</h1>
+              <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+              <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_primario} />
               {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
               {empresa && <p className="text-xs opacity-60 font-mono mt-0.5" style={{ color: activeThemeConfig.subTextColor || '#FDA4AF' }}>{empresa}</p>}
             </div>
@@ -488,13 +530,13 @@ export default function PublicProfileClient({ profile = {} }) {
             )}
 
             <div className={`relative px-6 ${layout.infoAlignment === 'left' || layout.logoPosition === 'left' ? 'text-left' :
-                layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'text-right' :
-                  'text-center'
+              layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'text-right' :
+                'text-center'
               } ${!layout.hideBanner ? '-mt-14' : 'pt-8'} mb-4 z-10`}>
               {layout.logoPosition !== 'hidden' && (
                 <div className={`w-full flex ${layout.logoPosition === 'left' ? 'justify-start' :
-                    layout.logoPosition === 'right' ? 'justify-end' :
-                      'justify-center'
+                  layout.logoPosition === 'right' ? 'justify-end' :
+                    'justify-center'
                   }`}>
                   <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 shadow-2xl flex items-center justify-center overflow-hidden border-2 bg-[#0a0a10]"
                     style={{ borderColor: color_primario, boxShadow: `0 0 24px ${color_primario}40` }}>
@@ -509,7 +551,8 @@ export default function PublicProfileClient({ profile = {} }) {
                 </div>
               )}
               <div className="mt-3">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white" style={{ fontFamily: currentFontPrimary }}>{nombre} {apellido}</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+                <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_primario} />
                 {puesto && <p className="text-sm font-semibold tracking-wide mt-1 uppercase" style={{ color: color_primario }}>{puesto}</p>}
                 {empresa && <p className="text-xs font-mono tracking-wider opacity-80 mt-0.5">{empresa}</p>}
               </div>
@@ -532,8 +575,8 @@ export default function PublicProfileClient({ profile = {} }) {
               </div>
             )}
             <div className={`px-6 ${!layout.hideBanner ? '-mt-14' : 'pt-8'} relative z-20 flex flex-col ${layout.infoAlignment === 'left' || layout.logoPosition === 'left' ? 'items-start text-left' :
-                layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'items-end text-right' :
-                  'items-center text-center'
+              layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'items-end text-right' :
+                'items-center text-center'
               }`}>
               {layout.logoPosition !== 'hidden' && (
                 <div className="w-24 h-24 rounded-2xl border-4 border-white overflow-hidden shadow-xl bg-white flex items-center justify-center"
@@ -543,10 +586,11 @@ export default function PublicProfileClient({ profile = {} }) {
                 </div>
               )}
               <div className="mt-4 w-full">
-                <h1 className="text-2xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: '#1E293B' }}>{nombre} {apellido}</h1>
+                <h1 className="text-2xl font-bold leading-tight" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+                <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_primario} />
                 <div className={`h-1.5 w-16 my-2.5 rounded-full ${layout.infoAlignment === 'left' || layout.logoPosition === 'left' ? 'ml-0 mr-auto' :
-                    layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'mr-0 ml-auto' :
-                      'mx-auto'
+                  layout.infoAlignment === 'right' || layout.logoPosition === 'right' ? 'mr-0 ml-auto' :
+                    'mx-auto'
                   }`} style={{ backgroundColor: color_secundario }} />
                 <p className="text-base font-bold" style={{ color: color_primario }}>{puesto}</p>
                 {empresa && <p className="text-xs text-gray-500 font-mono mt-1">{empresa}</p>}
@@ -559,13 +603,13 @@ export default function PublicProfileClient({ profile = {} }) {
             Sin cover · línea geométrica · editorial centrado     */}
         {theme === 'minimal' && (
           <div className={`px-8 pt-8 pb-4 flex flex-col gap-4 ${layout.infoAlignment === 'left' ? 'items-start text-left' :
-              layout.infoAlignment === 'right' ? 'items-end text-right' :
-                'items-center text-center'
+            layout.infoAlignment === 'right' ? 'items-end text-right' :
+              'items-center text-center'
             }`}>
             {layout.logoPosition !== 'hidden' && (
               <div className={`flex items-center gap-3 w-full ${layout.infoAlignment === 'left' ? 'justify-start' :
-                  layout.infoAlignment === 'right' ? 'justify-end' :
-                    'justify-center'
+                layout.infoAlignment === 'right' ? 'justify-end' :
+                  'justify-center'
                 }`}>
                 <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: color_primario }} />
                 <div className="w-20 h-20 rounded-xl overflow-hidden border flex items-center justify-center bg-gray-50"
@@ -577,7 +621,8 @@ export default function PublicProfileClient({ profile = {} }) {
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: '#0F172A' }}>{nombre} {apellido}</h1>
+              <h1 className="text-2xl font-bold" style={{ fontFamily: currentFontPrimary, color: readableText }}>{nombre} {apellido}</h1>
+              <ProfessionalCredentials cedula={cedula_profesional} permisos={permisos_profesionales} color={readableText} accent={color_primario} />
               {puesto && <p className="text-xs font-semibold uppercase tracking-widest mt-1" style={{ color: color_primario }}>{puesto}</p>}
               {empresa && <p className="text-xs text-gray-400 font-mono mt-0.5">{empresa}</p>}
             </div>
@@ -846,8 +891,8 @@ export default function PublicProfileClient({ profile = {} }) {
                       rel="noopener noreferrer"
                       onClick={() => trackEvent('social_click')}
                       className={`flex items-center justify-center transition-all hover:scale-[1.15] ${layout.socialIconShape === 'square' ? 'rounded-md' :
-                          layout.socialIconShape === 'rounded' ? 'rounded-xl' :
-                            layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' :
+                          layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
                         } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                       style={
                         layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
@@ -866,8 +911,8 @@ export default function PublicProfileClient({ profile = {} }) {
                       rel="noopener noreferrer"
                       onClick={() => trackEvent('social_click')}
                       className={`flex items-center justify-center transition-all hover:scale-[1.15] ${layout.socialIconShape === 'square' ? 'rounded-md' :
-                          layout.socialIconShape === 'rounded' ? 'rounded-xl' :
-                            layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' :
+                          layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
                         } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                       style={
                         layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
@@ -886,8 +931,8 @@ export default function PublicProfileClient({ profile = {} }) {
                       rel="noopener noreferrer"
                       onClick={() => trackEvent('social_click')}
                       className={`flex items-center justify-center transition-all hover:scale-[1.15] ${layout.socialIconShape === 'square' ? 'rounded-md' :
-                          layout.socialIconShape === 'rounded' ? 'rounded-xl' :
-                            layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' :
+                          layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
                         } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                       style={
                         layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
@@ -906,8 +951,8 @@ export default function PublicProfileClient({ profile = {} }) {
                       rel="noopener noreferrer"
                       onClick={() => trackEvent('social_click')}
                       className={`flex items-center justify-center transition-all hover:scale-[1.15] ${layout.socialIconShape === 'square' ? 'rounded-md' :
-                          layout.socialIconShape === 'rounded' ? 'rounded-xl' :
-                            layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' :
+                          layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
                         } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                       style={
                         layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
@@ -926,8 +971,8 @@ export default function PublicProfileClient({ profile = {} }) {
                       rel="noopener noreferrer"
                       onClick={() => trackEvent('social_click')}
                       className={`flex items-center justify-center transition-all hover:scale-[1.15] ${layout.socialIconShape === 'square' ? 'rounded-md' :
-                          layout.socialIconShape === 'rounded' ? 'rounded-xl' :
-                            layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' :
+                          layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
                         } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                       style={
                         layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
@@ -946,8 +991,8 @@ export default function PublicProfileClient({ profile = {} }) {
                       rel="noopener noreferrer"
                       onClick={() => trackEvent('social_click')}
                       className={`flex items-center justify-center transition-all hover:scale-[1.15] ${layout.socialIconShape === 'square' ? 'rounded-md' :
-                          layout.socialIconShape === 'rounded' ? 'rounded-xl' :
-                            layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' :
+                          layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
                         } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                       style={
                         layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :
@@ -966,8 +1011,8 @@ export default function PublicProfileClient({ profile = {} }) {
                       rel="noopener noreferrer"
                       onClick={() => trackEvent('whatsapp_click')}
                       className={`flex items-center justify-center transition-all hover:scale-[1.15] ${layout.socialIconShape === 'square' ? 'rounded-md' :
-                          layout.socialIconShape === 'rounded' ? 'rounded-xl' :
-                            layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
+                        layout.socialIconShape === 'rounded' ? 'rounded-xl' :
+                          layout.socialIconShape === 'none' ? 'bg-transparent border-0' : 'rounded-full'
                         } ${layout.socialIconShape !== 'none' ? 'w-12 h-12 border shadow-lg' : ''}`}
                       style={
                         layout.socialIconStyle === 'glow' ? { backgroundColor: `${color_secundario}20`, borderColor: color_secundario, boxShadow: `0 0 15px ${color_secundario}80`, color: color_secundario } :

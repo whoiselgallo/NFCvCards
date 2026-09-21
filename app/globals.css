@@ -78,6 +78,18 @@ body:has(.app-modal-open) {
   overflow: hidden;
 }
 
+.public-profile-card .text-gray-300,
+.public-profile-card .text-gray-400,
+.public-profile-card .text-gray-500,
+.public-profile-card .text-slate-400,
+.public-profile-card .text-slate-500 {
+  color: var(--profile-secondary) !important;
+}
+
+.public-profile-card .text-white {
+  color: var(--profile-readable) !important;
+}
+
 .app-modal-open {
   isolation: isolate;
   z-index: var(--z-modal);
