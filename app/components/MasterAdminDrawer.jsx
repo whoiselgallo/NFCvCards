@@ -35,11 +35,12 @@ export default function MasterAdminDrawer() {
 
   return (
     <>
-      {/* BOTÓN FLOTANTE DE HAMBURGUESA MAESTRO (Siempre accesible en la esquina superior) */}
+      {/* Botón flotante separado de la navegación fija */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-4 sm:top-5 sm:right-6 z-[60] px-3.5 py-2.5 rounded-2xl bg-[#0A0A12]/95 hover:bg-[#12111A] text-white border border-[#EE334E]/60 shadow-[0_0_30px_rgba(238,51,78,0.45)] backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 group cursor-pointer"
+        className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-[60] px-3.5 py-2.5 rounded-2xl bg-[#0A0A12]/95 hover:bg-[#12111A] text-white border border-[#EE334E]/60 shadow-[0_0_30px_rgba(238,51,78,0.45)] backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 group cursor-pointer"
         title="Centro de Mando Maestro - Javier Gallardo"
+        aria-label="Abrir Centro de Mando"
       >
         <div className="w-2.5 h-2.5 rounded-full bg-[#EE334E] animate-pulse"></div>
         <Menu className="w-4 h-4 text-white group-hover:text-[#EE334E] transition-colors" />

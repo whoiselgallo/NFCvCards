@@ -3,8 +3,9 @@ import brandConfig from '../brand.config';
 import { Providers } from './providers';
 
 export const metadata = {
-  title: `${brandConfig.brandName} - ${brandConfig.brandTagline}`,
-  description: brandConfig.brandDescription,
+  title: 'Rose VCards | Identidad Digital NFC',
+  description: 'Rose VCards: tarjetas digitales NFC, perfiles interactivos y networking corporativo para equipos y negocios.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   verification: {
     google: 'hd2ke5ja1sNeHcVzVs1j4SUViEbgIz5gW1Y7RiuBfgE',
   },
@@ -15,6 +16,13 @@ export const metadata = {
     ],
     shortcut: brandConfig.assets.favicon || '/favicon.png',
     apple: brandConfig.assets.appleIcon || '/apple-icon.png'
+  },
+  openGraph: {
+    title: 'Rose VCards | Identidad Digital NFC',
+    description: 'Identidad digital interactiva para compartir contactos, servicios y negocios con NFC y QR.',
+    siteName: 'Rose VCards',
+    type: 'website',
+    images: [brandConfig.assets.logo || '/favicon.png']
   }
 };
 

@@ -6,7 +6,6 @@ import Script from 'next/script';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2,
-  Nfc,
   ShieldCheck,
   BarChart3,
   Star,
@@ -124,7 +123,11 @@ export default function LandingPage() {
         <nav className="fixed top-0 left-0 right-0 z-40 bg-[#05050D]/80 backdrop-blur-md border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Nfc className="text-[#EE334E] w-7 h-7 sm:w-8 h-8" />
+              <img
+                src="/roselogo_120x120.png"
+                alt="Rose VCards"
+                className="w-8 h-8 sm:w-9 sm:h-9 object-contain"
+              />
               <span className="text-xl sm:text-2xl font-bold tracking-tight text-white">Rose VCards</span>
             </div>
 
@@ -771,9 +774,11 @@ export default function LandingPage() {
 
             {/* Logo y Nombre */}
             <div className="flex items-center justify-center gap-2.5 mb-6">
-              <div className="w-9 h-9 rounded-xl bg-[#EE334E]/10 border border-[#EE334E]/30 flex items-center justify-center">
-                <Nfc className="text-[#EE334E] w-5 h-5" />
-              </div>
+              <img
+                src="/roselogo_120x120.png"
+                alt="Rose VCards"
+                className="w-9 h-9 object-contain"
+              />
               <span className="text-2xl font-extrabold tracking-tight text-white font-bruno">
                 Rose VCards
               </span>
