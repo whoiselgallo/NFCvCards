@@ -250,6 +250,13 @@ export default function AdminDashboard() {
             <Award className={'w-4 h-4 ' + (activeTab === 'agents' ? 'text-[#EE334E]' : '')} /> Red de Embajadores
           </button>
 
+          <a
+            href="/admin/crm"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-white/5 text-slate-400"
+          >
+            <DatabaseIcon className="w-4 h-4 text-[#00E5FF]" /> CRM de Prospectos
+          </a>
+
           <button
             onClick={() => { setActiveTab('access'); fetchAccessConfig(); }}
             className={'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ' + (activeTab === 'access' ? 'bg-[#EE334E]/15 text-white border border-[#EE334E]/30 font-semibold shadow-lg shadow-[#EE334E]/10' : 'hover:bg-white/5 text-slate-400')}
@@ -1128,6 +1135,16 @@ function SettingsIcon(props) {
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
       <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function DatabaseIcon(props) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <ellipse cx="12" cy="5" rx="8" ry="3" />
+      <path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5" />
+      <path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3" />
     </svg>
   );
 }
