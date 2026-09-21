@@ -1,18 +1,24 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Mail, MessageSquare, Send, Copy, Check, Sparkles, User, AtSign, Phone, ExternalLink } from 'lucide-react';
 
 export default function AgentInvitationSender({
   agentName = 'Agente Embajador',
+  agentEmail = '',
   agentCompany = 'TSOLUTIONS IPIDD',
   giftUrl = 'https://vc.tsolutionsipidd.com'
 }) {
   const [prospectName, setProspectName] = useState('');
   const [prospectEmail, setProspectEmail] = useState('');
   const [prospectPhone, setProspectPhone] = useState('');
+  const [senderEmail, setSenderEmail] = useState(agentEmail);
   const [activeTab, setActiveTab] = useState('email'); // 'email' | 'whatsapp'
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setSenderEmail(agentEmail || '');
+  }, [agentEmail]);
 
   const cleanName = prospectName.trim() || 'Estimado(a) Profesional';
   const cleanFirst = prospectName.trim() ? prospectName.trim().split(' ')[0] : 'amigo(a)';
@@ -107,10 +113,30 @@ Agente Embajador Oficial | ${agentCompany}`;
     if (phoneClean && phoneClean.length === 10) {
       phoneClean = `52${phoneClean}`; // Prefijo México por defecto si tiene 10 dígitos
     }
-    const url = phoneClean 
+    const url = phoneClean
       ? `https://wa.me/${phoneClean}?text=${encodeURIComponent(whatsappBody)}`
       : `https://wa.me/?text=${encodeURIComponent(whatsappBody)}`;
     window.open(url, '_blank');
+  };
+
+  const handleSendBoth = () => {
+    const targetEmail = prospectEmail.trim();
+    if (!targetEmail || !senderEmail.trim()) {
+      alert('Escribe el correo del prospecto y el correo del agente antes de enviar.');
+      return;
+    }
+
+    if (!prospectPhone.trim()) {
+      alert('Escribe también el WhatsApp del prospecto para enviar el obsequio por ambos canales.');
+      return;
+    }
+
+    const mailto = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(`${emailBody}\n\nCorreo del agente: ${senderEmail.trim()}`)}`;
+    window.open(mailto, '_blank');
+
+    let phoneClean = prospectPhone.replace(/[^0-9]/g, '');
+    if (phoneClean.length === 10) phoneClean = `52${phoneClean}`;
+    window.open(`https://wa.me/${phoneClean}?text=${encodeURIComponent(whatsappBody)}`, '_blank');
   };
 
   const handleCopyText = () => {
@@ -136,7 +162,7 @@ Agente Embajador Oficial | ${agentCompany}`;
             Envío Personalizado de Tarjetas de Obsequio
           </h2>
           <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mt-1">
-            Escribe el nombre y correo del prospecto. La plantilla insertará tus datos y tu enlace de regalo automáticamente lista para enviar con 1 clic por Correo o WhatsApp.
+            Escribe los datos del prospecto y el correo del agente. Un solo botón prepara el mismo obsequio para enviarlo por Correo y WhatsApp.
           </p>
         </div>
 
@@ -145,11 +171,10 @@ Agente Embajador Oficial | ${agentCompany}`;
           <button
             type="button"
             onClick={() => setActiveTab('email')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'email'
-                ? 'bg-[#EE334E] text-white shadow-[0_0_15px_rgba(238,51,78,0.4)]'
-                : 'text-slate-400 hover:text-white'
-            }`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'email'
+              ? 'bg-[#EE334E] text-white shadow-[0_0_15px_rgba(238,51,78,0.4)]'
+              : 'text-slate-400 hover:text-white'
+              }`}
           >
             <Mail className="w-4 h-4" />
             <span>Plantilla Correo</span>
@@ -157,11 +182,10 @@ Agente Embajador Oficial | ${agentCompany}`;
           <button
             type="button"
             onClick={() => setActiveTab('whatsapp')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-              activeTab === 'whatsapp'
-                ? 'bg-[#25D366] text-white shadow-[0_0_15px_rgba(37,211,102,0.4)]'
-                : 'text-slate-400 hover:text-white'
-            }`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'whatsapp'
+              ? 'bg-[#25D366] text-white shadow-[0_0_15px_rgba(37,211,102,0.4)]'
+              : 'text-slate-400 hover:text-white'
+              }`}
           >
             <MessageSquare className="w-4 h-4" />
             <span>Plantilla WhatsApp</span>
@@ -170,7 +194,7 @@ Agente Embajador Oficial | ${agentCompany}`;
       </div>
 
       {/* FORMULARIO DE DATOS DEL PROSPECTO */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {/* Nombre del Prospecto */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -215,6 +239,20 @@ Agente Embajador Oficial | ${agentCompany}`;
             className="w-full px-4 py-2.5 bg-black/50 border border-white/10 focus:border-green-400 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none transition-all"
           />
         </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <AtSign className="w-3.5 h-3.5 text-[#00E5FF]" />
+            Correo del Agente
+          </label>
+          <input
+            type="email"
+            value={senderEmail}
+            onChange={(e) => setSenderEmail(e.target.value)}
+            placeholder="agente@empresa.com"
+            className="w-full px-4 py-2.5 bg-black/50 border border-white/10 focus:border-[#00E5FF] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none transition-all"
+          />
+        </div>
       </div>
 
       {/* ÁREA DE PREVISUALIZACIÓN DEL MENSAJE */}
@@ -239,16 +277,15 @@ Agente Embajador Oficial | ${agentCompany}`;
           readOnly
           value={activeTab === 'email' ? emailBody : whatsappBody}
           rows={activeTab === 'email' ? 12 : 10}
-          className={`w-full bg-[#05050C] border border-white/10 p-4 text-xs font-mono text-slate-200 focus:outline-none select-all leading-relaxed ${
-            activeTab === 'email' ? 'rounded-b-xl border-t-0' : 'rounded-xl'
-          }`}
+          className={`w-full bg-[#05050C] border border-white/10 p-4 text-xs font-mono text-slate-200 focus:outline-none select-all leading-relaxed ${activeTab === 'email' ? 'rounded-b-xl border-t-0' : 'rounded-xl'
+            }`}
         />
       </div>
 
       {/* BOTONES DE ACCIÓN */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
         <p className="text-[11px] text-slate-500 font-mono text-center sm:text-left">
-          Tu enlace de regalo está integrado: <span className="text-[#00E5FF]">{giftUrl}</span>
+          Tu enlace de regalo está integrado: <span className="text-[#00E5FF]">{giftUrl}</span>. El correo se abrirá en la cuenta configurada en este dispositivo.
         </p>
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -259,6 +296,15 @@ Agente Embajador Oficial | ${agentCompany}`;
           >
             {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
             <span>{copied ? '¡Copiado!' : 'Copiar Texto'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSendBoth}
+            className="flex-1 sm:flex-initial px-6 py-3 bg-gradient-to-r from-[#EE334E] to-[#25D366] hover:brightness-110 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(238,51,78,0.3)]"
+          >
+            <Send className="w-4 h-4" />
+            <span>Enviar a Correo + WhatsApp</span>
           </button>
 
           {activeTab === 'email' ? (

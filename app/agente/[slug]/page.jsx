@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Users, Gift, Copy, Check, Share2, CreditCard, ExternalLink,
-  Activity, ArrowUpRight, Search, Calendar, ShieldCheck, Trash2, AlertTriangle
+  Activity, ArrowUpRight, Search, Calendar, ShieldCheck, Trash2, AlertTriangle, LayoutDashboard
 } from 'lucide-react';
 import brandConfig from '../../../brand.config';
 import AgentInvitationSender from '../../components/AgentInvitationSender';
@@ -164,6 +164,15 @@ export default function AgenteTrackingPage() {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
+            {agentData?.slug === 'javier-gallardo' && (
+              <button
+                onClick={() => router.push('/admin')}
+                className="px-4 py-2.5 bg-[#EE334E]/15 hover:bg-[#EE334E]/30 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 border border-[#EE334E]/40"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                Panel Administrativo
+              </button>
+            )}
             <a
               href={`/p/${slug}`}
               target="_blank"
@@ -284,6 +293,7 @@ export default function AgenteTrackingPage() {
         {/* CENTRO DE ENVÍO DE INVITACIONES CON PLANTILLA */}
         <AgentInvitationSender
           agentName={agentData?.name || 'Agente Embajador'}
+          agentEmail={agentData?.email}
           agentCompany={agentData?.company || brandConfig.companyName}
           giftUrl={giftUrl}
         />

@@ -33,6 +33,7 @@ export async function GET(request, context) {
       agent: {
         slug: agent.slug,
         name: agent.name,
+        email: agent.email,
         company: agent.company,
         role: agent.role,
         giftQuota,
