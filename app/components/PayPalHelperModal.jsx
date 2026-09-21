@@ -65,6 +65,18 @@ export function parsePaymentInput(input) {
   return trimmed;
 }
 
+export function getPaypalUsername(value) {
+  if (!value || typeof value !== 'string') return '';
+  const clean = value.trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '');
+  const match = clean.match(/^paypal\.me\/([^/?#]+)/i);
+  return (match ? match[1] : clean).replace(/^@+/, '').split('/')[0];
+}
+
+export function buildPaypalUrl(username) {
+  const normalized = getPaypalUsername(username).replace(/[^a-zA-Z0-9._-]/g, '');
+  return normalized ? `https://paypal.me/${normalized}` : '';
+}
+
 export default function PayPalHelperModal({ isOpen, onClose, onApplyLink }) {
   const [activeTab, setActiveTab] = useState('paypalme');
   const [testInput, setTestInput] = useState('');
@@ -117,8 +129,8 @@ export default function PayPalHelperModal({ isOpen, onClose, onApplyLink }) {
           <button
             onClick={() => setActiveTab('paypalme')}
             className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${activeTab === 'paypalme'
-                ? 'border-[#0079C1] text-white bg-white/5'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+              ? 'border-[#0079C1] text-white bg-white/5'
+              : 'border-transparent text-gray-400 hover:text-gray-200'
               }`}
           >
             1. Enlace PayPal.me (Recomendado)
@@ -126,8 +138,8 @@ export default function PayPalHelperModal({ isOpen, onClose, onApplyLink }) {
           <button
             onClick={() => setActiveTab('embed')}
             className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${activeTab === 'embed'
-                ? 'border-[#0079C1] text-white bg-white/5'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+              ? 'border-[#0079C1] text-white bg-white/5'
+              : 'border-transparent text-gray-400 hover:text-gray-200'
               }`}
           >
             2. Código Embed / Botón PayPal
@@ -135,8 +147,8 @@ export default function PayPalHelperModal({ isOpen, onClose, onApplyLink }) {
           <button
             onClick={() => setActiveTab('stripe')}
             className={`flex-1 py-3 font-semibold text-center border-b-2 transition-all ${activeTab === 'stripe'
-                ? 'border-[#635BFF] text-white bg-white/5'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
+              ? 'border-[#635BFF] text-white bg-white/5'
+              : 'border-transparent text-gray-400 hover:text-gray-200'
               }`}
           >
             3. Stripe Payment Links

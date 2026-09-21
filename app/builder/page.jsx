@@ -8,7 +8,7 @@ import brandConfig from '../../brand.config';
 import { generateDeliveryInstructions, isOrganizationEmail } from '../../lib/brand';
 import { getTranslation, SUPPORTED_LANGUAGES } from '../../lib/i18n';
 import ConstructionFeedbackModal from '../components/ConstructionFeedbackModal';
-import PayPalHelperModal, { parsePaymentInput } from '../components/PayPalHelperModal';
+import PayPalHelperModal, { buildPaypalUrl, getPaypalUsername } from '../components/PayPalHelperModal';
 import ExpressCatalogModal from '../components/ExpressCatalogModal';
 import EcoFootprintModal from '../components/EcoFootprintModal';
 import PreBuilderChecklistModal from '../components/PreBuilderChecklistModal';
@@ -1728,18 +1728,24 @@ export default function VCardEngineDashboard() {
                           ❓ Guía de Vinculación
                         </button>
                       </div>
-                      <input
-                        type="text"
-                        name="paypalUrl"
-                        value={formData.paypalUrl}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const parsed = parsePaymentInput(val);
-                          setFormData(prev => ({ ...prev, paypalUrl: parsed }));
-                        }}
-                        className="input-dark w-full"
-                        placeholder="https://paypal.me/tu-usuario o pega código embed / JSON..."
-                      />
+                      <div className="flex rounded-lg overflow-hidden border border-gray-800 bg-[#06060c] focus-within:border-[#EE334E]">
+                        <span className="bg-[#12121c] text-[#00E5FF] text-xs px-2.5 py-2 select-none border-r border-gray-800 font-mono flex items-center shrink-0">
+                          paypal.me/
+                        </span>
+                        <input
+                          type="text"
+                          name="paypalUsername"
+                          value={getPaypalUsername(formData.paypalUrl)}
+                          onChange={(e) => {
+                            const username = e.target.value.replace(/^https?:\/\/(www\.)?paypal\.me\//i, '');
+                            setFormData(prev => ({ ...prev, paypalUrl: buildPaypalUrl(username) }));
+                          }}
+                          className="w-full bg-transparent px-2.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none font-mono"
+                          placeholder="tu-usuario"
+                          autoComplete="off"
+                        />
+                      </div>
+                      <p className="text-[10px] text-gray-500 mt-1">Solo escribe tu usuario de PayPal.me. La URL completa se genera automáticamente.</p>
                     </div>
                     <div>
                       <label className="block text-xs font-rosetta text-gray-300 mb-1 uppercase tracking-wider">Datos Bancarios para Transferencia</label>
