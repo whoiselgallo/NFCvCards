@@ -20,12 +20,21 @@ export async function GET(request, context) {
       return NextResponse.json({ success: false, error: 'Perfil no encontrado' }, { status: 404 });
     }
 
-    const host = request.headers.get('host') || 'rosecard.io';
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || 'rosecard.io';
     const protocol = request.headers.get('x-forwarded-proto') || 'https';
     const originUrl = `${protocol}://${host}`;
 
-    // Generar URL firmada de Google Wallet
-    const googleWalletUrl = generateGoogleWalletUrl(profile, originUrl);
+    let googleWalletUrl;
+    try {
+      googleWalletUrl = generateGoogleWalletUrl(profile, originUrl);
+    } catch (walletError) {
+      console.error('Configuración de Google Wallet inválida:', walletError.message);
+      return NextResponse.json({
+        success: false,
+        error: 'Google Wallet aún no está configurado en este servidor.',
+        details: process.env.NODE_ENV === 'development' ? walletError.message : undefined
+      }, { status: 503 });
+    }
 
     // Registrar evento de analítica (Google Wallet Download)
     try {
