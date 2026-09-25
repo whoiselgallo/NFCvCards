@@ -130,6 +130,12 @@ export default function PublicProfileClient({ profile = {} }) {
   const [selectedGalleryImg, setSelectedGalleryImg] = useState(null);
   const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
 
+  // Estados para Modal de Intercambio de Contacto (Lead Capture Bidireccional)
+  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [leadForm, setLeadForm] = useState({ name: '', email: '', phone: '', company: '', note: '' });
+  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
+  const [leadSubmittedSuccess, setLeadSubmittedSuccess] = useState(false);
+
   // Estados para Retroalimentación de Experiencia (tras 10 usos)
   const [showUsageModal, setShowUsageModal] = useState(false);
   const [usageFeedbackDone, setUsageFeedbackDone] = useState(false);
@@ -147,52 +153,73 @@ export default function PublicProfileClient({ profile = {} }) {
     }
   }, [slug, views_count, usage_feedback_completed]);
 
-  // Tema activo y estilos
-  const activeThemeConfig = THEMES[theme] || THEMES.modern;
-  const activeLogo = logo_img || logo_url || null;
-  const activeCover = cover_photo || cover_url || null;
+  // Identificador de Origen (NFC vs QR vs Link Directo)
+  const getSourceType = () => {
+    if (typeof window === 'undefined') return 'direct';
+    const params = new URLSearchParams(window.location.search);
+    const src = params.get('src') || params.get('ref') || params.get('utm_source');
+    if (!src) return 'direct';
+    const lower = src.toLowerCase();
+    if (lower === 'nfc' || lower.includes('nfc')) return 'nfc';
+    if (lower === 'qr' || lower.includes('qr')) return 'qr';
+    if (lower === 'wallet' || lower.includes('apple') || lower.includes('google')) return 'wallet';
+    if (lower === 'share' || lower.includes('wa')) return 'share';
+    return 'direct';
+  };
 
-  const currentFontPrimary = font_primary || font_family || 'Inter';
-  const currentFontSecondary = font_secondary || font_family || 'Inter';
-
-  const readableText = getReadableText(activeThemeConfig.cardBg || activeThemeConfig.bgColor || '#0F0B15');
-
-  // Configuración de Layout Visual
-  const layout = typeof custom_layout === 'object' && custom_layout !== null ? custom_layout : {};
-  const logoPosition = layout.logoPosition || 'center'; // 'center', 'left', 'floating', 'compact'
-  const infoBoxStyle = layout.infoBoxStyle || 'floating'; // 'floating', 'flat', 'glass', 'minimal'
-
-  // Inyección de Google Fonts dinámicamente
-  useEffect(() => {
-    const uniqueFonts = Array.from(new Set([currentFontPrimary, currentFontSecondary]));
-    const linkId = 'gfonts-public-profile';
-    let link = document.getElementById(linkId);
-    if (!link) {
-      link = document.createElement('link');
-      link.id = linkId;
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-    const fontParams = uniqueFonts
-      .map(f => `family=${encodeURIComponent(f)}:wght@300;400;500;600;700;800`)
-      .join('&');
-    link.href = `https://fonts.googleapis.com/css2?${fontParams}&display=swap`;
-  }, [currentFontPrimary, currentFontSecondary]);
-
-  // Registro de analítica de interacción
+  // Registro de analítica de interacción con telemetría estructurada
   const trackEvent = (eventType) => {
     if (!slug) return;
     try {
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       const isAndroid = /Android/.test(navigator.userAgent);
       const deviceType = isIOS ? 'ios' : isAndroid ? 'android' : 'desktop';
+      const sourceType = getSourceType();
 
       fetch('/api/analytics/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, eventType, deviceType })
+        body: JSON.stringify({ slug, eventType, deviceType, sourceType })
       }).catch(() => { });
     } catch (e) { }
+  };
+
+  // Manejo de envío de Lead Bidireccional
+  const handleLeadSubmit = async (e) => {
+    e.preventDefault();
+    if (!leadForm.name) return;
+    setIsSubmittingLead(true);
+    try {
+      const res = await fetch('/api/leads/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          lead_name: leadForm.name,
+          lead_email: leadForm.email,
+          lead_phone: leadForm.phone,
+          lead_company: leadForm.company,
+          lead_note: leadForm.note,
+          source_type: getSourceType()
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setLeadSubmittedSuccess(true);
+        trackEvent('lead_submit');
+        setTimeout(() => {
+          setShowLeadModal(false);
+          setLeadSubmittedSuccess(false);
+          setLeadForm({ name: '', email: '', phone: '', company: '', note: '' });
+        }, 2200);
+      } else {
+        alert(data.error || 'Error al enviar contacto');
+      }
+    } catch (err) {
+      alert('Error de conexión al enviar tus datos');
+    } finally {
+      setIsSubmittingLead(false);
+    }
   };
 
   // Generador Inteligente de Google Maps
@@ -245,6 +272,21 @@ export default function PublicProfileClient({ profile = {} }) {
     document.body.removeChild(a);
     URL.revokeObjectURL(linkUrl);
   };
+
+  // Tema activo y estilos
+  const activeThemeConfig = THEMES[theme] || THEMES.modern;
+  const activeLogo = logo_img || logo_url || null;
+  const activeCover = cover_photo || cover_url || null;
+
+  const currentFontPrimary = font_primary || font_family || 'Inter';
+  const currentFontSecondary = font_secondary || font_family || 'Inter';
+
+  const readableText = getReadableText(activeThemeConfig.cardBg || activeThemeConfig.bgColor || '#0F0B15');
+
+  // Configuración de Layout Visual
+  const layout = typeof custom_layout === 'object' && custom_layout !== null ? custom_layout : {};
+  const logoPosition = layout.logoPosition || 'center';
+  const infoBoxStyle = layout.infoBoxStyle || 'floating';
 
   const fbUrl = getSocialUrl('facebook', facebook);
   const igUrl = getSocialUrl('instagram', instagram);
@@ -1203,37 +1245,47 @@ export default function PublicProfileClient({ profile = {} }) {
 
         </div>
 
-        {/* BOTONES DE DESCARGA: CONTACTO & WALLET */}
-        <div className="fixed bottom-3 left-0 right-0 max-w-[430px] mx-auto px-4 z-30 space-y-2">
-          <button
-            onClick={downloadVCF}
-            className="w-full py-4 rounded-2xl font-bruno font-bold text-xs uppercase tracking-wider text-white shadow-2xl flex items-center justify-center gap-2 transition-all hover:brightness-110 active:scale-[0.99] border border-white/20"
-            style={{
-              background: `linear-gradient(135deg, ${color_cta} 0%, #BE123C 100%)`,
-              boxShadow: `0 8px 30px ${color_cta}60`
-            }}
-          >
-            <span className="text-base">💾</span> {t('preview_save_btn') || t('card_save_btn') || 'Guardar Contacto en Mi Celular'}
-          </button>
+        {/* BOTONES DE DESCARGA: CONTACTO, INTERCAMBIO & WALLET */}
+        <div className="fixed bottom-3 left-0 right-0 max-w-[430px] mx-auto px-4 z-30 space-y-1.5">
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              onClick={downloadVCF}
+              className="w-full py-3 rounded-xl font-bruno font-bold text-[11px] uppercase tracking-wider text-white shadow-2xl flex items-center justify-center gap-1.5 transition-all hover:brightness-110 active:scale-[0.99] border border-white/20"
+              style={{
+                background: `linear-gradient(135deg, ${color_cta} 0%, #BE123C 100%)`,
+                boxShadow: `0 8px 30px ${color_cta}60`
+              }}
+            >
+              <span className="text-sm">💾</span> Guardar Contacto
+            </button>
 
-          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setShowLeadModal(true)}
+              className="w-full py-3 rounded-xl font-bruno font-bold text-[11px] uppercase tracking-wider text-white shadow-2xl flex items-center justify-center gap-1.5 transition-all hover:brightness-110 active:scale-[0.99] border border-cyan-400/40 bg-gradient-to-r from-cyan-600 to-blue-600"
+            >
+              <span className="text-sm">🤝</span> Dejar mis Datos
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5">
             <a
               href={`/api/wallet/apple/${slug}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent('apple_wallet_download')}
-              className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg active:scale-95"
+              className="w-full py-2.5 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[10px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg active:scale-95"
             >
-              <span className="text-sm"></span> {t('apple_wallet') || 'Apple Wallet'}
+              <span className="text-xs"></span> {t('apple_wallet') || 'Apple Wallet'}
             </a>
             <a
               href={`/api/wallet/google/${slug}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent('google_wallet_download')}
-              className="w-full py-3 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg active:scale-95"
+              className="w-full py-2.5 bg-black/80 backdrop-blur-md border border-white/20 rounded-xl text-white font-semibold text-[10px] flex items-center justify-center gap-1.5 hover:bg-white/10 transition-colors shadow-lg active:scale-95"
             >
-              <span className="text-sm">💳</span> {t('google_wallet') || 'Google Wallet'}
+              <span className="text-xs">💳</span> {t('google_wallet') || 'Google Wallet'}
             </a>
           </div>
         </div>
@@ -1253,6 +1305,115 @@ export default function PublicProfileClient({ profile = {} }) {
               >
                 ✕
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL DE CAPTURA DE LEAD BIDIRECCIONAL */}
+        {showLeadModal && (
+          <div className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+            <div className="bg-[#0c0c16] border border-cyan-400/40 w-full max-w-md rounded-3xl p-6 shadow-[0_0_50px_rgba(0,229,255,0.25)] text-white relative">
+              <button
+                type="button"
+                onClick={() => setShowLeadModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold"
+              >
+                ✕
+              </button>
+
+              <div className="text-center space-y-1 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-xl mx-auto mb-2 text-cyan-300 shadow-[0_0_15px_rgba(0,229,255,0.3)]">
+                  🤝
+                </div>
+                <h3 className="text-lg font-bold text-white font-bruno">
+                  Intercambiar Contacto
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Envía tus datos directamente a <strong className="text-white">{nombre} {apellido}</strong>
+                </p>
+              </div>
+
+              {leadSubmittedSuccess ? (
+                <div className="p-4 bg-emerald-950/80 border border-emerald-500/50 rounded-2xl text-center space-y-2 animate-fadeIn">
+                  <span className="text-2xl">🎉</span>
+                  <p className="text-xs font-bold text-emerald-300">¡Contacto enviado con éxito!</p>
+                  <p className="text-[11px] text-slate-300">Tus datos han sido registrados e informados al titular de la tarjeta.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleLeadSubmit} className="space-y-3">
+                  <div>
+                    <label className="block text-[11px] font-mono uppercase text-slate-300 mb-1">Nombre Completo *</label>
+                    <input
+                      type="text"
+                      required
+                      value={leadForm.name}
+                      onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
+                      placeholder="Ej. María García"
+                      className="w-full bg-black/60 border border-white/15 focus:border-cyan-400 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-mono uppercase text-slate-300 mb-1">Teléfono / WhatsApp</label>
+                      <input
+                        type="tel"
+                        value={leadForm.phone}
+                        onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
+                        placeholder="+52 ..."
+                        className="w-full bg-black/60 border border-white/15 focus:border-cyan-400 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-mono uppercase text-slate-300 mb-1">Correo Electrónico</label>
+                      <input
+                        type="email"
+                        value={leadForm.email}
+                        onChange={(e) => setLeadForm({ ...leadForm, email: e.target.value })}
+                        placeholder="correo@ejemplo.com"
+                        className="w-full bg-black/60 border border-white/15 focus:border-cyan-400 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-mono uppercase text-slate-300 mb-1">Empresa / Negocio</label>
+                    <input
+                      type="text"
+                      value={leadForm.company}
+                      onChange={(e) => setLeadForm({ ...leadForm, company: e.target.value })}
+                      placeholder="Nombre de tu empresa"
+                      className="w-full bg-black/60 border border-white/15 focus:border-cyan-400 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-mono uppercase text-slate-300 mb-1">Mensaje / Nota</label>
+                    <textarea
+                      rows={2}
+                      value={leadForm.note}
+                      onChange={(e) => setLeadForm({ ...leadForm, note: e.target.value })}
+                      placeholder="Mensaje o motivo de contacto..."
+                      className="w-full bg-black/60 border border-white/15 focus:border-cyan-400 rounded-xl px-3 py-2 text-xs text-white outline-none"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingLead}
+                    className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(0,229,255,0.4)] flex items-center justify-center gap-2 mt-2"
+                  >
+                    {isSubmittingLead ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Enviando...</span>
+                      </>
+                    ) : (
+                      <span>Enviar mis Datos al Titular 🚀</span>
+                    )}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         )}

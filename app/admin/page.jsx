@@ -6,7 +6,7 @@ import {
   Activity, Truck, Search, RefreshCw, Star,
   Smartphone, Share2, ExternalLink, Mail, Phone, MapPin,
   Calendar, Download, CheckCircle2, Award, DollarSign,
-  TrendingUp, BarChart3, AlertCircle, ArrowUpRight, Zap
+  TrendingUp, BarChart3, AlertCircle, ArrowUpRight, Zap, Building2, Cpu
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -255,6 +255,20 @@ export default function AdminDashboard() {
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-white/5 text-slate-400"
           >
             <DatabaseIcon className="w-4 h-4 text-[#00E5FF]" /> CRM de Prospectos
+          </a>
+
+          <a
+            href="/admin/organizations"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-white/5 text-slate-400"
+          >
+            <Building2 className="w-4 h-4 text-[#EE334E]" /> Empresas Multi-Tenant
+          </a>
+
+          <a
+            href="/admin/nfc-provisioning"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:bg-white/5 text-slate-400"
+          >
+            <Cpu className="w-4 h-4 text-[#00E5FF]" /> Aprovisionamiento NFC
           </a>
 
           <button

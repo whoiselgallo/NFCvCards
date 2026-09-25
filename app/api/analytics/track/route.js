@@ -4,7 +4,7 @@ import { getPool, initDb } from '../../../../lib/db';
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { slug, eventType, deviceType = 'mobile' } = body;
+    const { slug, eventType, deviceType = 'mobile', sourceType = 'direct' } = body;
 
     if (!slug || !eventType) {
       return NextResponse.json({ success: false, error: 'Slug y eventType requeridos' }, { status: 400 });
@@ -45,7 +45,16 @@ export async function POST(request) {
       [JSON.stringify(currentClicks), profile.id]
     );
 
-    // Registrar evento detallado para gráficos temporales
+    // Registrar evento en tabla de telemetría por fuente (NFC, QR, Directo)
+    const userAgent = request.headers.get('user-agent') || '';
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '';
+
+    await pool.query(
+      'INSERT INTO card_events (profile_id, slug, source_type, event_type, user_agent, ip_address, device_type) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      [profile.id, slug, sourceType, eventType, userAgent, ip, deviceType]
+    );
+
+    // Registrar evento detallado para gráficos temporales legacy
     await pool.query(
       'INSERT INTO analytics_events (profile_id, profile_slug, event_type, device_type) VALUES ($1, $2, $3, $4)',
       [profile.id, slug, eventType, deviceType]

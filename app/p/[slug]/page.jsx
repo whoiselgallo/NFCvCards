@@ -35,6 +35,18 @@ export default async function PublicProfilePage({ params }) {
     }
     profile = res.rows[0];
 
+    // 🏢 Aplicación de Branding Corporativo (Multi-Tenant B2B)
+    if (profile.organization_id) {
+      const orgRes = await pool.query('SELECT primary_color, logo_url, enforce_branding FROM organizations WHERE id = $1', [profile.organization_id]);
+      if (orgRes.rows.length > 0) {
+        const org = orgRes.rows[0];
+        if (org.enforce_branding) {
+          if (org.primary_color) profile.color_primario = org.primary_color;
+          if (org.logo_url) profile.logo_img = org.logo_url;
+        }
+      }
+    }
+
     // Incrementar contador de visitas en segundo plano
     pool.query('UPDATE vcard_profiles SET views_count = views_count + 1 WHERE id = $1', [profile.id]).catch(() => {});
   } catch (err) {
