@@ -18,10 +18,10 @@ const brandConfig = {
 
   // Tipografía Oficial de Marca (Design Tokens)
   typography: {
-    primary: 'Plaster',                  // Tipografía Principal Display / Logotipo oficial
+    primary: 'Val Stencil',              // Tipografía Principal Display / Logotipo e Imagotipo oficial
     secondary: 'Rosetta Tech Sans',      // Tipografía de Comunicación Corporativa y Titulares
     body: 'Inter',                       // Tipografía de Lectura y Formularios UI
-    displayFont: 'Plaster, sans-serif',
+    displayFont: 'Val Stencil, Plaster, sans-serif',
     corporateFont: 'Rosetta Tech Sans, Space Grotesk, Inter, sans-serif',
     bodyFont: 'Inter, sans-serif'
   },

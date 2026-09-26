@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Val Stencil';
+  src: url('/fonts/val-stencil.woff') format('woff'),
+       url('/fonts/val-stencil.otf') format('opentype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* 🌹 1. Paleta de Colores de la Marca (Figma Official Design Tokens) */
   /* Paleta Principal */
@@ -95,7 +104,13 @@ body:has(.app-modal-open) {
   z-index: var(--z-modal);
 }
 
-/* 1. Logotipo y Display en Plaster */
+/* 1. Logotipo e Imagotipo en Val Stencil / Plaster */
+.font-val-stencil,
+.font-val {
+  font-family: 'Val Stencil', 'Bruno Ace', 'Space Grotesk', sans-serif;
+  letter-spacing: 1px;
+}
+
 .font-plaster,
 .font-brand-primary {
   font-family: var(--font-primary);
