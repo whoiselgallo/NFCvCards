@@ -40,7 +40,7 @@ export async function POST(request) {
 
     // Update password
     const hashed = hashPassword(password);
-    await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashed, user_id]);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hashed, user_id]);
 
     // Invalidate token
     await pool.query('DELETE FROM password_reset_tokens WHERE user_id = $1', [user_id]);

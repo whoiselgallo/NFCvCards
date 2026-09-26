@@ -82,7 +82,11 @@ function LoginContent() {
       });
 
       if (res?.error) {
-        setError('Credenciales invlidas o no registradas.');
+        if (res.error === 'NO_PASSWORD') {
+          setError('Esta cuenta fue creada con Google. Usa el botón "Acceso Seguro con Google" para entrar.');
+        } else {
+          setError('Credenciales inválidas o no registradas.');
+        }
         setLoading(false);
       } else {
         window.location.href = callbackUrl;
