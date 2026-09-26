@@ -145,14 +145,17 @@ export default function LandingPage() {
         {/* HEADER / NAVBAR */}
         <nav className="fixed top-0 left-0 right-0 z-40 bg-[#05050D]/85 backdrop-blur-md border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5">
+            <Link href="/" className="flex items-center gap-2 group">
+              <span className="text-xl sm:text-2xl font-bold tracking-tight text-white font-bruno">
+                roSe
+              </span>
               <img
                 src="/roselogo_120x120.png"
-                alt="Rose VCards"
-                className="w-8 h-8 sm:w-9 sm:h-9 object-contain"
+                alt="roSe vCards"
+                className="w-7 h-7 sm:w-8 sm:h-8 object-contain transition-transform group-hover:scale-110"
               />
               <span className="text-xl sm:text-2xl font-bold tracking-tight text-white font-bruno">
-                Rose VCards
+                vCards
               </span>
             </Link>
 
@@ -1552,14 +1555,17 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-6">
 
             {/* Logo y Nombre */}
-            <div className="flex items-center justify-center gap-2.5 mb-6">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <span className="text-2xl font-extrabold tracking-tight text-white font-bruno">
+                roSe
+              </span>
               <img
                 src="/roselogo_120x120.png"
-                alt="Rose VCards"
-                className="w-9 h-9 object-contain"
+                alt="roSe vCards"
+                className="w-8 h-8 sm:w-9 sm:h-9 object-contain"
               />
               <span className="text-2xl font-extrabold tracking-tight text-white font-bruno">
-                Rose VCards
+                vCards
               </span>
             </div>
 
@@ -1593,7 +1599,7 @@ export default function LandingPage() {
 
             {/* Copyright */}
             <p className="text-slate-500 text-xs font-sans">
-              © {new Date().getFullYear()} TSOLUTIONS IPIDD · Rose VCards. Todos los derechos reservados.
+              © {new Date().getFullYear()} TSOLUTIONS IPIDD · roSe vCards. Todos los derechos reservados.
             </p>
             <p className="text-[11px] text-slate-600 font-mono mt-1 uppercase tracking-wider">
               Tecnología NFC Contactless · Apple & Google Wallet Engine · Cloud Architecture
