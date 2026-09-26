@@ -1,19 +1,66 @@
-# Dependencies
-node_modules/
-node_modules
+# =================================================================
+# .gitignore — ROSE Card Platform
+# =================================================================
 
-# Next.js build output
+# --- Dependencias ---
+node_modules/
+
+# --- Build de Next.js ---
 .next/
 out/
 
-# Environment files
+# --- Variables de Entorno — NUNCA subir al repositorio ---
 .env
 .env.local
+.env.production
+.env.development
+.env.staging
 .env*.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Temporary / Testing files
+# --- Certificados y Claves Privadas ---
+*.pem
+*.p12
+*.key
+*.cert
+*.pfx
+certs/
+certificates/
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Sistema Operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editores ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# --- Archivos temporales y de desarrollo ---
+*.old
+*.bak
+*.tmp
 index.old.html
 test-db.js
+fix_env.js
+scratch/
+tmp/
+
+# --- TypeScript ---
+*.tsbuildinfo
+
+# --- Archivos de cobertura de tests ---
+coverage/
+.nyc_output/
