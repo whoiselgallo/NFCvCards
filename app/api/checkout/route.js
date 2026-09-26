@@ -18,68 +18,124 @@ export async function POST(request) {
 
     if (!stripe) {
       return NextResponse.json(
-        { error: 'Stripe no est configurado (STRIPE_SECRET_KEY faltante).' },
+        { error: 'Stripe no está configurado (STRIPE_SECRET_KEY faltante).' },
         { status: 500 }
       );
     }
 
-    const { planId, userEmail, userId } = await request.json();
+    const { planId, billingInterval = 'annual', userEmail, userId } = await request.json();
 
-    // Configurar precios segn el plan
+    // Determinar si es cobro mensual o anual
+    const isMonthly = billingInterval === 'monthly' || planId.endsWith('_monthly');
+    const basePlanId = planId.replace('_annual', '').replace('_monthly', '');
+
     let lineItems = [];
     let mode = 'subscription';
 
-    if (planId === 'meetme') {
-      lineItems = [{
-        price_data: {
-          currency: 'usd',
-          product_data: { name: 'Plan Meet Me (NFC Bsica)' },
-          unit_amount: 4900,
-          recurring: { interval: 'year' }
-        },
-        quantity: 1,
-      }];
-    } else if (planId === 'pro') {
-      lineItems = [{
-        price_data: {
-          currency: 'usd',
-          product_data: { name: 'Plan Profesional (1 Ao)' },
-          unit_amount: 19900,
-          recurring: { interval: 'year' }
-        },
-        quantity: 1,
-      }];
-    } else if (planId === 'business') {
-      lineItems = [{
-        price_data: {
-          currency: 'usd',
-          product_data: { name: 'Plan Empresa Business (1 Ao)' },
-          unit_amount: 24900,
-          recurring: { interval: 'year' }
-        },
-        quantity: 1,
-      }];
-    } else if (planId === 'elite') {
-      // Elite: $599 pago nico (sin mensualidad)
-      lineItems = [
-        {
+    if (basePlanId === 'meetme') {
+      if (isMonthly) {
+        lineItems = [{
           price_data: {
             currency: 'usd',
-            product_data: { name: 'Activacin Plan Elite Business' },
-            unit_amount: 59900, // 599.00
+            product_data: { name: 'Plan Meet Me (NFC Básica - Facturación Mensual)' },
+            unit_amount: 600, // $6.00 USD/mes
+            recurring: { interval: 'month' }
           },
           quantity: 1,
-        }
-      ];
-      mode = 'payment'; // Pago nico
-    } else if (planId === 'marcablanca') {
-      // Marca Blanca: $1499 Setup + mantenimiento $159/mes a partir del 2 mes
+        }];
+      } else {
+        lineItems = [{
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'Plan Meet Me (NFC Básica - Suscripción Anual)' },
+            unit_amount: 4900, // $49.00 USD/año
+            recurring: { interval: 'year' }
+          },
+          quantity: 1,
+        }];
+      }
+    } else if (basePlanId === 'pro') {
+      if (isMonthly) {
+        lineItems = [{
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'Plan Profesional (Facturación Mensual)' },
+            unit_amount: 2400, // $24.00 USD/mes
+            recurring: { interval: 'month' }
+          },
+          quantity: 1,
+        }];
+      } else {
+        lineItems = [{
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'Plan Profesional (Suscripción Anual)' },
+            unit_amount: 19900, // $199.00 USD/año
+            recurring: { interval: 'year' }
+          },
+          quantity: 1,
+        }];
+      }
+    } else if (basePlanId === 'business') {
+      if (isMonthly) {
+        lineItems = [{
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'Plan Empresa Business (Facturación Mensual)' },
+            unit_amount: 2900, // $29.00 USD/mes
+            recurring: { interval: 'month' }
+          },
+          quantity: 1,
+        }];
+      } else {
+        lineItems = [{
+          price_data: {
+            currency: 'usd',
+            product_data: { name: 'Plan Empresa Business (Suscripción Anual)' },
+            unit_amount: 24900, // $249.00 USD/año
+            recurring: { interval: 'year' }
+          },
+          quantity: 1,
+        }];
+      }
+    } else if (basePlanId === 'elite') {
+      // PLAN ELITE BUSINESS: Suscripción anual recurrente ($599 USD/año) o mensual ($69 USD/mes)
+      if (isMonthly) {
+        lineItems = [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Plan Elite Business (Suscripción Mensual - 50 Tarjetas)',
+              description: 'Facturación mensual recurrente para equipos y directivos'
+            },
+            unit_amount: 6900, // $69.00 USD/mes
+            recurring: { interval: 'month' }
+          },
+          quantity: 1,
+        }];
+      } else {
+        lineItems = [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Plan Elite Business (Suscripción Anual - Descuento Especial)',
+              description: 'Facturación anual recurrente con ahorro de $229 USD al año'
+            },
+            unit_amount: 59900, // $599.00 USD/año
+            recurring: { interval: 'year' }
+          },
+          quantity: 1,
+        }];
+      }
+      mode = 'subscription';
+    } else if (basePlanId === 'marcablanca') {
+      // Marca Blanca: $1,499 Setup + mantenimiento $159/mes a partir del 2º mes
       lineItems = [
         {
           price_data: {
             currency: 'usd',
-            product_data: { name: 'Setup Marca Blanca Agencias (Pago nico)' },
-            unit_amount: 149900, // 1,499.00
+            product_data: { name: 'Setup Marca Blanca Agencias (Pago Único)' },
+            unit_amount: 149900, // 1,499.00 USD
           },
           quantity: 1,
         },
@@ -87,7 +143,7 @@ export async function POST(request) {
           price_data: {
             currency: 'usd',
             product_data: { name: 'Mantenimiento Mensual Infraestructura GCP' },
-            unit_amount: 15900, // 159.00
+            unit_amount: 15900, // 159.00 USD
             recurring: { interval: 'month' }
           },
           quantity: 1,
@@ -95,7 +151,7 @@ export async function POST(request) {
       ];
       mode = 'subscription';
     } else {
-      return NextResponse.json({ error: 'Plan invlido' }, { status: 400 });
+      return NextResponse.json({ error: 'Plan inválido' }, { status: 400 });
     }
 
     const host = request.headers.get('host') || 'localhost:3000';
@@ -107,10 +163,11 @@ export async function POST(request) {
       line_items: lineItems,
       mode: mode,
       metadata: {
-        plan_id: planId,
+        plan_id: basePlanId,
+        billing_interval: isMonthly ? 'month' : 'year',
         user_id: userId || 'guest'
       },
-      success_url: `${originUrl}/builder?payment=success&plan=${planId}`,
+      success_url: `${originUrl}/builder?payment=success&plan=${basePlanId}`,
       cancel_url: `${originUrl}/#pricing`,
     };
 
@@ -118,8 +175,8 @@ export async function POST(request) {
       sessionParams.customer_email = userEmail;
     }
 
-    // 30 das gratis del mantenimiento mensual para Marca Blanca
-    if (planId === 'marcablanca') {
+    // 30 días gratis del mantenimiento mensual para Marca Blanca
+    if (basePlanId === 'marcablanca') {
       sessionParams.subscription_data = {
         trial_period_days: 30
       };

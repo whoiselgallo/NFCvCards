@@ -42,11 +42,33 @@ export async function POST(request) {
     // Log the reset link to server console (for now — replace with email service later)
     console.log(`[PASSWORD RESET] ${lower} → ${resetUrl}`);
 
-    // TODO: Send email via Resend or Nodemailer when email service is configured
-    // Example with Resend:
-    // const resend = new Resend(process.env.RESEND_API_KEY);
-    // await resend.emails.send({ from: 'noreply@tsolutionsipidd.com', to: lower,
-    //   subject: 'Recupera tu contraseña', html: `<a href="${resetUrl}">Recuperar contraseña</a>` });
+    // Send email via Resend if configured
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const { resend } = await import('../../../../lib/resend');
+        if (resend) {
+          await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+            to: lower,
+            subject: 'Recupera tu contraseña - ROSE Card',
+            html: `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #111;">Recuperación de Contraseña</h2>
+                <p>Has solicitado restablecer tu contraseña en la plataforma.</p>
+                <p style="margin: 24px 0;">
+                  <a href="${resetUrl}" style="background-color: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                    Restablecer Contraseña
+                  </a>
+                </p>
+                <p style="color: #666; font-size: 13px;">Si no solicitaste este cambio, puedes ignorar este correo con total seguridad. Este enlace expirará en 30 minutos.</p>
+              </div>
+            `
+          });
+        }
+      } catch (emailErr) {
+        console.error('[reset-request:email-error]', emailErr);
+      }
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
