@@ -668,7 +668,56 @@ export default function LandingPage() {
 
             <div className="space-y-4">
 
+              {/* FAQ — QUIÉNES SOMOS */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#EE334E] shrink-0" />
+                    ¿Quiénes somos?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Somos <span className="text-white font-semibold">TSolutions IPIDD</span>, una empresa mexicana especializada en soluciones de identidad digital y networking empresarial. Nacimos con la misión de modernizar la manera en que profesionales, emprendedores y empresas se presentan al mundo. Diseñamos y fabricamos <span className="text-[#EE334E] font-semibold">ROSE Card</span> — la tarjeta de presentación inteligente que combina tecnología NFC, diseño de alto impacto y una plataforma digital poderosa para que cada presentación sea memorable, efectiva y rastreable.
+                </div>
+              </details>
+
+              {/* FAQ — QUÉ ES UNA VCARD */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#00E5FF] shrink-0" />
+                    ¿Qué es una vCard?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Una <span className="text-white font-semibold">vCard</span> es tu tarjeta de presentación digital inteligente, alojada en la nube y accesible desde cualquier smartphone con solo un toque NFC o un escaneo de QR. A diferencia de una tarjeta física tradicional que se pierde, se ensucia o queda desactualizada, tu vCard siempre muestra tu información más reciente en tiempo real. Incluye todos tus datos de contacto, redes sociales, portafolio de proyectos, galería de productos, videos, agenda para citas y mucho más — todo en una experiencia visual interactiva y personalizada con tus colores y logotipo.
+                </div>
+              </details>
+
+              {/* FAQ — PARA QUÉ SIRVE MI VCARD */}
+              <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
+                  <span className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-[#EE334E] shrink-0" />
+                    ¿Para qué sirve mi vCard?
+                  </span>
+                  <span className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 group-hover:text-white group-open:rotate-180 transition-transform duration-300">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 leading-relaxed font-sans">
+                  Tu vCard es tu herramienta de networking más poderosa. Con ella puedes: <span className="text-white font-semibold">compartir todos tus datos de contacto</span> al instante sin que la otra persona escriba nada — solo acerca la tarjeta o muestra el QR y en segundos te tienen guardado en su agenda. Puedes <span className="text-white font-semibold">mostrar tu portafolio</span> de proyectos o productos, <span className="text-white font-semibold">recibir citas en tu calendario</span> directamente, <span className="text-white font-semibold">capturar los datos de tus contactos</span> con el módulo de intercambio bidireccional, y ver en tiempo real cuántas personas visitaron tu tarjeta, desde dónde y qué acciones tomaron. Es tu marca personal siempre activa, 24/7, en el bolsillo de cada cliente que te conoce.
+                </div>
+              </details>
+
               {/* FAQ 1 */}
+
               <details className="group bg-[#0a0a10] border border-white/10 hover:border-[#EE334E]/50 rounded-2xl p-6 transition-all duration-300 open:border-[#EE334E]/70 open:shadow-[0_0_25px_rgba(238,51,78,0.15)]">
                 <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-white group-hover:text-[#EE334E] transition-colors">
                   <span className="flex items-center gap-3">
