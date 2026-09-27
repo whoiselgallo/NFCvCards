@@ -146,7 +146,7 @@ export default function LandingPage() {
         <nav className="fixed top-0 left-0 right-0 z-40 bg-[#05050D]/85 backdrop-blur-md border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 group">
-              <span className="text-xl sm:text-2xl font-bold tracking-tight text-white font-val-stencil">
+              <span className="text-xl sm:text-2xl font-bold tracking-tight text-white font-plaster">
                 roSe
               </span>
               <img
@@ -154,7 +154,7 @@ export default function LandingPage() {
                 alt="roSe vCards"
                 className="w-7 h-7 sm:w-8 sm:h-8 object-contain transition-transform group-hover:scale-110"
               />
-              <span className="text-xl sm:text-2xl font-bold tracking-tight text-white font-val-stencil">
+              <span className="text-xl sm:text-2xl font-bold tracking-tight text-white font-plaster">
                 vCards
               </span>
             </Link>
@@ -1556,7 +1556,7 @@ export default function LandingPage() {
 
             {/* Logo y Nombre */}
             <div className="flex items-center justify-center gap-2 mb-6">
-              <span className="text-2xl font-extrabold tracking-tight text-white font-val-stencil">
+              <span className="text-2xl font-extrabold tracking-tight text-white font-plaster">
                 roSe
               </span>
               <img
@@ -1564,7 +1564,7 @@ export default function LandingPage() {
                 alt="roSe vCards"
                 className="w-8 h-8 sm:w-9 sm:h-9 object-contain"
               />
-              <span className="text-2xl font-extrabold tracking-tight text-white font-val-stencil">
+              <span className="text-2xl font-extrabold tracking-tight text-white font-plaster">
                 vCards
               </span>
             </div>
