@@ -35,7 +35,7 @@ export default function NFCProvisioningPage() {
       }
     } catch (err) {
       console.error('Error cargando perfiles para aprovisionamiento:', err);
-    } fontFinally: {
+    } finally {
       setLoading(false);
     }
   };
