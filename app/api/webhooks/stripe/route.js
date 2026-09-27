@@ -23,14 +23,31 @@ export async function POST(req) {
       event = JSON.parse(body);
     }
 
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
-      const { plan_id, user_id } = session.metadata || {};
+    await initDb();
+    const pool = getPool();
+    const client = await pool.connect();
 
-      if (plan_id) {
-        const pool = getPool();
-        const client = await pool.connect();
-        try {
+    try {
+      // 🔒 IDEMPOTENCIA: Evitar procesar dos veces el mismo evento si Stripe reintenta
+      if (event.id) {
+        const idempotencyRes = await client.query(`
+          INSERT INTO stripe_webhook_events (event_id, event_type)
+          VALUES ($1, $2)
+          ON CONFLICT (event_id) DO NOTHING
+          RETURNING id;
+        `, [event.id, event.type]);
+
+        if (idempotencyRes.rows.length === 0) {
+          console.warn(`[Stripe Webhook] Evento ${event.id} ya procesado anteriormente. Descartando duplicado.`);
+          return NextResponse.json({ received: true, duplicate: true });
+        }
+      }
+
+      if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
+        const { plan_id, user_id } = session.metadata || {};
+
+        if (plan_id) {
           const email = session.customer_details?.email || session.customer_email;
           let uId = user_id;
 
@@ -42,27 +59,35 @@ export async function POST(req) {
             } else {
               // Crear nuevo usuario automáticamente
               const insert = await client.query(
-                'INSERT INTO users (email, name, plan_id, stripe_customer_id) VALUES ($1, $2, $3, $4) RETURNING id',
-                [email, email.split('@')[0], 'free', session.customer]
+                "INSERT INTO users (email, password_hash) VALUES ($1, 'stripe_checkout_user') RETURNING id",
+                [email]
               );
               uId = insert.rows[0].id;
+              await client.query(
+                'INSERT INTO user_profiles (user_id, name, plan_id, stripe_customer_id) VALUES ($1, $2, $3, $4) ON CONFLICT (user_id) DO NOTHING',
+                [uId, email.split('@')[0], 'free', session.customer]
+              );
             }
           }
 
           if (uId) {
-            await client.query(
-              'UPDATE users SET plan_id = $1, stripe_customer_id = $2, stripe_subscription_id = $3 WHERE id = $4',
-              [plan_id, session.customer, session.subscription, uId]
-            );
+            await client.query(`
+              INSERT INTO user_profiles (user_id, plan_id, stripe_customer_id, stripe_subscription_id)
+              VALUES ($1, $2, $3, $4)
+              ON CONFLICT (user_id) DO UPDATE SET
+                plan_id = EXCLUDED.plan_id,
+                stripe_customer_id = EXCLUDED.stripe_customer_id,
+                stripe_subscription_id = EXCLUDED.stripe_subscription_id;
+            `, [uId, plan_id, session.customer, session.subscription]);
             console.log(`Usuario ${uId} actualizado al plan ${plan_id}`);
           }
-        } finally {
-          client.release();
         }
       }
-    }
 
-    return NextResponse.json({ received: true });
+      return NextResponse.json({ received: true });
+    } finally {
+      client.release();
+    }
   } catch (err) {
     console.error('Webhook Error:', err);
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });

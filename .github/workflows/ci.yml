@@ -1,0 +1,32 @@
+name: CI / Production Build Verification
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ main, staging ]
+
+jobs:
+  verify-build:
+    name: Next.js Turbopack Build & Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar Repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependencias Limpias
+        run: npm ci
+
+      - name: Compilar Produccion (Next.js Build)
+        run: npm run build
+        env:
+          NEXTAUTH_SECRET: "ci_build_verification_token_2026"
+          DATABASE_URL: "postgresql://ci_dummy:ci_dummy@localhost:5432/ci_db"
+          NEXTAUTH_URL: "http://localhost:3000"

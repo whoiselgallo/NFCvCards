@@ -19,12 +19,22 @@ export async function POST(request) {
 
           await initDb();
           const pool = getPool();
+          const userId = parseInt(session.user.id, 10) || session.user.id;
+
+          // Actualizar o insertar en user_profiles para desbloquear plan Elite
+          await pool.query(`
+            INSERT INTO user_profiles (user_id, plan_id, card_limit, role)
+            VALUES ($1, 'elite', 1, 'member')
+            ON CONFLICT (user_id) DO UPDATE SET
+              plan_id = 'elite',
+              card_limit = GREATEST(COALESCE(user_profiles.card_limit, 1), 1);
+          `, [userId]);
+
           const result = await pool.query(`
-      UPDATE users
-      SET plan_id = 'elite', card_limit = GREATEST(COALESCE(card_limit, 1), 1)
-      WHERE id = $1
-      RETURNING id, email, plan_id, card_limit
-    `, [session.user.id]);
+            SELECT id, email, plan_id, card_limit
+            FROM app_users
+            WHERE id = $1
+          `, [userId]);
 
           if (!result.rows.length) {
                return NextResponse.json({ success: false, error: 'No se encontró tu cuenta.' }, { status: 404 });
@@ -34,7 +44,7 @@ export async function POST(request) {
                success: true,
                user: result.rows[0],
                agent: agent.slug,
-               message: 'Pase Elite de agente activado.'
+               message: 'Pase Elite de agente activado exitosamente.'
           });
      } catch (error) {
           console.error('Error al activar pase de agente:', error);
