@@ -240,15 +240,15 @@
                 
                 <!-- Foto de Perfil / Logo con Ajuste de Compresión -->
                 <div class="bg-[#12121c] p-5 rounded-[var(--radius-soft)] border border-gray-800 shadow-[var(--shadow-card)]">
-                    <label class="block text-sm font-bruno text-blanco-puro mb-2">Logo o Foto (Se convertirá a JPEG miniatura)</label>
-                    <input type="file" id="foto" accept="image/png, image/jpeg, image/jpg, image/webp" class="w-full text-sm text-humo file:mr-4 file:py-2 file:px-4 file:rounded-[var(--radius-soft)] file:border-0 file:text-sm file:font-semibold file:bg-[var(--naranja-energy)] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer mb-4">
+                    <label for="foto" class="block text-sm font-bruno text-blanco-puro mb-2">Logo o Foto (Se convertirá a JPEG miniatura)</label>
+                    <input type="file" id="foto" accept="image/png, image/jpeg, image/jpg, image/webp" title="Logo o Foto" aria-label="Logo o Foto (Se convertirá a JPEG miniatura)" class="w-full text-sm text-humo file:mr-4 file:py-2 file:px-4 file:rounded-[var(--radius-soft)] file:border-0 file:text-sm file:font-semibold file:bg-[var(--naranja-energy)] file:text-black hover:file:bg-orange-400 transition-colors cursor-pointer mb-4">
                     
                     <div id="compression-container" class="opacity-50 pointer-events-none transition-opacity duration-300">
                         <div class="flex justify-between items-center mb-1">
-                            <label class="text-xs font-bruno text-aqua uppercase">Nivel de Compresión JPEG</label>
+                            <label for="compression-slider" class="text-xs font-bruno text-aqua uppercase">Nivel de Compresión JPEG</label>
                             <span id="compression-value" class="text-xs font-bold text-blanco-puro">Media (40%)</span>
                         </div>
-                        <input type="range" id="compression-slider" min="0.1" max="1.0" step="0.1" value="0.4">
+                        <input type="range" id="compression-slider" min="0.1" max="1.0" step="0.1" value="0.4" title="Nivel de Compresión JPEG" aria-label="Nivel de Compresión JPEG">
                         <div class="flex justify-between text-[10px] text-gray-500 mt-1 uppercase tracking-wide">
                             <span>Menos Bytes (~50px)</span>
                             <span>OVERLOAD (~150px)</span>
@@ -261,7 +261,7 @@
                                 <p class="text-[10px] text-gray-400 leading-tight">Apaga este switch si el medidor marca OVERLOAD. Tu vCard funcionará perfecto en NFC (solo texto), y la foto se mantendrá visualmente en tu panel.</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer ml-3 shrink-0">
-                                <input type="checkbox" id="include-photo-toggle" class="sr-only peer" checked>
+                                <input type="checkbox" id="include-photo-toggle" class="sr-only peer" checked aria-label="Incrustar Foto en Datos">
                                 <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--naranja-energy)]"></div>
                             </label>
                         </div>
