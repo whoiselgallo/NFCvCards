@@ -142,7 +142,7 @@ function LoginContent() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                placeholder="Correo Electrnico"
+                placeholder="Correo Electrónico"
                 className="w-full pl-12 pr-4 py-4 bg-black/40 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-[#EE334E] focus:ring-1 focus:ring-[#EE334E] transition-all"
               />
             </div>
@@ -157,7 +157,7 @@ function LoginContent() {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                placeholder="Contrasea"
+                placeholder="Contraseña"
                 className="w-full pl-12 pr-4 py-4 bg-black/40 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-[#EE334E] focus:ring-1 focus:ring-[#EE334E] transition-all"
               />
             </div>
