@@ -46,7 +46,18 @@ export async function POST(request) {
 
     // Crear Sesión Oficial de Checkout en Stripe
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      ui_mode: 'hosted_page',
+      billing_address_collection: 'auto',
+      phone_number_collection: {
+        enabled: false,
+      },
+      automatic_tax: {
+        enabled: true,
+      },
+      allow_promotion_codes: true,
+      submit_type: 'auto',
+      integration_identifier: 'hosted_web_0001',
+      origin_context: 'web',
       line_items: [
         {
           price_data: {
@@ -62,13 +73,6 @@ export async function POST(request) {
         },
       ],
       mode: 'payment',
-      customer_email: customerEmail && customerEmail.includes('@') ? customerEmail : undefined,
-      metadata: {
-        product_id: productId,
-        shipping_location: shippingLocation,
-        profile_slug: slug,
-        platform: 'TSOLUTIONS IPIDD vCard Engine'
-      },
       success_url: `${originUrl}/builder?payment_status=success&session_id={CHECKOUT_SESSION_ID}&item=${encodeURIComponent(productId)}`,
       cancel_url: `${originUrl}/builder?payment_status=cancelled`,
     });

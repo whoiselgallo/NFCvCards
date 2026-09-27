@@ -159,27 +159,26 @@ export async function POST(request) {
     const originUrl = `${protocol}://${host}`;
 
     const sessionParams = {
-      payment_method_types: ['card'],
+      ui_mode: 'hosted_page',
+      billing_address_collection: 'auto',
+      phone_number_collection: {
+        enabled: false,
+      },
+      automatic_tax: {
+        enabled: true,
+      },
+      allow_promotion_codes: true,
+      submit_type: 'auto',
+      integration_identifier: 'hosted_web_0001',
+      origin_context: 'web',
       line_items: lineItems,
       mode: mode,
-      metadata: {
-        plan_id: basePlanId,
-        billing_interval: isMonthly ? 'month' : 'year',
-        user_id: userId || 'guest'
-      },
       success_url: `${originUrl}/builder?payment=success&plan=${basePlanId}`,
       cancel_url: `${originUrl}/#pricing`,
     };
 
-    if (userEmail && userEmail.includes('@')) {
-      sessionParams.customer_email = userEmail;
-    }
-
-    // 30 días gratis del mantenimiento mensual para Marca Blanca
-    if (basePlanId === 'marcablanca') {
-      sessionParams.subscription_data = {
-        trial_period_days: 30
-      };
+    if (mode === 'subscription') {
+      sessionParams.payment_method_collection = 'always';
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
