@@ -32,9 +32,19 @@ export async function POST(req) {
     }
 
     const hashed = hashPassword(password);
+    const targetPlan = hasFreeDomain ? 'elite' : 'free';
+    const targetLimit = hasFreeDomain ? accessConfig.organizationCardLimit : 1;
+    const targetRole = hasFreeDomain ? 'admin' : 'member';
+
+    const insertUser = await client.query(
+      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id',
+      [email, hashed]
+    );
+    const newUserId = insertUser.rows[0].id;
+
     await client.query(
-      'INSERT INTO users (name, email, password_hash, plan_id, card_limit) VALUES ($1, $2, $3, $4, $5)',
-      [name, email, hashed, hasFreeDomain ? 'elite' : 'free', hasFreeDomain ? accessConfig.organizationCardLimit : 1]
+      'INSERT INTO user_profiles (user_id, name, plan_id, card_limit, role) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id) DO NOTHING',
+      [newUserId, name, targetPlan, targetLimit, targetRole]
     );
     client.release();
 
