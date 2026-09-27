@@ -17,11 +17,27 @@ export async function POST(request) {
       );
     }
 
+    let extractedData = null;
+    let engineUsed = 'heuristic';
     let textToParse = raw_text || '';
 
-    // Si se proporciona una imagen base64 y está disponible una API de OCR (p.ej. Google Vision API o Anthropic/Gemini)
-    if (image_base64 && !textToParse) {
-      // Si existe GOOGLE_VISION_API_KEY o similar en el entorno, se llama a la API externa
+    // 1. Motor Principal de IA: Google AI Studio (Gemini Multimodal)
+    const hasGeminiKey = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_STUDIO_API_KEY);
+    if (hasGeminiKey) {
+      try {
+        const { parseBusinessCardWithGemini } = await import('../../../../lib/gemini');
+        extractedData = await parseBusinessCardWithGemini({
+          imageBase64: image_base64,
+          rawText: raw_text
+        });
+        engineUsed = 'google_ai_studio_gemini';
+      } catch (geminiErr) {
+        console.warn('[OCR] Google AI Studio falló, recurriendo a motor secundario:', geminiErr.message);
+      }
+    }
+
+    // 2. Motor Secundario: Google Vision API (si Gemini no está o falló)
+    if (!extractedData && image_base64 && !textToParse) {
       const visionApiKey = process.env.GOOGLE_VISION_API_KEY;
       if (visionApiKey) {
         try {
@@ -37,14 +53,17 @@ export async function POST(request) {
           });
           const visionData = await visionRes.json();
           textToParse = visionData.responses?.[0]?.fullTextAnnotation?.text || '';
+          engineUsed = 'google_vision_api';
         } catch (visionErr) {
-          console.error('Error llamando a Google Vision API:', visionErr);
+          console.error('[OCR] Error en Google Vision API:', visionErr);
         }
       }
     }
 
-    // Parser heurístico inteligente para extraer datos de contacto del texto OCR
-    const extractedData = parseBusinessCardText(textToParse);
+    // 3. Fallback Heurístico si no se procesó con Gemini
+    if (!extractedData) {
+      extractedData = parseBusinessCardText(textToParse);
+    }
 
     // Si se especificó target_slug, registrar automáticamente el contacto capturado en la BD
     if (target_slug) {
@@ -54,23 +73,46 @@ export async function POST(request) {
       const profileRes = await pool.query('SELECT id FROM vcard_profiles WHERE slug = $1 LIMIT 1', [target_slug]);
       const profileId = profileRes.rows[0]?.id || null;
 
-      await pool.query(
+      const leadInsertRes = await pool.query(
         `INSERT INTO card_leads (profile_id, slug, lead_name, lead_email, lead_phone, lead_company, lead_note, source_type)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'ocr_scan')`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'ocr_scan')
+         RETURNING id`,
         [
           profileId,
           target_slug,
-          `${extractedData.nombre} ${extractedData.apellido}`.trim() || 'Contacto OCR',
-          extractedData.correo,
-          extractedData.telefono,
-          extractedData.empresa,
-          `Escaneado vía OCR: ${extractedData.puesto || ''}`,
+          `${extractedData.nombre || ''} ${extractedData.apellido || ''}`.trim() || 'Contacto OCR',
+          extractedData.correo || '',
+          extractedData.telefono || '',
+          extractedData.empresa || '',
+          `Escaneado con IA (${engineUsed}): ${extractedData.puesto || ''}`,
         ]
       );
+
+      // Sincronizar automáticamente con el CRM nativo
+      try {
+        const leadName = `${extractedData.nombre || ''} ${extractedData.apellido || ''}`.trim() || 'Contacto OCR';
+        await pool.query(
+          `INSERT INTO crm_contacts (
+            external_id, source, display_name, company_name, phone_number, email, notes, status, lead_score
+          ) VALUES ($1, 'ocr_scan', $2, $3, $4, $5, $6, 'new', 75)
+          ON CONFLICT (source, external_id) DO NOTHING`,
+          [
+            `ocr_lead_${leadInsertRes.rows[0]?.id || Date.now()}`,
+            leadName,
+            extractedData.empresa || '',
+            extractedData.telefono || '',
+            (extractedData.correo || '').toLowerCase(),
+            `Tarjeta física escaneada con IA (${engineUsed}) para vCard: ${target_slug}`,
+          ]
+        );
+      } catch (crmSyncErr) {
+        console.error('Error sincronizando OCR con crm_contacts:', crmSyncErr);
+      }
     }
 
     return NextResponse.json({
       success: true,
+      engine: engineUsed,
       data: extractedData,
       raw_text: textToParse
     });
