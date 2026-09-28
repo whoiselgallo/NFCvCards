@@ -121,10 +121,10 @@ export default function AllAgentesDashboard() {
           <div className="bg-[#0A0A10]/80 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
             <span className="text-xs font-mono uppercase text-slate-400">Agentes Activos</span>
             <div className="text-4xl font-extrabold text-[#00E5FF] mt-2 mb-1">
-              {loading ? '...' : `${data?.agents?.length || 5} Embajadores`}
+              {loading ? '...' : `${data?.agents?.length || 1} Embajador Oficial`}
             </div>
             <p className="text-xs text-slate-500 font-mono">
-              50 tarjetas asignadas a cada uno
+              250 tarjetas consolidadas
             </p>
           </div>
         </div>
@@ -132,11 +132,7 @@ export default function AllAgentesDashboard() {
         {/* TARJETAS INDIVIDUALES DE CADA AGENTE */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {(data?.agents || [
-            { slug: 'ariel-higera', name: 'Ariel Higera', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 },
-            { slug: 'michelle-hernandez', name: 'Michelle Hernandez', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 },
-            { slug: 'fatima-itxel-hernandez', name: 'Fatima Itxel Hernandez', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 },
-            { slug: 'osclari-marlene', name: 'Osclari Marlene', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 },
-            { slug: 'javier-gallardo', name: 'Javier Gallardo', giftQuota: 50, giftedCount: 0, remaining: 50, percent: 0 }
+            { slug: 'javier-gallardo', name: 'Javier Gallardo', giftQuota: 250, giftedCount: 0, remaining: 250, percent: 0 }
           ]).map((ag) => (
             <div
               key={ag.slug}

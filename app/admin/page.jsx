@@ -1115,7 +1115,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="p-4 rounded-xl bg-[#EE334E]/5 border border-[#EE334E]/20 text-xs text-slate-300 leading-relaxed">
-                    Los enlaces de agentes mantienen su cuota individual de 50 tarjetas, pero nunca podrán superar el límite global configurado. Actualmente el valor inicial es de 250 pases.
+                    El enlace del agente oficial Javier Gallardo cuenta con el cupo consolidado de 250 tarjetas para obsequiar, respetando el límite global configurado.
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">

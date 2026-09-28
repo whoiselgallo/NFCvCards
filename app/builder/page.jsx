@@ -998,7 +998,7 @@ export default function VCardEngineDashboard() {
                 <span className="text-[#00E5FF]">Cortesía de {referredByAgent.name} ({referredByAgent.company})</span>
               </p>
               <p className="text-[11px] text-slate-400">
-                Lote de 50 Tarjetas de Invitado • Todas las funciones y temas desbloqueados sin costo
+                Lote de {referredByAgent.giftQuota || 250} Tarjetas de Invitado • Todas las funciones y temas desbloqueados sin costo
               </p>
             </div>
           </div>

@@ -169,7 +169,7 @@ export default function RegaloPage() {
                 </div>
               ) : (
                 <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-center text-sm text-red-300">
-                  Este lote de 50 tarjetas de obsequio ha sido completado. Contacta a {agent.name} para solicitar un nuevo cupo.
+                  Este lote de {agent.giftQuota || 250} tarjetas de obsequio ha sido completado. Contacta a {agent.name} para solicitar un nuevo cupo.
                 </div>
               )}
             </div>

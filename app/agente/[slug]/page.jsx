@@ -462,7 +462,7 @@ export default function AgenteTrackingPage() {
               ¿Eliminar esta tarjeta?
             </h3>
             <p className="text-xs text-slate-300 leading-relaxed mb-4">
-              Estás a punto de borrar la tarjeta de <strong className="text-white">{deletingCard.nombre} {deletingCard.apellido}</strong> ({deletingCard.empresa || 'Particular'}). Al eliminarla, <strong className="text-emerald-400">recuperarás 1 cupo de regalo</strong> en tu lote de 50 tarjetas.
+              Estás a punto de borrar la tarjeta de <strong className="text-white">{deletingCard.nombre} {deletingCard.apellido}</strong> ({deletingCard.empresa || 'Particular'}). Al eliminarla, <strong className="text-emerald-400">recuperarás 1 cupo de regalo</strong> en tu lote de {agentData?.giftQuota || 250} tarjetas.
             </p>
 
             <div className="mb-5 space-y-2">
