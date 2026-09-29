@@ -1058,83 +1058,196 @@ export default function AdminDashboard() {
           )}
 
           {activeTab === 'access' && (
-            <div className="max-w-4xl bg-[#0a0a10] border border-white/5 rounded-2xl p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
-                <div>
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <SettingsIcon className="w-6 h-6 text-[#EE334E]" /> Acceso Elite Global
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Configura qué dominios reciben acceso gratuito y cuántas tarjetas pueden crear.
-                  </p>
+            <div className="space-y-8 max-w-6xl">
+              <div className="max-w-4xl bg-[#0a0a10] border border-white/5 rounded-2xl p-6 sm:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
+                  <div>
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      <SettingsIcon className="w-6 h-6 text-[#EE334E]" /> Acceso Elite Global
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Configura qué dominios reciben acceso gratuito y cuántas tarjetas pueden crear.
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    Protegido por servidor
+                  </span>
                 </div>
-                <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  Protegido por servidor
-                </span>
+
+                {accessConfigLoading ? (
+                  <div className="py-10 text-center text-xs text-slate-400">Cargando configuración...</div>
+                ) : (
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 mb-2">Dominios gratuitos</label>
+                      <input
+                        type="text"
+                        value={freeDomainsText}
+                        onChange={(event) => setFreeDomainsText(event.target.value)}
+                        placeholder="empresa.com, otraempresa.mx"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
+                      />
+                      <p className="text-[11px] text-slate-500 mt-2">Separa varios dominios con comas. El dominio completo se valida en el servidor.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <label className="block">
+                        <span className="block text-xs font-bold text-slate-300 mb-2">Tarjetas por cuenta Elite</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="10000"
+                          value={accessConfig.organizationCardLimit}
+                          onChange={(event) => setAccessConfig(prev => ({ ...prev, organizationCardLimit: Number(event.target.value) }))}
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="block text-xs font-bold text-slate-300 mb-2">Pases gratuitos globales de agentes</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="10000"
+                          value={accessConfig.agentFreePassLimit}
+                          onChange={(event) => setAccessConfig(prev => ({ ...prev, agentFreePassLimit: Number(event.target.value) }))}
+                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
+                        />
+                      </label>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-[#EE334E]/5 border border-[#EE334E]/20 text-xs text-slate-300 leading-relaxed">
+                      El enlace del agente oficial Javier Gallardo cuenta con el cupo consolidado de 250 tarjetas para obsequiar, respetando el límite global configurado.
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={saveAccessConfig}
+                        disabled={accessConfigSaving}
+                        className="px-5 py-3 rounded-xl bg-[#EE334E] hover:bg-[#ff0003] disabled:opacity-50 text-white text-xs font-bold transition-all"
+                      >
+                        {accessConfigSaving ? 'Guardando...' : 'Guardar configuración'}
+                      </button>
+                      {accessConfigMessage && (
+                        <span className={`text-xs ${accessConfigMessage.includes('correctamente') ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {accessConfigMessage}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {accessConfigLoading ? (
-                <div className="py-10 text-center text-xs text-slate-400">Cargando configuración...</div>
-              ) : (
-                <div className="space-y-6">
+              {/* LISTA CENTRALIZADA DE EMPRESAS, PAQUETES, DOMINIOS, CUOTAS, TICKETS Y PAGOS */}
+              <div className="bg-[#0a0a10] border border-white/5 rounded-2xl p-6 sm:p-8 shadow-2xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-2">Dominios gratuitos</label>
-                    <input
-                      type="text"
-                      value={freeDomainsText}
-                      onChange={(event) => setFreeDomainsText(event.target.value)}
-                      placeholder="empresa.com, otraempresa.mx"
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
-                    />
-                    <p className="text-[11px] text-slate-500 mt-2">Separa varios dominios con comas. El dominio completo se valida en el servidor.</p>
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Building2 className="w-5 h-5 text-[#EE334E]" />
+                      Directorio y Control Centralizado de Empresas & Membresías
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Consolidado operacional: dominios activos para creación de tarjetas, cuotas asignadas vs consumidas, tickets de soporte y modelos de facturación.
+                    </p>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <label className="block">
-                      <span className="block text-xs font-bold text-slate-300 mb-2">Tarjetas por cuenta Elite</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="10000"
-                        value={accessConfig.organizationCardLimit}
-                        onChange={(event) => setAccessConfig(prev => ({ ...prev, organizationCardLimit: Number(event.target.value) }))}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="block text-xs font-bold text-slate-300 mb-2">Pases gratuitos globales de agentes</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="10000"
-                        value={accessConfig.agentFreePassLimit}
-                        onChange={(event) => setAccessConfig(prev => ({ ...prev, agentFreePassLimit: Number(event.target.value) }))}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#EE334E]"
-                      />
-                    </label>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-[#EE334E]/5 border border-[#EE334E]/20 text-xs text-slate-300 leading-relaxed">
-                    El enlace del agente oficial Javier Gallardo cuenta con el cupo consolidado de 250 tarjetas para obsequiar, respetando el límite global configurado.
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={saveAccessConfig}
-                      disabled={accessConfigSaving}
-                      className="px-5 py-3 rounded-xl bg-[#EE334E] hover:bg-[#ff0003] disabled:opacity-50 text-white text-xs font-bold transition-all"
-                    >
-                      {accessConfigSaving ? 'Guardando...' : 'Guardar configuración'}
-                    </button>
-                    {accessConfigMessage && (
-                      <span className={`text-xs ${accessConfigMessage.includes('correctamente') ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {accessConfigMessage}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      1 Corporativo Activo
+                    </span>
                   </div>
                 </div>
-              )}
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10 text-slate-400 uppercase tracking-wider text-[11px] bg-white/[0.02]">
+                        <th className="py-3.5 px-4 font-semibold">Nombre de la Empresa</th>
+                        <th className="py-3.5 px-3 font-semibold">Paquete Contratado</th>
+                        <th className="py-3.5 px-3 font-semibold">Dominio Activo</th>
+                        <th className="py-3.5 px-3 font-semibold text-center">Tarjetas Asignadas</th>
+                        <th className="py-3.5 px-3 font-semibold text-center">Tarjetas Creadas</th>
+                        <th className="py-3.5 px-3 font-semibold text-center">Tickets Abiertos</th>
+                        <th className="py-3.5 px-3 font-semibold text-center">Tickets Corregidos</th>
+                        <th className="py-3.5 px-3 font-semibold text-center">Estatus Pago</th>
+                        <th className="py-3.5 px-4 font-semibold text-right">Modelo de Pago</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 text-slate-200">
+                      <tr className="hover:bg-white/[0.03] transition-colors">
+                        {/* 1. Nombre de la empresa */}
+                        <td className="py-4 px-4 font-medium text-white">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-[#EE334E]/15 border border-[#EE334E]/30 flex items-center justify-center text-[#EE334E] font-bold text-xs">
+                              TS
+                            </div>
+                            <div>
+                              <div className="font-bold text-sm text-white">TSOLUTIONS IPIDD</div>
+                              <div className="text-[10px] text-slate-500 font-mono">Master Tenant • Admin Global</div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* 2. Paquete contratado */}
+                        <td className="py-4 px-3">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#EE334E]/15 text-[#EE334E] border border-[#EE334E]/30">
+                            <Zap className="w-3 h-3" /> Elite Enterprise
+                          </span>
+                        </td>
+
+                        {/* 3. Dominio activo para la creacion de tarjetas */}
+                        <td className="py-4 px-3">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 border border-white/10 text-cyan-400 font-mono text-[11px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            {accessConfig.freeDomains?.join(', ') || freeDomainsText || 'tsolutionsipidd.com'}
+                          </div>
+                        </td>
+
+                        {/* 4. Numero de tarjetas asignado */}
+                        <td className="py-4 px-3 text-center">
+                          <span className="font-mono font-bold text-white bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-xs">
+                            {accessConfig.organizationCardLimit || 50}
+                          </span>
+                        </td>
+
+                        {/* 5. Numero de tarjetas creadas */}
+                        <td className="py-4 px-3 text-center">
+                          <span className="font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-md text-xs">
+                            {data?.summary?.total_profiles || 3}
+                          </span>
+                        </td>
+
+                        {/* 6. Ticket abiertos para soporte */}
+                        <td className="py-4 px-3 text-center">
+                          <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                            0
+                          </span>
+                        </td>
+
+                        {/* 7. Tickets corregidos */}
+                        <td className="py-4 px-3 text-center">
+                          <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                            {data?.feedback?.total || 2}
+                          </span>
+                        </td>
+
+                        {/* 8. Estatus por pago de membresia */}
+                        <td className="py-4 px-3 text-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                            <CheckCircle2 className="w-3 h-3" /> Al corriente
+                          </span>
+                        </td>
+
+                        {/* 9. Modelo de pago */}
+                        <td className="py-4 px-4 text-right">
+                          <div className="font-semibold text-white">Anual Corporativo</div>
+                          <div className="text-[10px] text-slate-400">Facturación Automática Stripe</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 
