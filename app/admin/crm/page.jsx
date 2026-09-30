@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Database, Download, Megaphone, Search, ShieldOff, Upload } from 'lucide-react';
+import { ArrowLeft, Database, Download, Megaphone, Search, ShieldOff, Upload, Zap, Bell, TrendingUp, CheckCircle, MessageSquare } from 'lucide-react';
+import VCardBatchApprovalModal from './components/VCardBatchApprovalModal';
 
 const STATUS_LABELS = {
      new: 'Nuevo',
@@ -25,6 +26,88 @@ export default function CrmPage() {
      const [campaignName, setCampaignName] = useState('');
      const [campaignSubject, setCampaignSubject] = useState('');
      const [campaignMessage, setCampaignMessage] = useState('');
+
+     // ── ROSE SALES ENGINE STATE ──────────────────────────────────────────
+     const [salesBatches, setSalesBatches] = useState([]);
+     const [selectedBatch, setSelectedBatch] = useState(null);
+     const [batchLeads, setBatchLeads] = useState([]);
+     const [showBatchModal, setShowBatchModal] = useState(false);
+     const [salesAlert, setSalesAlert] = useState(null);
+     const sseRef = useRef(null);
+
+     // Conectar al canal SSE de notificaciones del Rose Sales Engine
+     useEffect(() => {
+       const connect = () => {
+         try {
+           const es = new EventSource('/api/v1/vcard/events');
+           sseRef.current = es;
+
+           es.addEventListener('BATCH_READY_FOR_APPROVAL', (e) => {
+             const data = JSON.parse(e.data);
+             setSalesAlert({ type: 'batch', ...data });
+             loadSalesBatches();
+           });
+
+           es.addEventListener('HIGH_CONVERSION_ALERT', (e) => {
+             const data = JSON.parse(e.data);
+             setSalesAlert({ type: 'conversion', ...data });
+           });
+
+           es.addEventListener('DISPATCH_PROGRESS', (e) => {
+             const data = JSON.parse(e.data);
+             setSalesAlert({ type: 'progress', ...data });
+           });
+
+           es.addEventListener('WHATSAPP_LEAD_REPLIED', (e) => {
+             const data = JSON.parse(e.data);
+             setSalesAlert({ type: 'whatsapp_reply', ...data });
+             loadContacts();
+             loadSalesBatches();
+           });
+
+           es.onerror = () => {
+             es.close();
+             // Reconectar tras 10s si se pierde la conexión
+             setTimeout(connect, 10000);
+           };
+         } catch (_err) { /* SSE no soportado, silencioso */ }
+       };
+
+       connect();
+       return () => sseRef.current?.close();
+     }, []);
+
+     const loadSalesBatches = async () => {
+       try {
+         const res = await fetch('/api/v1/vcard/batches?limit=5');
+         const data = await res.json();
+         if (data.success) setSalesBatches(data.batches || []);
+       } catch (_err) { /* silencioso */ }
+     };
+
+     useEffect(() => { loadSalesBatches(); }, []);
+
+     const openBatch = async (batch) => {
+       setSelectedBatch(batch);
+       // Cargar los leads del lote
+       const leads = batch.generated_content?.lead_snapshot || [];
+       if (!leads.length) {
+         try {
+           const res = await fetch(`/api/v1/vcard/batches?limit=1`);
+           const data = await res.json();
+           setBatchLeads(data.batches?.[0]?.leads || []);
+         } catch (_err) { setBatchLeads([]); }
+       } else {
+         setBatchLeads(leads);
+       }
+       setShowBatchModal(true);
+     };
+
+     const getStatusColor = (s) => ({
+       PENDING_APPROVAL: '#F59E0B', APPROVED: '#22C55E',
+       DISPATCHING: '#3B82F6', COMPLETED: '#6B7280', REJECTED: '#EF4444'
+     }[s] || '#94A3B8');
+     // ─────────────────────────────────────────────────────────────────────
 
      const loadContacts = async () => {
           setLoading(true);
@@ -147,11 +230,61 @@ export default function CrmPage() {
                     </section>
 
                     <aside className="space-y-6">
+                          {/* ROSE SALES ENGINE WIDGET */}
+                          <section style={{ background: "#0A0D14", border: "1px solid rgba(255,107,0,0.3)", borderRadius: 16, overflow: "hidden" }}>
+                            <div style={{ padding: "14px 18px", borderBottom: "1px solid rgba(255,107,0,0.2)", display: "flex", alignItems: "center", gap: 10 }}>
+                              <Zap size={16} color="#FF6B00" />
+                              <span style={{ fontFamily: "Bruno Ace, monospace", color: "#F8FAFC", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>Rose Sales Engine</span>
+                              {salesBatches.filter(b => b.status === "PENDING_APPROVAL").length > 0 && (
+                                <span style={{ marginLeft: "auto", background: "#FF6B00", color: "#fff", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800 }}>
+                                  {salesBatches.filter(b => b.status === "PENDING_APPROVAL").length}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ padding: 14 }}>
+                              {salesBatches.length === 0 ? (
+                                <p style={{ color: "#475569", fontSize: 11, fontFamily: "Space Grotesk", textAlign: "center", padding: "12px 0" }}>Sin lotes. Trigger: 50 prospectos nuevos.</p>
+                              ) : salesBatches.slice(0, 5).map(batch => (
+                                <button key={batch.id} onClick={() => openBatch(batch)} style={{ background: "#121722", border: "1px solid " + (batch.status === "PENDING_APPROVAL" ? "rgba(255,107,0,0.5)" : "rgba(255,255,255,0.06)"), borderRadius: 10, padding: "9px 12px", cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: 6 }}>
+                                  <div>
+                                    <p style={{ color: "#F8FAFC", fontFamily: "Bruno Ace, monospace", fontSize: 11, margin: 0 }}>Lote #{batch.batch_number}</p>
+                                    <p style={{ color: "#64748B", fontFamily: "Inter", fontSize: 9, margin: "2px 0 0" }}>{batch.lead_count || 50} prospectos</p>
+                                  </div>
+                                  <span style={{ background: getStatusColor(batch.status) + "22", color: getStatusColor(batch.status), borderRadius: 4, padding: "2px 7px", fontSize: 9, fontFamily: "Space Grotesk", fontWeight: 700 }}>{(batch.status || "").replace("_", " ")}</span>
+                                </button>
+                              ))}
+                              <button onClick={loadSalesBatches} style={{ marginTop: 8, width: "100%", padding: "7px", background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: 6, color: "#FF6B00", fontFamily: "Space Grotesk", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>Actualizar lotes</button>
+                            </div>
+                          </section>
                          <section className="bg-[#0a0a10] border border-white/10 rounded-2xl p-5"><h2 className="text-sm font-bold text-white flex items-center gap-2 mb-2"><Download className="w-4 h-4 text-[#00E5FF]" /> Importación DENUE</h2><p className="text-xs text-slate-400 leading-relaxed">El sistema conserva `external_id` y actualiza registros repetidos por fuente. Solo importa contactos con teléfono, correo o sitio web.</p></section>
                          <section className="bg-[#0a0a10] border border-white/10 rounded-2xl p-5"><h2 className="text-sm font-bold text-white flex items-center gap-2 mb-4"><Megaphone className="w-4 h-4 text-[#EE334E]" /> Nueva campaña</h2><form onSubmit={createCampaign} className="space-y-3"><input required value={campaignName} onChange={event => setCampaignName(event.target.value)} placeholder="Nombre interno" className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white" /><input value={campaignSubject} onChange={event => setCampaignSubject(event.target.value)} placeholder="Asunto" className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white" /><textarea value={campaignMessage} onChange={event => setCampaignMessage(event.target.value)} placeholder="Borrador del mensaje" rows="5" className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white resize-none" /><button className="w-full py-2.5 rounded-xl bg-[#00E5FF]/15 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-bold">Guardar borrador</button></form></section>
                          <section className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5"><h2 className="text-sm font-bold text-amber-300 mb-2">Control publicitario</h2><p className="text-xs text-slate-400 leading-relaxed">Los datos DENUE conservan su fuente. La exclusión de un contacto bloquea campañas futuras y queda registrada en el historial de consentimiento.</p></section>
                     </aside>
                </main>
+                {/* NOTIFICACION SSE EN TIEMPO REAL */}
+                {salesAlert && (
+                  <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 9000, background: salesAlert.type === "batch" ? "#FF6B00" : salesAlert.type === "whatsapp_reply" ? "#16A34A" : "#22C55E", color: "#fff", borderRadius: 14, padding: "14px 20px", maxWidth: 360, boxShadow: "0 0 40px rgba(0,0,0,0.5)", display: "flex", alignItems: "center", gap: 12 }}>
+                    {salesAlert.type === "whatsapp_reply" ? <MessageSquare size={20} /> : salesAlert.type === "batch" ? <Bell size={20} /> : <TrendingUp size={20} />}
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontFamily: "Bruno Ace, monospace", fontSize: 11, fontWeight: 700, margin: 0 }}>
+                        {salesAlert.type === "whatsapp_reply" ? "RESPUESTA WHATSAPP" : salesAlert.type === "batch" ? "LOTE PENDIENTE" : "CONVERSION"}
+                      </p>
+                      <p style={{ fontFamily: "Space Grotesk", fontSize: 11, margin: "3px 0 0" }}>{salesAlert.message}</p>
+                    </div>
+                    <button onClick={() => setSalesAlert(null)} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 6, padding: "3px 8px", color: "#fff", cursor: "pointer" }}>x</button>
+                  </div>
+                )}
+
+                {/* MODAL DE APROBACION DE JAVIER GALLARDO */}
+                {showBatchModal && selectedBatch && (
+                  <VCardBatchApprovalModal
+                    batch={selectedBatch}
+                    leads={batchLeads}
+                    onClose={() => { setShowBatchModal(false); setSelectedBatch(null); setBatchLeads([]); }}
+                    onApproved={() => { loadSalesBatches(); setSalesAlert(null); }}
+                    onRejected={() => { loadSalesBatches(); setSalesAlert(null); }}
+                  />
+                )}
           </div>
      );
 }
