@@ -677,7 +677,7 @@ export default function LandingPage() {
               <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
                 <div className="h-52 overflow-hidden relative">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                  <img src="/design2.jpeg" alt="Diseño Ejecutivo Comercial" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                  <img src="/sector%20comercial%20inmobiliario.jpeg" alt="Ejecutivo Comercial & Ventas" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="p-7 flex-1 flex flex-col">
                   <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-4 -mt-12 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
@@ -695,7 +695,7 @@ export default function LandingPage() {
               <motion.div variants={scaleIn} className="bg-[#0a0a10] border border-white/10 rounded-3xl overflow-hidden hover:border-[#EE334E]/50 transition-colors group flex flex-col">
                 <div className="h-52 overflow-hidden relative">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                  <img src="/design3.jpeg" alt="Corporativo Élite C-Level" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                  <img src="/conferencias%20y%20seminarios.jpeg" alt="Corporativo Élite C-Level" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="p-7 flex-1 flex flex-col">
                   <div className="w-12 h-12 bg-[#EE334E]/10 rounded-xl flex items-center justify-center mb-4 -mt-12 relative z-20 border border-[#EE334E]/30 backdrop-blur-md">
@@ -916,7 +916,7 @@ export default function LandingPage() {
                   <Sparkles className="w-3.5 h-3.5" />
                   {billingCycle === 'annual'
                     ? '¡Recomendado! Obtienes hasta un 28% de descuento y casi 4 meses gratis con el pago anual.'
-                    : '💡 Consejo: Al elegir el pago anual te ahorras hasta $229 USD al año en el Plan Elite Business.'}
+                    : '💡 Consejo: Al elegir el pago anual te ahorras hasta $229 USD al año en el Plan Enterprise.'}
                 </div>
               </div>
             </motion.div>
@@ -1186,11 +1186,11 @@ export default function LandingPage() {
                 </button>
               </motion.div>
 
-              {/* 5. ELITE BUSINESS (ÉNFASIS EN SUSCRIPCIÓN ANUAL Y AHORRO DE $229 USD) */}
+              {/* 5. ENTERPRISE (ÉNFASIS EN SUSCRIPCIÓN ANUAL Y AHORRO DE $229 USD) */}
               <motion.div variants={fadeIn} className="bg-gradient-to-b from-[#1c1228] via-[#150d1e] to-[#0a0a10] border-2 border-purple-500/50 rounded-3xl p-8 flex flex-col hover:border-purple-400 transition-all group relative shadow-[0_0_35px_rgba(168,85,247,0.25)]">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-[#EE334E]">
-                    Elite Business
+                    Enterprise
                   </h3>
                   <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold">
                     {billingCycle === 'annual' ? 'Suscripción Anual' : 'Suscripción Mensual'}

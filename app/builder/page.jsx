@@ -3526,9 +3526,9 @@ Beneficiario: TSolutions" />
                 </div>
               </div>
 
-              {/* Opción 2: Plan Business Elite */}
+              {/* Opción 2: Plan Enterprise */}
               <div
-                onClick={() => setSelectedProduct({ name: 'Plan Business Elite Anual (Acceso Total)', price: 1499, id: 'elite_annual' })}
+                onClick={() => setSelectedProduct({ name: 'Plan Enterprise Anual (Acceso Total)', price: 1499, id: 'elite_annual' })}
                 className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${selectedProduct.id === 'elite_annual'
                   ? 'bg-gradient-to-r from-purple-950/40 to-[#00E5FF]/10 border-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.2)]'
                   : 'bg-black/40 border-gray-800 hover:border-gray-700'
@@ -3541,7 +3541,7 @@ Beneficiario: TSolutions" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold text-white font-rosetta">Plan Business Elite</span>
+                      <span className="text-xs font-bold text-white font-rosetta">Plan Enterprise</span>
                       <span className="text-[10px] bg-[#00E5FF] text-black px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">MÁXIMO PODER</span>
                     </div>
                     <p className="text-[11px] text-gray-300">

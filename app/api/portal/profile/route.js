@@ -38,7 +38,7 @@ export async function GET(request) {
   }
 }
 
-// PUT actualizar perfil desde el Portal Personal Business Elite
+// PUT actualizar perfil desde el Portal Personal Enterprise
 export async function PUT(request) {
   try {
     const data = await request.json();

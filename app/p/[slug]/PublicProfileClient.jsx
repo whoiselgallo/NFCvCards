@@ -565,7 +565,7 @@ export default function PublicProfileClient({ profile = {} }) {
                 {plan_tier !== 'free' && (
                   <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-bruno font-bold uppercase tracking-wider backdrop-blur-md border shadow-lg flex items-center gap-1"
                     style={{ backgroundColor: `${color_primario}30`, borderColor: color_primario, color: '#FFFFFF' }}>
-                    <span>⭐</span> {plan_tier === 'elite' ? 'Business Elite' : plan_tier === 'business' ? 'Business' : 'Pro'}
+                    <span>⭐</span> {plan_tier === 'elite' ? 'Enterprise' : plan_tier === 'business' ? 'Business' : 'Pro'}
                   </div>
                 )}
               </div>

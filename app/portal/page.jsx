@@ -229,7 +229,7 @@ export default function BusinessElitePortalPage() {
   return (
     <div className="min-h-screen bg-[#060509] text-[#F8FAFC] p-3 sm:p-6 lg:p-8 font-sans">
       
-      {/* HEADER DEL PORTAL PERSONAL BUSINESS ELITE */}
+      {/* HEADER DEL PORTAL PERSONAL ENTERPRISE */}
       <header className="max-w-[1920px] mx-auto w-full mb-6 pb-4 border-b border-rose-900/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="rose-logo-container shrink-0">
@@ -242,7 +242,7 @@ export default function BusinessElitePortalPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl md:text-2xl font-bruno text-white tracking-wide">
-                PORTAL PERSONAL <span className="text-[#FF2A54]">BUSINESS ELITE</span>
+                PORTAL PERSONAL <span className="text-[#FF2A54]">ENTERPRISE</span>
               </h1>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bruno font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
                 VIP MEMBER

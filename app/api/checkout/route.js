@@ -99,13 +99,13 @@ export async function POST(request) {
         }];
       }
     } else if (basePlanId === 'elite') {
-      // PLAN ELITE BUSINESS: Suscripción anual recurrente ($599 USD/año) o mensual ($69 USD/mes)
+      // PLAN ENTERPRISE: Suscripción anual recurrente ($599 USD/año) o mensual ($69 USD/mes)
       if (isMonthly) {
         lineItems = [{
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Plan Elite Business (Suscripción Mensual - 50 Tarjetas)',
+              name: 'Plan Enterprise (Suscripción Mensual - 50 Tarjetas)',
               description: 'Facturación mensual recurrente para equipos y directivos'
             },
             unit_amount: 6900, // $69.00 USD/mes
@@ -118,7 +118,7 @@ export async function POST(request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Plan Elite Business (Suscripción Anual - Descuento Especial)',
+              name: 'Plan Enterprise (Suscripción Anual - Descuento Especial)',
               description: 'Facturación anual recurrente con ahorro de $229 USD al año'
             },
             unit_amount: 59900, // $599.00 USD/año

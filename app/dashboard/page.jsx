@@ -25,7 +25,7 @@ export default async function DashboardPage() {
     meetme: 'Plan Meet Me',
     pro: 'Plan Profesional',
     business: 'Plan Empresa',
-    elite: 'Elite Business',
+    elite: 'Enterprise',
     marcablanca: 'Marca Blanca'
   };
 
